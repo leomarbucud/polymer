@@ -1,0 +1,68 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="my-element">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+      }
+
+    </style>
+
+  </template>
+
+  <script>
+
+    class MyElement extends ReduxBehavior(Polymer.Element) {
+
+      static get is() { return 'my-element'; }
+
+      static get properties() {
+        return {
+          /* properties meta data object just like 1.x */
+          user: {
+            type: Object,
+            statePath: 'user'
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          /* observer array just like 1.x */
+          '_myPropChanged(myProp.*)'
+        ]
+      }
+
+      static get actions() {
+  			return {
+  				login(user) {
+  					return {
+  						type: 'LOGGED_USER',
+  						user: user
+  					}
+  				}
+  			};
+  		}
+
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      _myPropChanged(changeRecord) {
+
+      }
+
+    }
+
+    customElements.define(MyElement.is, MyElement);
+	</script>
+</dom-module>

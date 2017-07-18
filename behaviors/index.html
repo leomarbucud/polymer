@@ -1,0 +1,20 @@
+<!--
+  Behavior Tempate
+-->
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<script>
+
+  var MyBehaviorMixin = Polymer.dedupingMixin(function(superClass){
+    return class MyBehavior extends superClass {
+      constructor() {
+        super();
+      }
+
+      methodInBehavior() {
+        console.log("this method is defined in Behavior");
+      }
+    }
+  });
+
+</script>

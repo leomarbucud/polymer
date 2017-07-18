@@ -1,0 +1,141 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/app-route/app-location.html">
+<link rel="import" href="/bower_components/app-route/app-route.html">
+<link rel="import" href="/bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="/redux/grid-redux-store.html">
+<link rel="import" href="/behaviors/index.html">
+<link rel="import" href="/elements/thegrid/components/grid-map.html">
+
+<dom-module id="grid-app">
+	<template>
+
+    <style>
+			:host {
+				display: block;
+			}
+    </style>
+
+    <app-location route="{{route}}" use-hash-as-path></app-location>
+
+    <app-route route="{{route}}"
+        pattern=":page"
+        data="{{pageData}}"
+        tail="{{pageTail}}"></app-route>
+
+	  <iron-pages attr-for-selected="data-page" selected="[[pageData.page]]">
+
+	    <section data-page="login">
+	      <grid-login id="login"></grid-login>
+	    </section>
+
+	    <section data-page="register">
+				<grid-register id="register"></grid-register>
+	    </section>
+
+			<section data-page="forgot">
+				<grid-forgot id="forgot"></grid-forgot>
+	    </section>
+
+			<section data-page="reset-password">
+				<grid-reset-password id="reset"></grid-reset-password>
+	    </section>
+
+	  </iron-pages>
+
+		<grid-map user="[[user]]"></grid-map>
+
+	</template>
+
+	<script>
+
+		class GridApp extends ReduxBehavior(Polymer.Element) {
+
+			static get is() { return 'grid-app'; }
+
+			static get properties() {
+				return {
+
+					user: {
+						type: Object,
+						statePath: 'user'
+					},
+
+					token: {
+						type: Object,
+						statePath: 'token'
+					}
+				}
+			}
+
+			static get observers() {
+				return [
+					'_routeChange(route)',
+					'_pageChange(pageData)',
+					'_tokenChange(token)'
+				]
+			}
+
+			static get actions() {
+  			return {
+
+  				login(user) {
+  					return {
+  						type: 'LOGGED_USER',
+  						user: user
+  					}
+  				}
+
+				}
+			}
+
+			constructor() {
+				super();
+				this._checkLogin();
+			}
+
+			_checkLogin() {
+				const self = this;
+
+				if(checkLogin()) {
+					gAxios.get('user')
+		      .then( res => {
+
+						self.dispatch('login', res.data);
+
+		      }).catch( err => {
+		        console.log('error');
+		      });
+				}
+			}
+
+			_tokenChange(token) {
+				if(token) {
+					localStorage.setItem('token', JSON.stringify(token));
+					this._checkLogin();
+				}
+			}
+
+			_routeChange(route) {
+
+			}
+
+			_pageChange(pageData) {
+				if ( pageData.page ) {
+					if ( !this.user ) {
+	          Polymer.Base.importHref(
+							'/elements/thegrid/pages/grid-' + pageData.page + '.html',
+							() => {
+								// do something after elements has been imported
+							}
+						);
+					} else {
+						console.log('user already logged in');
+					}
+        }
+			}
+
+		}
+
+		customElements.define(GridApp.is, GridApp);
+	</script>
+</dom-module>

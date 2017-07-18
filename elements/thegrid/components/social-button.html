@@ -1,0 +1,52 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+
+<dom-module id="social-button">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      :host(.facebook) paper-button {
+          background-color: #4267B2;
+          color: #FFFFFF;
+      }
+
+      :host(.google) paper-button {
+          background-color: #FFFFFF;
+          color: #757575;
+      }
+
+      paper-button {
+        width: 100%;
+        color: #FFFFFF;
+        margin: 0;
+        height: 44px;
+        text-transform: none;
+        padding: 0 16px;
+      }
+
+      ::slotted(.icon) {
+        position: absolute;
+        left: 16px;
+      }
+
+    </style>
+    <paper-button>
+      <slot select=".icon"></slot>
+      <slot select="span"></slot>
+    </paper-button>
+
+  </template>
+
+  <script>
+  
+      class SocialButton extends Polymer.Element {
+        static get is() { return 'social-button'; }
+      }
+      customElements.define(SocialButton.is, SocialButton);
+
+  </script>
+
+</dom-module>

@@ -1,0 +1,96 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+<link rel="import" href="/elements/thegrid/components/login-components.html">
+<link rel="import" href="/redux/grid-redux-store.html">
+
+<dom-module id="grid-login">
+  <template>
+    <style include="iron-flex grid">
+
+      :host {
+        display: block;
+        position: relative;
+        width: 400px;
+        height: 600px;
+        margin: 0 auto;
+        background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
+      }
+      .header-action {
+        height: 56px;
+        padding: 16px;
+      }
+
+    </style>
+
+    <div class="header-action flex layout horizontal">
+      <iron-icon icon="close" class="white pointer"></iron-icon>
+      <span class="flex"></span>
+      <span class="white pointer" on-tap="register">SIGN UP</span>
+    </div>
+
+    <login-components></login-components>
+
+    <paper-toast id="loginErrToast" duration="0" class="fit-bottom">
+      <div class="layout horizontal">
+        <!-- <span class="flex">[[loginError]]</span> -->
+        <span class="flex">Invalid user credentials.</span>
+        <span><a href="/#forgot" class="red anchor">FORGOT?</a></span>
+      </div>
+    </paper-toast>
+
+    <template is="dom-if" if="[[isLoggingIn]]">
+      <div class="overlay">
+        <paper-spinner active$="[[isLoggingIn]]"></paper-spinner>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+
+    class GridLogin extends ReduxBehavior(Polymer.Element) {
+
+        static get is() { return 'grid-login'; }
+
+        static get properties() {
+          return {
+            loginError: {
+              type: String,
+              statePath: 'errors.loginError'
+            },
+            loginAttempt: {
+              type: Number,
+              statePath: 'loginAttempt'
+            },
+            isLoggingIn: {
+              type: Boolean,
+              statePath: 'isLoggingIn'
+            }
+          }
+        }
+
+        static get observers() {
+          return [
+            '_onLoginError(loginAttempt)',
+          ];
+        }
+
+        _onLoginError(loginAttempt) {
+          if ( loginAttempt > 0 ) {
+            this.$.loginErrToast.fitInto = this;
+            this.$.loginErrToast.opened = true;
+          }
+        }
+
+        register() {
+          window.location.href = "/#register";
+        }
+    }
+
+    customElements.define(GridLogin.is, GridLogin);
+
+	</script>
+</dom-module>

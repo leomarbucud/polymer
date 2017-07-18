@@ -1,0 +1,58 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-map">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+      }
+
+    </style>
+    
+  </template>
+
+  <script>
+
+    class GridMap extends ReduxBehavior(Polymer.Element) {
+
+      static get is() { return 'grid-map'; }
+
+      static get properties() {
+        return {
+
+          user: {
+            type: Object,
+          }
+        }
+
+      }
+
+      static get observers() {
+        return [
+          /* observer array just like 1.x */
+          '_userChange(user)'
+        ]
+      }
+
+      static get actions() {
+  			return {
+
+  			};
+  		}
+
+      constructor() {
+        super();
+
+      }
+
+      _userChange(user) {
+        console.log('user', this.user);
+      }
+
+    }
+
+    customElements.define(GridMap.is, GridMap);
+	</script>
+</dom-module>

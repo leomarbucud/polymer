@@ -1,0 +1,130 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-image/iron-image.html">
+<link rel="import" href="/elements/thegrid/components/divider-text.html">
+<link rel="import" href="/elements/thegrid/components/social-button.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="register-components">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+      }
+
+      .logo-container {
+        width: 200px;
+        height: 48px;
+        margin: 20px auto;
+        background: transparent;
+      }
+
+    </style>
+
+    <div class="p-y-1">
+      <div class="logo-container">
+        <iron-image src="/assets/images/thegrid.svg"></iron-image>
+      </div>
+      <form class="form">
+        <div class="form-group">
+          <input id="username" type="text" class="form-input" placeholder="Username / Email / Phone Number" />
+        </div>
+        <div class="form-group">
+          <input id="password" type="password" class="form-input" placeholder="Password" />
+        </div>
+        <div class="form-group">
+          <paper-button class="w-100 white" on-tap="signIn">LOGIN</paper-button>
+        </div>
+      </form>
+
+      <divider-text line-width="1px" line-color="#FFFFFF">
+        <span class="white">Or</span>
+      </divider-text>
+
+      <div class="form-control">
+        <social-button class="facebook">
+          <iron-icon class="icon" src="/assets/images/facebook.svg"></iron-icon>
+          <span>Continue with Facebook</spa>
+        </social-button>
+      </div>
+
+      <div class="form-control">
+        <social-button class="google">
+          <iron-icon class="icon" src="/assets/images/google.svg"></iron-icon>
+          <span>Sign In with Google</spa>
+        </social-button>
+      </div>
+
+    </div>
+  </template>
+
+  <script>
+
+    class RegisterComponents extends ReduxBehavior(Polymer.Element) {
+
+      static get is() { return 'register-components'; }
+
+      static get properties() {
+        return {
+          /* properties meta data object just like 1.x */
+          user: {
+            type: Object,
+            statePath: 'user'
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          /* observer array just like 1.x */
+          '_myPropChanged(myProp.*)'
+        ]
+      }
+
+      static get actions() {
+  			return {
+  				login(user) {
+  					return {
+  						type: 'LOGGED_USER',
+  						user: user
+  					}
+  				}
+  			};
+  		}
+
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      _myPropChanged(changeRecord) {
+
+      }
+
+      signIn() {
+
+        const username = this.$.username;
+        const password = this.$.password;
+
+
+
+        this.dispatch('login', {
+          name: username.value,
+          profile: {
+            fname: 'Leomar',
+            lname: 'Bucud'
+          }
+        });
+      }
+
+    }
+
+    customElements.define(RegisterComponents.is, RegisterComponents);
+	</script>
+</dom-module>

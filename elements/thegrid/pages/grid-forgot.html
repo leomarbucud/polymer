@@ -1,0 +1,150 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-forgot">
+  <template>
+    <style include="iron-flex grid">
+
+      :host {
+        display: block;
+        position: relative;
+        width: 400px;
+        height: 600px;
+        margin: 0 auto;
+        background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
+      }
+
+      .header-action {
+        height: 56px;
+        padding: 16px;
+      }
+
+    </style>
+
+    <div class="header-action flex layout horizontal">
+      <iron-icon icon="chevron-left" class="white pointer" on-click="back"></iron-icon>
+      <span class="flex"></span>
+      <iron-icon icon="more-vert" class="white pointer"></iron-icon>
+    </div>
+
+    <div class="p-y-1">
+      <div class="header-text-container">
+        <h1 class="header-text m-0">Forgot your Password?</h1>
+      </div>
+
+      <form class="form">
+        <div class="form-group">
+          <input id="username" type="text" class="form-input"
+              placeholder="Email / Phone Number"
+              on-keyup="updateSubmit"
+              on-blur="updateSubmit"/>
+        </div>
+        <div class="form-group">
+          <paper-button class="w-100 white" on-tap="submit">Send [[buttonText]]</paper-button>
+        </div>
+      </form>
+    </div>
+
+    <paper-toast id="forgotErrToast" class="fit-bottom">
+      <div class="layout horizontal">
+        <span class="flex">Email or Phone Number is not registered.</span>
+      </div>
+    </paper-toast>
+
+    <paper-toast id="forgotSuccessToast" duration="0" class="fit-bottom">
+      <span>Password Reset Link was successfully sent.</span>
+    </paper-toast>
+
+    <template is="dom-if" if="[[isSending]]">
+      <div class="overlay">
+        <paper-spinner active></paper-spinner>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+
+    class GridForgot extends Polymer.Element {
+
+        static get is() { return 'grid-forgot'; }
+
+        static get properties() {
+          return {
+
+            buttonText: {
+              type: String,
+              value: null
+            },
+
+            isSending: {
+              type: Boolean,
+              value: false
+            }
+          }
+        }
+
+        back() {
+          window.location.href = '/#login';
+        }
+
+        updateSubmit() {
+          const username = this.$.username;
+          const testEmail = /^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,4}$/i;
+          const testPhone = /([+]?[0-9])$/i;
+
+          if (testEmail.test(username.value)) {
+            this.buttonText = 'Email';
+          } else if (testPhone.test(username.value)) {
+            this.buttonText = 'SMS';
+          } else {
+            this.buttonText = '';
+          }
+        }
+
+        submit() {
+          const email = this.$.username.value;
+          const phone = this.$.username.value;
+          const self = this;
+
+          self.isSending = true;
+
+          axios.post('https://api.thegrid.com/api/password/email', {
+
+  					email: email,
+            phone_number: phone
+
+  				}).then( res => {
+
+            self.$.forgotSuccessToast.fitInto = this;
+            self.$.forgotSuccessToast.open();
+            self.isSending = false;
+            console.log(res);
+
+          }).catch( err => {
+
+            self.$.forgotErrToast.fitInto = this;
+            self.$.forgotErrToast.open();
+            self.isSending = false;
+
+          });
+
+        }
+
+    }
+
+    customElements.define(GridForgot.is, GridForgot);
+
+	</script>
+</dom-module>
+
+<!-- email [your-email-address]
+password [new-password]
+password_confirmation [retype-new-password]
+token [the-token-you-get-from-previous-one]
+/reset-password/6d268007b9c0e7a789463425359c18626acbdb3e97581ebb331f92fee7def9bc
+-->

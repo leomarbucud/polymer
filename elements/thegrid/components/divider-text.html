@@ -1,0 +1,42 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="divider-text">
+  <template>
+    <style include="iron-flex">
+
+      :host {
+        display: block;
+        margin: 16px 0;
+      }
+
+      .divider-text {
+        display: flex;
+				align-items: center;
+				justify-content: center;
+      }
+
+      .line {
+        height: 1px;
+        background: #FFFFFF;
+      }
+
+      ::slotted(span) {
+        margin: 0 10px;
+      }
+
+    </style>
+    <div class="divider-text flex layout horizontal">
+      <div class="line flex"></div>
+      <slot id="span" select="span"></slot>
+      <div class="line flex"></div>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'divider-text',
+
+    });
+  </script>
+</dom-module>

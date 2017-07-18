@@ -1,0 +1,207 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-image/iron-image.html">
+<link rel="import" href="/elements/thegrid/components/divider-text.html">
+<link rel="import" href="/elements/thegrid/components/social-button.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="login-components">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+      }
+
+      .logo-container {
+        width: 200px;
+        height: 48px;
+        margin: 20px auto;
+        background: transparent;
+      }
+
+      .password-control {
+        position: absolute;
+        right: 16px;
+        top: 21px;
+        color: #FF3B30;
+        cursor: pointer;
+        user-select: none;
+      }
+
+    </style>
+
+    <div class="p-y-1">
+      <div class="logo-container">
+        <iron-image src="/assets/images/thegrid.svg"></iron-image>
+      </div>
+      <form class="form">
+        <div class="form-group">
+          <input id="username" type="text" class="form-input"
+              placeholder="Username / Email / Phone Number"
+              on-keydown="watchEnter" />
+        </div>
+        <div class="form-group relative">
+          <input id="password" type="password" class="form-input"
+              placeholder="Password"
+              on-keydown="watchEnter"/>
+          <span class="password-control" on-tap="tooglePassword">[[togglePasswordText]]</span>
+        </div>
+        <div class="form-group">
+          <paper-button class="w-100 white" on-tap="signIn">
+            <span>LOGIN</span>
+          </paper-button>
+        </div>
+      </form>
+
+      <divider-text line-width="1px" line-color="#FFFFFF">
+        <span class="white">Or</span>
+      </divider-text>
+
+      <div class="form-control">
+        <social-button class="facebook">
+          <iron-icon class="icon" src="/assets/images/facebook.svg"></iron-icon>
+          <span>Continue with Facebook</spa>
+        </social-button>
+      </div>
+
+      <div class="form-control">
+        <social-button class="google">
+          <iron-icon class="icon" src="/assets/images/google.svg"></iron-icon>
+          <span>Sign In with Google</spa>
+        </social-button>
+      </div>
+
+    </div>
+  </template>
+
+  <script>
+
+    class LoginComponents extends ReduxBehavior(Polymer.Element) {
+
+      static get is() { return 'login-components'; }
+
+      static get properties() {
+        return {
+
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          loginAttempt: {
+            type: Number,
+            statePath: 'loginAttempt'
+          },
+
+          togglePasswordText: {
+            type: String,
+            value: 'Show'
+          },
+
+          isPasswordHidden: {
+            type: Boolean,
+            value: true
+          },
+
+          isLoggingIn: {
+            type: Boolean,
+            statePath: 'isLoggingIn'
+          }
+
+        }
+      }
+
+      static get observers() {
+        return [
+          '_passwordState(isPasswordHidden)'
+        ];
+      }
+
+      static get actions() {
+  			return {
+
+          showError(err, loginAttempt) {
+            return {
+              type: 'SHOW_LOGIN_ERROR',
+              error: err,
+              loginAttempt: loginAttempt
+            }
+          },
+
+          isLoggingIn(isLoggingIn) {
+            return {
+              type: 'LOGIN_STATE',
+              isLoggingIn: isLoggingIn
+            }
+          },
+
+          assignToken(token) {
+            return {
+              type: 'ASSIGN_TOKEN',
+              token: token
+            }
+          }
+  			};
+  		}
+
+      _passwordState(isPasswordHidden) {
+        if ( ! isPasswordHidden ) {
+          this.togglePasswordText = 'Hide';
+          this.$.password.setAttribute('type', 'text');
+        } else {
+          this.togglePasswordText = 'Show';
+          this.$.password.setAttribute('type', 'password');
+        }
+      }
+
+      tooglePassword() {
+        this.isPasswordHidden = !this.isPasswordHidden;
+      }
+
+      watchEnter(e) {
+        if (e.keyCode === 13) {
+					this.signIn();
+				}
+      }
+
+      signIn() {
+        const username = this.$.username;
+        const password = this.$.password;
+        const self = this;
+
+        self.dispatch('isLoggingIn', true);
+
+        axios.post('https://api.thegrid.com/oauth/token', {
+
+					grant_type: 'password',
+      		client_id: 2,
+      		client_secret: 'xIxcFxQGFbYkSXKmd0MQ4iuC8Ejfw8x6EcuZJpHe',
+					username: username.value,
+					password: password.value
+
+				}).then( res => {
+
+          self.dispatch('isLoggingIn', false);
+
+          self.dispatch('assignToken', res.data);
+
+        }).catch( err => {
+
+          self.dispatch('isLoggingIn', false);
+
+          if (err.response) {
+						var data = err.response.data;
+            var loginAttempt = this.loginAttempt + 1;
+            self.dispatch('showError', data.message, loginAttempt);
+          }
+
+        });
+
+      }
+
+    }
+
+    customElements.define(LoginComponents.is, LoginComponents);
+	</script>
+</dom-module>

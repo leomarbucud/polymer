@@ -1,0 +1,68 @@
+<link rel="import" href="/bower_components/polymer-redux/polymer-redux.html">
+
+<script>
+
+  const intialState = {
+    user: null,
+    errors: {
+      loginError: null
+    },
+    loginAttempt: 0,
+    isLoggingIn: false,
+    token: null,
+  };
+
+  const reducer = (state, action) => {
+    if( !state ) return intialState;
+    switch (action.type) {
+
+      case 'LOGGED_USER':
+        const user = action.user;
+        return Object.assign({}, state, { user: user } );
+
+      case 'LOGIN_STATE':
+        const isLoggingIn = action.isLoggingIn;
+        return Object.assign({}, state, { isLoggingIn: isLoggingIn });
+
+      case 'SHOW_LOGIN_ERROR':
+        const error = action.error;
+        const loginAttempt = action.loginAttempt;
+        return Object.assign({}, state, {
+          errors: { loginError: error } ,
+          loginAttempt: loginAttempt
+        });
+
+      case 'ASSIGN_TOKEN':
+        const token = action.token;
+        return Object.assign({}, state, { token: token });
+    }
+  };
+
+  const store = Redux.createStore(reducer);
+  const ReduxBehavior = PolymerRedux(store);
+
+  window.gAxios = null;
+
+  checkLogin = () => {
+    if( localStorage.getItem('token') ) {
+
+      const access_token = JSON.parse(localStorage.getItem('token'))['access_token'];
+
+      if(access_token) {
+
+        gAxios = axios.create({
+          baseURL: 'https://api.thegrid.com/api/',
+          headers: {
+            'Authorization': 'Bearer ' + access_token
+          }
+        });
+        return true;
+      }
+      return false;
+    }
+    return false;
+  }
+
+  checkLogin();
+
+</script>

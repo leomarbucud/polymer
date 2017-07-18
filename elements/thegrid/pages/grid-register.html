@@ -1,0 +1,53 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+<link rel="import" href="/elements/thegrid/components/register-components.html">
+
+<dom-module id="grid-register">
+  <template>
+    <style include="iron-flex grid">
+
+      :host {
+        display: block;
+      }
+
+      .login-wrapper {
+        width: 400px;
+        height: 600px;
+        margin: 0 auto;
+        background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
+      }
+      .header-action {
+        height: 56px;
+        padding: 16px;
+      }
+
+    </style>
+
+    <div class="login-wrapper">
+      <div class="header-action flex layout horizontal">
+        <iron-icon icon="close" class="white pointer"></iron-icon>
+        <span class="flex"></span>
+        <span class="white pointer">SIGN UP</span>
+      </div>
+      <register-components></register-components>
+    </div>
+  </template>
+
+  <script>
+
+    class GridRegister extends Polymer.Element {
+
+        static get is() { return 'grid-register'; }
+
+        static get properties() {
+          return {
+
+          }
+        }
+    }
+
+    customElements.define(GridRegister.is, GridRegister);
+
+	</script>
+</dom-module>
