@@ -10,6 +10,7 @@
     loginAttempt: 0,
     isLoggingIn: false,
     token: null,
+    drawerOpened: false,
   };
 
   const reducer = (state, action) => {
@@ -35,6 +36,15 @@
       case 'ASSIGN_TOKEN':
         const token = action.token;
         return Object.assign({}, state, { token: token });
+
+      case 'OPEN_DRAWER':
+        return Object.assign({}, state, { drawerOpened: true });
+
+      case 'CLOSE_DRAWER':
+        return Object.assign({}, state, { drawerOpened: false });
+
+      case 'TOGGLE_DRAWER':
+        return Object.assign({}, state, { drawerOpened: !state.drawerOpened });
     }
   };
 

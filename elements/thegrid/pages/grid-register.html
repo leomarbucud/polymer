@@ -9,12 +9,9 @@
 
       :host {
         display: block;
-      }
-
-      .login-wrapper {
-        width: 400px;
-        height: 600px;
         margin: 0 auto;
+        width: 100%;
+        height: 100%;
         background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
       }
       .header-action {
@@ -24,14 +21,13 @@
 
     </style>
 
-    <div class="login-wrapper">
-      <div class="header-action flex layout horizontal">
-        <iron-icon icon="close" class="white pointer"></iron-icon>
-        <span class="flex"></span>
-        <span class="white pointer">SIGN UP</span>
-      </div>
-      <register-components></register-components>
+    <div class="header-action flex layout horizontal">
+      <iron-icon icon="close" class="white pointer" on-click="close"></iron-icon>
+      <span class="flex"></span>
     </div>
+
+    <register-components></register-components>
+
   </template>
 
   <script>
@@ -44,6 +40,10 @@
           return {
 
           }
+        }
+
+        close() {
+          window.location.href = '/#';
         }
     }
 

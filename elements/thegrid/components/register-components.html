@@ -1,8 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="/bower_components/iron-image/iron-image.html">
-<link rel="import" href="/elements/thegrid/components/divider-text.html">
-<link rel="import" href="/elements/thegrid/components/social-button.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="register-components">
@@ -20,42 +17,63 @@
         background: transparent;
       }
 
+      [data-step] {
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+
+      .wr {
+          overflow-x: hidden;
+          height: 400px;
+      }
+
+      #formCarousel {
+        height: auto;
+
+      }
+
     </style>
 
     <div class="p-y-1">
-      <div class="logo-container">
-        <iron-image src="/assets/images/thegrid.svg"></iron-image>
+
+      <div class="header-text-container">
+        <h1 class="header-text m-0">What is you name?</h1>
       </div>
-      <form class="form">
-        <div class="form-group">
-          <input id="username" type="text" class="form-input" placeholder="Username / Email / Phone Number" />
-        </div>
-        <div class="form-group">
-          <input id="password" type="password" class="form-input" placeholder="Password" />
-        </div>
-        <div class="form-group">
-          <paper-button class="w-100 white" on-tap="signIn">LOGIN</paper-button>
-        </div>
-      </form>
+      <div id="wr" class="wr">
+        <form class="form" id="formCarousel" on-scroll="scrollMove">
 
-      <divider-text line-width="1px" line-color="#FFFFFF">
-        <span class="white">Or</span>
-      </divider-text>
+          <div class="form-group" data-step="1">
+            <input id="name" type="text" class="form-input" placeholder="Full Name" />
+          </div>
 
-      <div class="form-control">
-        <social-button class="facebook">
-          <iron-icon class="icon" src="/assets/images/facebook.svg"></iron-icon>
-          <span>Continue with Facebook</spa>
-        </social-button>
+          <div class="form-group" data-step="2">
+            <input id="email" type="text" class="form-input" placeholder="Email" />
+          </div>
+
+          <div class="form-group" data-step="3">
+            <input id="phone_number" type="text" class="form-input" placeholder="Phone Number" />
+          </div>
+
+          <div class="form-group" data-step="4">
+            <input id="password" type="password" class="form-input" placeholder="Password" />
+          </div>
+
+          <div class="form-group" data-step="5">
+            <input id="password_confirmation" type="password" class="form-input" placeholder="Retype Password" />
+          </div>
+
+          <div class="form-group" data-step="6">
+            <input id="username" type="text" class="form-input" placeholder="User name" />
+          </div>
+
+          <div class="form-group" data-step="7">
+            <input id="code" type="number" class="form-input" placeholder="Verification Code" />
+          </div>
+          <!-- <div class="form-group">
+            <span class="w-100 white" on-click="signIn">LOGIN</span>
+          </div> -->
+        </form>
       </div>
-
-      <div class="form-control">
-        <social-button class="google">
-          <iron-icon class="icon" src="/assets/images/google.svg"></iron-icon>
-          <span>Sign In with Google</spa>
-        </social-button>
-      </div>
-
     </div>
   </template>
 
@@ -95,33 +113,63 @@
 
       constructor() {
         super();
-
+        this.fc = null;
+        this.wr = null;
       }
 
       connectedCallback() {
         super.connectedCallback();
 
+        this.fc = this.$.formCarousel;
+        this.wr = this.$.wr;
+
+        this.activeStep = 1;
+        const h = this.fc.offsetHeight;
+
+        this.stepHeight = 68;
+
+        this.fc.style.paddingBottom = h + 'px';
+        this.fc.style.paddingTop = this.stepHeight + 'px';
+
+        this.arrangeSteps();
+
+      }
+
+      arrangeSteps() {
+        const self = this;
+        const steps = this.fc.querySelectorAll('[data-step]');
+
+        steps.forEach(function(step) {
+          let eStep = step.getAttribute('data-step');
+          if ( eStep != self.activeStep ) {
+            if( eStep > self.activeStep ) {
+              let padding = ((eStep - self.activeStep) * 10) + 'px';
+              step.style.paddingLeft = padding;
+              step.style.paddingRight = padding;
+              step.style.opacity = 1 - ((eStep - self.activeStep) * 0.2);
+            } else {
+              let padding = ((self.activeStep - eStep) * 10) + 'px';
+              step.style.paddingLeft = padding;
+              step.style.paddingRight = padding;
+              step.style.opacity = 1 - ((self.activeStep - eStep) * 0.2);
+            }
+          } else {
+            step.setAttribute('style', '');
+            self.wr.scrollTop = ((eStep) * self.stepHeight) - self.stepHeight;
+          }
+          // console.log(step.getAttribute('data-step'));
+        });
+
+      }
+
+      scrollMove(e) {
+        // console.log('scroll', e);
       }
 
       _myPropChanged(changeRecord) {
 
       }
 
-      signIn() {
-
-        const username = this.$.username;
-        const password = this.$.password;
-
-
-
-        this.dispatch('login', {
-          name: username.value,
-          profile: {
-            fname: 'Leomar',
-            lname: 'Bucud'
-          }
-        });
-      }
 
     }
 

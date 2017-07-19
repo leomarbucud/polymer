@@ -1,52 +1,107 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/app-route/app-location.html">
 <link rel="import" href="/bower_components/app-route/app-route.html">
+<link rel="import" href="/bower_components/app-layout/app-layout.html">
+<link rel="import" href="/bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="/bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="/bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="/bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="/bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="/redux/grid-redux-store.html">
 <link rel="import" href="/behaviors/index.html">
 <link rel="import" href="/elements/thegrid/components/grid-map.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+<link rel="import" href="/elements/thegrid/components/mobile-header.html">
 
 <dom-module id="grid-app">
 	<template>
 
-    <style>
+    <style include="grid">
+
 			:host {
 				display: block;
 				width: 100%;
 				height: 100%;
 			}
+
+			#startDrawer {
+      --app-drawer-content-container: {
+	        box-shadow: 1px 0 2px 1px rgba(0,0,0,0.18);
+	      }
+	    }
+
+	    #endDrawer {
+	      --app-drawer-content-container: {
+	        box-shadow: -1px 0 2px 1px rgba(0,0,0,0.18);
+	      }
+	    }
+
+	    app-header {
+	      position: fixed;
+	      top: 0;
+	      left: 0;
+	      width: 100%;
+	      background-color: #4285f4;
+	      color: #fff;
+	    }
+
+	    app-header paper-icon-button {
+	      --paper-icon-button-ink-color: white;
+	    }
+
+			section .center-page {
+				width: 400px;
+        height: 600px;
+			}
+			@media (max-width: 600px) {
+			  section .center-page {
+			    width: 100%;
+			    height: 100%;
+			  }
+			}
+
     </style>
 
     <app-location route="{{route}}" use-hash-as-path></app-location>
 
     <app-route route="{{route}}"
-        pattern=":page"
+        pattern="account/:page"
         data="{{pageData}}"
         tail="{{pageTail}}"></app-route>
 
-	  <iron-pages attr-for-selected="data-page" selected="[[pageData.page]]">
+		<grid-map user="[[user]]"></grid-map>
+		<mobile-header></mobile-header>
 
-			<section data-page=""></section>
+		<iron-pages attr-for-selected="data-page" selected="[[pageData.page]]">
 
-	    <section data-page="login">
-	      <grid-login id="login"></grid-login>
+	    <section data-page="login" class="overlay">
+	      <div class="center-page">
+					<grid-login id="login"></grid-login>
+				</div>
 	    </section>
 
-	    <section data-page="register">
-				<grid-register id="register"></grid-register>
+	    <section data-page="register" class="overlay">
+				<div class="center-page">
+					<grid-register id="register"></grid-register>
+				</div>
 	    </section>
 
-			<section data-page="forgot">
-				<grid-forgot id="forgot"></grid-forgot>
+			<section data-page="forgot" class="overlay">
+				<div class="center-page">
+					<grid-forgot id="forgot"></grid-forgot>
+				</div>
 	    </section>
 
-			<section data-page="reset-password">
-				<grid-reset-password id="reset"></grid-reset-password>
+			<section data-page="reset-password" class="overlay">
+				<div class="center-page">
+					<grid-reset-password id="reset"></grid-reset-password>
+				</div>
 	    </section>
 
 	  </iron-pages>
 
-		<grid-map user="[[user]]"></grid-map>
+		<app-drawer id="drawer" align="start" swipe-open></app-drawer>
 
 	</template>
 
@@ -67,6 +122,11 @@
 					token: {
 						type: Object,
 						statePath: 'token'
+					},
+
+					drawerOpened: {
+						type: Boolean,
+						statePath: 'drawerOpened'
 					}
 				}
 			}
@@ -75,7 +135,8 @@
 				return [
 					'_routeChange(route)',
 					'_pageChange(pageData)',
-					'_tokenChange(token)'
+					'_tokenChange(token)',
+					'_drawerState(drawerOpened)'
 				]
 			}
 
@@ -87,7 +148,13 @@
   						type: 'LOGGED_USER',
   						user: user
   					}
-  				}
+  				},
+
+					closeDrawer() {
+						return {
+							type: 'CLOSE_DRAWER'
+						}
+					}
 
 				}
 			}
@@ -105,6 +172,7 @@
 		      .then( res => {
 
 						self.dispatch('login', res.data);
+						// window.location.href = '/#';
 
 		      }).catch( err => {
 		        console.log('error');
@@ -120,7 +188,9 @@
 			}
 
 			_routeChange(route) {
-
+				if( route.path == '' ) {
+					this.set('pageData.page', null);
+				}
 			}
 
 			_pageChange(pageData) {
@@ -136,6 +206,22 @@
 						console.log('user already logged in');
 					}
         }
+			}
+
+			_drawerState(drawerOpened) {
+				const d = this.$.drawer;
+				d.opened = drawerOpened;
+			}
+
+			connectedCallback() {
+				super.connectedCallback();
+				const self = this;
+				const d = this.$.drawer;
+				d.addEventListener('opened-changed', function(e) {
+					if ( ! this.opened ) {
+						self.dispatch('closeDrawer');
+					}
+				});
 			}
 
 		}
