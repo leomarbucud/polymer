@@ -12,6 +12,8 @@
     <style>
 			:host {
 				display: block;
+				width: 100%;
+				height: 100%;
 			}
     </style>
 
@@ -23,6 +25,8 @@
         tail="{{pageTail}}"></app-route>
 
 	  <iron-pages attr-for-selected="data-page" selected="[[pageData.page]]">
+
+			<section data-page=""></section>
 
 	    <section data-page="login">
 	      <grid-login id="login"></grid-login>

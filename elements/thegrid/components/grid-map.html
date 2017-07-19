@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
+<link rel="import" href="/behaviors/map-behavior.html">
 
 <dom-module id="grid-map">
   <template>
@@ -7,15 +8,24 @@
 
       :host {
         display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      #mapCanvas {
+        height: 100%;
+        width: 100%;
       }
 
     </style>
-    
+
+    <div id="mapCanvas"></div>
+
   </template>
 
   <script>
 
-    class GridMap extends ReduxBehavior(Polymer.Element) {
+    class GridMap extends MapBehaviorMixin(ReduxBehavior(Polymer.Element)) {
 
       static get is() { return 'grid-map'; }
 
@@ -24,15 +34,19 @@
 
           user: {
             type: Object,
+          },
+
+          cluster: {
+            type: Boolean,
+            value: true
           }
+
         }
 
       }
 
       static get observers() {
         return [
-          /* observer array just like 1.x */
-          '_userChange(user)'
         ]
       }
 
@@ -44,12 +58,114 @@
 
       constructor() {
         super();
+        const self = this;
+
+        self.loadGoogleApi('https://maps.googleapis.com/maps/api/js?key=' + self.apiKey, function() {
+            self.loadMapCanvas();
+            if( self.cluster ) {
+              self.loadGoogleApi('https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/markerclusterer.js',
+                function() {
+                    self.markerClusterer = new MarkerClusterer(self.map, [], self.clusterOptions);
+                }
+              );
+            }
+        });
 
       }
 
-      _userChange(user) {
-        console.log('user', this.user);
+      connectedCallback() {
+        super.connectedCallback();
+
       }
+
+      loadMapCanvas() {
+        let e = this.$.mapCanvas;
+        let options = this.mapOptions;
+
+        this.map = new google.maps.Map(e, options);
+        this.map.setOptions({ zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER } });
+
+        this.listenMapEvents();
+        this.populateJobMarkers();
+      }
+
+      listenMapEvents() {
+        // this.mapListener('click', function(a, e) {
+        //   console.log("finish dragging",a, e);
+        // });
+      }
+
+      populateJobMarkers() {
+        const self = this;
+        var markers = this.markers;
+        axios.get('https://api.thegrid.com/job/all?lat='+self.mapOptions.center.lat+'&lng='+self.mapOptions.center.lng)
+  				.then(function (response) {
+  					var data = response.data;
+  					if (markers) {
+  						markers.forEach(function(marker) {
+  							marker.setMap(null);
+  						});
+  					}
+
+  					for(var i = 0; i < data.length; i++) {
+  						data[i].fillColor = "#FFF222";
+  						data[i].isMyPost = false;
+  						data[i].isBidded = false;
+
+  						self._newMarker(data[i]);
+  					}
+        });
+      }
+
+      _newMarker(data) {
+				var self = this;
+				var customPin = {
+					path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
+					fillColor: data.fillColor,
+					fillOpacity: 1,
+					scale: 1.5,
+					strokeColor: data.fillColor,
+					strokeWeight: 0.5,
+					width: 36,
+					height: 36
+				};
+				var svg = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="'+customPin.width+'" height="'+customPin.height+'"><path transform="scale('+customPin.scale+')" fill="'+customPin.fillColor+'" stroke="'+customPin.strokeColor+'" stroke-width="'+customPin.strokeWeight+'" d="'+customPin.path+'"/></svg>';
+				var d = JSON.stringify(data),
+					content = document.createElement('grid-info-window');
+				content.data = d;
+				content.isMyPost = data.isMyPost;
+				content.isBidded = data.isBidded;
+
+				var dups = self.findBy( marker => {
+					return (marker.lat == data.lat) && (marker.lng == data.lng);
+				});
+
+				self.addMarker({
+					id: data.id,
+					price: data.price,
+					isBidded: data.isBidded,
+					isMyPost: data.isMyPost,
+					lat: parseFloat(data.lat),
+					lng: parseFloat(data.lng),
+					icon: svg,
+					content: content,
+					events: [
+						{
+							name: 'click',
+							callback: function(e, obj) {
+
+							}
+						}
+					],
+					label: {
+						text: "AED " + data.price,
+						color: '#FFF',
+						fontSize: '12px',
+						fontWeight: 'normal',
+					}
+				});
+			}
+
 
     }
 

@@ -24,6 +24,8 @@
     "iron-image": "PolymerElements/iron-image#^2.1.2",
     "paper-toast": "PolymerElements/paper-toast#^2.0.0",
     "polymer-redux": "tur-nr/polymer-redux#^1.0.1",
-    "paper-spinner": "PolymerElements/paper-spinner#^2.0.0"
+    "paper-spinner": "PolymerElements/paper-spinner#^2.0.0",
+    "google-map": "GoogleWebComponents/google-map#^1.2.0",
+    "app-layout": "PolymerElements/app-layout#^2.0.1"
   }
 }
