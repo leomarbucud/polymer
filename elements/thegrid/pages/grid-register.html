@@ -1,7 +1,8 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="/elements/thegrid/grid-styles.html">
+<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="/elements/thegrid/components/register-components.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="grid-register">
   <template>
@@ -26,7 +27,15 @@
       <span class="flex"></span>
     </div>
 
-    <register-components></register-components>
+    <register-components is-registered="{{isRegistered}}"
+                         sign-up-data="{{signUpData}}"></register-components>
+
+    <paper-toast id="registerMessageToast" duration="0" class="fit-bottom">
+      <div class="layout horizontal">
+        <span class="flex">[[signUpData.message]]</span>
+        <span><a href="/#account/login" class="red anchor">LOGIN?</a></span>
+      </div>
+    </paper-toast>
 
   </template>
 
@@ -42,9 +51,26 @@
           }
         }
 
-        close() {
-          window.location.href = '/#';
+        static get observers() {
+          return [
+              '_registered(isRegistered)',
+              '_hasErrorRegister(hasErrorRegister)'
+          ]
         }
+
+        close() {
+          window.location.href = HOME_URL;
+        }
+
+        _registered(isRegistered) {
+          if( isRegistered ) {
+            // this.$.registerMessageToast.text = this.signUpData.message || 'Successfull Registered!';
+            this.$.registerMessageToast.fitInto = this;
+            this.$.registerMessageToast.open();
+            // window.localtion.href = LOGIN_URL;
+          }
+        }
+
     }
 
     customElements.define(GridRegister.is, GridRegister);

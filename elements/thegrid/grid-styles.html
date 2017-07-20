@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
 <dom-module id="grid">
 	<template>
 		<style>
@@ -47,7 +48,7 @@
 				padding: 8px 0;
 			}
 
-			.form-input {
+			.form-input, .input {
 				height: 44px;
 				padding: 0 16px;
 				border-radius: 2px;
@@ -57,6 +58,60 @@
 				line-height: 20px;
 				font-size: 14px;
 			}
+
+			.input-group {
+				padding: 8px 0;
+			}
+
+			.input-group.suffix, .input-group.prefix {
+				position: relative;
+				display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+
+				-ms-flex-direction: row;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+
+			}
+
+			.input-group.suffix .input,
+			.input-group.prefix .input {
+				display: flex;
+			}
+
+			.input-group.prefix .input {
+				border-top-left-radius: 0px;
+				border-bottom-left-radius: 0px;
+				padding-left: 0;
+			}
+
+			.input-group.suffix .input {
+				border-top-right-radius: 0px;
+				border-bottom-right-radius: 0px;
+				padding-right: 0;
+			}
+
+			.input-group.prefix .addon-prefix,
+			.input-group.suffix .addon-suffix {
+				height: 44px;
+				padding: 0 16px;
+				line-height: 47px;
+				font-size: 14px;
+				background-color: #FFFFFF;
+				white-space: nowrap;
+			}
+
+			.input-group.prefix .addon-prefix {
+				border-top-left-radius: 2px;
+				border-bottom-left-radius: 2px;
+			}
+
+			.input-group.suffix .addon-suffix {
+				border-top-right-radius: 2px;
+				border-bottom-right-radius: 2px;
+			}
+
 
 			.divider-text {
 				width: 100%;

@@ -2,15 +2,16 @@
 
 <script>
 
+  const API_URL = 'https://api.thegrid.com/api';
+  const APP_URL = 'http://10.0.0.10:8080/#';
+  const HOME_URL = APP_URL;
+  const LOGIN_URL = APP_URL + 'account/login';
+  const REGISTER_URL = APP_URL + 'account/register';
+  const FORGOT_URL = APP_URL + 'account/forgot';
+
   const intialState = {
     user: null,
-    errors: {
-      loginError: null
-    },
-    loginAttempt: 0,
-    isLoggingIn: false,
     token: null,
-    drawerOpened: false,
   };
 
   const reducer = (state, action) => {
@@ -21,30 +22,10 @@
         const user = action.user;
         return Object.assign({}, state, { user: user } );
 
-      case 'LOGIN_STATE':
-        const isLoggingIn = action.isLoggingIn;
-        return Object.assign({}, state, { isLoggingIn: isLoggingIn });
-
-      case 'SHOW_LOGIN_ERROR':
-        const error = action.error;
-        const loginAttempt = action.loginAttempt;
-        return Object.assign({}, state, {
-          errors: { loginError: error } ,
-          loginAttempt: loginAttempt
-        });
-
       case 'ASSIGN_TOKEN':
         const token = action.token;
         return Object.assign({}, state, { token: token });
 
-      case 'OPEN_DRAWER':
-        return Object.assign({}, state, { drawerOpened: true });
-
-      case 'CLOSE_DRAWER':
-        return Object.assign({}, state, { drawerOpened: false });
-
-      case 'TOGGLE_DRAWER':
-        return Object.assign({}, state, { drawerOpened: !state.drawerOpened });
     }
   };
 

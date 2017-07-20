@@ -37,18 +37,17 @@
     class MobileHeader extends ReduxBehavior(Polymer.Element) {
       static get is() { return 'mobile-header'; }
 
-      static get actions() {
-        return {
-          openDrawer() {
-            return {
-              type: 'OPEN_DRAWER'
-            }
-          }
-        }
-      }
+			static get properties() {
+				return {
+					drawerOpened: {
+						type: Boolean,
+						notify: true
+					}
+				}
+			}
 
       openDrawer() {
-        this.dispatch('openDrawer');
+				this.drawerOpened = true;
       }
 
       setCurrentLocation() {
@@ -58,20 +57,5 @@
     }
 
     customElements.define(MobileHeader.is, MobileHeader);
-  	// (function(){
-    //
-  	// 	Polymer({
-  	// 		is: 'grid-mobile-header',
-    //     behaviors: [GridBehaviors.FoldBehavior],
-    //     openDrawer: function() {
-    //       this.drawer.open();
-    //     },
-    //     setCurrentLocation: function() {
-    //       console.log('setting current location');
-    //       this.view.setCurrentLocation();
-    //     }
-    //
-  	// 	});
-  	// }());
   </script>
 </dom-module>

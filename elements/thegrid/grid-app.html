@@ -65,13 +65,18 @@
 
     <app-location route="{{route}}" use-hash-as-path></app-location>
 
-    <app-route route="{{route}}"
+    <app-route id="authRoute" route="{{route}}"
         pattern="account/:page"
         data="{{pageData}}"
         tail="{{pageTail}}"></app-route>
 
+		<app-route route="{{route}}"
+        pattern="confirmation/:token"
+        data="{{confirmation_token}}"></app-route>
+
 		<grid-map user="[[user]]"></grid-map>
-		<mobile-header></mobile-header>
+
+		<mobile-header drawer-opened="{{drawerOpened}}"></mobile-header>
 
 		<iron-pages attr-for-selected="data-page" selected="[[pageData.page]]">
 
@@ -101,7 +106,9 @@
 
 	  </iron-pages>
 
-		<app-drawer id="drawer" align="start" swipe-open></app-drawer>
+		<app-drawer id="drawer" align="start" swipe-open opened="{{drawerOpened}}">
+			<grid-drawer></grid-drawer>
+		</app-drawer>
 
 	</template>
 
@@ -124,10 +131,6 @@
 						statePath: 'token'
 					},
 
-					drawerOpened: {
-						type: Boolean,
-						statePath: 'drawerOpened'
-					}
 				}
 			}
 
@@ -136,25 +139,20 @@
 					'_routeChange(route)',
 					'_pageChange(pageData)',
 					'_tokenChange(token)',
-					'_drawerState(drawerOpened)'
+					'_drawerState(drawerOpened)',
+					'_hasConfirmationToken(confirmation_token)'
 				]
 			}
 
 			static get actions() {
   			return {
 
-  				login(user) {
+  				loggedUser(user) {
   					return {
   						type: 'LOGGED_USER',
   						user: user
   					}
-  				},
-
-					closeDrawer() {
-						return {
-							type: 'CLOSE_DRAWER'
-						}
-					}
+  				}
 
 				}
 			}
@@ -164,15 +162,21 @@
 				this._checkLogin();
 			}
 
+			connectedCallback() {
+				super.connectedCallback();
+			}
+
 			_checkLogin() {
 				const self = this;
 
 				if(checkLogin()) {
+					self.isLoggedIn = true;
+					this.set('pageData', null);
+
 					gAxios.get('user')
 		      .then( res => {
 
-						self.dispatch('login', res.data);
-						// window.location.href = '/#';
+						self.dispatch('loggedUser', res.data);
 
 		      }).catch( err => {
 		        console.log('error');
@@ -194,34 +198,50 @@
 			}
 
 			_pageChange(pageData) {
+				if ( checkLogin() ) {
+					this.set('pageData', null);
+					return;
+				}
 				if ( pageData.page ) {
-					if ( !this.user ) {
-	          Polymer.Base.importHref(
-							'/elements/thegrid/pages/grid-' + pageData.page + '.html',
-							() => {
-								// do something after elements has been imported
-							}
-						);
-					} else {
-						console.log('user already logged in');
-					}
+          Polymer.Base.importHref(
+						'/elements/thegrid/pages/grid-' + pageData.page + '.html',
+						() => {
+							// do something after elements has been imported
+						}
+					);
         }
 			}
 
 			_drawerState(drawerOpened) {
 				const d = this.$.drawer;
 				d.opened = drawerOpened;
+				if(drawerOpened) {
+					Polymer.Base.importHref(
+						'/elements/thegrid/components/drawer.html',
+						() => {
+							// do something after elements has been imported
+						}
+					);
+				}
 			}
 
-			connectedCallback() {
-				super.connectedCallback();
-				const self = this;
-				const d = this.$.drawer;
-				d.addEventListener('opened-changed', function(e) {
-					if ( ! this.opened ) {
-						self.dispatch('closeDrawer');
-					}
-				});
+			_hasConfirmationToken(confirmation_token) {
+				if(confirmation_token.token) {
+
+					axios.post(API_URL + '/users/confirmation/' + confirmation_token.token)
+						.then( res => {
+
+							alert(res.data.message);
+							window.location.href = LOGIN_URL;
+
+						}).catch( err => {
+							if ( err.response ) {
+									alert(err.response.data.message)
+							}
+
+						});
+
+				}
 			}
 
 		}

@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="register-components">
@@ -32,46 +33,97 @@
 
       }
 
+      .input-action {
+        color: #FF3B30;
+        cursor: pointer;
+        user-select: none;
+        padding: 0 8px;
+      }
+
     </style>
 
     <div class="p-y-1">
 
       <div class="header-text-container">
-        <h1 class="header-text m-0">What is you name?</h1>
+        <h1 class="header-text m-0">
+          <span hidden$="[[step.message]]">[[step.question]]</span>
+          <span hidden$="[[!step.message]]">[[step.message]]</span>
+        </h1>
       </div>
       <div id="wr" class="wr">
         <form class="form" id="formCarousel" on-scroll="scrollMove">
 
-          <div class="form-group" data-step="1">
-            <input id="name" type="text" class="form-input" placeholder="Full Name" />
+          <div class="form-group relative"
+              data-step="1"
+              data-question="What is your name?">
+            <input id="name" type="text" class="form-input" autofocus
+                placeholder="Full Name"
+                value="{{name::input}}"
+                data-validate="required"
+                data-message-required="Your name is required." />
           </div>
 
-          <div class="form-group" data-step="2">
-            <input id="email" type="text" class="form-input" placeholder="Email" />
+          <div class="input-group suffix" data-step="2" data-question="Hello %name. Your Email?">
+            <input id="email" type="text" class="input"
+                placeholder="Email"
+                value="{{email::input}}"
+                data-validate="required|email"
+                data-message-required="Your email is required."
+                data-message-email="Your name is invalid." />
+            <div class="addon-suffix flex layout horizontal">
+                <span class="input-action" on-click="gmail">Gmail</span>
+                <span class="input-action" on-click="outlook">Outlook</span>
+                <span class="input-action" on-click="icloud">iCloud</span>
+            </div>
           </div>
 
-          <div class="form-group" data-step="3">
-            <input id="phone_number" type="text" class="form-input" placeholder="Phone Number" />
+          <div class="input-group prefix" data-step="3" data-question="Phone Number">
+            <div class="addon-prefix flex layout horizontal">
+              <span>AE +971</span>
+            </div>
+            <input id="phone_number" type="text" class="input"
+                placeholder="Phone Number"
+                value="{{phone_number::input}}"
+                data-validate="required|number"
+                data-message-required="Your phone number is required."
+                data-message-number="Your phone number is invalid." />
           </div>
 
-          <div class="form-group" data-step="4">
-            <input id="password" type="password" class="form-input" placeholder="Password" />
+          <div class="input-group suffix" data-step="4" data-question="Create Password. A strong one.">
+            <input id="password" type="password" class="input"
+                placeholder="Password"
+                value="{{password::input}}"
+                data-validate="required"
+                data-message-required="Your password is required." />
+            <div class="addon-suffix">
+                <span id="passwordToggler" class="input-action" on-click="tooglePassword">[[togglePasswordText]]</span>
+            </div>
           </div>
 
-          <div class="form-group" data-step="5">
-            <input id="password_confirmation" type="password" class="form-input" placeholder="Retype Password" />
+          <div class="input-group" data-step="5" data-question="One more time!">
+            <input id="password_confirmation" type="password" class="form-input"
+                placeholder="Retype Password"
+                value="{{password_confirmation::input}}"
+                data-validate="match"
+                data-match-to$="[[password]]"
+                data-message-match="Password did not match." />
           </div>
 
-          <div class="form-group" data-step="6">
-            <input id="username" type="text" class="form-input" placeholder="User name" />
+          <div class="input-group" data-step="6" data-question="Pick your Username.">
+            <input id="username" type="text" class="input"
+                placeholder="User name"
+                value="{{username::input}}"
+                data-validate="required"
+                data-message-required="Username is required." />
           </div>
 
-          <div class="form-group" data-step="7">
-            <input id="code" type="number" class="form-input" placeholder="Verification Code" />
+          <div class="form-group">
+            <paper-button class="w-100 white" on-click="signUp">
+              <span hidden$="[[isSigningUp]]">Sign Up</span>
+              <span hidden$="[[!isSigningUp]]">Loading...</span>
+            </paper-button>
           </div>
-          <!-- <div class="form-group">
-            <span class="w-100 white" on-click="signIn">LOGIN</span>
-          </div> -->
+
         </form>
       </div>
     </div>
@@ -85,19 +137,57 @@
 
       static get properties() {
         return {
-          /* properties meta data object just like 1.x */
-          user: {
+
+          togglePasswordText: {
+            type: String,
+            value: 'Show'
+          },
+
+          isPasswordHidden: {
+            type: Boolean,
+            value: true
+          },
+
+          step: {
             type: Object,
-            statePath: 'user'
+            value: {
+              no: 1,
+              question: 'What is your name?',
+              message: null
+            }
+          },
+
+          isSigningUp: {
+            type: Boolean,
+            value: false
+          },
+
+          isRegistered: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+
+          signUpData: {
+            type: Object,
+            value: {
+              message: null
+            },
+            notify: true
+          },
+
+          hasErrorRegister: {
+            type: Boolean,
+            value: false,
+            notify: true
           }
         }
       }
 
       static get observers() {
         return [
-          /* observer array just like 1.x */
-          '_myPropChanged(myProp.*)'
-        ]
+          '_passwordState(isPasswordHidden)'
+        ];
       }
 
       static get actions() {
@@ -128,11 +218,56 @@
 
         this.stepHeight = 68;
 
-        this.fc.style.paddingBottom = h + 'px';
+        this.fc.style.paddingBottom = this.stepHeight*3 + 'px';
         this.fc.style.paddingTop = this.stepHeight + 'px';
 
-        this.arrangeSteps();
+        this.passwordToggler = this.$.passwordToggler;
 
+        this.arrangeSteps();
+        this.inputListenEvents();
+        this.elementListenEvents();
+
+      }
+
+      signUp() {
+        const self = this;
+        self.isSigningUp = true;
+        axios.post(API_URL + '/users/register', {
+
+          name: self.name,
+          username: self.username,
+          email: self.email,
+          password: self.password,
+          password_confirmation: self.password_confirmation,
+          phone_number: self.phone_number
+
+        }).then( res => {
+
+          self.set('signUpData', res.data);
+          self.isSigningUp = false;
+          self.isRegistered = true;
+          self.set('step.message', 'Successfully Registered!');
+          self.fc.reset();
+
+        }).catch( err => {
+
+          if( err.response ) {
+            self.set('signUpData', err.response.data);
+            // self.hasErrorRegister = true;
+            var errs = [];
+            var fkey = null;
+			    	for( var key in this.signUpData) {
+			    		errs.push(this.signUpData[key]);
+              if(!fkey) {
+                fkey = key;
+              }
+			    	}
+            self.set('step.message', this.signUpData[fkey][0]);
+            self.fc.querySelector('#'+fkey).focus();
+
+          }
+          self.isSigningUp = false;
+        });
       }
 
       arrangeSteps() {
@@ -140,25 +275,131 @@
         const steps = this.fc.querySelectorAll('[data-step]');
 
         steps.forEach(function(step) {
-          let eStep = step.getAttribute('data-step');
+          const eStep = step.getAttribute('data-step');
+
           if ( eStep != self.activeStep ) {
             if( eStep > self.activeStep ) {
               let padding = ((eStep - self.activeStep) * 10) + 'px';
               step.style.paddingLeft = padding;
               step.style.paddingRight = padding;
-              step.style.opacity = 1 - ((eStep - self.activeStep) * 0.2);
+              step.style.opacity = 0.31;//1 - ((eStep - self.activeStep) * 0.2);
             } else {
               let padding = ((self.activeStep - eStep) * 10) + 'px';
               step.style.paddingLeft = padding;
               step.style.paddingRight = padding;
-              step.style.opacity = 1 - ((self.activeStep - eStep) * 0.2);
+              step.style.opacity = 0.31;//1 - ((self.activeStep - eStep) * 0.2);
             }
           } else {
             step.setAttribute('style', '');
             self.wr.scrollTop = ((eStep) * self.stepHeight) - self.stepHeight;
           }
-          // console.log(step.getAttribute('data-step'));
+
         });
+
+      }
+
+      inputListenEvents() {
+        const self = this;
+        const steps = this.fc.querySelectorAll('[data-step]');
+
+        steps.forEach(function(step) {
+          const eStep = step.getAttribute('data-step');
+          const _question = step.getAttribute('data-question');
+          var question = _question;
+
+          var focus = function() {
+
+            self.activeStep = eStep;
+            self.arrangeSteps();
+
+            if( eStep == 2 ) {
+
+              question = _question.replace('%name', self.name || '');
+
+            }
+
+            self.set('step.no', eStep);
+            self.set('step.question', question);
+
+          };
+
+          const blur = function() {
+
+            let hasError = self.hasError(this, this.getAttribute('data-validate'));
+            if( hasError ) {
+              this.focus();
+              self.set('step.message', this.getAttribute('data-message-' + hasError[0]));
+              return;
+            }
+            self.set('step.message', null);
+
+          };
+
+          let input = step.querySelectorAll('input')[0];
+          input.removeEventListener('focus', focus);
+          input.removeEventListener('blur', blur);
+
+          input.addEventListener('focus', focus);
+          input.addEventListener('blur', blur);
+
+        });
+
+      }
+
+      hasError(element, validate) {
+        if(!validate) return false;
+
+        const e = element;
+        const val = e.value;
+        const validations = validate.split('|');
+        var errs = [];
+        validations.forEach(function(item) {
+          switch (item) {
+            case 'required':
+
+              if( val && val != '' && val != null && val != 'undefined' ) {
+                // no error
+              } else {
+                errs.push(item);
+              }
+              break;
+
+            case 'email':
+
+              let reEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+              if( ! reEmail.test(val) ) {
+                errs.push(item);
+              }
+              break;
+
+            case 'number':
+
+              let reNum = /^[0-9]+$/;
+              if( ! reNum.test(val) ) {
+                errs.push(item);
+              }
+              break;
+
+            case 'match':
+              if( val != e.getAttribute('data-match-to') ) {
+                errs.push(item);
+              }
+              break;
+
+          }
+        });
+
+        if( errs.length )return errs;
+
+        return false;
+      }
+
+      tooglePassword() {
+        this.isPasswordHidden = !this.isPasswordHidden;
+      }
+
+      elementListenEvents() {
+
 
       }
 
@@ -168,6 +409,38 @@
 
       _myPropChanged(changeRecord) {
 
+      }
+
+      updateEmail(provider) {
+        const _email = this.email;
+        if ( _email.lastIndexOf('@') >= 1) {
+          var email = _email.substring(0, _email.lastIndexOf('@') + 1);
+          this.email = email + provider;
+          return;
+        }
+        this.email += '@' + provider;
+      }
+
+      gmail() {
+        this.updateEmail('gmail.com');
+      }
+
+      outlook() {
+        this.updateEmail('outlook.com');
+      }
+
+      icloud() {
+        this.updateEmail('icloud.com');
+      }
+
+      _passwordState(isPasswordHidden) {
+        if ( ! isPasswordHidden ) {
+          this.togglePasswordText = 'Hide';
+          this.$.password.setAttribute('type', 'text');
+        } else {
+          this.togglePasswordText = 'Show';
+          this.$.password.setAttribute('type', 'password');
+        }
       }
 
 

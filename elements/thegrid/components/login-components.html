@@ -92,7 +92,13 @@
 
           loginAttempt: {
             type: Number,
-            statePath: 'loginAttempt'
+            value: 0,
+            notify: true
+          },
+
+          loginError: {
+            type: String,
+            notify: true
           },
 
           togglePasswordText: {
@@ -107,7 +113,8 @@
 
           isLoggingIn: {
             type: Boolean,
-            statePath: 'isLoggingIn'
+            value: false,
+            notify: true
           }
 
         }
@@ -121,21 +128,6 @@
 
       static get actions() {
   			return {
-
-          showError(err, loginAttempt) {
-            return {
-              type: 'SHOW_LOGIN_ERROR',
-              error: err,
-              loginAttempt: loginAttempt
-            }
-          },
-
-          isLoggingIn(isLoggingIn) {
-            return {
-              type: 'LOGIN_STATE',
-              isLoggingIn: isLoggingIn
-            }
-          },
 
           assignToken(token) {
             return {
@@ -171,7 +163,7 @@
         const password = this.$.password;
         const self = this;
 
-        self.dispatch('isLoggingIn', true);
+        self.isLoggingIn = true;
 
         axios.post('https://api.thegrid.com/oauth/token', {
 
@@ -183,18 +175,19 @@
 
 				}).then( res => {
 
-          self.dispatch('isLoggingIn', false);
+          self.isLoggingIn = false;
 
           self.dispatch('assignToken', res.data);
 
         }).catch( err => {
 
-          self.dispatch('isLoggingIn', false);
+          self.isLoggingIn = false;
 
           if (err.response) {
 						var data = err.response.data;
-            var loginAttempt = this.loginAttempt + 1;
-            self.dispatch('showError', data.message, loginAttempt);
+            var loginAttempt = self.loginAttempt + 1;
+            self.loginAttempt = loginAttempt;
+            self.loginError = data.message;
           }
 
         });

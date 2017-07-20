@@ -31,7 +31,9 @@
       <span class="white pointer" on-click="register">SIGN UP</span>
     </div>
 
-    <login-components></login-components>
+    <login-components is-logging-in="{{isLoggingIn}}"
+                      login-attempt="{{loginAttempt}}"
+                      login-error="{{loginError}}" ></login-components>
 
     <paper-toast id="loginErrToast" duration="0" class="fit-bottom">
       <div class="layout horizontal">
@@ -57,25 +59,23 @@
 
         static get properties() {
           return {
-            loginError: {
-              type: String,
-              statePath: 'errors.loginError'
-            },
-            loginAttempt: {
-              type: Number,
-              statePath: 'loginAttempt'
-            },
-            isLoggingIn: {
-              type: Boolean,
-              statePath: 'isLoggingIn'
-            }
+
           }
         }
 
         static get observers() {
           return [
             '_onLoginError(loginAttempt)',
+            '_checkLogin(isLoggedIn)'
           ];
+        }
+
+        register() {
+          window.location.href = REGISTER_URL;
+        }
+
+        close() {
+          window.location.href = HOME_URL;
         }
 
         _onLoginError(loginAttempt) {
@@ -85,12 +85,10 @@
           }
         }
 
-        register() {
-          window.location.href = "/#account/register";
-        }
-
-        close() {
-          window.location.href = "/#";
+        _checkLogin(isLoggedIn) {
+          if(isLoggedIn) {
+            window.location.href = HOME_URL;
+          }
         }
     }
 
