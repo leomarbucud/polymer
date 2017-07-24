@@ -20,20 +20,50 @@
         padding: 16px;
       }
 
+      #indicator {
+        text-align: center;
+      }
+
+      #indicator span {
+        height: 8px;
+        width: 8px;
+        background: #FFFFFF;
+        display: inline-block;
+        margin: 0 4px;
+        border-radius: 50%;
+        opacity: 0.2;
+      }
+      #indicator span.active {
+        opacity: 1;
+      }
+      .inactive {
+        opacity: 0.5;
+      }
+
     </style>
 
     <div class="header-action flex layout horizontal">
-      <iron-icon icon="close" class="white pointer" on-click="close"></iron-icon>
-      <span class="flex"></span>
+      <div class="flex">
+        <iron-icon icon="close" class="white pointer" on-click="close"></iron-icon>
+      </div>
+      <!-- <span class="flex"></span> -->
+      <div id="indicator"></div>
+      <div class="flex align-right">
+        <span id="next" class="white inactive" on-click="submit">NEXT</span>
+      </div>
     </div>
 
     <register-components is-registered="{{isRegistered}}"
-                         sign-up-data="{{signUpData}}"></register-components>
+                         sign-up-data="{{signUpData}}"
+                         total-steps="{{totalSteps}}"
+                         current-Step="{{currentStep}}"
+                         submiting="{{submiting}}"
+                         next="{{next}}"></register-components>
 
     <paper-toast id="registerMessageToast" duration="0" class="fit-bottom">
       <div class="layout horizontal">
         <span class="flex">[[signUpData.message]]</span>
-        <span><a href="/#account/login" class="red anchor">LOGIN?</a></span>
+        <span><a href="/#/login" class="red anchor">LOGIN?</a></span>
       </div>
     </paper-toast>
 
@@ -54,7 +84,10 @@
         static get observers() {
           return [
               '_registered(isRegistered)',
-              '_hasErrorRegister(hasErrorRegister)'
+              '_hasErrorRegister(hasErrorRegister)',
+              '_currentStepChange(currentStep)',
+              '_totalStepsChange(totalSteps)',
+              '_nextChange(next)'
           ]
         }
 
@@ -68,6 +101,42 @@
             this.$.registerMessageToast.fitInto = this;
             this.$.registerMessageToast.open();
             // window.localtion.href = LOGIN_URL;
+          }
+        }
+
+        _currentStepChange(currentStep) {
+          const $indicator = this.$.indicator;
+          var items = $indicator.querySelectorAll('[data-step]');
+          if(items.length) {
+            items.forEach(function(item) {
+              item.classList.remove('active');
+              if(item.getAttribute('data-step') == currentStep) {
+                item.classList.add('active');
+              }
+            });
+          }
+        }
+
+        _totalStepsChange(totalSteps) {
+          const self = this;
+          const $indicator = self.$.indicator;
+          for(var i = 1; i <= self.totalSteps; i++) {
+            let item = document.createElement('span');
+            item.setAttribute('data-step', i);
+            $indicator.appendChild(item);
+          }
+        }
+
+        submit() {
+          if( this.next ) {
+            this.submiting = true;
+          }
+        }
+
+        _nextChange(next) {
+          if( next ) {
+            this.$.next.classList.remove('inactive');
+            this.$.next.classList.add('pointer');
           }
         }
 

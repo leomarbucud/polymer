@@ -23,7 +23,17 @@
         padding: 16px;
       }
 
+      .loading {
+        background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
+      }
+
     </style>
+
+    <app-location route="{{route}}" use-hash-as-path></app-location>
+
+		<app-route route="{{route}}"
+		    pattern="/login/:provider/:token/:secret/:setup"
+		    data="{{loginData}}"></app-route>
 
     <div class="header-action flex layout horizontal">
       <iron-icon icon="close" class="white pointer" on-click="close"></iron-icon>
@@ -32,20 +42,24 @@
     </div>
 
     <login-components is-logging-in="{{isLoggingIn}}"
+                      is-logged-in="{{isLoggedIn}}"
                       login-attempt="{{loginAttempt}}"
                       login-error="{{loginError}}" ></login-components>
 
     <paper-toast id="loginErrToast" duration="0" class="fit-bottom">
       <div class="layout horizontal">
-        <!-- <span class="flex">[[loginError]]</span> -->
         <span class="flex">Invalid user credentials.</span>
         <span><a href="/#account/forgot" class="red anchor">FORGOT?</a></span>
       </div>
     </paper-toast>
 
     <template is="dom-if" if="[[isLoggingIn]]">
-      <div class="overlay">
-        <paper-spinner active$="[[isLoggingIn]]"></paper-spinner>
+      <div class="overlay loading">
+        <div>
+          <img src="/assets/images/thegrid.svg" alt="THE GRID"/>
+          <br/>
+          <paper-spinner active$="[[isLoggingIn]]"></paper-spinner>
+      </div>
       </div>
     </template>
 
@@ -59,16 +73,38 @@
 
         static get properties() {
           return {
+            auth: {
+              type: Boolean,
+              statePath: 'auth'
+            },
 
+            setupAccount: {
+              type: Boolean,
+              value: false,
+              notify: true
+            }
           }
         }
 
         static get observers() {
           return [
             '_onLoginError(loginAttempt)',
-            '_checkLogin(isLoggedIn)'
+            '_checkLogin(isLoggedIn)',
+            '_loginDataChange(loginData)'
           ];
         }
+
+        static get actions() {
+    			return {
+
+            assignToken(token) {
+              return {
+                type: 'ASSIGN_TOKEN',
+                token: token
+              }
+            }
+    			};
+    		}
 
         register() {
           window.location.href = REGISTER_URL;
@@ -81,14 +117,51 @@
         _onLoginError(loginAttempt) {
           if ( loginAttempt > 0 ) {
             this.$.loginErrToast.fitInto = this;
-            this.$.loginErrToast.opened = true;
+            this.$.loginErrToast.open();
           }
         }
 
         _checkLogin(isLoggedIn) {
           if(isLoggedIn) {
+            this.$.loginErrToast.close();
             window.location.href = HOME_URL;
           }
+        }
+
+        _loginDataChange(loginData) {
+          if(!loginData) return;
+          if(!loginData.provider) return;
+          if(!loginData.secret) return;
+          if(!loginData.token) return;
+
+          const self = this;
+
+          if( self.isLoggingIn ) return;
+
+          self.isLoggingIn = true;
+
+          axios.post(API_BASE_URL + '/oauth/token', {
+            grant_type: 'social',
+            client_id: 2,
+            client_secret: loginData.secret,
+            network: loginData.provider,
+            access_token: loginData.token
+          })
+          .then( res => {
+            self.isLoggingIn = false;
+            self.isLoggedIn = true;
+            if(loginData.setup == 1) {
+              self.setupAccount = true;
+            }
+            self.dispatch('assignToken', res.data);
+          })
+          .catch( err => {
+
+            self.isLoggingIn = false;
+
+          });
+
+
         }
     }
 

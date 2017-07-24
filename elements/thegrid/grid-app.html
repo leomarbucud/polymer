@@ -10,9 +10,8 @@
 <link rel="import" href="/bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="/redux/grid-redux-store.html">
 <link rel="import" href="/behaviors/index.html">
-<link rel="import" href="/elements/thegrid/components/grid-map.html">
-<link rel="import" href="/elements/thegrid/grid-styles.html">
 <link rel="import" href="/elements/thegrid/components/mobile-header.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="grid-app">
 	<template>
@@ -65,10 +64,14 @@
 
     <app-location route="{{route}}" use-hash-as-path></app-location>
 
-    <app-route id="authRoute" route="{{route}}"
-        pattern="account/:page"
-        data="{{pageData}}"
-        tail="{{pageTail}}"></app-route>
+		<app-route route="{{route}}"
+		    pattern="/:page"
+		    data="{{routeData}}"
+		    tail="{{subroute}}"></app-route>
+
+		<app-route route="{{subroute}}"
+		    pattern="/:id"
+		    data="{{subrouteData}}"></app-route>
 
 		<app-route route="{{route}}"
         pattern="confirmation/:token"
@@ -78,11 +81,11 @@
 
 		<mobile-header drawer-opened="{{drawerOpened}}"></mobile-header>
 
-		<iron-pages attr-for-selected="data-page" selected="[[pageData.page]]">
+		<iron-pages attr-for-selected="data-page" selected="[[page]]">
 
 	    <section data-page="login" class="overlay">
 	      <div class="center-page">
-					<grid-login id="login"></grid-login>
+					<grid-login id="login" setup-account="{{setupAccount}}"></grid-login>
 				</div>
 	    </section>
 
@@ -104,10 +107,16 @@
 				</div>
 	    </section>
 
+			<section data-page="profile" class="overlay">
+	      <div class="center-page">
+					<grid-profile id="profile"></grid-profile>
+				</div>
+	    </section>
+
 	  </iron-pages>
 
 		<app-drawer id="drawer" align="start" swipe-open opened="{{drawerOpened}}">
-			<grid-drawer></grid-drawer>
+			<grid-drawer user="user" is-logged-in="[[isLoggedIn]]"></grid-drawer>
 		</app-drawer>
 
 	</template>
@@ -131,16 +140,29 @@
 						statePath: 'token'
 					},
 
+					auth: {
+						type: Boolean,
+						statePath: 'auth'
+					},
+
+					loaded: {
+						type: Boolean,
+						value: false,
+						reflectToAttribute: true
+					}
+
 				}
 			}
 
 			static get observers() {
 				return [
 					'_routeChange(route)',
-					'_pageChange(pageData)',
+					'_routeDataChange(routeData)',
 					'_tokenChange(token)',
 					'_drawerState(drawerOpened)',
-					'_hasConfirmationToken(confirmation_token)'
+					'_hasConfirmationToken(confirmation_token)',
+					'_isAuth(auth)',
+					'_setUpNeeded(setupAccount)'
 				]
 			}
 
@@ -152,7 +174,13 @@
   						type: 'LOGGED_USER',
   						user: user
   					}
-  				}
+  				},
+
+					logout() {
+            return {
+              type: 'LOGOUT_USER'
+            }
+          }
 
 				}
 			}
@@ -164,6 +192,14 @@
 
 			connectedCallback() {
 				super.connectedCallback();
+				this.loaded = true;
+			}
+
+			logout(logout) {
+				this.dispatch('logout');
+				this.drawerOpened = false;
+				localStorage.removeItem('token');
+				window.location.href = HOME_URL;
 			}
 
 			_checkLogin() {
@@ -171,7 +207,7 @@
 
 				if(checkLogin()) {
 					self.isLoggedIn = true;
-					this.set('pageData', null);
+					// this.set('accountPage', null);
 
 					gAxios.get('user')
 		      .then( res => {
@@ -193,23 +229,52 @@
 
 			_routeChange(route) {
 				if( route.path == '' ) {
-					this.set('pageData.page', null);
+					this.set('routeData.page', null);
+
 				}
 			}
 
-			_pageChange(pageData) {
+			_routeDataChange(routeData) {
+				const self = this;
+				this.drawerOpened = false;
 				if ( checkLogin() ) {
-					this.set('pageData', null);
-					return;
+					switch (routeData.page) {
+						case 'login':
+						case 'register':
+						case 'forgot':
+							this.set('routeData.page', null);
+							window.location.href = HOME_URL;
+							return;
+						case 'logout':
+							this.logout();
+							return;
+					}
+				} else {
+					switch (routeData.page) {
+						case 'profile':
+							window.location.href = LOGIN_URL;
+							return;
+							break;
+					}
 				}
-				if ( pageData.page ) {
+				if ( routeData.page ) {
+
           Polymer.Base.importHref(
-						'/elements/thegrid/pages/grid-' + pageData.page + '.html',
+						'/elements/thegrid/pages/grid-' + routeData.page + '.html',
+						() => {
+							self.page = routeData.page
+						}
+					);
+
+        } else {
+					self.page = null;
+					Polymer.Base.importHref(
+						'/elements/thegrid/components/grid-map.html',
 						() => {
 							// do something after elements has been imported
 						}
 					);
-        }
+				}
 			}
 
 			_drawerState(drawerOpened) {
@@ -229,19 +294,26 @@
 				if(confirmation_token.token) {
 
 					axios.post(API_URL + '/users/confirmation/' + confirmation_token.token)
-						.then( res => {
+					.then( res => {
 
-							alert(res.data.message);
-							window.location.href = LOGIN_URL;
+						alert(res.data.message);
+						window.location.href = LOGIN_URL;
 
-						}).catch( err => {
-							if ( err.response ) {
-									alert(err.response.data.message)
-							}
+					}).catch( err => {
+						if ( err.response ) {
+								alert(err.response.data.message)
+						}
 
-						});
-
+					});
 				}
+			}
+
+			_isAuth(auth) {
+				this.isLoggedIn = auth;
+			}
+
+			_setUpNeeded(setupAccount) {
+				console.log('setup account', setupAccount);
 			}
 
 		}

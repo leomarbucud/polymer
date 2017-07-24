@@ -21,16 +21,34 @@
         padding: 0;
         overflow: hidden;
       }
+      .splash {
+        position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+        background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
+        color: #FFFFFF;
+      }
+      [loaded] ~ .splash {
+        display: none;
+      }
     </style>
-    <script src="/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="/node_modules/redux/dist/redux.js"></script>
-    <script src="/node_modules/axios/dist/axios.js"></script>
-    <link rel="import" href="/elements/thegrid/grid-app.html">
+    <script src="/bower_components/webcomponentsjs/webcomponents-lite.js" async></script>
+    <script src="/node_modules/redux/dist/redux.js" async></script>
+    <script src="/node_modules/axios/dist/axios.js" async></script>
+    <link rel="import" href="/elements/thegrid/grid-app.html" async>
   </head>
 
   <body>
 
     <grid-app></grid-app>
-  
+    <div class="splash">
+      <img src="/assets/images/thegrid.svg" alt="THE GRID"/>
+    </div>
+
   </body>
 </html>

@@ -36,7 +36,7 @@
       <div class="logo-container">
         <iron-image src="/assets/images/thegrid.svg"></iron-image>
       </div>
-      <form class="form">
+      <form id="loginForm" class="form">
         <div class="form-group">
           <input id="username" type="text" class="form-input"
               placeholder="Username / Email / Phone Number"
@@ -60,14 +60,14 @@
       </divider-text>
 
       <div class="form-control">
-        <social-button class="facebook">
+        <social-button class="facebook" >
           <iron-icon class="icon" src="/assets/images/facebook.svg"></iron-icon>
           <span>Continue with Facebook</spa>
         </social-button>
       </div>
 
       <div class="form-control">
-        <social-button class="google">
+        <social-button class="google" on-tap="loginGoogle">
           <iron-icon class="icon" src="/assets/images/google.svg"></iron-icon>
           <span>Sign In with Google</spa>
         </social-button>
@@ -114,6 +114,11 @@
           isLoggingIn: {
             type: Boolean,
             value: false,
+            notify: true
+          },
+
+          isLoggedIn: {
+            type: Boolean,
             notify: true
           }
 
@@ -164,6 +169,7 @@
         const self = this;
 
         self.isLoggingIn = true;
+        self.isLoggedIn = false;
 
         axios.post('https://api.thegrid.com/oauth/token', {
 
@@ -176,22 +182,31 @@
 				}).then( res => {
 
           self.isLoggingIn = false;
+          self.isLoggedIn = true;
 
           self.dispatch('assignToken', res.data);
+
+          self.$.loginForm.reset();
 
         }).catch( err => {
 
           self.isLoggingIn = false;
+          self.isLoggedIn = false;
 
           if (err.response) {
 						var data = err.response.data;
             var loginAttempt = self.loginAttempt + 1;
             self.loginAttempt = loginAttempt;
             self.loginError = data.message;
+            self.$.username.focus();
           }
 
         });
 
+      }
+
+      loginGoogle() {
+        window.location.href = API_BASE_URL + '/auth/google';
       }
 
     }

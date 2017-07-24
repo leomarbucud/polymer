@@ -3,6 +3,9 @@
 <dom-module id="grid">
 	<template>
 		<style>
+			paper-spinner.white {
+				--paper-spinner-color: #FFFFFF;
+			}
 
 			* {
 				box-sizing: border-box;
@@ -158,6 +161,22 @@
 				display: flex;
 				align-items: center;
 				justify-content: center;
+			}
+
+			.sub-page {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+			}
+
+			.align-left {
+				text-align: left;
+			}
+
+			.align-right {
+				text-align: right;
 			}
 
 		</style>

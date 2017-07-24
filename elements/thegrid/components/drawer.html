@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="grid-drawer">
@@ -8,6 +9,8 @@
       :host {
         display: block;
         position: relative;
+        background: #212121;
+        height: 100%;
       }
 
       .nav {
@@ -16,18 +19,42 @@
         margin: 0;
       }
 
+      .nav li {
+        padding: 16px 16px;
+      }
+
       .user-view {
         position: relative;
         padding: 16px;
+        background-image: url(/assets/images/background.png);
+        background-position: center;
+        background-size: cover;
+      }
+
+      li a {
+        line-height: 24px;
+      }
+
+      li a .icon {
+        margin-right: 32px;
+      }
+
+      li.divider {
+        padding: 16px 0;
+      }
+
+      li.divider hr {
+        margin: 0;
+        opacity: 0.12;
       }
 
       .user-view .background {
         display: block;
-height: 100%;
-position: absolute;
-top: 0;
-left: 0;
-z-index: -1;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: -1;
 
       }
 
@@ -47,28 +74,65 @@ z-index: -1;
       }
       a {
         display: block;
-
+        text-decoration: none;
+        color: #FFFFFF;
       }
 
 
     </style>
-    <ul class="nav">
-      <li>
-          <div class="user-view">
-            <div class="background">
-              <img src="http://materializecss.com/images/office.jpg">
-            </div>
-            <a href="#!user"><img class="circle" src="http://materializecss.com/images/yuna.jpg"></a>
-            <a href="#!name"><span class="white-text name">John Doe</span></a>
-            <a href="#!email"><span class="white-text email">@johndoe</span></a>
-        </div>
-      </li>
-      <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
-      <li><a href="#!">Second Link</a></li>
-      <li><div class="divider"></div></li>
-      <li><a class="subheader">Subheader</a></li>
-      <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
-    </ul>
+    <template is="dom-if" if="[[isLoggedIn]]">
+      <ul class="nav">
+        <li class="user-view">
+            <div>
+              <div class="background">
+                <img src="/assets/images/background.png">
+              </div>
+              <a href="/#/profile"><img class="circle" src$="[[_profileImage(user.profile.profile_image_url)]]"></a>
+              <a href="#!name"><span class="white-text name">[[user.name]]</span></a>
+              <a href="#!email"><span class="white-text email">@[[user.username]]</span></a>
+          </div>
+        </li>
+        <li>
+          <a href="#!"><iron-icon src="/assets/images/icons/posts.svg" class="icon"></iron-icon> <span>Posts</span></a>
+        </li>
+        <li>
+          <a href="#!"><iron-icon src="/assets/images/icons/bids.svg" class="icon"></iron-icon> <span>Bids</span></a>
+        </li>
+        <li>
+          <a href="#!"><iron-icon src="/assets/images/icons/inbox.svg" class="icon"></iron-icon> <span>Inbox</span></a>
+        </li>
+        <li>
+          <a href="#!"><iron-icon src="/assets/images/icons/transactions.svg" class="icon"></iron-icon> <span>Transactions</span></a>
+        </li>
+        <li class="divider">
+          <hr />
+        </li>
+        <li>
+          <a href="#!"><iron-icon src="/assets/images/icons/settings.svg" class="icon"></iron-icon> <span>Settings</span></a>
+        </li>
+        <li>
+          <a href="#!"><iron-icon src="/assets/images/icons/help_feedback.svg" class="icon"></iron-icon> <span>Help &amp; Feedback</span></a>
+        </li>
+        <li class="divider">
+          <hr />
+        </li>
+        <li>
+          <a href="/#/logout" on-tap="logout"><iron-icon icon="logout" class="icon"></iron-icon> <span>Logout</span></a>
+        </li>
+      </ul>
+    </template>
+
+    <div hidden$="[[isLoggedIn]]">
+      <ul class="nav">
+        <li>
+          <a href="/#/login"><iron-icon src="/assets/images/icons/transactions.svg" class="icon"></iron-icon> <span>Sign In</span></a>
+        </li>
+        <li>
+          <a href="/#/register"><iron-icon src="/assets/images/icons/transactions.svg" class="icon"></iron-icon> <span>Sign Up</span></a>
+        </li>
+      </ul>
+    </div>
+
   </template>
 
   <script>
@@ -86,6 +150,18 @@ z-index: -1;
         }
       }
 
+      static get actions() {
+        return {
+
+          logout() {
+            return {
+              type: 'LOGOUT_USER'
+            }
+          }
+
+        }
+      }
+
       constructor() {
         super();
 
@@ -95,6 +171,18 @@ z-index: -1;
         super.connectedCallback();
 
       }
+
+      _profileImage(img) {
+        if( img ) {
+          return 'https://api.thegrid.com/storage/avatars/' + img;
+        }
+        return 'https://api.thegrid.com/storage/avatars/profile_avatar_placeholder_large.png';
+      }
+
+      // logout() {
+      //   console.log('logout');
+      //   this.dispatch('logout');
+      // }
 
 
     }
