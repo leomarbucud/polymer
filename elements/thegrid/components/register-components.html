@@ -1,6 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/behaviors/form-slider-behavior.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="register-components">
@@ -54,7 +55,7 @@
         </h1>
       </div>
       <div id="wr" class="wr">
-        <form class="form" id="formCarousel">
+        <form class="form" id="formCarousel" form-carousel>
 
           <div class="form-group relative"
               data-step="1"
@@ -68,15 +69,20 @@
 
           <div class="input-group suffix" data-step="2" data-question="Hello %name. Your Email?">
             <input id="email" type="text" class="input"
+                on-keyup="checkEmailInput"
                 placeholder="Email"
                 value="{{email::input}}"
                 data-validate="required|email"
                 data-message-required="Your email is required."
-                data-message-email="Your email is invalid." />
-            <div class="addon-suffix flex layout horizontal">
-                <span class="input-action" on-click="gmail">Gmail</span>
-                <span class="input-action" on-click="outlook">Outlook</span>
-                <span class="input-action" on-click="icloud">iCloud</span>
+                data-message-email="That email is invalid." />
+            <div class="addon-suffix">
+              <div hidden$="[[!showEmailProvider]]">
+                  <div class="flex layout horizontal">
+                    <span class="input-action" on-click="gmail">Gmail</span>
+                    <span class="input-action" on-click="outlook">Outlook</span>
+                    <span class="input-action" on-click="icloud">iCloud</span>
+                  </div>
+                </div>
             </div>
           </div>
 
@@ -135,7 +141,7 @@
 
   <script>
 
-    class RegisterComponents extends ReduxBehavior(Polymer.Element) {
+    class RegisterComponents extends FormSliderBehavior(Polymer.Element) {
 
       static get is() { return 'register-components'; }
 
@@ -150,15 +156,6 @@
           isPasswordHidden: {
             type: Boolean,
             value: true
-          },
-
-          step: {
-            type: Object,
-            value: {
-              no: 1,
-              question: 'What is your name?',
-              message: null
-            }
           },
 
           isSigningUp: {
@@ -186,17 +183,6 @@
             notify: true
           },
 
-          currentStep: {
-            type: Number,
-            value: 1,
-            notify: true
-          },
-
-          totalSteps: {
-            type: Number,
-            notify: true
-          },
-
           next: {
             type: Boolean,
             value: false,
@@ -206,6 +192,11 @@
           submiting: {
             type: Boolean,
             notify: true
+          },
+
+          showEmailProvider: {
+            type: Boolean,
+            value: false
           }
         }
       }
@@ -236,31 +227,12 @@
 
       connectedCallback() {
         super.connectedCallback();
-
-        this.fc = this.$.formCarousel;
-        this.wr = this.$.wr;
-
-        this.activeStep = 1;
-        const h = this.fc.offsetHeight;
-
-        this.stepHeight = 68;
-
-        // this.fc.style.paddingBottom = this.stepHeight*3 + 'px';
-        this.fc.style.paddingTop = this.stepHeight + 'px';
-        this.steps = this.fc.querySelectorAll('[data-step]');
-
         this.passwordToggler = this.$.passwordToggler;
-        this.currentScroll = 0;
-        this.currentStep = 1;
-        this.startY = 0;
-        this._startY = 0;
-        this.endY = 0;
-        this.totalSteps = this.steps.length;
 
-        this.arrangeSteps(this.currentStep);
-        this.inputListenEvents();
-        this.touchScrollEvents();
-
+        // IDEA: This came from FormSliderBahavior
+        this.initForm();
+        // IDEA: Initialize some properties
+        this.set('step.message', 'The Grid Registration');
       }
 
       signUp() {
@@ -284,6 +256,9 @@
           self.fc.reset();
           self.submiting = false;
 
+          localStorage.setItem('user_id', res.data.user.id);
+          localStorage.setItem('email', res.data.user.email);
+
         }).catch( err => {
 
           if( err.response ) {
@@ -306,239 +281,15 @@
         });
       }
 
-      arrangeSteps(step) {
-        const self = this;
-        var scroll = 0;
-        var _newStep = step;
-        this.steps.forEach(function(item) {
-          var _step = parseInt(item.getAttribute('data-step'));
-          scroll = self.currentScroll + (Math.abs(_newStep - self.currentStep) * self.stepHeight);
-          if(_newStep > self.currentStep) {
-            scroll = self.currentScroll + -(Math.abs(_newStep - self.currentStep) * self.stepHeight);
-          }
-
-          var translateY = 'translateY(' + scroll + 'px)';
-
-          if ( _step == _newStep) {
-            item.style.opacity = 1;
-            item.style.transform = 'scaleX(1) ' + translateY;
-            item.querySelector('input').removeAttribute('disabled');
-            item.querySelector('input').focus();
-          } else {
-            item.style.opacity = 0.5;
-            if( _step > _newStep ) {
-              let scale = 1 - ((_step - _newStep) * 0.1);
-              item.style.transform = 'scaleX(' + scale + ') ' + translateY;
-            } else {
-              let scale = 1 - ((_newStep - _step) * 0.1);
-              item.style.transform = 'scaleX(' + scale + ') ' + translateY;
-            }
-            item.querySelector('input').setAttribute('disabled', 'disabled');
-          }
-        });
-        self.currentScroll = scroll;
-        self.currentStep = _newStep;
-
-      }
-
-      inputListenEvents() {
-        const self = this;
-
-        this.steps.forEach(function(step) {
-          const eStep = step.getAttribute('data-step');
-          const _question = step.getAttribute('data-question');
-          var question = _question;
-
-          var focus = function() {
-
-            self.activeStep = eStep;
-            self.arrangeSteps(eStep);
-
-            if( eStep == 2 ) {
-
-              question = _question.replace('%name', self.name || '');
-
-            }
-
-            self.set('step.no', eStep);
-            self.set('step.question', question);
-
-          };
-
-          const blur = function() {
-
-            let hasError = self.hasError(this, this.getAttribute('data-validate'));
-            if( hasError ) {
-              // this.focus();
-              self.set('step.message', this.getAttribute('data-message-' + hasError[0]));
-              return;
-            }
-            self.set('step.message', null);
-
-          };
-
-          const keydown = function(e) {
-            const kc = e.keyCode;
-            // console.log(e);
-            if( ((e.shiftKey && kc == 9) || (e.shiftKey && kc == 13)) && self.currentStep != 1 ) {
-              e.preventDefault();
-              e.stopPropagation();
-              self.arrangeSteps(parseInt(self.currentStep) - 1);
-              return;
-            }
-            if( (kc == 13 || kc == 9) && self.currentStep < self.totalSteps ) {
-              if(!self.validate(self.currentStep)) return;;
-              e.preventDefault();
-              e.stopPropagation();
-              self.arrangeSteps(parseInt(self.currentStep) + 1);
-              return;
-            }
-
-            if( (kc == 13 || kc == 9) && self.currentStep == self.totalSteps ) {
-              self.next = true;
-            }
-          }
-
-          let input = step.querySelectorAll('input')[0];
-          // input.removeEventListener('focus', focus);
-          // input.removeEventListener('blur', blur);
-
-          input.addEventListener('focus', focus);
-          // input.addEventListener('blur', blur);
-          input.addEventListener('keydown', keydown);
-
-
-        });
-
-      }
-
-      hasError(element, validate) {
-        if(!validate) return false;
-
-        const e = element;
-        const val = e.value;
-        const validations = validate.split('|');
-        var errs = [];
-        validations.forEach(function(item) {
-          switch (item) {
-            case 'required':
-
-              if( val && val != '' && val != null && val != 'undefined' ) {
-                // no error
-              } else {
-                errs.push(item);
-              }
-              break;
-
-            case 'email':
-
-              let reEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-              if( ! reEmail.test(val) ) {
-                errs.push(item);
-              }
-              break;
-
-            case 'number':
-
-              let reNum = /^[0-9]+$/;
-              if( ! reNum.test(val) ) {
-                errs.push(item);
-              }
-              break;
-
-            case 'match':
-              if( val != e.getAttribute('data-match-to') ) {
-                errs.push(item);
-              }
-              break;
-
-          }
-        });
-
-        if( errs.length )return errs;
-
-        return false;
+      checkEmailInput(e) {
+        if(!this.email) return;
+        if(this.email.indexOf('@') > -1) {
+          this.showEmailProvider = true;
+        }
       }
 
       tooglePassword() {
         this.isPasswordHidden = !this.isPasswordHidden;
-      }
-
-      validate(step) {
-        var input = this.fc.querySelector('[data-step="' + step + '"]')
-                            .querySelector('input');
-        let hasError = this.hasError(input, input.getAttribute('data-validate'));
-        if( hasError ) {
-          this.set('step.message', input.getAttribute('data-message-' + hasError[0]));
-          input.focus();
-          return false;
-        }
-        this.set('step.message', null);
-        return true;
-      }
-
-      touchScrollEvents() {
-        const self = this;
-        var handleStart = function(e) {
-          self.startY = e.touches[0].clientY;
-        }
-
-        var handleMove = function(e) {
-          self.endY = e.touches[0].clientY;
-          var diff = self.endY - self.startY;
-          if(Math.abs(diff) > (self.stepHeight/2)) {
-            if ( diff < 0 ) {
-              // will not prceed if validation is not satisfied
-              if(!self.validate(self.currentStep)) return;
-
-              if( self.currentStep < self.totalSteps)
-                self.arrangeSteps(parseInt(self.currentStep) + 1);
-            } else {
-              if( self.currentStep != 1)
-                self.arrangeSteps(parseInt(self.currentStep) - 1);
-            }
-            self.startY = self.endY;
-          }
-        }
-
-        var wheelMovement = 0;
-        var handleWheel = function(e) {
-          var deltaY = e.deltaY;
-          wheelMovement += deltaY;
-
-          if(Math.abs(wheelMovement) < 50) {
-            return;
-          }
-
-          var _newStep = parseInt(self.currentStep) - 1;
-          if(wheelMovement > 0) {
-            _newStep = parseInt(self.currentStep) + 1;
-            wheelMovement = 0;
-            // will not prceed if validation is not satisfied
-            if(!self.validate(self.currentStep)) return;
-          }
-
-          wheelMovement = 0;
-          if(_newStep < 1) {
-            self.arrangeSteps(1);
-            return;
-          }
-          if(_newStep > self.totalSteps) {
-            self.arrangeSteps(self.totalSteps);
-            return;
-          }
-
-          self.arrangeSteps(_newStep);
-        }
-
-        this.fc.addEventListener("touchstart", handleStart, false);
-        this.fc.addEventListener("touchmove", handleMove, false);
-        this.fc.addEventListener("wheel", handleWheel, false);
-
-      }
-
-      _myPropChanged(changeRecord) {
-
       }
 
       updateEmail(provider) {

@@ -18,10 +18,6 @@
         margin: 0 auto;
         background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
       }
-      .header-action {
-        height: 56px;
-        padding: 16px;
-      }
 
       .auto-complete {
         position: absolute;
@@ -128,7 +124,7 @@
       </form>
 
       <div class="skills-container">
-        <div hidden$="[[selectedSkills]]" class="white">Loading your awsome skills...</div>
+        <div hidden$="[[selectedSkills]]" class="white">Loading your awesome skills...</div>
         <template is="dom-repeat" items="[[selectedSkills]]" as="skill">
           <div class="chip">
             <span>[[skill.skill]]</span>

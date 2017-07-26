@@ -23,10 +23,6 @@
         padding: 16px;
       }
 
-      .loading {
-        background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
-      }
-
     </style>
 
     <app-location route="{{route}}" use-hash-as-path></app-location>
@@ -47,15 +43,15 @@
                       login-error="{{loginError}}" ></login-components>
 
     <paper-toast id="loginErrToast" duration="0" class="fit-bottom">
-      <div class="layout horizontal">
-        <span class="flex">Invalid user credentials.</span>
-        <span><a href="/#account/forgot" class="red anchor">FORGOT?</a></span>
+      <div class="flex layout horizontal" style="height: 32px;">
+        <span class="flex">No account exists for the provided email address.</span>
+        <span><a href="/#/forgot" class="red anchor">FORGOT?</a></span>
       </div>
     </paper-toast>
 
     <template is="dom-if" if="[[isLoggingIn]]">
-      <div class="overlay loading">
-        <div>
+      <div class="overlay loading-bg">
+        <div class="align-center">
           <img src="/assets/images/thegrid.svg" alt="THE GRID"/>
           <br/>
           <paper-spinner active$="[[isLoggingIn]]"></paper-spinner>
@@ -67,7 +63,18 @@
 
   <script>
 
+    // window.TEST = {
+    //   properties: {
+    //     a: {
+    //       type: String,
+    //       value: 'Leomar'
+    //     }
+    //   }
+    // };
+
+
     class GridLogin extends ReduxBehavior(Polymer.Element) {
+    // class GridLogin extends Polymer.mixinBehaviors([FormSliderBahavior], ReduxBehavior(Polymer.Element)) {
 
         static get is() { return 'grid-login'; }
 

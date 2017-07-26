@@ -1,0 +1,156 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/behaviors/form-slider-behavior.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-setup">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        margin: 0 auto;
+        background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
+      }
+
+      .logo-container {
+        width: 200px;
+        height: 48px;
+        margin: 20px auto;
+        background: transparent;
+      }
+
+      [data-step] {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        transition-property: all;
+  			transform-style: cubic-bezier(0.4, 0, 0.2, 1);
+  			transition-duration: 500ms;
+      }
+
+      .wr {
+          overflow-x: hidden;
+          /*height: 400px;*/
+      }
+
+      #formCarousel {
+        height: 400px;
+        overflow: hidden;
+      }
+
+      .input-action {
+        color: #FF3B30;
+        cursor: pointer;
+        user-select: none;
+        padding: 0 8px;
+      }
+
+    </style>
+
+    <div class="header-action flex layout horizontal">
+      <iron-icon icon="close" class="white pointer" on-click="close"></iron-icon>
+      <span class="flex"></span>
+    </div>
+
+    <div class="p-y-1">
+
+      <div class="header-text-container">
+        <h1 class="header-text m-0">
+          <span hidden$="[[step.message]]">[[step.question]]</span>
+          <span hidden$="[[!step.message]]">[[step.message]]</span>
+        </h1>
+      </div>
+      <div id="wr" class="wr">
+        <form class="form" form-carousel>
+
+          <div class="form-group relative"
+              data-step="1"
+              data-question="When is your birthday?">
+            <input id="name" type="text" class="form-input"
+                placeholder="Birth Date"
+                value="{{birth_date::input}}"
+                data-validate="required"
+                data-message-required="Your birth day is required." />
+          </div>
+
+          <div class="form-group relative"
+              data-step="2"
+              data-question="Where are you from?">
+            <input id="address" type="text" class="form-input"
+                placeholder="Address"
+                value="{{address::input}}"
+                data-validate="required"
+                data-message-required="Your address is required." />
+          </div>
+
+          <!-- <div class="form-group">
+            <paper-button class="w-100 white" on-click="signUp">
+              <span hidden$="[[isSigningUp]]">Sign Up</span>
+              <span hidden$="[[!isSigningUp]]">Loading...</span>
+            </paper-button>
+          </div> -->
+
+        </form>
+      </div>
+    </div>
+  </template>
+
+  <script>
+
+    class GridSetup extends FormSliderBehavior(Polymer.Element) {
+
+      static get is() { return 'grid-setup'; }
+
+      static get properties() {
+        return {
+
+          user: {
+						type: Object,
+						statePath: 'user'
+					},
+
+          submiting: {
+            type: Boolean,
+            notify: true
+          },
+
+        }
+      }
+
+      static get observers() {
+        return [
+
+        ];
+      }
+
+      static get actions() {
+  			return {
+
+  			};
+  		}
+
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.initForm();
+        this.set('step.message', 'Account Setup');
+
+      }
+
+      close() {
+        redirect(HOME_URL);
+      }
+
+    }
+
+    customElements.define(GridSetup.is, GridSetup);
+	</script>
+</dom-module>

@@ -214,6 +214,10 @@
 
 						self.dispatch('loggedUser', res.data);
 
+						if( ! res.data.is_account_setup ) {
+							redirect(SETUP_URL);
+						}
+
 		      }).catch( err => {
 		        console.log('error');
 		      });
@@ -222,7 +226,8 @@
 
 			_tokenChange(token) {
 				if(token) {
-					localStorage.setItem('token', JSON.stringify(token));
+					window.localStorage.clear();
+					window.localStorage.setItem('token', JSON.stringify(token));
 					this._checkLogin();
 				}
 			}
