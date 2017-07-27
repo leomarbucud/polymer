@@ -4,6 +4,7 @@
 <link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 <link rel="import" href="/elements/thegrid/components/login-components.html">
+<!-- <link rel="import" href="/elements/thegrid/components/grid-spinner.html"> -->
 <link rel="import" href="/redux/grid-redux-store.html">
 
 <dom-module id="grid-login">
@@ -25,16 +26,17 @@
 
     </style>
 
-    <app-location route="{{route}}" use-hash-as-path></app-location>
+    <app-location route="{{route}}"></app-location>
+    <!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
 
 		<app-route route="{{route}}"
 		    pattern="/login/:provider/:token/:secret/:setup"
 		    data="{{loginData}}"></app-route>
 
     <div class="header-action flex layout horizontal">
-      <iron-icon icon="close" class="white pointer" on-click="close"></iron-icon>
+      <iron-icon icon="close" class="white pointer" on-click="redirectHome"></iron-icon>
       <span class="flex"></span>
-      <span class="white pointer" on-click="register">SIGN UP</span>
+      <span class="white pointer" on-click="redirectRegister">SIGN UP</span>
     </div>
 
     <login-components is-logging-in="{{isLoggingIn}}"
@@ -43,18 +45,19 @@
                       login-error="{{loginError}}" ></login-components>
 
     <paper-toast id="loginErrToast" duration="0" class="fit-bottom">
-      <div class="flex layout horizontal" style="height: 32px;">
-        <span class="flex">No account exists for the provided email address.</span>
-        <span><a href="/#/forgot" class="red anchor">FORGOT?</a></span>
+      <div class="flex layout horizontal">
+        <span class="flex">Invalid Email or Password.</span>
+        <span><a href="/forgot" class="red anchor">FORGOT?</a></span>
       </div>
     </paper-toast>
 
     <template is="dom-if" if="[[isLoggingIn]]">
       <div class="overlay loading-bg">
         <div class="align-center">
-          <img src="/assets/images/thegrid.svg" alt="THE GRID"/>
+          <img src="/assets/images/grid-logo-text.svg" alt="THE GRID"/>
           <br/>
           <paper-spinner active$="[[isLoggingIn]]"></paper-spinner>
+          <!-- <grid-spinner></grid-spinner> -->
       </div>
       </div>
     </template>
@@ -73,7 +76,7 @@
     // };
 
 
-    class GridLogin extends ReduxBehavior(Polymer.Element) {
+    class GridLogin extends GridNavigation(ReduxBehavior(Polymer.Element)) {
     // class GridLogin extends Polymer.mixinBehaviors([FormSliderBahavior], ReduxBehavior(Polymer.Element)) {
 
         static get is() { return 'grid-login'; }
@@ -97,7 +100,8 @@
           return [
             '_onLoginError(loginAttempt)',
             '_checkLogin(isLoggedIn)',
-            '_loginDataChange(loginData)'
+            '_loginDataChange(loginData)',
+            '_isLoggingInChange(isLoggingIn)'
           ];
         }
 
@@ -131,7 +135,8 @@
         _checkLogin(isLoggedIn) {
           if(isLoggedIn) {
             this.$.loginErrToast.close();
-            window.location.href = HOME_URL;
+            // window.location.href = HOME_URL;
+            this.redirectHome();
           }
         }
 
@@ -168,7 +173,13 @@
 
           });
 
+        }
 
+        _isLoggingInChange(isLoggingIn) {
+          if ( isLoggingIn ) {
+            console.log('logging in')
+            this.$.loginErrToast.close();
+          }
         }
     }
 

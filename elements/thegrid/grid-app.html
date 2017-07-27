@@ -8,9 +8,12 @@
 <link rel="import" href="/bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="/bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="/bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="/redux/grid-redux-store.html">
-<link rel="import" href="/behaviors/index.html">
+<link rel="import" href="/behaviors/navigation-behavior.html">
 <link rel="import" href="/elements/thegrid/components/mobile-header.html">
+<link rel="import" href="/elements/thegrid/components/grid-introduction.html">
+<link rel="import" href="/elements/thegrid/components/drawer.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="grid-app">
@@ -24,17 +27,13 @@
 				height: 100%;
 			}
 
-			#startDrawer {
-      --app-drawer-content-container: {
-	        box-shadow: 1px 0 2px 1px rgba(0,0,0,0.18);
-	      }
-	    }
-
-	    #endDrawer {
-	      --app-drawer-content-container: {
-	        box-shadow: -1px 0 2px 1px rgba(0,0,0,0.18);
-	      }
-	    }
+			#drawer {
+				--app-drawer-width: 304px;
+				--app-drawer-content-container: {
+		     	box-shadow: 1px 0 2px 1px rgba(0,0,0,0.18);
+		    }
+				/*--app-drawer-scrim-background*/
+			}
 
 	    app-header {
 	      position: fixed;
@@ -60,9 +59,22 @@
 			  }
 			}
 
+			#searchFab {
+				position: absolute;
+				right: 16px;
+				bottom: 92px;
+			}
+
+			#addFab {
+				position: absolute;
+				right: 16px;
+				bottom: 22px;
+			}
+
     </style>
 
-    <app-location route="{{route}}" use-hash-as-path></app-location>
+    <!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
+    <app-location route="{{route}}" ></app-location>
 
 		<app-route route="{{route}}"
 		    pattern="/:page"
@@ -77,9 +89,14 @@
         pattern="confirmation/:token"
         data="{{confirmation_token}}"></app-route>
 
-		<grid-map user="[[user]]"></grid-map>
+		<grid-map user="[[user]]" map="{{map}}"></grid-map>
 
-		<mobile-header drawer-opened="{{drawerOpened}}"></mobile-header>
+		<mobile-header id="mobileHeader" map="{{map}}"></mobile-header>
+
+		<paper-fab id="searchFab" icon="search" class="grid-main-fab"></paper-fab>
+		<paper-fab id="addFab" icon="add" class="grid-main-fab"></paper-fab>
+
+		<grid-introduction is-logged-in="[[isLoggedIn]]"></grid-introduction>
 
 		<iron-pages attr-for-selected="data-page" selected="[[page]]">
 
@@ -103,7 +120,7 @@
 
 			<section data-page="reset-password" class="overlay">
 				<div class="center-page">
-					<grid-reset-password id="reset"></grid-reset-password>
+					<grid-reset-password id="reset-password"></grid-reset-password>
 				</div>
 	    </section>
 
@@ -123,7 +140,7 @@
 
 	<script>
 
-		class GridApp extends ReduxBehavior(Polymer.Element) {
+		class GridApp extends GridNavigation(ReduxBehavior(Polymer.Element)) {
 
 			static get is() { return 'grid-app'; }
 
@@ -199,7 +216,15 @@
 				this.dispatch('logout');
 				this.drawerOpened = false;
 				localStorage.removeItem('token');
-				window.location.href = HOME_URL;
+				// window.location.href = HOME_URL;
+				this.redirectHome();
+			}
+
+			ready() {
+				super.ready();
+				this.$.mobileHeader.addEventListener('open-drawer', e => {
+					this.drawerOpened = true;
+				});
 			}
 
 			_checkLogin() {
@@ -215,11 +240,15 @@
 						self.dispatch('loggedUser', res.data);
 
 						if( ! res.data.is_account_setup ) {
-							redirect(SETUP_URL);
+							// redirect(SETUP_URL);
 						}
 
 		      }).catch( err => {
-		        console.log('error');
+
+						if( err.response ) {
+								console.log('error', err.response);
+						}
+
 		      });
 				}
 			}
@@ -248,7 +277,7 @@
 						case 'register':
 						case 'forgot':
 							this.set('routeData.page', null);
-							window.location.href = HOME_URL;
+							this.redirectHome();
 							return;
 						case 'logout':
 							this.logout();
@@ -257,12 +286,26 @@
 				} else {
 					switch (routeData.page) {
 						case 'profile':
-							window.location.href = LOGIN_URL;
+							this.redirectLogin();
+							return;
+							break;
+						case 'logout':
+							this.logout();
 							return;
 							break;
 					}
 				}
 				if ( routeData.page ) {
+
+					// IDEA: if profile page
+					if( routeData.page.charAt(0) == '@' ) {
+						console.log('loding user', routeData.page )
+
+						return;
+					}
+
+					// IDEA: return if there is no component declared
+					if( !this.shadowRoot.querySelector('#' + routeData.page ) ) return;
 
           Polymer.Base.importHref(
 						'/elements/thegrid/pages/grid-' + routeData.page + '.html',
@@ -285,24 +328,26 @@
 			_drawerState(drawerOpened) {
 				const d = this.$.drawer;
 				d.opened = drawerOpened;
-				if(drawerOpened) {
-					Polymer.Base.importHref(
-						'/elements/thegrid/components/drawer.html',
-						() => {
-							// do something after elements has been imported
-						}
-					);
-				}
+				// if(drawerOpened) {
+				// 	Polymer.Base.importHref(
+				// 		'/elements/thegrid/components/drawer.html',
+				// 		() => {
+				// 			// do something after elements has been imported
+				// 		}
+				// 	);
+				// }
 			}
 
 			_hasConfirmationToken(confirmation_token) {
+				const self = this;
 				if(confirmation_token.token) {
 
 					axios.post(API_URL + '/users/confirmation/' + confirmation_token.token)
 					.then( res => {
 
-						alert(res.data.message);
-						window.location.href = LOGIN_URL;
+						// alert(res.data.message);
+						// window.location.href = LOGIN_URL;
+						self.redirectLogin();
 
 					}).catch( err => {
 						if ( err.response ) {

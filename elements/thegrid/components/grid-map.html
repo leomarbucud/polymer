@@ -19,7 +19,12 @@
 
     </style>
 
-    <div id="mapCanvas"></div>
+    <div id="mapCanvas">
+
+      <br><br><br><br><br><br><br><br><br><br>
+      LOADING....
+
+    </div>
 
   </template>
 
@@ -39,6 +44,12 @@
 
           user: {
             type: Object,
+            statePath: 'user'
+          },
+
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
           },
 
           cluster: {
@@ -52,6 +63,7 @@
 
       static get observers() {
         return [
+          '_authChange(auth)'
         ]
       }
 
@@ -102,23 +114,51 @@
 
       populateJobMarkers() {
         const self = this;
-        var markers = this.markers;
-        axios.get('https://api.thegrid.com/job/all?lat='+self.mapOptions.center.lat+'&lng='+self.mapOptions.center.lng)
+        var markers = self.markers;
+
+        // IDEA: if map is currently loading do nothing to prevent multiple request at once
+        if( self.loadingJobMarkers ) return;
+
+        self.loadingJobMarkers = true;
+
+        axios.get(API_BASE_URL + '/job/all?lat='+self.mapOptions.center.lat+'&lng='+self.mapOptions.center.lng)
   				.then(function (response) {
   					var data = response.data;
-  					if (markers) {
-  						markers.forEach(function(marker) {
-  							marker.setMap(null);
-  						});
-  					}
+            var markerType = self.markerType.newJob;
 
-  					for(var i = 0; i < data.length; i++) {
-  						data[i].fillColor = "#FFF222";
-  						data[i].isMyPost = false;
-  						data[i].isBidded = false;
+            for(var i = 0; i < data.length; i++) {
+              markerType = self.markerType.newJob;
+							data[i].fillColor = markerType.color;
+							data[i].isMyPost = false;
+							data[i].isBidded = false;
+  						var bids = data[i].bids;
+
+  						if(self.auth) {
+  							if(self.user.id == data[i].user_id) {
+  								markerType = self.markerType.myJob;
+  								data[i].fillColor = markerType.color;
+  								data[i].isMyPost = true;
+  							}
+  							for(var j = 0; j < bids.length; j++) {
+  								// Check if user is already bidded
+  								if(self.user.id == bids[j].user_id) {
+  									markerType = self.markerType.biddedJob;
+  									data[i].fillColor = markerType.color;
+  									data[i].isBidded = true;
+  								}
+  							}
+  						}
+
+              // IDEA: remove existing marker before adding it
+              self.removeBy( _marker => {
+                return _marker.id === data[i].id;
+              });
 
   						self._newMarker(data[i]);
   					}
+            self.loadingJobMarkers = false;
+        }).catch( err => {
+          self.loadingJobMarkers = false;
         });
       }
 
@@ -141,9 +181,11 @@
 				content.isMyPost = data.isMyPost;
 				content.isBidded = data.isBidded;
 
-				var dups = self.findBy( marker => {
-					return (marker.lat == data.lat) && (marker.lng == data.lng);
-				});
+        content = data.name + '<br/>' + 'AED ' + data.price;
+
+				// var dups = self.findBy( marker => {
+				// 	return (marker.lat == data.lat) && (marker.lng == data.lng);
+				// });
 
 				self.addMarker({
 					id: data.id,
@@ -158,7 +200,7 @@
 						{
 							name: 'click',
 							callback: function(e, obj) {
-
+                console.log(data.id, data.name, data.lat, data.lng);
 							}
 						}
 					],
@@ -170,6 +212,10 @@
 					}
 				});
 			}
+
+      _authChange(auth) {
+        this.populateJobMarkers();
+      }
 
 
     }

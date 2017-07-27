@@ -3,8 +3,10 @@
 <script>
 
   const API_BASE_URL = 'https://api.thegrid.com';
+  // const API_BASE_URL = 'https://dev.thegrid.com';
   const API_URL = API_BASE_URL + '/api';
-  const APP_URL = 'http://10.0.0.10:8080/#/';
+  // const APP_URL = 'http://10.0.0.10:8080/#/';
+  const APP_URL = '/';
   const HOME_URL = APP_URL;
   const LOGIN_URL = APP_URL + 'login';
   const REGISTER_URL = APP_URL + 'register';
@@ -50,7 +52,7 @@
       if(access_token) {
 
         gAxios = axios.create({
-          baseURL: 'https://api.thegrid.com/api/',
+          baseURL: API_URL,
           headers: {
             'Authorization': 'Bearer ' + access_token
           }
@@ -66,7 +68,9 @@
 
   redirect = url => {
     if( ! url ) return;
-    window.location.href = url;
+    // window.location.href = url;
+    window.history.pushState({}, null, url);
+    window.dispatchEvent(new CustomEvent('location-changed'));
   }
 
 </script>

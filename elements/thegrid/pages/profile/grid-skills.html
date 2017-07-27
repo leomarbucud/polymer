@@ -81,11 +81,15 @@
         border-radius: 50%;
       }
 
+      .selected {
+        background: rgba(142, 142, 142, 0.13);
+      }
+
 
     </style>
 
     <div class="header-action flex layout horizontal">
-      <iron-icon icon="close" class="white pointer" on-click="close"></iron-icon>
+      <iron-icon icon="close" class="white pointer" on-click="redirectProfile"></iron-icon>
       <span class="flex"></span>
     </div>
 
@@ -136,14 +140,11 @@
       </div>
     </div>
 
-
-
-
   </template>
 
   <script>
 
-    class GridSkills extends ReduxBehavior(Polymer.Element) {
+    class GridSkills extends GridNavigation(ReduxBehavior(Polymer.Element)) {
 
       static get is() { return 'grid-skills'; }
 
@@ -195,18 +196,73 @@
           // console.log(res);
           self.set('_skills', res.data);
         });
-
-
-
       }
 
       connectedCallback() {
         super.connectedCallback();
+        const self = this;
+        const skillInput = this.$.skill;
 
-      }
+        self.selected = -1;
+        self.scroll = 0;
 
-      close() {
-        window.location.href = PROFILE_URL;
+        const keydown = function(e) {
+
+          const result = self.shadowRoot.querySelector('#result');
+          const results = result.querySelectorAll('.row');
+
+          const resultHeight = result.offsetHeight;
+
+          if( e.keyCode == 40 ) {
+            if( self.selected == results.length - 1 ) return;
+            e.preventDefault();
+            e.stopPropagation();
+            var elem = results[self.selected];
+            if(elem) {
+              elem.classList.remove('selected');
+            }
+            self.selected += 1;
+            if(results[self.selected]) {
+              elem = results[self.selected];
+              elem.classList.add('selected');
+              if( resultHeight < (self.selected * elem.offsetHeight) + elem.offsetHeight) {
+                result.scrollTop += elem.offsetHeight;
+              }
+            }
+          }
+
+          if( e.keyCode == 38 ) {
+            if( self.selected == -1 ) return;
+            e.preventDefault();
+            e.stopPropagation();
+            var elem = results[self.selected];
+            if(elem) {
+              elem.classList.remove('selected');
+            }
+            self.selected -= 1;
+            if(results[self.selected]) {
+              elem = results[self.selected];
+              elem.classList.add('selected');
+              if( result.scrollTop > self.selected * elem.offsetHeight) {
+                result.scrollTop -= elem.offsetHeight;
+              }
+            }
+          }
+
+          if( e.keyCode == 13 ) {
+            e.preventDefault();
+            e.stopPropagation();
+            results[self.selected].click();
+          }
+
+        };
+
+        // const blur = function(e) {
+        //   self.cancelSearch(e);
+        // };
+
+        skillInput.addEventListener('keydown', keydown);
+        // skillInput.addEventListener('blur', blur);
       }
 
       select(e) {
@@ -247,6 +303,21 @@
       }
 
       _searching(query) {
+        this.selected = -1;
+        const result = this.shadowRoot.querySelector('#result');
+        const results = result.querySelectorAll('.row');
+        var h = 55;
+        if(results[0]) {
+          h = results[0].offsetHeight;
+          if(h <= 0) {
+            h = 55;
+          }
+        }
+        results.forEach( item => {
+          item.classList.remove('selected');
+        });
+        result.scrollTop = 0;
+        result.style.maxHeight = h * 5 + 'px';
         if ( query != '' ) {
           this.$.result.style.display = 'block';
         } else {

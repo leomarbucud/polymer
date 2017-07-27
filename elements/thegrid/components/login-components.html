@@ -176,7 +176,7 @@
         self.isLoggingIn = true;
         self.isLoggedIn = false;
 
-        axios.post('https://api.thegrid.com/oauth/token', {
+        axios.post(API_BASE_URL + '/oauth/token', {
 
 					grant_type: 'password',
       		client_id: 2,

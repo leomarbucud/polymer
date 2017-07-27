@@ -75,12 +75,12 @@
       // Load and register pre-caching Service Worker
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-          navigator.serviceWorker.register(baseUrl + 'service-worker.js')
-                .then( res => {
-                  console.log('SW Registered');
-                }).catch( err => {
-                  console.log('SW Failed');
-                });
+          // navigator.serviceWorker.register(baseUrl + 'service-worker.js')
+          //       .then( res => {
+          //         console.log('SW Registered');
+          //       }).catch( err => {
+          //         console.log('SW Failed');
+          //       });
         });
       }
     </script>
@@ -97,7 +97,7 @@
 
     <grid-app></grid-app>
     <div class="splash">
-      <img src="/assets/images/thegrid.svg" alt="THE GRID"/>
+      <img src="/assets/images/grid-logo.svg" alt="THE GRID"/>
     </div>
 
   </body>

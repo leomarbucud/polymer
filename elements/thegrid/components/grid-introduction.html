@@ -1,0 +1,151 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-introduction">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        height: 172px;
+        background: #212121;
+        color: #FFFFFF;
+      }
+
+      :host([closed]) {
+        display: none;
+      }
+
+      .red-line {
+        background: linear-gradient(270deg, #FF373B 1.94%, #FF2D55 100%);
+        height: 8px;
+      }
+
+      .header {
+        height: 35px;
+        line-height: 35px;
+        padding: 16px;
+        padding-bottom: 0px;
+      }
+
+      h2 {
+        font-weight: 400;
+        font-size: 20px;
+        margin: 0;
+      }
+
+      .content {
+        padding: 0 16px;
+      }
+
+      .button-holder {
+        padding: 16px;
+        text-align: right;
+      }
+
+      .button-holder span {
+        line-height: 36px;
+        height: 36px;
+        position: relative;
+        margin-left: 32px;
+      }
+
+    </style>
+    <div class="layout flex vertical">
+      <div class="red-line"></div>
+      <div class="flex">
+        <div class="header layout horizontal">
+          <h2 class="flex">This is The Grid</h2>
+          <iron-icon icon="close" class="pointer red" on-click="close"></iron-icon>
+        </div>
+        <div class="content flex">
+          <p>
+            One place for whatever,<br>
+            wherever, whenever you need.
+          </p>
+        </div>
+        <div class="button-holder">
+          <span class="white pointer" on-click="redirectLogin">LOGIN</span>
+          <span class="red pointer" on-click="redirectRegister">SIGN UP</span>
+        </div>
+      </div>
+    </div>
+
+  </template>
+
+  <script>
+
+    class GridIntroduction extends GridNavigation(Polymer.Element) {
+
+      static get is() { return 'grid-introduction'; }
+
+      static get properties() {
+        return {
+          closed: {
+            type: Boolean,
+            value: true,
+            reflectToAttribute: true
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          /* observer array just like 1.x */
+          '_isLoggedInChange(isLoggedIn)'
+        ]
+      }
+
+      static get actions() {
+  			return {
+  				login(user) {
+  					return {
+  						type: 'LOGGED_USER',
+  						user: user
+  					}
+  				}
+  			};
+  		}
+
+      constructor() {
+        super();
+        if(checkLogin()) {
+          this.closed = true;
+        } else {
+          this.closed = false;
+        }
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      close() {
+        this.closed = true;
+      }
+
+      login() {
+        this.close();
+        redirect(LOGIN_URL);
+      }
+
+      register() {
+        this.close();
+        redirect(REGISTER_URL);
+      }
+
+      _isLoggedInChange(isLoggingIn) {
+        if( checkLogin() || isLoggingIn)
+          this.closed = true;
+      }
+
+    }
+
+    customElements.define(GridIntroduction.is, GridIntroduction);
+	</script>
+</dom-module>

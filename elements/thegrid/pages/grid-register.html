@@ -57,7 +57,7 @@
 
     <div class="header-action flex layout horizontal">
       <div class="flex">
-        <iron-icon icon="close" class="white pointer" on-click="close"></iron-icon>
+        <iron-icon icon="close" class="white pointer" on-click="redirectHome"></iron-icon>
       </div>
       <!-- <span class="flex"></span> -->
       <div id="indicator"></div>
@@ -76,7 +76,7 @@
     <paper-toast id="registerMessageToast" duration="0" class="fit-bottom">
       <div class="layout horizontal">
         <span class="flex">[[signUpData.message]]</span>
-        <span><a href="/#/register/verify" class="red anchor">Verify Now</a></span>
+        <span><a href="/register/verify" class="red anchor">Verify Now</a></span>
       </div>
     </paper-toast>
 
@@ -102,7 +102,7 @@
 
   <script>
 
-    class GridRegister extends Polymer.Element {
+    class GridRegister extends GridNavigation(Polymer.Element) {
 
         static get is() { return 'grid-register'; }
 

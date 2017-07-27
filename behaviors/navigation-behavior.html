@@ -1,0 +1,78 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<script>
+
+  var GridNavigation = Polymer.dedupingMixin(function(superClass){
+    return class GridNavigation extends superClass {
+
+      static get properties() {
+        return {
+          url: {
+            type: Object,
+            value: function() {
+              return {
+                API_BASE_URL : 'https://api.thegrid.com',
+                API_URL : API_BASE_URL + '/api',
+                APP_URL : '/',
+                HOME_URL : '/',
+                LOGIN_URL : '/login',
+                REGISTER_URL : '/register',
+                FORGOT_URL : '/forgot',
+                PROFILE_URL : '/profile',
+                VERIFY_URL : '/verification',
+                SETUP_URL : '/profile/setup',
+                LOGOUT_URL : '/logout',
+              }
+            }
+          }
+        }
+      }
+      constructor() {
+        super();
+      }
+
+      redirect(url) {
+        if( ! url ) return;
+        console.log(url);
+        // window.location.href = url;
+        window.history.pushState({}, null, url);
+        window.dispatchEvent(new CustomEvent('location-changed'));
+      }
+
+      redirectHome() {
+        this.redirect(this.url.HOME_URL);
+      }
+
+      redirectLogin() {
+        this.redirect(this.url.LOGIN_URL);
+      }
+
+      redirectRegister() {
+        this.redirect(this.url.REGISTER_URL);
+      }
+
+      redirectForgot() {
+        this.redirect(this.url.FORGOT_URL);
+      }
+
+      redirectProfile() {
+        this.redirect(this.url.PROFILE_URL);
+      }
+
+      redirectVerify() {
+        this.redirect(this.url.VERIFY_URL);
+      }
+
+      redirectSetup() {
+        this.redirect(this.url.SETUP_URL);
+      }
+
+      redirectLogout() {
+        this.redirect(this.url.LOGOUT_URL);
+      }
+
+
+    }
+  });
+
+</script>

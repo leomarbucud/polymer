@@ -20,7 +20,8 @@
 
     </style>
 
-    <app-location route="{{route}}" use-hash-as-path></app-location>
+    <!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
+    <app-location route="{{route}}" ></app-location>
 
 		<app-route route="{{route}}"
 		    pattern="/:page"
@@ -32,11 +33,11 @@
 		    data="{{subrouteData}}"></app-route>
 
     <div class="header-action flex layout horizontal">
-      <iron-icon icon="close" class="white pointer" on-click="close"></iron-icon>
+      <iron-icon icon="close" class="white pointer" on-click="redirectHome"></iron-icon>
       <span class="flex"></span>
     </div>
 
-    <a href="/#/profile/skills">Skills</a>
+    <a href="/profile/skills">Skills</a>
 
     <iron-pages attr-for-selected="data-page" selected="[[subPage]]">
 
@@ -54,7 +55,7 @@
 
   <script>
 
-    class GridProfile extends ReduxBehavior(Polymer.Element) {
+    class GridProfile extends GridNavigation(ReduxBehavior(Polymer.Element)) {
 
       static get is() { return 'grid-profile'; }
 
@@ -95,10 +96,6 @@
 
       }
 
-      close() {
-        window.location.href = HOME_URL;
-      }
-
       _subrouteChange(subroute) {
 				if( subroute.path == '' ) {
 					this.set('subrouteData.id', null);
@@ -119,8 +116,6 @@
           self.subPage = null;
         }
       }
-
-
 
     }
 

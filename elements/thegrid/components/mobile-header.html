@@ -6,6 +6,8 @@
 <link rel="import" href="/redux/grid-redux-store.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
+<script src="https://cdn.klokantech.com/maptilerlayer/v1/index.js"></script>
+
 <dom-module id="mobile-header">
 	<template>
     <style include="grid">
@@ -54,11 +56,32 @@
 			}
 
       openDrawer() {
-				this.drawerOpened = true;
+				// this.drawerOpened = true;
+				this.dispatchEvent(new CustomEvent('open-drawer'));
       }
 
       setCurrentLocation() {
+				const self = this;
 
+				var geoloccontrol = new klokantech.GeolocationControl(self.map, 20);
+				console.log(geoloccontrol);
+
+				// if(self.currentLocation) {
+				// 	self.map.setCenter(self.currentLocation);
+				// 	return;
+				// }
+				// if (navigator.geolocation) {
+        //     navigator.geolocation.getCurrentPosition(function(position) {
+				//
+				// 			self.currentLocation = {
+				// 				lat : position.coords.latitude,
+				// 				lng : position.coords.longitude
+				// 			};
+				//
+				// 			self.map.setCenter(self.currentLocation);
+				//
+        //   })
+        // }
       }
 
     }
