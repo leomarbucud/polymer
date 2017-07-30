@@ -3,6 +3,7 @@
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
 <link rel="import" href="/bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="/behaviors/navigation-behavior.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="grid-forgot">
@@ -26,7 +27,7 @@
     </style>
 
     <div class="header-action flex layout horizontal">
-      <iron-icon icon="chevron-left" class="white pointer" on-click="back"></iron-icon>
+      <iron-icon icon="chevron-left" class="white pointer" on-click="redirectLogin"></iron-icon>
       <span class="flex"></span>
       <iron-icon icon="more-vert" class="white pointer"></iron-icon>
     </div>
@@ -69,7 +70,7 @@
 
   <script>
 
-    class GridForgot extends Polymer.Element {
+    class GridForgot extends GridNavigation(Polymer.Element) {
 
         static get is() { return 'grid-forgot'; }
 
@@ -89,7 +90,7 @@
         }
 
         back() {
-          window.location.href = '/#account/login';
+          // window.location.href = '/#account/login';
         }
 
         updateSubmit() {

@@ -91,7 +91,7 @@
 
 		<grid-map user="[[user]]" map="{{map}}"></grid-map>
 
-		<mobile-header id="mobileHeader" map="{{map}}"></mobile-header>
+		<mobile-header map="{{map}}"></mobile-header>
 
 		<paper-fab id="searchFab" icon="search" class="grid-main-fab"></paper-fab>
 		<paper-fab id="addFab" icon="add" class="grid-main-fab"></paper-fab>
@@ -166,6 +166,14 @@
 						type: Boolean,
 						value: false,
 						reflectToAttribute: true
+					},
+
+					app: {
+						type: Object,
+						value: function() {
+							return this;
+						},
+						notify: true
 					}
 
 				}
@@ -175,11 +183,12 @@
 				return [
 					'_routeChange(route)',
 					'_routeDataChange(routeData)',
-					'_tokenChange(token)',
+					//'_tokenChange(token)',
 					'_drawerState(drawerOpened)',
 					'_hasConfirmationToken(confirmation_token)',
 					'_isAuth(auth)',
-					'_setUpNeeded(setupAccount)'
+					'_setUpNeeded(setupAccount)',
+					'_authenticated(token, user)'
 				]
 			}
 
@@ -216,13 +225,14 @@
 				this.dispatch('logout');
 				this.drawerOpened = false;
 				localStorage.removeItem('token');
+				localStorage.removeItem('user');
 				// window.location.href = HOME_URL;
 				this.redirectHome();
 			}
 
 			ready() {
 				super.ready();
-				this.$.mobileHeader.addEventListener('open-drawer', e => {
+				window.addEventListener('open-drawer', e => {
 					this.drawerOpened = true;
 				});
 			}
@@ -231,33 +241,62 @@
 				const self = this;
 
 				if(checkLogin()) {
-					self.isLoggedIn = true;
+					// self.isLoggedIn = true;
+
+					var user = window.localStorage.getItem('user');
+					var timeout = 3000;
+					if( user ) {
+
+						self.dispatch('loggedUser', JSON.parse(user));
+						timeout = 100;
+					}
+
+					// IDEA: Update user after 3 sec
+					setTimeout( () => {
+
+						gAxios.get('user')
+						.then( res => {
+
+							// IDEA: Update the user local storage
+							window.localStorage.setItem('user', JSON.stringify(res.data));
+
+							// IDEA: update the user redux store
+							self.dispatch('loggedUser', res.data);
+
+							if( ! res.data.is_account_setup ) {
+								// redirect(SETUP_URL);
+							}
+
+						}).catch( err => {
+
+							if( err.response ) {
+									console.log('error', err.response);
+							}
+
+						});
+
+					}, timeout);
+
 					// this.set('accountPage', null);
-
-					gAxios.get('user')
-		      .then( res => {
-
-						self.dispatch('loggedUser', res.data);
-
-						if( ! res.data.is_account_setup ) {
-							// redirect(SETUP_URL);
-						}
-
-		      }).catch( err => {
-
-						if( err.response ) {
-								console.log('error', err.response);
-						}
-
-		      });
 				}
 			}
 
-			_tokenChange(token) {
-				if(token) {
+			// _tokenChange(token) {
+			// 	if(token) {
+			// 		window.localStorage.clear();
+			// 		window.localStorage.setItem('token', token);
+			// 		this._checkLogin();
+			// 	}
+			// }
+
+			_authenticated(token, user) {
+				if( token && user ) {
 					window.localStorage.clear();
-					window.localStorage.setItem('token', JSON.stringify(token));
-					this._checkLogin();
+					window.localStorage.setItem('token', token);
+					window.localStorage.setItem('user', JSON.stringify(user));
+					if(checkLogin()) {
+						this.isLoggedIn = true;
+					}
 				}
 			}
 

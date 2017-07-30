@@ -19,7 +19,7 @@
     </style>
 
     <div class="header-action flex layout horizontal">
-      <iron-icon icon="close" class="white pointer" on-click="close"></iron-icon>
+      <iron-icon icon="close" class="white pointer" on-click="redirectHome"></iron-icon>
       <span class="flex"></span>
     </div>
 
@@ -43,18 +43,17 @@
       </form>
     </div>
 
-
     <paper-toast id="verifyMessageToast" duration="0" class="fit-bottom">
       <div class="flex layout horizontal" style="height: 32px;">
         <span class="flex">Successfully verified!</span>
-        <span><a href="/#/login" class="red anchor">LOGIN?</a></span>
+        <span><a href="/login" class="red anchor">LOGIN?</a></span>
       </div>
     </paper-toast>
 
     <template is="dom-if" if="[[isVerifying]]">
       <div class="overlay loading-bg">
         <div class="align-center">
-          <img src="/assets/images/thegrid.svg" alt="THE GRID"/>
+          <img src="/assets/images/grid-logo-simple.svg" alt="THE GRID"/>
           <br/>
           <paper-spinner active$="[[isVerifying]]"></paper-spinner>
         </div>
@@ -65,18 +64,12 @@
 
   <script>
 
-    class GridVerification extends ReduxBehavior(Polymer.Element) {
+    class GridVerification extends GridNavigation(Polymer.Element) {
 
       static get is() { return 'grid-verify'; }
 
       static get properties() {
         return {
-          /* properties meta data object just like 1.x */
-          user: {
-            type: Object,
-            statePath: 'user'
-          },
-
           email: {
             type: String,
             value: localStorage.getItem('email') || ''
@@ -88,23 +81,9 @@
 
       }
 
-      static get actions() {
-  			return {
-  				login(user) {
-  					return {
-  						type: 'LOGGED_USER',
-  						user: user
-  					}
-  				}
-  			};
-  		}
 
       constructor() {
         super();
-
-        // if( ! localStorage.getItem('user_id') ) {
-        //   window.location.href = REGISTER_URL;
-        // }
 
       }
 
@@ -119,7 +98,7 @@
         axios.post(API_URL + '/account/verify', {
           confirmation_code: this.code,
           id: localStorage.getItem('user_id'),
-          email: localStorage.getItem('email')
+          email: this.email
         }).then( res => {
 
           self.$.verifyForm.reset();
@@ -134,11 +113,7 @@
             console.log(err.response);
           }
           self.isVerifying = false;
-        })
-      }
-
-      close() {
-        window.location.href = HOME_URL;
+        });
       }
 
     }

@@ -61,6 +61,7 @@
               data-step="1"
               data-question="What is your name?">
             <input id="name" type="text" class="form-input" autofocus
+                autocomplete="off"
                 placeholder="Full Name"
                 value="{{name::input}}"
                 data-validate="required"
@@ -69,6 +70,7 @@
 
           <div class="input-group suffix" data-step="2" data-question="Hello %name. Your Email?">
             <input id="email" type="text" class="input"
+                autocomplete="off"
                 on-keyup="checkEmailInput"
                 placeholder="Email"
                 value="{{email::input}}"
@@ -91,6 +93,7 @@
               <span>AE +971</span>
             </div>
             <input id="phone_number" type="text" class="input"
+                autocomplete="off"
                 placeholder="Phone Number"
                 value="{{phone_number::input}}"
                 data-validate="required|number"
@@ -100,6 +103,7 @@
 
           <div class="input-group suffix" data-step="4" data-question="Create Password. A strong one.">
             <input id="password" type="password" class="input"
+                autocomplete="off"
                 placeholder="Password"
                 value="{{password::input}}"
                 data-validate="required"
@@ -111,6 +115,7 @@
 
           <div class="input-group" data-step="5" data-question="One more time!">
             <input id="password_confirmation" type="password" class="form-input"
+                autocomplete="off"
                 placeholder="Retype Password"
                 value="{{password_confirmation::input}}"
                 data-validate="required|match"
@@ -121,6 +126,8 @@
 
           <div class="input-group" data-step="6" data-question="Pick your Username.">
             <input id="username" type="text" class="input"
+                on-keyup="showNext"
+                autocomplete="off"
                 placeholder="User name"
                 value="{{username::input}}"
                 data-validate="required"
@@ -290,6 +297,14 @@
 
       tooglePassword() {
         this.isPasswordHidden = !this.isPasswordHidden;
+      }
+
+      showNext() {
+        if( this.username ) {
+          this.next = true;
+        } else {
+          this.next = false;
+        }
       }
 
       updateEmail(provider) {

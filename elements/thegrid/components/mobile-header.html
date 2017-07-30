@@ -6,8 +6,6 @@
 <link rel="import" href="/redux/grid-redux-store.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
-<script src="https://cdn.klokantech.com/maptilerlayer/v1/index.js"></script>
-
 <dom-module id="mobile-header">
 	<template>
     <style include="grid">
@@ -48,40 +46,54 @@
 
 			static get properties() {
 				return {
-					drawerOpened: {
-						type: Boolean,
-						notify: true
+					locationTimeout: {
+						type: Number,
+						value: 10000
 					}
 				}
 			}
 
+			connectedCallback() {
+				super.connectedCallback();
+			}
+
       openDrawer() {
-				// this.drawerOpened = true;
-				this.dispatchEvent(new CustomEvent('open-drawer'));
+				window.dispatchEvent(new CustomEvent('open-drawer'));
       }
+
+			setMarker(options) {
+				if(this.marker) {
+					this.marker.setMap(null);
+				}
+				this.marker = new google.maps.Marker(options);
+				this.map.setCenter(options.position);
+			}
 
       setCurrentLocation() {
 				const self = this;
 
-				var geoloccontrol = new klokantech.GeolocationControl(self.map, 20);
-				console.log(geoloccontrol);
+				var options = {
+					map: self.map,
+					icon: window.location.origin + '/assets/images/currentlocation.png',
+					zIndex: 9999999999999,
+					optimized: false,
+				};
 
-				// if(self.currentLocation) {
-				// 	self.map.setCenter(self.currentLocation);
-				// 	return;
-				// }
-				// if (navigator.geolocation) {
-        //     navigator.geolocation.getCurrentPosition(function(position) {
-				//
-				// 			self.currentLocation = {
-				// 				lat : position.coords.latitude,
-				// 				lng : position.coords.longitude
-				// 			};
-				//
-				// 			self.map.setCenter(self.currentLocation);
-				//
-        //   })
-        // }
+				if(self.currentLocation) {
+					options.position = self.currentLocation;
+					self.setMarker(options);
+					return;
+				}
+				if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+							self.currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
+							options.position = self.currentLocation;
+							self.setMarker(options);
+							setTimeout( () => {
+								self.currentLocation = null;
+							}, self.locationTimeout );
+          })
+        }
       }
 
     }

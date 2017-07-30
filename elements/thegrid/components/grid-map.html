@@ -122,7 +122,10 @@
         self.loadingJobMarkers = true;
 
         axios.get(API_BASE_URL + '/job/all?lat='+self.mapOptions.center.lat+'&lng='+self.mapOptions.center.lng)
-  				.then(function (response) {
+  				.then(response => {
+
+            self.loadingJobMarkers = false;
+
   					var data = response.data;
             var markerType = self.markerType.newJob;
 
@@ -156,7 +159,6 @@
 
   						self._newMarker(data[i]);
   					}
-            self.loadingJobMarkers = false;
         }).catch( err => {
           self.loadingJobMarkers = false;
         });

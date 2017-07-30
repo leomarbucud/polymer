@@ -33,8 +33,6 @@
 
       redirect(url) {
         if( ! url ) return;
-        console.log(url);
-        // window.location.href = url;
         window.history.pushState({}, null, url);
         window.dispatchEvent(new CustomEvent('location-changed'));
       }

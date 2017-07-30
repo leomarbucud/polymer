@@ -67,7 +67,7 @@
       </div>
 
       <div class="form-control">
-        <social-button class="google" on-tap="loginGoogle">
+        <social-button id="loginGoogle" class="google" on-tap="loginGoogle">
           <iron-icon class="icon" src="/assets/images/google.svg"></iron-icon>
           <span>Sign In with Google</spa>
         </social-button>
@@ -139,10 +139,19 @@
       static get actions() {
   			return {
 
-          assignToken(token) {
+          assignToken(data) {
             return {
               type: 'ASSIGN_TOKEN',
-              token: token
+              token: data.access_token,
+              user: data.user
+            }
+          },
+
+          giveAccess(data) {
+            return {
+              type: 'GIVE_ACCESS',
+              token: data.access_token,
+              user: data.user
             }
           }
   			};
@@ -176,12 +185,9 @@
         self.isLoggingIn = true;
         self.isLoggedIn = false;
 
-        axios.post(API_BASE_URL + '/oauth/token', {
+        axios.post(API_URL + '/login', {
 
-					grant_type: 'password',
-      		client_id: 2,
-      		client_secret: 'xIxcFxQGFbYkSXKmd0MQ4iuC8Ejfw8x6EcuZJpHe',
-					username: username.value,
+					email: username.value,
 					password: password.value
 
 				}).then( res => {
@@ -189,7 +195,8 @@
           self.isLoggingIn = false;
           self.isLoggedIn = true;
 
-          self.dispatch('assignToken', res.data);
+          // self.dispatch('assignToken', res.data);
+          self.dispatch('giveAccess', res.data);
 
           self.$.loginForm.reset();
 
@@ -211,7 +218,62 @@
       }
 
       loginGoogle() {
-        window.location.href = API_BASE_URL + '/auth/google';
+        // window.location.href = API_BASE_URL + '/auth/google';
+      }
+
+      loadGoogleApi(src, callback) {
+          let s = document.createElement('script');
+          s.type = 'text/javascript';
+          s.onerror = this.googleApiError;
+          if(callback) { s.onload = callback; }
+          let h = document.getElementsByTagName("head")[0];
+          h.appendChild(s);
+          s.src = src
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        const self = this;
+        this.loadGoogleApi('https://apis.google.com/js/client:platform.js', () => {
+
+          var element = this.$.loginGoogle;
+
+          gapi.load('auth2', function() {
+
+            var auth2 = gapi.auth2.init({
+              client_id: '186352805872-hqq59ghhfq4pdf6tttonigp3ipbgmdbb.apps.googleusercontent.com',
+              cookiepolicy: 'single_host_origin',
+              scope: 'profile'
+            });
+
+            auth2.attachClickHandler(element, { ux_mode: 'popup' },
+              function(googleUser) {
+                var profile = googleUser.getBasicProfile();
+
+                self.isLoggingIn = true;
+                self.isLoggedIn = false;
+
+                axios.post(API_URL + '/login/google', {
+                  id: profile.getId(),
+                  name: profile.getName(),
+                  email: profile.getEmail()
+                }).then( res => {
+
+                  self.isLoggingIn = false;
+                  self.isLoggedIn = true;
+
+                  self.dispatch('giveAccess', res.data);
+                });
+
+              },
+              function(error) {
+                console.log('Sign-in error', error);
+              }
+            );
+          });
+
+        });
+
       }
 
     }

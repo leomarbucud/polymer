@@ -10,12 +10,12 @@
 
 /* eslint no-console: ["error", { allow: ["info"] }] */
 
-console.info(
-  'Service worker disabled for development, will be generated at build time.'
-);
+// console.info(
+//   'Service worker disabled for development, will be generated at build time.'
+// );
 
 // Set a name for the current cache
-var cacheName = 'v1';
+var cacheName = 'v2';
 
 // Default files to always cache
 var cacheFiles = [
@@ -30,6 +30,10 @@ var cacheFiles = [
   "./elements/thegrid/pages/profile/grid-skills.html",
   "./elements/thegrid/components/grid-map.html",
   "./elements/thegrid/components/drawer.html",
+  "./behaviors/map-behavior.html",
+  "./behaviors/form-slider-behavior.html",
+  "./behaviors/navigation-behavior.html",
+  // "./redux/grid-redux-store.html",
   "./node_modules/redux/dist/redux.js",
   "./node_modules/axios/dist/axios.js",
 	'https://fonts.googleapis.com/css?family=Roboto'
@@ -77,55 +81,67 @@ self.addEventListener('activate', function(e) {
 
 
 self.addEventListener('fetch', function(e) {
-	console.log('[ServiceWorker] Fetch', e.request.url);
+	// console.log('[ServiceWorker] Fetch', e.request.url);
 
-	// e.respondWidth Responds to the fetch event
-	e.respondWith(
+  var requestURL = new URL(e.request.url);
 
-		// Check in cache for the request being made
-		caches.match(e.request)
+  if(requestURL.hostname != 'api.thegrid.com') {
+    // console.log('Request is to grid api');
+  } else if(/\.googleapis\.com$/.test(requestURL.hostname) ||
+            /\.gstatic\.com$/.test(requestURL.hostname)) {
+    // console.log('Request is to google api');
+  } else {
+    console.log('[ServiceWorker] Fetch', e.request.url);
 
+  	// e.respondWidth Responds to the fetch event
+  	e.respondWith(
 
-			.then(function(response) {
-
-				// If the request is in the cache
-				if ( response ) {
-					console.log("[ServiceWorker] Found in Cache", e.request.url, response);
-					// Return the cached version
-					return response;
-				}
-
-				// If the request is NOT in the cache, fetch and cache
-
-				var requestClone = e.request.clone();
-				fetch(requestClone)
-					.then(function(response) {
-
-						if ( !response ) {
-							console.log("[ServiceWorker] No response from fetch ")
-							return response;
-						}
-
-						var responseClone = response.clone();
-
-						//  Open the cache
-						caches.open(cacheName).then(function(cache) {
-
-							// Put the fetched response in the cache
-							cache.put(e.request, responseClone);
-							console.log('[ServiceWorker] New Data Cached', e.request.url);
-
-							// Return the response
-							return response;
-
-				        }); // end caches.open
-
-					})
-					.catch(function(err) {
-						console.log('[ServiceWorker] Error Fetching & Caching New Data', err);
-					});
+  		// Check in cache for the request being made
+  		caches.match(e.request)
 
 
-			}) // end caches.match(e.request)
-	); // end e.respondWith
+  			.then(function(response) {
+
+  				// If the request is in the cache
+  				if ( response ) {
+  					console.log("[ServiceWorker] Found in Cache", e.request.url, response);
+  					// Return the cached version
+  					return response;
+  				}
+
+  				// If the request is NOT in the cache, fetch and cache
+
+  				var requestClone = e.request.clone();
+  				fetch(requestClone)
+  					.then(function(response) {
+
+  						if ( !response ) {
+  							console.log("[ServiceWorker] No response from fetch ")
+  							return response;
+  						}
+
+  						var responseClone = response.clone();
+
+  						//  Open the cache
+  						caches.open(cacheName).then(function(cache) {
+
+  							// Put the fetched response in the cache
+  							cache.put(e.request, responseClone);
+  							console.log('[ServiceWorker] New Data Cached', e.request.url);
+
+  							// Return the response
+  							return response;
+
+              }); // end caches.open
+
+  					})
+  					.catch(function(err) {
+  						console.log('[ServiceWorker] Error Fetching & Caching New Data', err);
+  					});
+
+
+  			}) // end caches.match(e.request)
+  	); // end e.respondWith
+
+  }
 });
