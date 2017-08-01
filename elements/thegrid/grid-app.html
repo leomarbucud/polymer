@@ -130,6 +130,16 @@
 				</div>
 	    </section>
 
+			<section data-page="posts" class="overlay">
+	      <div class="center-page">
+					<grid-posts id="posts"></grid-posts>
+				</div>
+	    </section>
+
+			<section data-page="404">
+				<grid-404></grid-404>
+	    </section>
+
 	  </iron-pages>
 
 		<app-drawer id="drawer" align="start" swipe-open opened="{{drawerOpened}}">
@@ -174,7 +184,12 @@
 							return this;
 						},
 						notify: true
-					}
+					},
+
+					skills: {
+            type: Object,
+            statePath: 'skills'
+          }
 
 				}
 			}
@@ -206,7 +221,14 @@
             return {
               type: 'LOGOUT_USER'
             }
-          }
+          },
+
+					setSkills(skills) {
+  					return {
+  						type: 'SET_SKILLS',
+  						skills: skills
+  					}
+  				}
 
 				}
 			}
@@ -226,8 +248,8 @@
 				this.drawerOpened = false;
 				localStorage.removeItem('token');
 				localStorage.removeItem('user');
-				// window.location.href = HOME_URL;
-				this.redirectHome();
+				window.location.href = HOME_URL;
+				// this.redirectHome();
 			}
 
 			ready() {
@@ -248,6 +270,10 @@
 					if( user ) {
 
 						self.dispatch('loggedUser', JSON.parse(user));
+						gAxios.get('/users/' + JSON.parse(user)['id'] + '/skills')
+		        .then( res => {
+		          self.dispatch('setSkills', res.data);
+		        });
 						timeout = 100;
 					}
 
@@ -325,6 +351,10 @@
 				} else {
 					switch (routeData.page) {
 						case 'profile':
+						case 'posts':
+						case 'bids':
+						case 'inbox':
+						case 'transactions':
 							this.redirectLogin();
 							return;
 							break;
@@ -338,19 +368,24 @@
 
 					// IDEA: if profile page
 					if( routeData.page.charAt(0) == '@' ) {
-						console.log('loding user', routeData.page )
+						// console.log('loding user', routeData.page )
 
 						return;
 					}
 
 					// IDEA: return if there is no component declared
-					if( !this.shadowRoot.querySelector('#' + routeData.page ) ) return;
+					if( !this.shadowRoot.querySelector('#' + routeData.page ) ) {
+						self._showPage404();
+						return;
+					};
 
           Polymer.Base.importHref(
 						'/elements/thegrid/pages/grid-' + routeData.page + '.html',
 						() => {
 							self.page = routeData.page
-						}
+						},
+						self._showPage404.bind(self),
+            true
 					);
 
         } else {
@@ -362,6 +397,16 @@
 						}
 					);
 				}
+			}
+
+			_showPage404() {
+				this.page = '404';
+				Polymer.Base.importHref(
+					'/elements/thegrid/pages/grid-404.html',
+					() => {
+						// do something after elements has been imported
+					}
+				);
 			}
 
 			_drawerState(drawerOpened) {
@@ -402,7 +447,7 @@
 			}
 
 			_setUpNeeded(setupAccount) {
-				console.log('setup account', setupAccount);
+				// console.log('setup account', setupAccount);
 			}
 
 		}

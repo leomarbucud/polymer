@@ -18,7 +18,9 @@
   const intialState = {
     user: null,
     token: null,
-    auth: false
+    auth: false,
+    skills: null,
+    posts: null
   };
 
   const reducer = (state, action) => {
@@ -30,7 +32,7 @@
         return Object.assign({}, state, { user: user, auth: true } );
 
       case 'LOGOUT_USER':
-        return Object.assign({}, state, { user: null, auth: false, token: null } );
+        return Object.assign({}, state, { user: null, auth: false, token: null, skills: null } );
 
       case 'ASSIGN_TOKEN':
         const token = action.token;
@@ -40,6 +42,23 @@
         const _token = action.token;
         const _user = action.user;
         return Object.assign({}, state, { token: _token, user: _user, auth: true });
+
+      case 'SET_SKILLS':
+        const _skills = action.skills;
+        return Object.assign({}, state, { skills: _skills });
+
+      case 'ADD_SKILL':
+        var skills = state.skills.slice(0);
+        skills.push(action.skill);
+        return Object.assign({}, state, { skills: skills });
+
+      case 'REMOVE_SKILL':
+        var skills = state.skills.slice(0);
+        skills.splice(skills.indexOf(action.skill), 1);
+        return Object.assign({}, state, { skills: skills });
+
+      case 'SET_POSTS':
+        return Object.assign({}, state, { posts: action.posts });
 
     }
   };

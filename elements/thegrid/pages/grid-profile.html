@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="grid-profile">
@@ -11,11 +12,64 @@
         width: 100%;
         height: 100%;
         margin: 0 auto;
-        background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
+        background: var(--dark-red);
       }
-      .header-action {
-        height: 56px;
+
+      .top-section {
+        padding-bottom: 16px;
+      }
+
+      .top-section .avatar-name {
+        margin-bottom: 16px;
+      }
+
+      .lower-section {
+        background: #303030;
         padding: 16px;
+      }
+
+      .section-title {
+        line-height: 40px;
+      }
+
+      .section-title .title {
+        font-size: 18px;
+      }
+
+      div.divider {
+        padding: 8px 0;
+      }
+
+      div.divider hr {
+        margin: 0;
+        opacity: 0.12;
+      }
+
+      .chip {
+        padding-right: 16px;
+      }
+
+      .white-7 {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .stats {
+        padding: 0 8px;
+        text-align: center;
+        border-right: 1px solid #FFFFFF;
+      }
+
+      .stats:last-child {
+        padding-right: 0px;
+        border-right: none;
+      }
+
+      .num {
+        font-size: 24px;
+      }
+
+      .name {
+        font-size: 34px;
       }
 
     </style>
@@ -32,12 +86,91 @@
 		    pattern="/:id"
 		    data="{{subrouteData}}"></app-route>
 
-    <div class="header-action flex layout horizontal">
-      <iron-icon icon="close" class="white pointer" on-click="redirectHome"></iron-icon>
+    <div id="toolbar" class="toolbar dred-bg">
+      <paper-icon-button icon="first-page" class="white pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
+      <paper-icon-button icon="create" class="white pointer"></paper-icon-button>
+      <paper-icon-button icon="more-vert" class="white pointer"></paper-icon-button>
     </div>
 
-    <a href="/profile/skills">Skills</a>
+    <main class="scroll-area flex">
+      <section class="p-y-1 top-section dred-bg">
+
+        <div class="layout horizontal avatar-name">
+          <div class="flex">
+            <span class="flex m-0 white name">[[user.name]]</span>
+            <span class="block white">@[[user.username]]</span>
+          </div>
+          <img class="circle" src$="[[_profileImage(user.profile.profile_image_url)]]">
+        </div>
+
+        <div class="layout horizontal white">
+          <div class="flex m-0">
+            <span class="block" style="height: 28px;">
+              <iron-icon icon="star"></iron-icon>
+              <iron-icon icon="star"></iron-icon>
+              <iron-icon icon="star"></iron-icon>
+              <iron-icon icon="star"></iron-icon>
+              <iron-icon icon="star"></iron-icon>
+            </span>
+            <span class="block white-7">123,456 Ratings</span>
+          </div>
+          <div class="stats">
+            <span class="block num">100K</span>
+            <span class="block white-7">Posts</span>
+          </div>
+          <div class="stats">
+            <span class="block num">150K</span>
+            <span class="block white-7">Bids</span>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="p-y-1 lower-section">
+
+        <div>
+          <div class="layout horizontal white section-title">
+            <span class="flex title">About</span>
+            <span class="red">More</span>
+          </div>
+          <p class="white">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          </p>
+        </div>
+
+        <div class="divider"><hr/></div>
+
+        <div>
+          <div class="white section-title">
+            <span class="title">Metrics</span>
+          </div>
+          <p class="white">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          </p>
+        </div>
+
+        <div class="divider"><hr/></div>
+
+        <div>
+          <div class="layout horizontal white section-title">
+            <span class="flex title">Skills</span>
+            <span class="red pointer" on-click="redirectProfileSkills">Edit</span>
+          </div>
+          <div class="skills-container">
+            <div hidden$="[[skills]]" class="white">Loading your awesome skills...</div>
+            <template is="dom-repeat" items="[[skills]]" as="skill">
+              <div class="chip">
+                <span>[[skill.skill]]</span>
+              </div>
+            </template>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <!-- <a href="/profile/skills">Skills</a> -->
 
     <iron-pages attr-for-selected="data-page" selected="[[subPage]]">
 
@@ -64,6 +197,10 @@
           user: {
             type: Object,
             statePath: 'user'
+          },
+          skills: {
+            type: Object,
+            statePath: 'skills'
           }
         }
       }
@@ -77,10 +214,10 @@
 
       static get actions() {
   			return {
-  				login(user) {
+  				setSkills(skills) {
   					return {
-  						type: 'LOGGED_USER',
-  						user: user
+  						type: 'SET_SKILLS',
+  						skills: skills
   					}
   				}
   			};
@@ -88,12 +225,26 @@
 
       constructor() {
         super();
-
       }
 
       connectedCallback() {
         super.connectedCallback();
+        gAxios.get('/users/' + this.user.id + '/skills')
+        .then( res => {
+          this.dispatch('setSkills', res.data);
+        });
 
+        const main = this.shadowRoot.querySelector('main');
+
+        const scroll = function() {
+          if( this.scrollTop > 0 ) {
+            this.classList.add('scroll');
+          } else {
+            this.classList.remove('scroll');
+          }
+        };
+        
+        main.addEventListener('scroll', scroll);
       }
 
       _subrouteChange(subroute) {
@@ -115,6 +266,13 @@
         } else {
           self.subPage = null;
         }
+      }
+
+      _profileImage(img) {
+        if( img ) {
+          return this.url.API_BASE_URL + '/storage/avatars/' + img;
+        }
+        return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
       }
 
     }

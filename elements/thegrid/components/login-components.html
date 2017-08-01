@@ -60,7 +60,7 @@
       </divider-text>
 
       <div class="form-control">
-        <social-button class="facebook" >
+        <social-button class="facebook" id="loginFacebook" >
           <iron-icon class="icon" src="/assets/images/facebook.svg"></iron-icon>
           <span>Continue with Facebook</spa>
         </social-button>
@@ -221,7 +221,7 @@
         // window.location.href = API_BASE_URL + '/auth/google';
       }
 
-      loadGoogleApi(src, callback) {
+      loadJsAPI(src, callback) {
           let s = document.createElement('script');
           s.type = 'text/javascript';
           s.onerror = this.googleApiError;
@@ -234,9 +234,9 @@
       connectedCallback() {
         super.connectedCallback();
         const self = this;
-        this.loadGoogleApi('https://apis.google.com/js/client:platform.js', () => {
+        this.loadJsAPI('https://apis.google.com/js/client:platform.js', () => {
 
-          var element = this.$.loginGoogle;
+          const googleButton = this.$.loginGoogle;
 
           gapi.load('auth2', function() {
 
@@ -246,24 +246,17 @@
               scope: 'profile'
             });
 
-            auth2.attachClickHandler(element, { ux_mode: 'popup' },
+            auth2.attachClickHandler(googleButton, { ux_mode: 'popup' },
               function(googleUser) {
-                var profile = googleUser.getBasicProfile();
+                const profile = googleUser.getBasicProfile();
 
-                self.isLoggingIn = true;
-                self.isLoggedIn = false;
-
-                axios.post(API_URL + '/login/google', {
+                const data = {
                   id: profile.getId(),
                   name: profile.getName(),
                   email: profile.getEmail()
-                }).then( res => {
+                };
 
-                  self.isLoggingIn = false;
-                  self.isLoggedIn = true;
-
-                  self.dispatch('giveAccess', res.data);
-                });
+                self.signInSocial('google', data);
 
               },
               function(error) {
@@ -274,6 +267,72 @@
 
         });
 
+        this.loadJsAPI('//connect.facebook.net/en_US/sdk.js', () => {
+
+          window.fbAsyncInit = () => {
+
+            FB.init({
+              appId      : '1452554341433601',
+              cookie     : true,
+              xfbml      : true,
+              version    : 'v2.8'
+            });
+
+            FB.AppEvents.logPageView();
+
+            FB.getLoginStatus( res => {
+
+              const fbButton = this.$.loginFacebook;
+
+              const getInfo = () => {
+
+                FB.api('/me', 'GET', {
+                  fields: 'first_name, last_name, email'
+                }, res => {
+
+                  const data = {
+                    id: res.id,
+                    name: res.first_name + ' ' + res.last_name,
+                    email: res.email
+                  };
+
+                  self.signInSocial('facebook', data);
+
+                });
+              };
+
+              if ( res.status === 'connected' ) {
+                fbButton.addEventListener('click', () => {
+                  getInfo();
+                });
+              } else {
+                fbButton.addEventListener('click', () => {
+                  FB.login( res => {
+                    if ( res.status === 'connected' ) {
+                      getInfo();
+                    }
+                  })
+                });
+              }
+
+            });
+
+          };
+
+        })
+      }
+
+      signInSocial(provider, data) {
+        this.isLoggingIn = true;
+        this.isLoggedIn = false;
+
+        axios.post(API_URL + '/login/' + provider, data)
+        .then( res => {
+          this.dispatch('giveAccess', res.data);
+        }).then( () => {
+          this.isLoggingIn = false;
+          this.isLoggedIn = true;
+        });
       }
 
     }

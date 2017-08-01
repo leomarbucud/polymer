@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/iron-list/iron-list.html">
 <link rel="import" href="/bower_components/paper-ripple/paper-ripple.html">
@@ -16,7 +17,8 @@
         width: 100%;
         height: 100%;
         margin: 0 auto;
-        background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
+        background: var(--dark-red);
+        /*background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);*/
       }
 
       .auto-complete {
@@ -31,12 +33,12 @@
         min-height: 0px;
         max-height: 400px;
         z-index: 1;
-        overflow-y: scroll;
+        overflow-y: auto;
       }
       .auto-complete .row {
         padding: 8px 16px;
         border-top: 1px solid rgba(0,0,0, 0.12);
-        /*position: relative;*/
+        position: relative;
       }
       .auto-complete .row span {
         display: block;
@@ -47,38 +49,14 @@
       }
 
       .skills-container {
-        overflow-y: scroll;
+        overflow-y: auto;
         max-height: 350px;
         padding: 32px 0;
       }
 
-      .chip {
-        display: inline-block;
-        background: #FFFFFF;
-        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
-        border-radius: 100px;
-        line-height: 32px;
-        height: 32px;
-        font-size: 14px;
-        color: rgba(0, 0, 0, 0.543846);
-        padding: 0 16px;
-        padding-right: 8px;
-        margin-bottom: 8px;
-        margin-right: 8px;
-      }
-
-      .chip .close {
-        width: 18px;
-        height: 18px;
-        cursor: pointer;
-      }
-
-      .chip iron-icon {
-        width: 18px;
-        height: 18px;
-        color: rgba(255,255,255,0.54);
-        background: rgba(0, 0, 0, 0.54);
-        border-radius: 50%;
+      .skills-container::-webkit-scrollbar {
+          width: 0px;
+          background: transparent;
       }
 
       .selected {
@@ -89,7 +67,7 @@
     </style>
 
     <div class="header-action flex layout horizontal">
-      <iron-icon icon="close" class="white pointer" on-click="redirectProfile"></iron-icon>
+      <paper-icon-button icon="chevron-left" class="white pointer" on-click="redirectProfile"></paper-icon-button>
       <span class="flex"></span>
     </div>
 
@@ -128,8 +106,8 @@
       </form>
 
       <div class="skills-container">
-        <div hidden$="[[selectedSkills]]" class="white">Loading your awesome skills...</div>
-        <template is="dom-repeat" items="[[selectedSkills]]" as="skill">
+        <div hidden$="[[skills]]" class="white">Loading your awesome skills...</div>
+        <template is="dom-repeat" items="[[skills]]" as="skill">
           <div class="chip">
             <span>[[skill.skill]]</span>
             <span class="close">
@@ -156,6 +134,11 @@
             statePath: 'user'
           },
 
+          skills: {
+            type: Object,
+            statePath: 'skills'
+          },
+
           _skills: {
             type: Array,
             value: []
@@ -179,10 +162,24 @@
 
       static get actions() {
   			return {
-  				login(user) {
+          setSkills(skills) {
   					return {
-  						type: 'LOGGED_USER',
-  						user: user
+  						type: 'SET_SKILLS',
+  						skills: skills
+  					}
+  				},
+
+          addSkill(skill) {
+  					return {
+  						type: 'ADD_SKILL',
+  						skill: skill
+  					}
+  				},
+
+          removeSkill(skill) {
+  					return {
+  						type: 'REMOVE_SKILL',
+  						skill: skill
   					}
   				}
   			};
@@ -195,6 +192,7 @@
         .then( res => {
           // console.log(res);
           self.set('_skills', res.data);
+          //self.dispatch('setSkills', res.data);
         });
       }
 
@@ -273,7 +271,8 @@
         } );
 
         if(!found) {
-          this.push('selectedSkills', skill);
+          // this.push('selectedSkills', skill);
+          this.dispatch('addSkill', skill);
           gAxios.post('/users/' + this.user.id + '/skills', skill)
           .then( res => {
             // console.log(res);
@@ -290,10 +289,11 @@
       removeSkill(e) {
         const skill = e.model.skill;
 
-        const index = this.selectedSkills.indexOf(skill);
+        const index = this.skills.indexOf(skill);
 
         if( index != -1) {
-          this.splice('selectedSkills', index, 1);
+          // this.splice('selectedSkills', index, 1);
+          this.dispatch('removeSkill', skill);
           gAxios.delete('/users/' + this.user.id + '/skills/' + skill.id)
           .then( res => {
             // console.log(res);

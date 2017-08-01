@@ -1,6 +1,22 @@
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="/elements/thegrid/grid-icons.html">
 
+<custom-style>
+  <style is="custom-style">
+    html {
+			--red: #FF3B30;
+			--dark-red: #D62D33;
+			--dark-grey: #303030;
+		}
+
+		--grid-transition-effect: {
+			transition-property: all;
+			transform-style: cubic-bezier(0.4, 0, 0.2, 1);
+			transition-duration: 350ms;
+		}
+	</style>
+</custom-style>
+
 <dom-module id="grid">
 	<template>
 		<style>
@@ -30,6 +46,10 @@
       .pointer {
         cursor: pointer;
       }
+
+			.p-0 {
+				padding: 0;
+			}
 
 			.p-1 {
 				padding: 16px;
@@ -135,7 +155,7 @@
 			}
 
 			.red {
-				color: #FF3B30;
+				color: var(--red);
 			}
 
 			.anchor {
@@ -185,14 +205,26 @@
 				text-align: center;
 			}
 
-			.header-action {
-        height: 56px;
-        padding: 16px;
+			.header-action, .toolbar {
+        display: var(--layout-horizontal_-_display);
+        -ms-flex-direction: var(--layout-horizontal_-_-ms-flex-direction);
+        -webkit-flex-direction: var(--layout-horizontal_-_-webkit-flex-direction);
+        flex-direction: var(--layout-horizontal_-_flex-direction);
+        -ms-flex-align: var(--layout-center_-_-ms-flex-align);
+        -webkit-align-items: var(--layout-center_-_-webkit-align-items);
+        align-items: var(--layout-center_-_align-items);
+        position: relative;
+        height: 64px;
+        padding: 0 8px;
       }
 
-			.loading-bg {
+			.loading-bg, .red-bg {
         background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
       }
+
+			.dred-bg {
+				background: #D62D33;
+			}
 
 			.grid-main-fab {
 				background: linear-gradient(213.81deg, #FF3B30 7.88%, #FF2D55 94.63%);
@@ -210,6 +242,73 @@
 			a {
 				cursor: pointer;
 			}
+
+			.circle {
+        height: 64px;
+        width: 64px;
+        border-radius: 50%;
+      }
+
+			.block {
+				display: block;
+			}
+
+			.chip {
+        display: inline-block;
+        background: #FFFFFF;
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
+        border-radius: 100px;
+        line-height: 32px;
+        height: 32px;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.543846);
+        padding: 0 16px;
+        padding-right: 8px;
+        margin-bottom: 8px;
+        margin-right: 8px;
+      }
+
+      .chip .close {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+
+      .chip iron-icon {
+        width: 18px;
+        height: 18px;
+        color: rgba(255,255,255,0.54);
+        background: rgba(0, 0, 0, 0.54);
+        border-radius: 50%;
+      }
+
+      main.scroll-area {
+        overflow-y: auto;
+        height: calc(100% - 64px);
+      }
+
+      main.scroll-area::-webkit-scrollbar {
+          width: 0px;
+          background: transparent; /* make scrollbar transparent */
+      }
+
+      main.scroll-area::before {
+        position: absolute;
+        right: 0px;
+        left: 0px;
+        width: 100%;
+        height: 5px;
+        margin-top: -1px;
+        content: "";
+        transition: opacity 0.4s;
+        pointer-events: none;
+        opacity: 0;
+        box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+      }
+
+      main.scroll-area.scroll::before {
+        opacity: 1
+      }
 
 		</style>
 	</template>

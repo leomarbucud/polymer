@@ -69,14 +69,14 @@
           </div>
 
           <div class="input-group suffix" data-step="2" data-question="Hello %name. Your Email?">
-            <input id="email" type="text" class="input"
+            <input id="email" name="email" type="text" class="input"
                 autocomplete="off"
                 on-keyup="checkEmailInput"
                 placeholder="Email"
                 value="{{email::input}}"
                 data-validate="required|email"
                 data-message-required="Your email is required."
-                data-message-email="That email is invalid." />
+                data-message-email="That email is invalid."/>
             <div class="addon-suffix">
               <div hidden$="[[!showEmailProvider]]">
                   <div class="flex layout horizontal">
@@ -113,7 +113,7 @@
             </div>
           </div>
 
-          <div class="input-group" data-step="5" data-question="One more time!">
+          <!-- <div class="input-group" data-step="5" data-question="One more time!">
             <input id="password_confirmation" type="password" class="form-input"
                 autocomplete="off"
                 placeholder="Retype Password"
@@ -122,9 +122,29 @@
                 data-match-to$="[[password]]"
                 data-message-required="Please confirm your password."
                 data-message-match="Password did not match." />
+          </div> -->
+
+          <div class="input-group" data-step="5" data-question="Your Gender?">
+            <select id="gender" class="input"
+                data-validate="required"
+                data-message-required="Gender is required.">
+              <option value="">--Please select--</option>
+              <option value="0">Male</option>
+              <option value="1">Female</option>
+            </select>
           </div>
 
-          <div class="input-group" data-step="6" data-question="Pick your Username.">
+          <div class="input-group" data-step="6" data-question="When is your birthday?">
+            <input id="birth_date" type="date" class="input"
+                max="[[_today()]]"
+                autocomplete="off"
+                placeholder="MM//DD/YYYY"
+                value="{{birth_date::input}}"
+                data-validate="required"
+                data-message-required="Birthdate is required." />
+          </div>
+
+          <div class="input-group" data-step="7" data-question="Pick your Username.">
             <input id="username" type="text" class="input"
                 on-keyup="showNext"
                 autocomplete="off"
@@ -148,7 +168,7 @@
 
   <script>
 
-    class RegisterComponents extends FormSliderBehavior(Polymer.Element) {
+    class RegisterComponents extends FormSliderBehavior(ReduxBehavior(Polymer.Element)) {
 
       static get is() { return 'register-components'; }
 
@@ -217,12 +237,15 @@
 
       static get actions() {
   			return {
-  				login(user) {
-  					return {
-  						type: 'LOGGED_USER',
-  						user: user
-  					}
-  				}
+
+          giveAccess(data) {
+            return {
+              type: 'GIVE_ACCESS',
+              token: data.access_token,
+              user: data.user
+            }
+          }
+
   			};
   		}
 
@@ -251,20 +274,25 @@
           username: self.username,
           email: self.email,
           password: self.password,
-          password_confirmation: self.password_confirmation,
+          gender: self.$.gender.value,
+          birth_date: self.birth_date,
+          // password_confirmation: self.password_confirmation,
           phone_number: self.phone_number
 
         }).then( res => {
 
-          self.set('signUpData', res.data);
+          self.set('signUpData.message', 'Successfully Registered!');
           self.isSigningUp = false;
           self.isRegistered = true;
+          self.arrangeSteps(1);
           self.set('step.message', 'Successfully Registered!');
           self.fc.reset();
           self.submiting = false;
 
           localStorage.setItem('user_id', res.data.user.id);
           localStorage.setItem('email', res.data.user.email);
+
+          self.dispatch('giveAccess', res.data);
 
         }).catch( err => {
 
@@ -343,6 +371,24 @@
         if(submiting) {
           this.signUp();
         }
+      }
+
+      _today() {
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+
+        if(dd<10) {
+          dd = '0'+dd
+        }
+
+        if(mm<10) {
+            mm = '0'+mm
+        }
+
+        today = mm + '/' + dd + '/' + yyyy;
+        return today;
       }
 
 

@@ -75,8 +75,14 @@
           if ( _step == step) {
             item.style.opacity = 1;
             item.style.transform = 'scaleX(1) ' + translateY;
-            item.querySelector('input').removeAttribute('disabled');
-            item.querySelector('input').focus();
+            if(item.querySelector('input')) {
+              item.querySelector('input').removeAttribute('disabled');
+              item.querySelector('input').focus();
+            }
+            if(item.querySelector('select')) {
+              item.querySelector('select').removeAttribute('disabled');
+              item.querySelector('select').focus();
+            }
           } else {
             item.style.opacity = 0.5;
             if( _step > step ) {
@@ -86,7 +92,12 @@
               let scale = 1 - ((step - _step) * 0.1);
               item.style.transform = 'scaleX(' + scale + ') ' + translateY;
             }
-            item.querySelector('input').setAttribute('disabled', 'disabled');
+            if(item.querySelector('input')) {
+              item.querySelector('input').setAttribute('disabled', 'disabled');
+            }
+            if(item.querySelector('select')) {
+              item.querySelector('select').setAttribute('disabled', 'disabled');
+            }
           }
         });
         self.currentScroll = scroll;
@@ -153,12 +164,15 @@
             }
 
           }
+          var input = null;
+          if(step.querySelectorAll('input')) {
+            input = step.querySelectorAll('input')[0];
+          }
 
-          let input = step.querySelectorAll('input')[0];
-
-          input.addEventListener('focus', focus);
-          input.addEventListener('keydown', keydown);
-
+          if( input ) {
+            input.addEventListener('focus', focus);
+            input.addEventListener('keydown', keydown);
+          }
           step.addEventListener('click', click);
 
         });
@@ -264,6 +278,16 @@
                 errs.push(item);
               }
               break;
+
+            // case 'unique':
+            //   var name = e.getAttribute('name');
+            //   axios.get(API_URL + '/users/unique/' + name + '?' + name + "=" + val)
+            //     .then( res => {
+            //       if( !res.data.passes ) {
+            //         errs.push(item);
+            //       }
+            //     });
+            //   break;
           }
         });
 
@@ -273,8 +297,14 @@
       }
 
       validate(step) {
-        var input = this.fc.querySelector('[data-step="' + step + '"]')
-                            .querySelector('input');
+        var _step = this.fc.querySelector('[data-step="' + step + '"]');
+        var input = null;
+        if(_step.querySelector('input')) {
+          input = _step.querySelector('input');
+        }
+        if(_step.querySelector('select')) {
+          input = _step.querySelector('select');
+        }
         let hasError = this.hasError(input, input.getAttribute('data-validate'));
         if( hasError ) {
           this.set('step.message', input.getAttribute('data-message-' + hasError[0]));

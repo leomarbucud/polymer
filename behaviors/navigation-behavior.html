@@ -19,6 +19,7 @@
                 REGISTER_URL : '/register',
                 FORGOT_URL : '/forgot',
                 PROFILE_URL : '/profile',
+                PROFILE_SKILLS_URL : '/profile/skills',
                 VERIFY_URL : '/verification',
                 SETUP_URL : '/profile/setup',
                 LOGOUT_URL : '/logout',
@@ -57,6 +58,10 @@
         this.redirect(this.url.PROFILE_URL);
       }
 
+      redirectProfileSkills() {
+        this.redirect(this.url.PROFILE_SKILLS_URL);
+      }
+
       redirectVerify() {
         this.redirect(this.url.VERIFY_URL);
       }
@@ -66,7 +71,8 @@
       }
 
       redirectLogout() {
-        this.redirect(this.url.LOGOUT_URL);
+        // this.redirect(this.url.LOGOUT_URL);
+        window.location.href = this.url.LOGOUT_URL;
       }
 
 

@@ -1,0 +1,157 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="/bower_components/iron-list/iron-list.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-posts">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        position: relative;
+        height: 100%;
+        background: var(--dark-grey);
+      }
+
+      .title h1 {
+        font-weight: 400;
+        font-size: 32px;
+      }
+
+      .row {
+        color: #FFFFFF;
+        padding: 8px 16px;
+        position: relative;
+        cursor: pointer;
+      }
+
+      .row .job-title {
+        line-height: 24px;
+        font-size: 18px;
+      }
+
+      .row [secondary] {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        opacity: 0.7;
+      }
+
+      .divider {
+        padding: 0 16px;
+      }
+
+      .divider hr {
+        margin: 0;
+        opacity: 0.12;
+      }
+
+    </style>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <span class="flex"></span>
+      <paper-icon-button icon="search" class="red pointer"></paper-icon-button>
+      <paper-icon-button icon="more-vert" class="red pointer"></paper-icon-button>
+    </div>
+
+    <main class="scroll-area flex">
+      <section class="p-y-1 title">
+        <h1 class="white m-0">Posts</h1>
+      </section>
+      <section class="list">
+        <template is="dom-repeat" items="{{posts}}" as="job">
+          <div class="row">
+            <div class="job-title">{{job.name}}</div>
+            <div secondary>{{_computeDate(job.created_at)}}</div>
+            <paper-ripple></paper-ripple>
+          </div>
+          <div class="divider"><hr/></div>
+				</template>
+        <!-- <iron-list items="{{jobs}}" as="job">
+          <template>
+            <div style="color: #FFFFFF; height: 100px;">
+              <div>{{job.name}}</div>
+              <div secondary>{{job.location}}</div>
+            </div>
+          </template>
+        </iron-list> -->
+      </section>
+    </main>
+
+  </template>
+
+  <script>
+
+    class GridPosts extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+
+      static get is() { return 'grid-posts'; }
+
+      static get properties() {
+        return {
+
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          posts: {
+            type: Array,
+            statePath: 'posts'
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+
+        ]
+      }
+
+      static get actions() {
+  			return {
+  				setPosts(posts) {
+  					return {
+  						type: 'SET_POSTS',
+  						posts: posts
+  					}
+  				}
+  			};
+  		}
+
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        gAxios.get('/users/'+ this.user.id + '/jobs')
+					.then( res => {
+						var data = res.data;
+						this.dispatch('setPosts', data.data);
+						this.pagination = {
+							total: data.total,
+							per_page: data.per_page,
+							current_page: data.current_page,
+							last_page: data.last_page,
+							next_page_url: data.next_page_url,
+							prev_page_url: data.prev_page_url,
+							from: data.from,
+							to: data.to
+						};
+						this.isLoading = false;
+					});
+      }
+
+      _computeDate(date) {
+        return moment(date, "YYYY-MM-DD").fromNow();
+        // return moment(date, "YYYY-MM-DD").endOf('minute').fromNow();
+      }
+
+    }
+
+    customElements.define(GridPosts.is, GridPosts);
+	</script>
+</dom-module>

@@ -58,7 +58,7 @@
           <br/>
           <paper-spinner active$="[[isLoggingIn]]"></paper-spinner>
           <!-- <grid-spinner></grid-spinner> -->
-      </div>
+        </div>
       </div>
     </template>
 
@@ -177,7 +177,7 @@
 
         _isLoggingInChange(isLoggingIn) {
           if ( isLoggingIn ) {
-            console.log('logging in')
+            // console.log('logging in')
             this.$.loginErrToast.close();
           }
         }

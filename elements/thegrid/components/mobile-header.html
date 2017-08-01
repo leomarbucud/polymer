@@ -8,7 +8,7 @@
 
 <dom-module id="mobile-header">
 	<template>
-    <style include="grid">
+    <style include="grid iron-flex">
       :host {
         background: linear-gradient(180deg, #212121 35.36%, rgba(33, 33, 33, 0) 100%);
         background-blend-mode: darken;
@@ -20,20 +20,18 @@
       }
 
 			.h1 {
-
 		    font-size: 32px;
 		    color: #FFF;
-
 			}
 
     </style>
 
-    <app-toolbar>
+    <div class="toolbar">
       <paper-icon-button icon="menu" on-tap="openDrawer" class="red"></paper-icon-button>
-      <div main-title></div>
+      <span class="flex"></span>
       <paper-icon-button icon="maps:my-location" on-tap="setCurrentLocation" class="red"></paper-icon-button>
       <paper-icon-button icon="filter-list" class="red"></paper-icon-button>
-    </app-toolbar>
+    </div>
     <app-toolbar>
       <div main-title class="h1">The Grid</div>
     </app-toolbar>
