@@ -311,7 +311,7 @@
                     if ( res.status === 'connected' ) {
                       getInfo();
                     }
-                  })
+                  }, { scope: 'email' })
                 });
               }
 
@@ -328,6 +328,9 @@
 
         axios.post(API_URL + '/login/' + provider, data)
         .then( res => {
+          if( res.new_user ) {
+
+          }
           this.dispatch('giveAccess', res.data);
         }).then( () => {
           this.isLoggingIn = false;

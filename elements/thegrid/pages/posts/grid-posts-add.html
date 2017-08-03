@@ -1,0 +1,117 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="/behaviors/form-slider-behavior.html">
+<link rel="import" href="/elements/thegrid/pages/posts/grid-posts-add-1.html">
+<link rel="import" href="/elements/thegrid/pages/posts/grid-posts-add-2.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-posts-add">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        height: 100%;
+        background: var(--dark-grey);
+      }
+
+    </style>
+
+    <app-location route="{{route}}" use-hash-as-path></app-location>
+
+		<app-route route="{{route}}"
+		    pattern=":id"
+		    data="{{step}}"></app-route>
+
+    <iron-pages attr-for-selected="data-page" selected="[[step.id]]">
+
+      <section data-page="1" class="sub-page">
+        <grid-posts-add-1 map="{{map}}" step1="{{step1}}" data="{{step1Data}}"></grid-posts-add-1>
+      </section>
+
+      <section data-page="2" class="sub-page">
+        <grid-posts-add-2 map="{{map}}" step1="{{step1}}" data="{{step1Data}}"></grid-posts-add-2>
+      </section>
+
+    </iron-pages>
+
+    <template is="dom-if" if="[[isPosting]]">
+      <div class="overlay dgrey-bg">
+        <div class="align-center">
+          <h3 class="white">Your job is posting...</h3>
+          <br/>
+          <paper-spinner active$="[[isPosting]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+
+    class GrdiPostsAdd extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+
+      static get is() { return 'grid-posts-add'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+          posts: {
+            type: Object,
+            statePath: 'posts'
+          },
+          map: {
+            type: Object,
+            notify: true
+          },
+          isPosting: {
+            type: Boolean,
+            value: false
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+
+        ]
+      }
+
+      static get actions() {
+  			return {
+
+  			};
+  		}
+
+      constructor() {
+        super();
+        this.readyPost = false;
+        this.map = null;
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        // go to step 1 after posting
+        window.addEventListener('done-posting', () => {
+          this.set('step.id', 1);
+          this.isPosting = false;
+        });
+
+        // show laoding while posting
+        window.addEventListener('posting', () => {
+          this.isPosting = true;
+        });
+      }
+
+    }
+
+    customElements.define(GrdiPostsAdd.is, GrdiPostsAdd);
+	</script>
+</dom-module>

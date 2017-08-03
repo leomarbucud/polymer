@@ -94,7 +94,7 @@
 		<mobile-header map="{{map}}"></mobile-header>
 
 		<paper-fab id="searchFab" icon="search" class="grid-main-fab"></paper-fab>
-		<paper-fab id="addFab" icon="add" class="grid-main-fab"></paper-fab>
+		<paper-fab id="addFab" icon="add" class="grid-main-fab" on-tap="redirectPostsAdd"></paper-fab>
 
 		<grid-introduction is-logged-in="[[isLoggedIn]]"></grid-introduction>
 
@@ -132,7 +132,7 @@
 
 			<section data-page="posts" class="overlay">
 	      <div class="center-page">
-					<grid-posts id="posts"></grid-posts>
+					<grid-posts id="posts" map="{{map}}"></grid-posts>
 				</div>
 	    </section>
 

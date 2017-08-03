@@ -49,6 +49,17 @@
 
     </style>
 
+    <app-location route="{{route}}" ></app-location>
+
+		<app-route route="{{route}}"
+		    pattern="/posts"
+		    data="{{routeData}}"
+		    tail="{{subroute}}"></app-route>
+
+		<app-route route="{{subroute}}"
+		    pattern="/:id"
+		    data="{{subrouteData}}"></app-route>
+
     <div id="toolbar" class="toolbar dgrey-bg">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
@@ -80,6 +91,14 @@
       </section>
     </main>
 
+    <iron-pages attr-for-selected="data-page" selected="[[subPage]]">
+
+      <section data-page="add" class="sub-page">
+        <grid-posts-add id="posts-add" map="{{map}}"></grid-posts-add>
+      </section>
+
+    </iron-pages>
+
   </template>
 
   <script>
@@ -99,13 +118,19 @@
           posts: {
             type: Array,
             statePath: 'posts'
+          },
+
+          map: {
+            type: Object,
+            notify: true
           }
         }
       }
 
       static get observers() {
         return [
-
+          '_subrouteChange(subroute)',
+          '_subrouteDataChange(subrouteData)',
         ]
       }
 
@@ -148,6 +173,27 @@
       _computeDate(date) {
         return moment(date, "YYYY-MM-DD").fromNow();
         // return moment(date, "YYYY-MM-DD").endOf('minute').fromNow();
+      }
+
+      _subrouteChange(subroute) {
+				if( subroute.path == '' ) {
+					this.set('subrouteData.id', null);
+          this.subPage = null;
+				}
+			}
+
+      _subrouteDataChange(subrouteData) {
+        const self = this;
+        if( subrouteData.id ) {
+          Polymer.Base.importHref(
+						'/elements/thegrid/pages/posts/grid-posts-' + subrouteData.id + '.html',
+						() => {
+              self.subPage = subrouteData.id;
+						}
+					);
+        } else {
+          self.subPage = null;
+        }
       }
 
     }

@@ -23,6 +23,8 @@
                 VERIFY_URL : '/verification',
                 SETUP_URL : '/profile/setup',
                 LOGOUT_URL : '/logout',
+                POSTS_URL : '/posts',
+                POSTS_ADD_URL : '/posts/add',
               }
             }
           }
@@ -73,6 +75,14 @@
       redirectLogout() {
         // this.redirect(this.url.LOGOUT_URL);
         window.location.href = this.url.LOGOUT_URL;
+      }
+
+      redirectPosts() {
+        this.redirect(this.url.POSTS_URL);
+      }
+
+      redirectPostsAdd() {
+        this.redirect(this.url.POSTS_ADD_URL);
       }
 
 

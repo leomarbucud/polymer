@@ -1,0 +1,223 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="/behaviors/form-slider-behavior.html">
+<link rel="import" href="/behaviors/map-behavior.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-posts-add-2">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        height: 100%;
+        background: var(--dark-grey);
+      }
+
+    </style>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <div class="flex">
+        <paper-icon-button icon="chevron-left" class="white pointer" on-click="goStep1"></paper-icon-button>
+      </div>
+      <div id="indicator"></div>
+      <div class="flex align-right" style="padding-right: 8px;">
+        <span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Post</span>
+      </div>
+    </div>
+
+    <div class="p-y-1">
+
+      <div class="header-text-container">
+        <h1 class="header-text m-0">
+          <span hidden$="[[step.message]]">[[step.question]]</span>
+          <span hidden$="[[!step.message]]">[[step.message]]</span>
+        </h1>
+      </div>
+      <div id="wr" class="wr">
+        <form class="form" id="formCarousel" form-carousel>
+
+          <div class="input-group prefix"
+              data-step="1"
+              data-question="How much is your budget?">
+            <div class="addon-prefix flex layout horizontal">
+              <span>AED </span>
+            </div>
+            <input id="price" type="number" class="form-input" autofocus
+                autocomplete="off"
+                placeholder="Price"
+                value="{{price::input}}"
+                data-validate="required"
+                data-message-required="Please tell us our budget." />
+          </div>
+
+          <div class="input-group" data-step="2" data-question="Set Category">
+            <select id="category" class="input"
+                data-validate="required"
+                data-message-required="Category is required.">
+              <option value="">--Please select--</option>
+              <template is="dom-repeat" items="[[jobCategories]]" as="cat">
+                <option value$="[[cat.id]]">[[cat.category]]</option>
+              </template>
+            </select>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </template>
+
+  <script>
+
+    class GrdiPostsAdd2 extends
+      MapBehaviorMixin(FormSliderBehavior(GridNavigation(ReduxBehavior(Polymer.Element)))) {
+
+      static get is() { return 'grid-posts-add-2'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+          posts: {
+            type: Object,
+            statePath: 'posts'
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_formDone(price, category)',
+          '_isMyStep(step1)',
+          '_step1Data(data)'
+        ]
+      }
+
+      static get actions() {
+  			return {
+  				addPost(post) {
+  					return {
+  						type: 'ADD_POST',
+  						post: post
+  					}
+  				}
+  			};
+  		}
+
+      constructor() {
+        super();
+        this.readyPost = false;
+        this.map = null;
+      }
+
+      connectedCallback() {
+        const self = this;
+        super.connectedCallback();
+
+        // IDEA: This came from FormSliderBahavior
+        this.initForm();
+        // IDEA: Initialize some properties
+        this.set('step.message', 'Tell us more');
+
+        // set event for category field
+        const cat = this.$.category;
+        const change = function(e) {
+          self.category = this.value;
+        };
+        cat.addEventListener('change', change);
+
+        this._getCategories();
+
+        // clear form after adding and rearrange steps
+        window.addEventListener('done-posting', () => {
+          this.shadowRoot.querySelector('[form-carousel]').reset();
+          this.arrangeSteps(1);
+        });
+
+      }
+
+      goStep1() {
+        this.redirect('/posts/add/#1');
+      }
+
+      submit() {
+        const data = {
+          user_id: this.user.id,
+          name: this.data.what,
+					price: this.price,
+					lat: this.data.lat,
+					lng: this.data.lng,
+					location: this.data.where,
+					date: this.data.when,
+          category_id: this.category
+        }
+
+        // dispatch posting event
+        window.dispatchEvent(new CustomEvent('posting'));
+
+        gAxios.post('/users/' + this.user.id +'/jobs', data)
+				.then( res => {
+					var data = res.data;
+          this.dispatch('addPost', data);
+          this.redirectHome();
+
+          // set marker options
+          data.fillColor = this.markerType.myJob.color;
+					data.isMyPost = true;
+					data.isBidded = false;
+
+          // add new marker to the map
+					this.newDefaultMarker(data);
+
+          // dispatch event to clear the form
+          window.dispatchEvent(new CustomEvent('done-posting'));
+				}).catch( err => {
+					if (err.response) {
+
+          }
+				});
+      }
+
+      _formDone(price, category) {
+        this.readyPost = false;
+        if(price && category) {
+          this.readyPost = true;
+        }
+      }
+
+      _isMyStep(step1) {
+        if(!step1) {
+          this.goStep1();
+        }
+      }
+
+      _step1Data(data) {
+        console.log(data);
+        if(!data) {
+          this.goStep1();
+          return;
+        }
+      }
+
+      _getCategories() {
+        gAxios.get('/jobs/categories')
+				.then( res => {
+					var data = res.data;
+          this.jobCategories = data;
+				}).catch( err => {
+					if (err.response) {
+
+          }
+				});
+      }
+
+    }
+
+    customElements.define(GrdiPostsAdd2.is, GrdiPostsAdd2);
+	</script>
+</dom-module>

@@ -1,0 +1,264 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="/behaviors/form-slider-behavior.html">
+<link rel="import" href="/behaviors/map-behavior.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-posts-add-1">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        height: 100%;
+        background: var(--dark-grey);
+      }
+
+    </style>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <div class="flex">
+        <paper-icon-button icon="close" class="white pointer" on-click="redirectPosts"></paper-icon-button>
+      </div>
+      <div id="indicator"></div>
+      <div class="flex align-right" style="padding-right: 8px;">
+        <span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span>
+      </div>
+    </div>
+
+    <div class="p-y-1">
+
+      <div class="header-text-container">
+        <h1 class="header-text m-0">
+          <span hidden$="[[step.message]]">[[step.question]]</span>
+          <span hidden$="[[!step.message]]">[[step.message]]</span>
+        </h1>
+      </div>
+      <div id="wr" class="wr">
+        <form class="form" id="formCarousel" form-carousel>
+
+          <div class="form-group relative"
+              data-step="1"
+              data-question="What do you need?">
+            <input id="name" type="text" class="form-input" autofocus
+                autocomplete="off"
+                placeholder="Start typing"
+                value="{{what::input}}"
+                data-validate="required"
+                data-message-required="Please tell us what you need." />
+          </div>
+
+          <div class="form-group relative"
+              data-step="2"
+              data-question="By when?">
+            <input id="when" type="date" class="form-input"
+                autocomplete="off"
+                placeholder="When?"
+                value="{{when::input}}"
+                data-validate="required"
+                data-message-required="Please tell us when." />
+          </div>
+
+          <div class="input-group suffix"
+              data-step="3"
+              data-question="Where?">
+            <input id="where" type="text" class="input"
+                autocomplete="off"
+                placeholder="Where?"
+                value="{{where::input}}"
+                data-validate="required"
+                data-message-required="Please tell us where." />
+            <div class="addon-suffix flex layout horizontal">
+              <span id="locationButton" on-click="myLocation" class="pointer inactive" hidden$="[[!map]]"><iron-icon icon="maps:my-location" class="red" title="Press for current location"></iron-icon></span>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </template>
+
+  <script>
+
+    class GrdiPostsAdd1 extends
+      MapBehaviorMixin(
+        FormSliderBehavior(
+          GridNavigation(
+            ReduxBehavior(Polymer.Element)))
+      ) {
+
+      static get is() { return 'grid-posts-add-1'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+          posts: {
+            type: Object,
+            statePath: 'posts'
+          },
+          step1: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          data: {
+            type: Object,
+            notify: true
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_formDone(what, when, where)',
+          '_isMapInit(map)'
+        ]
+      }
+
+      static get actions() {
+  			return {
+
+  			};
+  		}
+
+      constructor() {
+        super();
+        this.readyPost = false;
+        this.map = null;
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        // IDEA: This came from FormSliderBahavior
+        this.initForm();
+        // IDEA: Initialize some properties
+        this.set('step.message', 'Add Posts');
+
+        // IDEA: Load map if not loaded
+        Polymer.Base.importHref(
+          '/elements/thegrid/components/grid-map.html',
+          () => {
+            // do something after elements has been imported
+          }
+        );
+
+        const today = () => {
+          let today = new Date();
+          let dd = today.getDate();
+          let mm = today.getMonth()+1; //January is 0!
+          let yyyy = today.getFullYear();
+           if(dd<10){
+                  dd='0'+dd
+              }
+              if(mm<10){
+                  mm='0'+mm
+              }
+
+          today = yyyy+'-'+mm+'-'+dd;
+          return today;
+        }
+
+        const when = this.shadowRoot.querySelector('#when');
+        when.setAttribute("min", today());
+
+        // clear form after adding and rearrange steps
+        window.addEventListener('done-posting', () => {
+          this.shadowRoot.querySelector('[form-carousel]').reset();
+          this.arrangeSteps(1);
+        });
+
+      }
+
+      myLocation() {
+        const self = this;
+        if (navigator.geolocation) {
+          self.$.locationButton.classList.add('inactive');
+          navigator.geolocation.getCurrentPosition(function(position) {
+
+            let pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+
+            self.lat = pos.lat;
+            self.lng = pos.lng;
+
+            self.map.setCenter(pos);
+
+  					self.geocodeLatLng(pos)
+    					.then( res => {
+    						self.where = res[0].formatted_address;
+                self.$.locationButton.classList.remove('inactive');
+    					}).catch( err => {
+    						console.log(err);
+    					});
+          });
+        }
+      }
+
+      submit() {
+        this.step1 = true;
+        this.data = {
+          what: this.what,
+          where: this.where,
+          when: this.when,
+          lat: this.lat,
+          lng: this.lng
+        };
+        this.redirect('/posts/add/#2');
+      }
+
+      _formDone(what, when, where) {
+        this.readyPost = false;
+        if(what && when && where) {
+          this.readyPost = true;
+        }
+      }
+
+      _isMapInit(map) {
+        if(!map) return;
+
+        const self = this;
+        const searchBox = self.shadowRoot.querySelector('#where');
+
+				if(searchBox) {
+					var _searchBox = new google.maps.places.SearchBox(searchBox);
+
+					_searchBox.addListener('places_changed', function() {
+
+						self.where = searchBox.value;
+						var places = _searchBox.getPlaces();
+						if (places.length == 0) {
+							return;
+						}
+						const bounds = new google.maps.LatLngBounds();
+            console.log(bounds);
+						for (var i = 0, place; place = places[i]; i++) {
+							bounds.extend(place.geometry.location);
+						}
+						self.map.fitBounds(bounds);
+            self.lat = self.map.getCenter().lat();
+            self.lng = self.map.getCenter().lng();
+					});
+
+					google.maps.event.addListener(self.map, 'bounds_changed', () => {
+						var bounds = self.map.getBounds();
+						_searchBox.setBounds(bounds);
+					});
+        }
+      }
+
+
+
+    }
+
+    customElements.define(GrdiPostsAdd1.is, GrdiPostsAdd1);
+	</script>
+</dom-module>

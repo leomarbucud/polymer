@@ -20,7 +20,8 @@
     token: null,
     auth: false,
     skills: null,
-    posts: null
+    posts: null,
+    r_markers: null
   };
 
   const reducer = (state, action) => {
@@ -59,6 +60,20 @@
 
       case 'SET_POSTS':
         return Object.assign({}, state, { posts: action.posts });
+
+      case 'ADD_POST':
+        var posts = state.posts.slice(0);
+        posts.unshift(action.post);
+        return Object.assign({}, state, { posts: posts });
+
+      case 'SET_MARKERS':
+        return Object.assign({}, state, { r_markers: action.markers });
+
+      case 'ADD_MARKER':
+        var markers = state.r_markers.slice(0);
+        console.log(action.marker);
+        markers.push(action.marker);
+        return Object.assign({}, state, { r_markers: markers });
 
     }
   };

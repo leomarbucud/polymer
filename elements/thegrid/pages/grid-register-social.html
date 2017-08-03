@@ -17,10 +17,30 @@
         height: 100%;
         background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
       }
-      /*.header-action {
+      .header-action {
         height: 56px;
         padding: 16px;
-      }*/
+      }
+
+      #indicator {
+        text-align: center;
+      }
+
+      #indicator span {
+        height: 8px;
+        width: 8px;
+        background: #FFFFFF;
+        display: inline-block;
+        margin: 0 4px;
+        border-radius: 50%;
+        opacity: 0.2;
+      }
+      #indicator span.active {
+        opacity: 1;
+      }
+      .inactive {
+        opacity: 0.5;
+      }
 
     </style>
 
@@ -71,14 +91,6 @@
         </div>
       </div>
     </template>
-
-    <iron-pages attr-for-selected="data-page" selected="[[subPage]]">
-
-      <section data-page="verify" class="sub-page">
-        <grid-verify id="verify"></grid-verify>
-      </section>
-
-    </iron-pages>
 
   </template>
 

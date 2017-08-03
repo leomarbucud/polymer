@@ -38,6 +38,13 @@
         }
       }
 
+      static get observers() {
+        return [
+          '_currentStepChange(currentStep)',
+          '_totalStepsChange(totalSteps)',
+        ]
+      }
+
       initForm() {
 
         // IDEA: form mus have form-carousel attribute
@@ -74,7 +81,9 @@
 
           if ( _step == step) {
             item.style.opacity = 1;
-            item.style.transform = 'scaleX(1) ' + translateY;
+            item.style.transform = translateY;
+            item.style.paddingLeft = '0px';
+            item.style.paddingRight = '0px';
             if(item.querySelector('input')) {
               item.querySelector('input').removeAttribute('disabled');
               item.querySelector('input').focus();
@@ -86,11 +95,19 @@
           } else {
             item.style.opacity = 0.5;
             if( _step > step ) {
-              let scale = 1 - ((_step - step) * 0.1);
-              item.style.transform = 'scaleX(' + scale + ') ' + translateY;
+              // let scale = 1 - ((_step - step) * 0.04);
+              item.style.transform = translateY;
+              // item.style.transform = 'scaleX(' + scale + ') ' + translateY;
+              let w = (_step - step) * 8;
+              item.style.paddingLeft = w + 'px';
+              item.style.paddingRight = w + 'px';
             } else {
-              let scale = 1 - ((step - _step) * 0.1);
-              item.style.transform = 'scaleX(' + scale + ') ' + translateY;
+              // let scale = 1 - ((step - _step) * 0.04);
+              // item.style.transform = 'scaleX(' + scale + ') ' + translateY;
+              item.style.transform =  translateY;
+              let w = (step - _step) * 8;
+              item.style.paddingLeft = w + 'px';
+              item.style.paddingRight = w + 'px';
             }
             if(item.querySelector('input')) {
               item.querySelector('input').setAttribute('disabled', 'disabled');
@@ -313,6 +330,31 @@
         }
         this.set('step.message', null);
         return true;
+      }
+
+      _currentStepChange(currentStep) {
+        const $indicator = this.$.indicator;
+        if( !$indicator ) return;
+        var items = $indicator.querySelectorAll('[data-step]');
+        if(items.length) {
+          items.forEach(function(item) {
+            item.classList.remove('active');
+            if(item.getAttribute('data-step') == currentStep) {
+              item.classList.add('active');
+            }
+          });
+        }
+      }
+
+      _totalStepsChange(totalSteps) {
+        const self = this;
+        const $indicator = self.$.indicator;
+        if( !$indicator ) return;
+        for(var i = 1; i <= self.totalSteps; i++) {
+          let item = document.createElement('span');
+          item.setAttribute('data-step', i);
+          $indicator.appendChild(item);
+        }
       }
 
     }

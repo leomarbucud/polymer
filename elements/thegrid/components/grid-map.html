@@ -59,7 +59,12 @@
           cluster: {
             type: Boolean,
             value: true
-          }
+          },
+
+          r_markers: {
+            type: Object,
+            statePath: 'r_markers'
+          },
 
         }
 
@@ -67,13 +72,26 @@
 
       static get observers() {
         return [
-          '_authChange(auth)'
+          '_authChange(auth)',
+          // '_markersChange(markers)'
         ]
       }
 
       static get actions() {
   			return {
+          setMarkers(markers) {
+            return {
+              type: 'SET_MARKERS',
+              markers: markers
+            }
+          },
 
+          r_addMarker(marker) {
+            return {
+              type: 'ADD_MARKER',
+              marker: marker
+            }
+          }
   			};
   		}
 
@@ -81,7 +99,7 @@
         super();
         const self = this;
 
-        self.loadGoogleApi('https://maps.googleapis.com/maps/api/js?key=' + self.apiKey, function() {
+        self.loadGoogleApi('https://maps.googleapis.com/maps/api/js?key=' + self.apiKey + '&libraries=places', function() {
             self.loadMapCanvas();
             if( self.cluster ) {
               self.loadGoogleApi('https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/markerclusterer.js',
@@ -104,7 +122,7 @@
         let options = this.mapOptions;
 
         this.map = new google.maps.Map(e, options);
-        this.map.setOptions({ zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER } });
+        this.map.setOptions({ zoomControlOptions: { position: google.maps.ControlPosition.LEFT_BOTTOM } });
 
         this.listenMapEvents();
         this.populateJobMarkers();
@@ -117,11 +135,11 @@
       }
 
       populateJobMarkers() {
+        // IDEA: if map is currently loading do nothing to prevent multiple request at once
+        if( this.loadingJobMarkers ) return;
+
         const self = this;
         var markers = self.markers;
-
-        // IDEA: if map is currently loading do nothing to prevent multiple request at once
-        if( self.loadingJobMarkers ) return;
 
         self.loadingJobMarkers = true;
 
@@ -166,6 +184,13 @@
         }).catch( err => {
           self.loadingJobMarkers = false;
         });
+      }
+
+      _markersChange(markers) {
+        if(!markers) return;
+        for(var i = 0; i < markers.length; i++) {
+          this._newMarker(markers[i]);
+        }
       }
 
       _newMarker(data) {
