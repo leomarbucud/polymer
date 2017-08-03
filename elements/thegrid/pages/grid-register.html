@@ -3,6 +3,8 @@
 <link rel="import" href="/bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="/elements/thegrid/components/register-components.html">
+<link rel="import" href="/elements/thegrid/pages/register/grid-register-1.html">
+<link rel="import" href="/elements/thegrid/pages/register/grid-register-2.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="grid-register">
@@ -24,41 +26,16 @@
 
     </style>
 
-    <!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
-    <app-location route="{{route}}"></app-location>
+    <app-location route="{{route}}" use-hash-as-path></app-location>
+    <!-- <app-location route="{{route}}"></app-location> -->
 
 		<app-route route="{{route}}"
-		    pattern="/:page"
-		    data="{{routeData}}"
-		    tail="{{subroute}}"></app-route>
-
-		<app-route route="{{subroute}}"
-		    pattern="/:id"
-		    data="{{subrouteData}}"></app-route>
-
-    <div class="header-action flex layout horizontal">
-      <div class="flex">
-        <iron-icon icon="close" class="white pointer" on-click="redirectHome"></iron-icon>
-      </div>
-      <!-- <span class="flex"></span> -->
-      <div id="indicator"></div>
-      <div class="flex align-right">
-        <span id="next" class="white inactive" on-click="submit">SIGN UP</span>
-      </div>
-    </div>
-
-    <register-components hidden$="[[isRegistered]]"
-                        is-registered="{{isRegistered}}"
-                         sign-up-data="{{signUpData}}"
-                         total-steps="{{totalSteps}}"
-                         current-Step="{{currentStep}}"
-                         submiting="{{submiting}}"
-                         next="{{next}}"></register-components>
+		    pattern=":id"
+		    data="{{step}}"></app-route>
 
     <paper-toast id="registerMessageToast" duration="0" class="fit-bottom">
       <div class="layout horizontal">
         <span class="flex">[[signUpData.message]]</span>
-        <!-- <span><a href="/register/verify" class="red anchor">Verify Now</a></span> -->
       </div>
     </paper-toast>
 
@@ -72,13 +49,31 @@
       </div>
     </template>
 
-    <iron-pages attr-for-selected="data-page" selected="[[subPage]]">
+    <iron-pages attr-for-selected="data-page" selected="[[step.id]]">
 
-      <section data-page="verify" class="sub-page">
+      <section data-page="0" class="sub-page">
         <grid-verify id="verify"></grid-verify>
       </section>
 
+      <section data-page="1" class="sub-page">
+        <grid-register-1 data="{{step1Data}}"></grid-register-1>
+      </section>
+
+      <section data-page="2" class="sub-page">
+        <grid-register-2 data="{{step1Data}}"></grid-register-2>
+      </section>
+
     </iron-pages>
+
+    <template is="dom-if" if="[[isRegistering]]">
+      <div class="overlay red-bg">
+        <div class="align-center">
+          <h3 class="white">Loading pleas wait...</h3>
+          <br/>
+          <paper-spinner active$="[[isRegistering]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
 
   </template>
 
@@ -108,6 +103,32 @@
 
         close() {
           window.location.href = HOME_URL;
+        }
+
+        constructor() {
+          super();
+          this.isRegistering = false;
+        }
+
+        connectedCallback() {
+          super.connectedCallback();
+
+          // show laoding while posting
+          window.addEventListener('registering', () => {
+            this.isRegistering = true;
+          });
+
+          // go to step 1 after posting
+          window.addEventListener('done-registering-step1', () => {
+            // this.set('step.id', 1);
+            this.isRegistering = false;
+          });
+
+          window.addEventListener('done-registering', () => {
+            // this.set('step.id', 1);
+            this.isRegistering = false;
+            this.redirectHome();
+          });
         }
 
         _registered(isRegistered) {

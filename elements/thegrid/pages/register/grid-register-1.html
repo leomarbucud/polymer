@@ -1,0 +1,303 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/behaviors/form-slider-behavior.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-register-1">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+      }
+
+      .logo-container {
+        width: 200px;
+        height: 48px;
+        margin: 20px auto;
+        background: transparent;
+      }
+
+      .input-action {
+        color: #FF3B30;
+        cursor: pointer;
+        user-select: none;
+        padding: 0 8px;
+      }
+
+    </style>
+
+    <div class="header-action flex layout horizontal">
+      <div class="flex">
+        <iron-icon icon="close" class="white pointer" on-click="redirectHome"></iron-icon>
+      </div>
+      <div id="indicator"></div>
+      <div class="flex align-right">
+        <span id="next" class="white pointer" on-click="submit" hidden$="[[!readyNext]]" style="padding-right: 8px;">Next</span>
+      </div>
+    </div>
+
+    <div class="p-y-1">
+
+      <div class="header-text-container">
+        <h1 class="header-text m-0">
+          <span hidden$="[[step.message]]">[[step.question]]</span>
+          <span hidden$="[[!step.message]]">[[step.message]]</span>
+        </h1>
+      </div>
+      <div id="wr" class="wr">
+        <form class="form" id="formCarousel" form-carousel>
+
+          <div class="form-group relative"
+              data-step="1"
+              data-question="What is your name?">
+            <input id="name" type="text" class="form-input" autofocus
+                autocomplete="off"
+                placeholder="Full Name"
+                value="{{name::input}}"
+                data-validate="required"
+                data-message-required="Your name is required." />
+          </div>
+
+          <div class="input-group suffix" data-step="2" data-question="Hello %name. Your Email?">
+            <input id="email" name="email" type="text" class="input"
+                autocomplete="off"
+                on-keyup="checkEmailInput"
+                placeholder="Email"
+                value="{{email::input}}"
+                data-validate="required|email"
+                data-message-required="Your email is required."
+                data-message-email="That email is invalid."/>
+            <div class="addon-suffix">
+              <div hidden$="[[!showEmailProvider]]">
+                  <div class="flex layout horizontal">
+                    <span class="input-action" on-click="gmail">Gmail</span>
+                    <span class="input-action" on-click="outlook">Outlook</span>
+                    <span class="input-action" on-click="icloud">iCloud</span>
+                  </div>
+                </div>
+            </div>
+          </div>
+
+          <div class="input-group prefix" data-step="3" data-question="Phone Number">
+            <div class="addon-prefix flex layout horizontal">
+              <span>AE +971</span>
+            </div>
+            <input id="phone_number" type="text" class="input"
+                autocomplete="off"
+                placeholder="Phone Number"
+                value="{{phone_number::input}}"
+                data-validate="required|number"
+                data-message-required="Your phone number is required."
+                data-message-number="Your phone number is invalid." />
+          </div>
+
+          <div class="input-group suffix" data-step="4" data-question="Create Password. A strong one.">
+            <input id="password" type="password" class="input"
+                autocomplete="off"
+                placeholder="Password"
+                value="{{password::input}}"
+                data-validate="required"
+                data-message-required="Your password is required." />
+            <div class="addon-suffix">
+                <span id="passwordToggler" class="input-action" on-click="tooglePassword">[[togglePasswordText]]</span>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </template>
+
+  <script>
+
+    class GridRegister1 extends FormSliderBehavior(GridNavigation(Polymer.Element)) {
+
+      static get is() { return 'grid-register-1'; }
+
+      static get properties() {
+        return {
+
+          togglePasswordText: {
+            type: String,
+            value: 'Show'
+          },
+
+          isPasswordHidden: {
+            type: Boolean,
+            value: true
+          },
+
+          isSigningUp: {
+            type: Boolean,
+            value: false
+          },
+
+          isRegistered: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+
+          signUpData: {
+            type: Object,
+            value: {
+              message: null
+            },
+            notify: true
+          },
+
+          hasErrorRegister: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+
+          next: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+
+          submiting: {
+            type: Boolean,
+            notify: true
+          },
+
+          showEmailProvider: {
+            type: Boolean,
+            value: false
+          },
+
+          data: {
+            type: Object,
+            notify: true
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_passwordState(isPasswordHidden)',
+          '_formDone(name, email, phone_number, password)'
+        ];
+      }
+
+      static get actions() {
+  			return {
+
+          giveAccess(data) {
+            return {
+              type: 'GIVE_ACCESS',
+              token: data.access_token,
+              user: data.user
+            }
+          }
+
+  			};
+  		}
+
+      constructor() {
+        super();
+        this.readyNext = false;
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        this.passwordToggler = this.$.passwordToggler;
+
+        // IDEA: This came from FormSliderBahavior
+        this.initForm();
+        // IDEA: Initialize some properties
+        this.set('step.message', 'The Grid Registration');
+      }
+
+      submit() {
+        window.dispatchEvent(new CustomEvent('registering'));
+        this.data = {
+          name: this.name,
+          email: this.email,
+          phone_number: this.phone_number,
+          password: this.password
+        };
+        axios.post(API_URL + '/register/step1', this.data)
+        .then( res => {
+          this.step1 = true;
+          this.redirect('/register#2');
+          window.dispatchEvent(new CustomEvent('done-registering-step1'));
+        }).catch( err => {
+          if( err.response ) {
+            var data = err.response.data
+            var errs = [];
+            var fkey = null;
+			    	for( var key in data) {
+			    		errs.push(data[key]);
+              if(!fkey) {
+                fkey = key;
+              }
+			    	}
+            this.set('step.message', data[fkey][0]);
+            let s = this.fc.querySelector('#'+fkey).parentNode.getAttribute('data-step');
+            this.arrangeSteps(s);
+          }
+          window.dispatchEvent(new CustomEvent('done-registering-step1'));
+        })
+      }
+
+      checkEmailInput(e) {
+        if(!this.email) return;
+        if(this.email.indexOf('@') > -1) {
+          this.showEmailProvider = true;
+        }
+      }
+
+      tooglePassword() {
+        this.isPasswordHidden = !this.isPasswordHidden;
+      }
+
+      updateEmail(provider) {
+        const _email = this.email;
+        if ( _email.lastIndexOf('@') >= 1) {
+          var email = _email.substring(0, _email.lastIndexOf('@') + 1);
+          this.email = email + provider;
+          return;
+        }
+        this.email += '@' + provider;
+      }
+
+      gmail() {
+        this.updateEmail('gmail.com');
+      }
+
+      outlook() {
+        this.updateEmail('outlook.com');
+      }
+
+      icloud() {
+        this.updateEmail('icloud.com');
+      }
+
+      _passwordState(isPasswordHidden) {
+        if ( ! isPasswordHidden ) {
+          this.togglePasswordText = 'Hide';
+          this.$.password.setAttribute('type', 'text');
+        } else {
+          this.togglePasswordText = 'Show';
+          this.$.password.setAttribute('type', 'password');
+        }
+      }
+
+      _formDone(name, email, phone_number, password) {
+        this.readyNext = false;
+        if( name && email && phone_number && password ) {
+          this.readyNext = true;
+        }
+      }
+
+
+    }
+
+    customElements.define(GridRegister1.is, GridRegister1);
+	</script>
+</dom-module>
