@@ -1,0 +1,155 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/iron-icons/image-icons.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-profile-edit">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        height: 100%;
+        background: var(--dark-red);
+      }
+
+      .profile-image {
+        width: 100%;
+        height: 200px;
+        position: relative;
+      }
+
+      .image-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+				align-items: center;
+				justify-content: center;
+      }
+
+      .profile-image img {
+        border-radius: 50%;
+        width: 200px;
+        height: 200px;
+      }
+
+      .image-select {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        height: 50px;
+        width: 50px;
+        background: #FFFFFF;
+        border-radius: 50%;
+        display: flex;
+				align-items: center;
+				justify-content: center;
+      }
+
+    </style>
+
+    <div id="toolbar" class="toolbar dred-bg">
+      <paper-icon-button icon="chevron-left" class="white pointer" on-click="redirectProfile"></paper-icon-button>
+      <span class="flex"></span>
+    </div>
+
+    <main class="p-y-1">
+      <div class="profile-image">
+        <div class="image-container">
+          <div class="relative">
+            <img src="[[_profileImage(user.profile.profile_image_url)]]" />
+            <span class="image-select">
+              <paper-icon-button icon="image:camera-alt"></paper-icon-button>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="img-edit">
+      </div>
+      <a id="export" data-download="awesome-avatar.png">
+				<img />
+			</a>
+    </main>
+
+  </template>
+
+  <script>
+
+    class GridProfileEdit extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+
+      static get is() { return 'grid-profile-edit'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+
+        ]
+      }
+
+      static get actions() {
+  			return {
+
+  			};
+  		}
+
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        /*this.loadAvatarCrop('/node_modules/avatar-crop/dist/avatar-crop.js', () => {
+          var avatar = new AvatarCrop( this.shadowRoot.querySelector('.img-edit') ),
+                link = this.shadowRoot.getElementById('export'),
+      					img = link.firstElementChild;
+
+          const change = () => {
+            var data = avatar.save();
+            if( data ) {
+
+            }
+          }
+          avatar.addEventListener('change', change);
+        });*/
+
+      }
+
+      loadAvatarCrop(src, callback) {
+          let s = document.createElement('script');
+          s.type = 'text/javascript';
+          s.onerror = this.googleApiError;
+          if(callback) { s.onload = callback; }
+          let h = document.getElementsByTagName("head")[0];
+          h.appendChild(s);
+          s.src = src
+      }
+
+      _profileImage(img) {
+        if( img ) {
+          if(img.indexOf('data:image') != -1) {
+            return img;
+          }
+          return this.url.API_BASE_URL + '/storage/avatars/' + img;
+        }
+        return LetterAvatar(this.user.name, '200');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
+      }
+
+
+    }
+
+    customElements.define(GridProfileEdit.is, GridProfileEdit);
+	</script>
+</dom-module>

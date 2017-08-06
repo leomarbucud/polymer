@@ -1,0 +1,309 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/behaviors/navigation-behavior.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-search">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        height: 100%;
+        background: var(--dark-grey);
+      }
+
+      .search-box {
+        padding: 0 0 16px 16px;
+      }
+
+      .search-input {
+        outline: none;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+        font-size: 34px;
+        background: transparent;
+        color: #FFFFFF;
+        width: 100%;
+      }
+
+      .scroll-area {
+        /*padding-top: 16px;*/
+      }
+
+      .search-result {
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 8px 0;
+      }
+
+      .search-result .job-info {
+        color: #FFFFFF;
+      }
+
+      .search-result .job-info .job-name {
+        font-weight: 400;
+      }
+
+      .search-result .job-info .job-date {
+        font-weight: 300;
+        font-size: 12px;
+      }
+
+      .search-result .job-avatar {
+        background: #FFFFFF;
+        height: 36px;
+        width: 36px;
+      }
+      .recent-searches-title {
+        font-size: 20px;
+        line-height: 20px;
+        margin-bottom: 8px;
+      }
+      .recent-searches-title span {
+        font-size: 14px;
+      }
+      .recent-searches-item {
+        padding: 8px 0;
+        cursor: pointer;
+      }
+
+    </style>
+
+    <app-location route="{{route}}"></app-location>
+
+		<app-route route="{{route}}"
+		    pattern="/search/:q"
+		    data="{{query}}"></app-route>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="close" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <span class="flex"></span>
+    </div>
+
+    <div class="search-box">
+      <input id="search-input" type="text" class="search-input" placeholder="Start Typing..." value="{{q::input}}"/>
+    </div>
+
+    <main class="scroll-area flex">
+      <div class="p-y-1">
+        <div class="white" hidden$="[[!show_recent_searches]]">
+          <div class="flex layout horizontal recent-searches-title">
+            <div class="flex">
+              Recent
+            </div>
+            <span on-click="clearRecentSearch" class="red pointer">Clear</span>
+          </div>
+          <template is="dom-repeat" items="[[recent_searches]]" as="search">
+            <div class="red recent-searches-item" on-click="searchThis">[[search]]</div>
+          </template>
+        </div>
+        <div hidden$="[[!searching]]" class="white">
+          Searching...
+        </div>
+        <section class="search-results" hidden$="[[searching]]">
+          <template is="dom-repeat" items="[[search_results]]" as="job">
+            <div class="search-result flex layout horizontal pointer" on-click="viewJob">
+              <div class="flex job-info">
+                <div class="job-name">[[job.name]]</div>
+                <div class="job-date">[[_fromNow(job.date)]]</div>
+              </div>
+              <div class="job-avatar">
+              </div>
+            </div>
+          </template>
+        </section>
+        <div hidden$="[[!no_result]]" class="white">
+          No results from your search...
+        </div>
+      </div>
+    </main>
+
+  </template>
+
+  <script>
+
+    class GridSearch extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+
+      static get is() { return 'grid-search'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          search_results: {
+            type: Object,
+            value: null
+          },
+
+          searching: {
+            type: Boolean,
+            value: false
+          },
+
+          no_result: {
+            type: Boolean,
+            value: false
+          },
+
+          recent_searches: {
+            type: Object,
+            value: function() {
+              return [];
+            }
+          },
+
+          show_recent_searches: {
+            type: Boolean,
+            value: true
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_queryChange(query)',
+          '_queryInputChange(q)',
+          '_countRecentSearches(recent_searches)'
+        ]
+      }
+
+      static get actions() {
+  			return {
+
+  			};
+  		}
+
+      constructor() {
+        super();
+
+        // grid map is required so the map needs to be loaded
+        Polymer.Base.importHref(
+          '/elements/thegrid/components/grid-map.html',
+          () => {
+            // do something after elements has been imported
+          }
+        );
+
+        // see if there is recent search
+        var rs = window.localStorage.getItem('recent_searches');
+
+        if( rs ) {
+          this.recent_searches = JSON.parse(rs);
+        }
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        const self = this;
+        const searchInput = this.shadowRoot.querySelector('#search-input');
+
+        var search = function(e) {
+          if ( e.keyCode == 13 ) {
+            // self.search();
+            self.redirect('/search/' + self.q);
+          }
+        };
+
+        searchInput.addEventListener('keyup', search);
+
+        window.addEventListener('searching', () => {
+          self.searching = true;
+        });
+
+        window.addEventListener('done-searching', () => {
+          self.searching = false;
+        });
+
+      }
+
+      search() {
+        if( this.searching ) return;
+
+        if(!this.recent_searches.includes(this.q)) {
+          this.push('recent_searches', this.q);
+        }
+
+        window.localStorage.setItem('recent_searches', JSON.stringify(this.recent_searches));
+
+        window.dispatchEvent(new CustomEvent('searching'));
+        // result search results
+        this.set('search_results', []);
+        this.no_result = false;
+
+        this.searching = true;
+
+        axios.get(API_URL + '/jobs/search?q=' + this.q)
+        .then( res => {
+
+          if( res.data.length > 0 ) {
+            this.set('search_results', res.data);
+          } else {
+            this.no_result = true;
+          }
+
+        }).catch( err => {
+          console.log(err.response);
+        }).then( () => {
+          window.dispatchEvent(new CustomEvent('done-searching'));
+          this.searching = false;
+        })
+      }
+
+      viewJob(e) {
+        const job = e.model.job;
+
+        if( !job ) return;
+
+        const position = new google.maps.LatLng(job.lat, job.lng);
+
+        this.map.setCenter(position);
+        this.map.setZoom(20);
+        this.redirectHome();
+
+      }
+
+      searchThis(e) {
+        this.redirect('/search/' + e.model.search);
+      }
+
+      clearRecentSearch() {
+        window.localStorage.removeItem('recent_searches');
+        this.set('recent_searches', []);
+      }
+
+      _fromNow(date) {
+        return moment(date).fromNow();
+      }
+
+      _queryChange(query) {
+        if(!query.q) return;
+        this.q = query.q;
+
+        // if(this.q == this.old_q && this.no_result) return;
+        //
+        // this.old_q = this.q;
+        this.search();
+      }
+
+      _queryInputChange(q) {
+        if (!q) {
+          this.show_recent_searches = true;
+        } else {
+          this.show_recent_searches = false;
+        }
+      }
+      _countRecentSearches(recent_searches) {
+        if(recent_searches.length > 0 ) {
+          this.show_recent_searches = true;
+        } else {
+          this.show_recent_searches = false;
+        }
+      }
+
+    }
+
+    customElements.define(GridSearch.is, GridSearch);
+	</script>
+</dom-module>

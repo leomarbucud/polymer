@@ -25,6 +25,7 @@
                 LOGOUT_URL : '/logout',
                 POSTS_URL : '/posts',
                 POSTS_ADD_URL : '/posts/add',
+                SEARCH_URL : '/search',
               }
             }
           }
@@ -85,6 +86,9 @@
         this.redirect(this.url.POSTS_ADD_URL);
       }
 
+      redirectSearch() {
+        this.redirect(this.url.SEARCH_URL);
+      }
 
     }
   });

@@ -21,7 +21,15 @@
 
 			.h1 {
 		    font-size: 32px;
-		    color: #FFF;
+		    color: #FFFFFF;
+			}
+
+			.date {
+				color: #FFFFFF;
+				font-size: 12px;
+				text-transform: uppercase;
+				position: absolute;
+				top: 0;
 			}
 
     </style>
@@ -33,6 +41,7 @@
       <paper-icon-button icon="filter-list" class="red"></paper-icon-button>
     </div>
     <app-toolbar>
+			<span class="date">[[today]]</span>
       <div main-title class="h1">The Grid</div>
     </app-toolbar>
 	</template>
@@ -47,6 +56,12 @@
 					locationTimeout: {
 						type: Number,
 						value: 10000
+					},
+					today: {
+						type: String,
+						value: function() {
+							return moment().format("dddd, MMMM D");
+						}
 					}
 				}
 			}

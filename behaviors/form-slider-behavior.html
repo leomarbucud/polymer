@@ -182,8 +182,10 @@
 
           }
           var input = null;
-          if(step.querySelectorAll('input')) {
-            input = step.querySelectorAll('input')[0];
+          if(step.querySelector('input')) {
+            input = step.querySelector('input');
+          } else if(step.querySelector('select')) {
+            input = step.querySelector('select');
           }
 
           if( input ) {

@@ -120,6 +120,12 @@
       constructor() {
         super();
         this.readyNext = false;
+
+        var user = window.localStorage.getItem('social_user');
+        if( user ) {
+          user = JSON.parse(user);
+          this.user_id = user.id;
+        }
       }
 
       connectedCallback() {
@@ -167,8 +173,7 @@
         // dispatch event when registering
         window.dispatchEvent(new CustomEvent('registering'));
 
-        axios.post(API_URL + '/users/register', {
-
+        var data = {
           name: self.data.name,
           email: self.data.email,
           phone_number: self.data.phone_number,
@@ -176,8 +181,14 @@
           gender: self.gender,
           birth_date: self.birth_date,
           username: self.username
+        };
 
-        }).then( res => {
+        if( this.user_id ) {
+          data.user_id = this.user_id;
+        }
+
+        axios.post(API_URL + '/users/register', data)
+        .then( res => {
 
           // localStorage.setItem('user_id', res.data.user.id);
           // localStorage.setItem('email', res.data.user.email);

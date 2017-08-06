@@ -93,7 +93,7 @@
 
 		<mobile-header map="{{map}}"></mobile-header>
 
-		<paper-fab id="searchFab" icon="search" class="grid-main-fab"></paper-fab>
+		<paper-fab id="searchFab" icon="search" class="grid-main-fab" on-tap="redirectSearch"></paper-fab>
 		<paper-fab id="addFab" icon="add" class="grid-main-fab" on-tap="redirectPostsAdd"></paper-fab>
 
 		<grid-introduction is-logged-in="[[isLoggedIn]]"></grid-introduction>
@@ -133,6 +133,12 @@
 			<section data-page="posts" class="overlay">
 	      <div class="center-page">
 					<grid-posts id="posts" map="{{map}}"></grid-posts>
+				</div>
+	    </section>
+
+			<section data-page="search" class="overlay">
+	      <div class="center-page">
+					<grid-search id="search" map="{{map}}"></grid-search>
 				</div>
 	    </section>
 
@@ -374,10 +380,15 @@
 					}
 
 					// IDEA: return if there is no component declared
-					if( !this.shadowRoot.querySelector('#' + routeData.page ) ) {
+					try {
+						if( !this.shadowRoot.querySelector('#' + routeData.page ) ) {
+							self._showPage404();
+							return;
+						}
+					} catch (e) {
 						self._showPage404();
 						return;
-					};
+					}
 
           Polymer.Base.importHref(
 						'/elements/thegrid/pages/grid-' + routeData.page + '.html',

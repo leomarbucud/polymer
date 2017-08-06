@@ -201,6 +201,15 @@
       constructor() {
         super();
         this.readyNext = false;
+
+        //check if continue with social for the first time
+        var user = window.localStorage.getItem('social_user');
+        if( user ) {
+          user = JSON.parse(user);
+          this.name = user.name;
+          this.email = user.email;
+          this.user_id = user.id;
+        }
       }
 
       connectedCallback() {
@@ -221,6 +230,11 @@
           phone_number: this.phone_number,
           password: this.password
         };
+
+        if( this.user_id ) {
+          this.data.user_id = this.user_id;
+        }
+
         axios.post(API_URL + '/register/step1', this.data)
         .then( res => {
           this.step1 = true;

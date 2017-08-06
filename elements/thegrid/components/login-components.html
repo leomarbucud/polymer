@@ -3,6 +3,7 @@
 <link rel="import" href="/bower_components/iron-image/iron-image.html">
 <link rel="import" href="/elements/thegrid/components/divider-text.html">
 <link rel="import" href="/elements/thegrid/components/social-button.html">
+<link rel="import" href="/behaviors/navigation-behavior.html">
 <link rel="import" href="/redux/grid-redux-store.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
@@ -12,6 +13,7 @@
 
       :host {
         display: block;
+        height: calc(100% - 64px);
       }
 
       .logo-container {
@@ -32,7 +34,7 @@
 
     </style>
 
-    <div class="p-y-1">
+    <div class="h-100 p-y-1 flex layout vertical">
       <div class="logo-container">
         <iron-image src="/assets/images/thegrid.svg"></iron-image>
       </div>
@@ -69,8 +71,15 @@
       <div class="form-control">
         <social-button id="loginGoogle" class="google" on-tap="loginGoogle">
           <iron-icon class="icon" src="/assets/images/google.svg"></iron-icon>
-          <span>Sign In with Google</spa>
+          <span>Continue with Google</spa>
         </social-button>
+      </div>
+
+
+      <div class="flex"></div>
+
+      <div class="white">
+        <p>By selecting create account or continue you agree to accept our Privacy Policy &amp; Terms of Use.</p>
       </div>
 
     </div>
@@ -78,7 +87,7 @@
 
   <script>
 
-    class LoginComponents extends ReduxBehavior(Polymer.Element) {
+    class LoginComponents extends GridNavigation(ReduxBehavior(Polymer.Element)) {
 
       static get is() { return 'login-components'; }
 
@@ -328,10 +337,16 @@
 
         axios.post(API_URL + '/login/' + provider, data)
         .then( res => {
-          if( res.new_user ) {
+          if( res.data.new_user == 1 ) {
 
+            let user = res.data.user;
+            window.localStorage.setItem('social_user', JSON.stringify(user));
+            
+            this.redirectRegister();
+
+          } else {
+            this.dispatch('giveAccess', res.data);
           }
-          this.dispatch('giveAccess', res.data);
         }).then( () => {
           this.isLoggingIn = false;
           this.isLoggedIn = true;
