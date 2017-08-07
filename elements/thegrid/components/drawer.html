@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/elements/thegrid/grid-icons.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
@@ -23,6 +24,7 @@
 
       .nav li {
         padding: 16px 16px;
+        position: relative;
       }
 
       .user-view {
@@ -31,6 +33,7 @@
         background-image: url(/assets/images/background.png);
         background-position: center;
         background-size: cover;
+        margin-bottom: 16px;
       }
 
       li a {
@@ -85,41 +88,49 @@
     <template is="dom-if" if="[[isLoggedIn]]">
       <ul class="nav">
         <li class="user-view">
-            <div>
-              <div class="background">
-                <img src="/assets/images/background.png">
-              </div>
-              <a on-click="redirectProfile"><img class="circle" src$="[[_profileImage(user.profile.profile_image_url)]]"></a>
-              <a href="#!name"><span class="white-text name">[[user.name]]</span></a>
-              <a href="#!email"><span class="white-text email">@[[user.username]]</span></a>
+          <div>
+            <div class="background">
+              <img src="/assets/images/background.png">
+            </div>
+            <a on-click="redirectProfile"><img class="circle" src$="[[_profileImage(user.profile.profile_image_url)]]"></a>
+            <a href="#!name"><span class="white-text name">[[user.name]]</span></a>
+            <a href="#!email"><span class="white-text email">@[[user.username]]</span></a>
           </div>
+          <paper-ripple></paper-ripple>
         </li>
         <li>
           <a href="/posts"><iron-icon src="/assets/images/icons/posts.svg" class="white icon"></iron-icon> <span>Posts</span></a>
+          <paper-ripple></paper-ripple>
         </li>
         <li>
           <a href="/bids"><iron-icon src="/assets/images/icons/bids.svg" class="icon"></iron-icon> <span>Bids</span></a>
+          <paper-ripple></paper-ripple>
         </li>
         <li>
           <a href="/inbox"><iron-icon src="/assets/images/icons/inbox.svg" class="icon"></iron-icon> <span>Inbox</span></a>
+          <paper-ripple></paper-ripple>
         </li>
         <li>
           <a href="/transactions"><iron-icon src="/assets/images/icons/transactions.svg" class="icon"></iron-icon> <span>Transactions</span></a>
+          <paper-ripple></paper-ripple>
         </li>
         <li class="divider">
           <hr />
         </li>
         <li>
           <a href="/settings"><iron-icon src="/assets/images/icons/settings.svg" class="icon"></iron-icon> <span>Settings</span></a>
+          <paper-ripple></paper-ripple>
         </li>
         <li>
           <a href="/help"><iron-icon src="/assets/images/icons/help_feedback.svg" class="icon"></iron-icon> <span>Help &amp; Feedback</span></a>
+          <paper-ripple></paper-ripple>
         </li>
         <li class="divider">
           <hr />
         </li>
         <li>
           <a href="/logout"><iron-icon icon="logout" class="icon"></iron-icon> <span>Logout</span></a>
+          <paper-ripple></paper-ripple>
         </li>
       </ul>
     </template>
