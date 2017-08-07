@@ -102,7 +102,7 @@
         self.loadGoogleApi('https://maps.googleapis.com/maps/api/js?key=' + self.apiKey + '&libraries=places', function() {
             self.loadMapCanvas();
             if( self.cluster ) {
-              self.loadGoogleApi('https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/markerclusterer.js',
+              self.loadGoogleApi('/assets/js/markerclusterer.js',
                 function() {
                     self.markerClusterer = new MarkerClusterer(self.map, [], self.clusterOptions);
                 }
