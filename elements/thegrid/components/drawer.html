@@ -178,7 +178,10 @@
         if( img ) {
           return this.url.API_BASE_URL + '/storage/avatars/' + img;
         }
-        return LetterAvatar(this.user.name, '64');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
+        if(this.user) return LetterAvatar(this.user.name, '64');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
+
+        return LetterAvatar('Grid', 64);
+
       }
 
       // logout() {

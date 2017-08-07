@@ -28,53 +28,72 @@
     if( !state ) return intialState;
     switch (action.type) {
 
-      case 'LOGGED_USER':
+      case 'LOGGED_USER': {
         const user = action.user;
         return Object.assign({}, state, { user: user, auth: true } );
-
-      case 'LOGOUT_USER':
+        break;
+      }
+      case 'LOGOUT_USER': {
         return Object.assign({}, state, { user: null, auth: false, token: null, skills: null } );
-
-      case 'ASSIGN_TOKEN':
+        break;
+      }
+      case 'ASSIGN_TOKEN': {
         const token = action.token;
         return Object.assign({}, state, { token: token });
-
-      case 'GIVE_ACCESS':
+        break;
+      }
+      case 'GIVE_ACCESS': {
         const _token = action.token;
         const _user = action.user;
         return Object.assign({}, state, { token: _token, user: _user, auth: true });
-
-      case 'SET_SKILLS':
+        break;
+      }
+      case 'SET_SKILLS': {
         const _skills = action.skills;
         return Object.assign({}, state, { skills: _skills });
-
-      case 'ADD_SKILL':
+        break;
+      }
+      case 'ADD_SKILL': {
         var skills = state.skills.slice(0);
         skills.push(action.skill);
         return Object.assign({}, state, { skills: skills });
-
-      case 'REMOVE_SKILL':
+        break;
+      }
+      case 'REMOVE_SKILL': {
         var skills = state.skills.slice(0);
         skills.splice(skills.indexOf(action.skill), 1);
         return Object.assign({}, state, { skills: skills });
-
-      case 'SET_POSTS':
-        return Object.assign({}, state, { posts: action.posts });
-
-      case 'ADD_POST':
-        var posts = state.posts.slice(0);
+        break;
+      }
+      case 'SET_POSTS': {
+        return Object.assign({}, state, {
+          posts: action.posts
+        });
+        break;
+      }
+      case 'ADD_POST': {
+        let user = JSON.parse(JSON.stringify(state.user));
+        let posts = state.posts.slice(0);
         posts.unshift(action.post);
-        return Object.assign({}, state, { posts: posts });
-
-      case 'SET_MARKERS':
+        user.jobs_count += 1;
+        console.log(user);
+        return Object.assign({}, state, {
+          posts: posts,
+          user: user
+        });
+        break;
+      }
+      case 'SET_MARKERS': {
         return Object.assign({}, state, { r_markers: action.markers });
-
-      case 'ADD_MARKER':
+        break;
+      }
+      case 'ADD_MARKER': {
         var markers = state.r_markers.slice(0);
         console.log(action.marker);
         markers.push(action.marker);
         return Object.assign({}, state, { r_markers: markers });
-
+        break;
+      }
     }
   };
 

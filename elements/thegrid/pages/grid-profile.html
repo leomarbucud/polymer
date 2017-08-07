@@ -116,11 +116,11 @@
             <span class="block white-7">123,456 Ratings</span>
           </div>
           <div class="stats">
-            <span class="block num">100K</span>
+            <span class="block num">[[user.jobs_count]]</span>
             <span class="block white-7">Posts</span>
           </div>
           <div class="stats">
-            <span class="block num">150K</span>
+            <span class="block num">[[user.bids_count]]</span>
             <span class="block white-7">Bids</span>
           </div>
         </div>
@@ -282,7 +282,10 @@
         if( img ) {
           return this.url.API_BASE_URL + '/storage/avatars/' + img;
         }
-        return LetterAvatar(this.user.name, '64');//this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
+        if(this.user) return LetterAvatar(this.user.name, '64');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
+
+        return LetterAvatar('Grid', 64);
+
       }
 
     }

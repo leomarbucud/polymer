@@ -249,7 +249,8 @@
 				this.loaded = true;
 			}
 
-			logout(logout) {
+			logout() {
+				console.log('logging out');
 				this.dispatch('logout');
 				this.drawerOpened = false;
 				localStorage.removeItem('token');
