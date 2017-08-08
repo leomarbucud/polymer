@@ -1,0 +1,150 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-post">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        background: var(--dark-grey);
+        height: 100%;
+      }
+
+    </style>
+
+    <div id="toolbar" class="toolbar">
+      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectPosts"></paper-icon-button>
+      <span class="flex"></span>
+      <paper-icon-button icon="more-vert" class="red pointer"></paper-icon-button>
+    </div>
+
+    <main class="scroll-area flex">
+      <section class="p-y-1">
+        <h1 class="white">[[post.name]]</h1>
+        <h2 class="white">AED [[post.price]]</h2>
+        <span class="white">[[_fromNow(post.date)]]</span>
+      </section>
+
+      <section class="p-y-1">
+        <paper-icon-button icon="maps:place" class="white" on-tap="viewOnMap"></paper-icon-button>
+      </section>
+
+    </main>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay dgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+
+    class GridPost extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+
+      static get is() { return 'grid-post'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          isLoading: {
+            type: Boolean,
+            value: false
+          }
+
+        }
+      }
+
+      static get observers() {
+        return [
+          '_postChange(post)',
+          '_postIdChange(postId)',
+        ]
+      }
+
+      static get actions() {
+  			return {
+  				login(user) {
+  					return {
+  						type: 'LOGGED_USER',
+  						user: user
+  					}
+  				}
+  			};
+  		}
+
+      constructor() {
+        super();
+
+        // grid map is required so the map needs to be loaded
+        Polymer.Base.importHref(
+          '/elements/thegrid/components/grid-map.html',
+          () => {
+            // do something after elements has been imported
+          }
+        );
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      renderPost(post) {
+        if( !this.user ) return;
+
+        this.post = post;
+        this.isLoading = false;
+      }
+
+      viewOnMap() {
+        if( ! this.post && this.map ) return;
+
+        const job = this.post;
+        const position = new google.maps.LatLng(job.lat, job.lng);
+
+        this.map.setCenter(position);
+        this.map.setZoom(20);
+        this.redirectHome();
+      }
+
+      _postChange(post) {
+        if(!post) return;
+        this.renderPost(post)
+      }
+
+      _postIdChange(postId) {
+        if(!postId) return;
+        if( !this.user ) return;
+        if( this.post ) return;
+        this.isLoading = true;
+        gAxios.get('/users/' + this.user.id + '/jobs/' + postId)
+        .then( res => {
+          this.post = res.data
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      _fromNow(date) {
+        return moment(date).fromNow();
+      }
+
+
+    }
+
+    customElements.define(GridPost.is, GridPost);
+	</script>
+</dom-module>

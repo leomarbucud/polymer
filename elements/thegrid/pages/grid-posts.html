@@ -1,6 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="/bower_components/iron-list/iron-list.html">
+<link rel="import" href="/elements/thegrid/pages/posts/grid-post.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="grid-posts">
@@ -60,6 +61,10 @@
 		    pattern="/:id"
 		    data="{{subrouteData}}"></app-route>
 
+    <app-route route="{{route}}"
+        pattern="/posts/:id"
+        data="{{post}}"></app-route>
+
     <div id="toolbar" class="toolbar dgrey-bg">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
@@ -72,8 +77,8 @@
         <h1 class="white m-0">Posts</h1>
       </section>
       <section class="list" id="post-list">
-        <template is="dom-repeat" items="{{posts}}" as="job">
-          <div class="row">
+        <template is="dom-repeat" items="[[posts]]" as="job">
+          <div class="row" on-click="viewPost">
             <div class="job-title">{{job.name}}</div>
             <div secondary class="time" data-time$="[[job.created_at]]">{{_computeDate(job.created_at)}}</div>
             <paper-ripple></paper-ripple>
@@ -91,13 +96,25 @@
       </section>
     </main>
 
-    <iron-pages attr-for-selected="data-page" selected="[[subPage]]">
+    <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
 
       <section data-page="add" class="sub-page">
         <grid-posts-add id="posts-add" map="{{map}}"></grid-posts-add>
       </section>
 
+      <section data-page="post" class="sub-page">
+        <grid-post map="{{map}}" post="[[_post]]" post-id="[[post.id]]"></grid-post>
+      </section>
+
     </iron-pages>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay dgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
 
   </template>
 
@@ -123,6 +140,11 @@
           map: {
             type: Object,
             notify: true
+          },
+
+          isLoading: {
+            type: Boolean,
+            value: true
           }
         }
       }
@@ -131,7 +153,12 @@
         return [
           '_subrouteChange(subroute)',
           '_subrouteDataChange(subrouteData)',
+          '_postChange(post)'
         ]
+      }
+
+      _postChange(post) {
+        console.log(post);
       }
 
       static get actions() {
@@ -152,6 +179,9 @@
 
       connectedCallback() {
         super.connectedCallback();
+
+        if(!this.user) return;
+
         gAxios.get('/users/'+ this.user.id + '/jobs')
 				.then( res => {
 					var data = res.data;
@@ -166,8 +196,9 @@
 						from: data.from,
 						to: data.to
 					};
-					this.isLoading = false;
-				});
+				}).then( () => {
+          this.isLoading = false;
+        });
 
         // update time automatically every 1 minute
         const plist = this.shadowRoot.querySelector('#post-list');
@@ -180,6 +211,12 @@
           });
         }, 60000);
 
+      }
+
+      viewPost(e) {
+        const job_id = e.model.job.id;
+        this.redirect('/posts/' + job_id);
+        this._post = e.model.job;
       }
 
       _computeDate(date) {
@@ -197,12 +234,17 @@
       _subrouteDataChange(subrouteData) {
         const self = this;
         if( subrouteData.id ) {
-          Polymer.Base.importHref(
-						'/elements/thegrid/pages/posts/grid-posts-' + subrouteData.id + '.html',
-						() => {
-              self.subPage = subrouteData.id;
-						}
-					);
+          if( this.shadowRoot.querySelector('#posts-' + subrouteData.id) ) {
+            Polymer.Base.importHref(
+  						'/elements/thegrid/pages/posts/grid-posts-' + subrouteData.id + '.html',
+  						() => {
+                self.subPage = subrouteData.id;
+  						}
+  					);
+          } else {
+            // go to post page by default
+            self.subPage = 'post';
+          }
         } else {
           self.subPage = null;
         }

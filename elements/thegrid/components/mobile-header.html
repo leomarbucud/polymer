@@ -32,12 +32,20 @@
 				top: 0;
 			}
 
+			#location {
+				transition: opacity 300ms ease-in-out;
+			}
+
+			.inactive {
+				opacity: 0.5;
+			}
+
     </style>
 
     <div class="toolbar">
       <paper-icon-button icon="menu" on-tap="openDrawer" class="red"></paper-icon-button>
       <span class="flex"></span>
-      <paper-icon-button icon="maps:my-location" on-tap="setCurrentLocation" class="red"></paper-icon-button>
+      <paper-icon-button id="location" icon="maps:my-location" on-tap="setCurrentLocation" class="red inactive"></paper-icon-button>
       <paper-icon-button icon="filter-list" class="red"></paper-icon-button>
     </div>
     <app-toolbar>
@@ -77,9 +85,13 @@
 			setMarker(options) {
 				if(this.marker) {
 					this.marker.setMap(null);
+					this.marker = null;
+					this.shadowRoot.querySelector('#location').classList.add('inactive');
+					return;
 				}
 				this.marker = new google.maps.Marker(options);
 				this.map.setCenter(options.position);
+				this.shadowRoot.querySelector('#location').classList.remove('inactive');
 			}
 
       setCurrentLocation() {
@@ -92,19 +104,30 @@
 					optimized: false,
 				};
 
-				if(self.currentLocation) {
+				if(self.currentLocation && self.marker) {
 					options.position = self.currentLocation;
 					self.setMarker(options);
 					return;
 				}
 				if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-							self.currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
-							options.position = self.currentLocation;
-							self.setMarker(options);
-							setTimeout( () => {
-								self.currentLocation = null;
-							}, self.locationTimeout );
+					var blink = 0;
+					var locationAvtivating = setInterval( () => {
+						if( blink == 0 ) {
+							this.shadowRoot.querySelector('#location').classList.add('inactive');
+							blink = 1;
+						} else {
+							this.shadowRoot.querySelector('#location').classList.remove('inactive');
+							blink = 0;
+						}
+					}, 500);
+          navigator.geolocation.getCurrentPosition(function(position) {
+						self.currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
+						options.position = self.currentLocation;
+						clearInterval(locationAvtivating);
+						self.setMarker(options);
+						setTimeout( () => {
+							self.currentLocation = null;
+						}, self.locationTimeout );
           })
         }
       }

@@ -14,6 +14,8 @@
 <link rel="import" href="/elements/thegrid/components/mobile-header.html">
 <link rel="import" href="/elements/thegrid/components/grid-introduction.html">
 <link rel="import" href="/elements/thegrid/components/drawer.html">
+<link rel="import" href="/elements/thegrid/pages/grid-login.html">
+<link rel="import" href="/elements/thegrid/pages/grid-search.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="grid-app">
@@ -57,6 +59,25 @@
 			    width: 100%;
 			    height: 100%;
 			  }
+
+				iron-pages.pages {
+					transition-property: all;
+					transition-duration: 200ms;
+					transition-property: -webkit-transform;
+				  transition-property: transform;
+				  -webkit-transform: translate3d(100%, 0, 0);
+				  transform: translate3d(100%, 0, 0)
+				}
+
+				iron-pages.pages.open {
+					-webkit-transform: translate3d(0, 0, 0);
+  				transform: translate3d(0, 0, 0);
+				}
+
+				iron-pages.pages section {
+					height: 100%;
+					width: 100%;
+				}
 			}
 
 			#searchFab {
@@ -98,45 +119,45 @@
 
 		<grid-introduction is-logged-in="[[isLoggedIn]]"></grid-introduction>
 
-		<iron-pages attr-for-selected="data-page" selected="[[page]]">
+		<iron-pages attr-for-selected="data-page" selected="[[page]]" class="overlay pages">
 
-	    <section data-page="login" class="overlay">
+	    <section data-page="login" >
 	      <div class="center-page">
 					<grid-login id="login" setup-account="{{setupAccount}}"></grid-login>
 				</div>
 	    </section>
 
-	    <section data-page="register" class="overlay">
+	    <section data-page="register" >
 				<div class="center-page">
 					<grid-register id="register"></grid-register>
 				</div>
 	    </section>
 
-			<section data-page="forgot" class="overlay">
+			<section data-page="forgot" >
 				<div class="center-page">
 					<grid-forgot id="forgot"></grid-forgot>
 				</div>
 	    </section>
 
-			<section data-page="reset-password" class="overlay">
+			<section data-page="reset-password" >
 				<div class="center-page">
 					<grid-reset-password id="reset-password"></grid-reset-password>
 				</div>
 	    </section>
 
-			<section data-page="profile" class="overlay">
+			<section data-page="profile" >
 	      <div class="center-page">
 					<grid-profile id="profile"></grid-profile>
 				</div>
 	    </section>
 
-			<section data-page="posts" class="overlay">
+			<section data-page="posts" >
 	      <div class="center-page">
 					<grid-posts id="posts" map="{{map}}"></grid-posts>
 				</div>
 	    </section>
 
-			<section data-page="search" class="overlay">
+			<section data-page="search" >
 	      <div class="center-page">
 					<grid-search id="search" map="{{map}}"></grid-search>
 				</div>
@@ -209,8 +230,17 @@
 					'_hasConfirmationToken(confirmation_token)',
 					'_isAuth(auth)',
 					'_setUpNeeded(setupAccount)',
-					'_authenticated(token, user)'
+					'_authenticated(token, user)',
+					'_pageChange(routeData)'
 				]
+			}
+
+			_pageChange(routeData) {
+				if(routeData.page) {
+					this.shadowRoot.querySelector('iron-pages').classList.add('open');
+				} else {
+					this.shadowRoot.querySelector('iron-pages').classList.remove('open');
+				}
 			}
 
 			static get actions() {
@@ -277,10 +307,10 @@
 					if( user ) {
 
 						self.dispatch('loggedUser', JSON.parse(user));
-						gAxios.get('/users/' + JSON.parse(user)['id'] + '/skills')
-		        .then( res => {
-		          self.dispatch('setSkills', res.data);
-		        });
+						// gAxios.get('/users/' + JSON.parse(user)['id'] + '/skills')
+		        // .then( res => {
+		        //   self.dispatch('setSkills', res.data);
+		        // });
 						timeout = 100;
 					}
 
@@ -335,7 +365,7 @@
 
 			_routeChange(route) {
 				if( route.path == '' ) {
-					this.set('routeData.page', null);
+					// this.set('routeData.page', null);
 
 				}
 			}
@@ -401,7 +431,7 @@
 					);
 
         } else {
-					self.page = null;
+					// self.page = null;
 					Polymer.Base.importHref(
 						'/elements/thegrid/components/grid-map.html',
 						() => {

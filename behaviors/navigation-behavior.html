@@ -11,7 +11,7 @@
             type: Object,
             value: function() {
               return {
-                API_BASE_URL : 'https://api.thegrid.com',
+                API_BASE_URL : (location.hostname == 'dev.thegrid.com') ? 'https://api.thegrid.com' : 'https://dev-thegrid.azurewebsites.net',
                 API_URL : API_BASE_URL + '/api',
                 APP_URL : '/',
                 HOME_URL : '/',

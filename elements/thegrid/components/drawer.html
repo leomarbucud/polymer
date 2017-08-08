@@ -85,8 +85,8 @@
 
 
     </style>
-    <template is="dom-if" if="[[isLoggedIn]]">
-      <ul class="nav">
+    <ul class="nav">
+      <template is="dom-if" if="[[isLoggedIn]]">
         <li class="user-view">
           <div>
             <div class="background">
@@ -98,53 +98,55 @@
           </div>
           <paper-ripple></paper-ripple>
         </li>
-        <li>
-          <a href="/posts"><iron-icon src="/assets/images/icons/posts.svg" class="white icon"></iron-icon> <span>Posts</span></a>
+      </template>
+      <template is="dom-if" if="[[!isLoggedIn]]">
+        <li class="user-view">
+          <div>
+            <div class="background">
+              <img src="/assets/images/background.png">
+            </div>
+            <a on-click="redirectProfile"><img class="circle" src$="[[_profileImage()]]"></a>
+            <a href="#!name"><span class="white-text name">The Grid</span></a>
+            <a href="/login"><span class="white-text email">Sign in</span></a>
+          </div>
           <paper-ripple></paper-ripple>
         </li>
-        <li>
-          <a href="/bids"><iron-icon src="/assets/images/icons/bids.svg" class="icon"></iron-icon> <span>Bids</span></a>
-          <paper-ripple></paper-ripple>
-        </li>
-        <li>
-          <a href="/inbox"><iron-icon src="/assets/images/icons/inbox.svg" class="icon"></iron-icon> <span>Inbox</span></a>
-          <paper-ripple></paper-ripple>
-        </li>
-        <li>
-          <a href="/transactions"><iron-icon src="/assets/images/icons/transactions.svg" class="icon"></iron-icon> <span>Transactions</span></a>
-          <paper-ripple></paper-ripple>
-        </li>
-        <li class="divider">
-          <hr />
-        </li>
-        <li>
-          <a href="/settings"><iron-icon src="/assets/images/icons/settings.svg" class="icon"></iron-icon> <span>Settings</span></a>
-          <paper-ripple></paper-ripple>
-        </li>
-        <li>
-          <a href="/help"><iron-icon src="/assets/images/icons/help_feedback.svg" class="icon"></iron-icon> <span>Help &amp; Feedback</span></a>
-          <paper-ripple></paper-ripple>
-        </li>
-        <li class="divider">
-          <hr />
-        </li>
-        <li>
-          <a href="/logout"><iron-icon icon="logout" class="icon"></iron-icon> <span>Logout</span></a>
-          <paper-ripple></paper-ripple>
-        </li>
-      </ul>
-    </template>
-
-    <div hidden$="[[isLoggedIn]]">
-      <ul class="nav">
-        <li>
-          <a href="/login"><iron-icon src="/assets/images/icons/transactions.svg" class="icon"></iron-icon> <span>Sign In</span></a>
-        </li>
-        <li>
-          <a href="/register"><iron-icon src="/assets/images/icons/transactions.svg" class="icon"></iron-icon> <span>Sign Up</span></a>
-        </li>
-      </ul>
-    </div>
+      </template>
+      <li>
+        <a href="/posts"><iron-icon src="/assets/images/icons/posts.svg" class="white icon"></iron-icon> <span>Posts</span></a>
+        <paper-ripple></paper-ripple>
+      </li>
+      <li>
+        <a href="/bids"><iron-icon src="/assets/images/icons/bids.svg" class="icon"></iron-icon> <span>Bids</span></a>
+        <paper-ripple></paper-ripple>
+      </li>
+      <li>
+        <a href="/inbox"><iron-icon src="/assets/images/icons/inbox.svg" class="icon"></iron-icon> <span>Inbox</span></a>
+        <paper-ripple></paper-ripple>
+      </li>
+      <li>
+        <a href="/transactions"><iron-icon src="/assets/images/icons/transactions.svg" class="icon"></iron-icon> <span>Transactions</span></a>
+        <paper-ripple></paper-ripple>
+      </li>
+      <li class="divider">
+        <hr />
+      </li>
+      <li>
+        <a href="/settings"><iron-icon src="/assets/images/icons/settings.svg" class="icon"></iron-icon> <span>Settings</span></a>
+        <paper-ripple></paper-ripple>
+      </li>
+      <li>
+        <a href="/help"><iron-icon src="/assets/images/icons/help_feedback.svg" class="icon"></iron-icon> <span>Help &amp; Feedback</span></a>
+        <paper-ripple></paper-ripple>
+      </li>
+      <li class="divider">
+        <hr />
+      </li>
+      <li hidden$="[[!isLoggedIn]]">
+        <a href="/logout"><iron-icon icon="logout" class="icon"></iron-icon> <span>Logout</span></a>
+        <paper-ripple></paper-ripple>
+      </li>
+    </ul>
 
   </template>
 

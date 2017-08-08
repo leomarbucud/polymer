@@ -6,8 +6,17 @@
     "elements/thegrid/pages/grid-profile.html",
     "elements/thegrid/pages/grid-register.html",
     "elements/thegrid/pages/grid-forgot.html",
+    "elements/thegrid/pages/grid-404.html",
+    "elements/thegrid/pages/grid-posts.html",
+    "elements/thegrid/pages/grid-search.html",
     "elements/thegrid/pages/grid-reset-password.html",
-    "elements/thegrid/pages/profile/grid-skills.html",
+    "elements/thegrid/pages/profile/grid-profile-skills.html",
+    "elements/thegrid/pages/profile/grid-profile-edit.html",
+    "elements/thegrid/pages/posts/grid-posts-add.html",
+    "elements/thegrid/pages/posts/grid-posts-add-1.html",
+    "elements/thegrid/pages/posts/grid-posts-add-2.html",
+    "elements/thegrid/pages/register/gridregister-1.html",
+    "elements/thegrid/pages/register/gridregister-2.html",
     "elements/thegrid/components/grid-map.html",
     "elements/thegrid/components/drawer.html"
   ],
@@ -15,6 +24,7 @@
     "assets/**/*",
     "node_modules/redux/dist/redux.js",
     "node_modules/axios/dist/axios.js",
+    "node_modules/moment/moment.js",
     "bower.json"
   ],
   "extraDependencies": [
