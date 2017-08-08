@@ -104,7 +104,7 @@
 					optimized: false,
 				};
 
-				if(self.currentLocation && self.marker) {
+				if(self.currentLocation) {
 					options.position = self.currentLocation;
 					self.setMarker(options);
 					return;
@@ -112,12 +112,14 @@
 				if (navigator.geolocation) {
 					var blink = 0;
 					var locationAvtivating = setInterval( () => {
-						if( blink == 0 ) {
-							this.shadowRoot.querySelector('#location').classList.add('inactive');
-							blink = 1;
-						} else {
-							this.shadowRoot.querySelector('#location').classList.remove('inactive');
-							blink = 0;
+						if(!self.marker) {
+							if( blink == 0 ) {
+								this.shadowRoot.querySelector('#location').classList.add('inactive');
+								blink = 1;
+							} else {
+								this.shadowRoot.querySelector('#location').classList.remove('inactive');
+								blink = 0;
+							}
 						}
 					}, 500);
           navigator.geolocation.getCurrentPosition(function(position) {
