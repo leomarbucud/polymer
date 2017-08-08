@@ -60,7 +60,7 @@
 			    height: 100%;
 			  }
 
-				iron-pages.pages {
+				/*iron-pages.pages {
 					transition-property: all;
 					transition-duration: 200ms;
 					transition-property: -webkit-transform;
@@ -77,7 +77,7 @@
 				iron-pages.pages section {
 					height: 100%;
 					width: 100%;
-				}
+				}*/
 			}
 
 			#searchFab {
@@ -119,45 +119,45 @@
 
 		<grid-introduction is-logged-in="[[isLoggedIn]]"></grid-introduction>
 
-		<iron-pages attr-for-selected="data-page" selected="[[page]]" class="overlay pages">
+		<iron-pages attr-for-selected="data-page" selected="[[page]]" class="-overlay">
 
-	    <section data-page="login" >
+	    <section data-page="login" class="overlay">
 	      <div class="center-page">
 					<grid-login id="login" setup-account="{{setupAccount}}"></grid-login>
 				</div>
 	    </section>
 
-	    <section data-page="register" >
+	    <section data-page="register" class="overlay">
 				<div class="center-page">
 					<grid-register id="register"></grid-register>
 				</div>
 	    </section>
 
-			<section data-page="forgot" >
+			<section data-page="forgot" class="overlay">
 				<div class="center-page">
 					<grid-forgot id="forgot"></grid-forgot>
 				</div>
 	    </section>
 
-			<section data-page="reset-password" >
+			<section data-page="reset-password" class="overlay">
 				<div class="center-page">
 					<grid-reset-password id="reset-password"></grid-reset-password>
 				</div>
 	    </section>
 
-			<section data-page="profile" >
+			<section data-page="profile" class="overlay">
 	      <div class="center-page">
 					<grid-profile id="profile"></grid-profile>
 				</div>
 	    </section>
 
-			<section data-page="posts" >
+			<section data-page="posts" class="overlay">
 	      <div class="center-page">
 					<grid-posts id="posts" map="{{map}}"></grid-posts>
 				</div>
 	    </section>
 
-			<section data-page="search" >
+			<section data-page="search" class="overlay">
 	      <div class="center-page">
 					<grid-search id="search" map="{{map}}"></grid-search>
 				</div>
@@ -365,7 +365,7 @@
 
 			_routeChange(route) {
 				if( route.path == '' ) {
-					// this.set('routeData.page', null);
+					this.set('routeData.page', null);
 
 				}
 			}
@@ -431,7 +431,7 @@
 					);
 
         } else {
-					// self.page = null;
+					self.page = null;
 					Polymer.Base.importHref(
 						'/elements/thegrid/components/grid-map.html',
 						() => {
