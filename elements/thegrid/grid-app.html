@@ -14,15 +14,14 @@
 <link rel="import" href="/elements/thegrid/components/mobile-header.html">
 <link rel="import" href="/elements/thegrid/components/grid-introduction.html">
 <link rel="import" href="/elements/thegrid/components/drawer.html">
-<!-- <link rel="import" href="/elements/thegrid/pages/grid-login.html"> -->
 <link rel="import" href="/elements/thegrid/pages/grid-search.html">
+<link rel="import" href="/elements/thegrid/pages/grid-user-post.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="grid-app">
 	<template>
 
-    <style include="grid">
-
+		<style include="grid">
 			:host {
 				display: block;
 				width: 100%;
@@ -32,33 +31,34 @@
 			#drawer {
 				--app-drawer-width: 304px;
 				--app-drawer-content-container: {
-		     	box-shadow: 1px 0 2px 1px rgba(0,0,0,0.18);
-		    }
+					box-shadow: 1px 0 2px 1px rgba(0, 0, 0, 0.18);
+				}
 				/*--app-drawer-scrim-background*/
 			}
 
-	    app-header {
-	      position: fixed;
-	      top: 0;
-	      left: 0;
-	      width: 100%;
-	      background-color: #4285f4;
-	      color: #fff;
-	    }
+			app-header {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				background-color: #4285f4;
+				color: #fff;
+			}
 
-	    app-header paper-icon-button {
-	      --paper-icon-button-ink-color: white;
-	    }
+			app-header paper-icon-button {
+				--paper-icon-button-ink-color: white;
+			}
 
 			section .center-page {
 				width: 400px;
-        height: 600px;
+				height: 600px;
 			}
+
 			@media (max-width: 600px) {
-			  section .center-page {
-			    width: 100%;
-			    height: 100%;
-			  }
+				section .center-page {
+					width: 100%;
+					height: 100%;
+				}
 
 				/*iron-pages.pages {
 					transition-property: all;
@@ -91,24 +91,18 @@
 				right: 16px;
 				bottom: 22px;
 			}
+		</style>
 
-    </style>
+		<!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
+		<app-location route="{{route}}"></app-location>
 
-    <!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
-    <app-location route="{{route}}" ></app-location>
+		<app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
 
-		<app-route route="{{route}}"
-		    pattern="/:page"
-		    data="{{routeData}}"
-		    tail="{{subroute}}"></app-route>
+		<app-route route="{{subroute}}" pattern="/:id" data="{{subrouteData}}"></app-route>
 
-		<app-route route="{{subroute}}"
-		    pattern="/:id"
-		    data="{{subrouteData}}"></app-route>
+		<app-route route="{{route}}" pattern="/confirmation/:token" data="{{confirmation_token}}"></app-route>
 
-		<app-route route="{{route}}"
-        pattern="confirmation/:token"
-        data="{{confirmation_token}}"></app-route>
+		<app-route route="{{route}}" pattern="/:user/posts/:id" data="{{userPost}}"></app-route>
 
 		<grid-map user="[[user]]" map="{{map}}"></grid-map>
 
@@ -121,53 +115,59 @@
 
 		<iron-pages attr-for-selected="data-page" selected="[[page]]" class="-overlay">
 
-	    <section data-page="login" class="overlay">
-	      <div class="center-page">
+			<section data-page="login" class="overlay">
+				<div class="center-page">
 					<grid-login id="login" setup-account="{{setupAccount}}"></grid-login>
 				</div>
-	    </section>
+			</section>
 
-	    <section data-page="register" class="overlay">
+			<section data-page="register" class="overlay">
 				<div class="center-page">
 					<grid-register id="register"></grid-register>
 				</div>
-	    </section>
+			</section>
 
 			<section data-page="forgot" class="overlay">
 				<div class="center-page">
 					<grid-forgot id="forgot"></grid-forgot>
 				</div>
-	    </section>
+			</section>
 
 			<section data-page="reset-password" class="overlay">
 				<div class="center-page">
 					<grid-reset-password id="reset-password"></grid-reset-password>
 				</div>
-	    </section>
+			</section>
 
 			<section data-page="profile" class="overlay">
-	      <div class="center-page">
+				<div class="center-page">
 					<grid-profile id="profile"></grid-profile>
 				</div>
-	    </section>
+			</section>
 
 			<section data-page="posts" class="overlay">
-	      <div class="center-page">
+				<div class="center-page">
 					<grid-posts id="posts" map="{{map}}"></grid-posts>
 				</div>
-	    </section>
+			</section>
 
 			<section data-page="search" class="overlay">
-	      <div class="center-page">
+				<div class="center-page">
 					<grid-search id="search" map="{{map}}"></grid-search>
 				</div>
-	    </section>
+			</section>
+
+			<section data-page="user-post" class="overlay">
+				<div class="center-page">
+					<grid-user-post post-id="[[userPost.id]]" map="{{map}}"></grid-user-post>
+				</div>
+			</section>
 
 			<section data-page="404">
 				<grid-404></grid-404>
-	    </section>
+			</section>
 
-	  </iron-pages>
+		</iron-pages>
 
 		<app-drawer id="drawer" align="start" swipe-open opened="{{drawerOpened}}">
 			<grid-drawer user="user" is-logged-in="[[isLoggedIn]]"></grid-drawer>
@@ -176,7 +176,6 @@
 	</template>
 
 	<script>
-
 		class GridApp extends GridNavigation(ReduxBehavior(Polymer.Element)) {
 
 			static get is() { return 'grid-app'; }
@@ -207,16 +206,16 @@
 
 					app: {
 						type: Object,
-						value: function() {
+						value: function () {
 							return this;
 						},
 						notify: true
 					},
 
 					skills: {
-            type: Object,
-            statePath: 'skills'
-          }
+						type: Object,
+						statePath: 'skills'
+					}
 
 				}
 			}
@@ -231,12 +230,18 @@
 					'_isAuth(auth)',
 					'_setUpNeeded(setupAccount)',
 					'_authenticated(token, user)',
-					'_pageChange(routeData)'
+					'_pageChange(routeData)',
+					'_userPostChange(userPost)'
 				]
 			}
 
+			_userPostChange(userPost) {
+				if( !userPost.user || !userPost.id ) return;
+					this.page = 'user-post';
+			}
+
 			_pageChange(routeData) {
-				if(routeData.page) {
+				if (routeData.page) {
 					this.shadowRoot.querySelector('iron-pages').classList.add('open');
 				} else {
 					this.shadowRoot.querySelector('iron-pages').classList.remove('open');
@@ -244,27 +249,27 @@
 			}
 
 			static get actions() {
-  			return {
+				return {
 
-  				loggedUser(user) {
-  					return {
-  						type: 'LOGGED_USER',
-  						user: user
-  					}
-  				},
+					loggedUser(user) {
+						return {
+							type: 'LOGGED_USER',
+							user: user
+						}
+					},
 
 					logout() {
-            return {
-              type: 'LOGOUT_USER'
-            }
-          },
+						return {
+							type: 'LOGOUT_USER'
+						}
+					},
 
 					setSkills(skills) {
-  					return {
-  						type: 'SET_SKILLS',
-  						skills: skills
-  					}
-  				}
+						return {
+							type: 'SET_SKILLS',
+							skills: skills
+						}
+					}
 
 				}
 			}
@@ -299,44 +304,44 @@
 			_checkLogin() {
 				const self = this;
 
-				if(checkLogin()) {
+				if (checkLogin()) {
 					// self.isLoggedIn = true;
 
 					var user = window.localStorage.getItem('user');
 					var timeout = 3000;
-					if( user ) {
+					if (user) {
 
 						self.dispatch('loggedUser', JSON.parse(user));
 						// gAxios.get('/users/' + JSON.parse(user)['id'] + '/skills')
-		        // .then( res => {
-		        //   self.dispatch('setSkills', res.data);
-		        // });
+						// .then( res => {
+						//   self.dispatch('setSkills', res.data);
+						// });
 						timeout = 100;
 					}
 
 					// IDEA: Update user after 3 sec
-					setTimeout( () => {
+					setTimeout(() => {
 
 						gAxios.get('user')
-						.then( res => {
+							.then(res => {
 
-							// IDEA: Update the user local storage
-							window.localStorage.setItem('user', JSON.stringify(res.data));
+								// IDEA: Update the user local storage
+								window.localStorage.setItem('user', JSON.stringify(res.data));
 
-							// IDEA: update the user redux store
-							self.dispatch('loggedUser', res.data);
+								// IDEA: update the user redux store
+								self.dispatch('loggedUser', res.data);
 
-							if( ! res.data.is_account_setup ) {
-								// redirect(SETUP_URL);
-							}
+								if (!res.data.is_account_setup) {
+									// redirect(SETUP_URL);
+								}
 
-						}).catch( err => {
+							}).catch(err => {
 
-							if( err.response ) {
+								if (err.response) {
 									console.log('error', err.response);
-							}
+								}
 
-						});
+							});
 
 					}, timeout);
 
@@ -353,27 +358,26 @@
 			// }
 
 			_authenticated(token, user) {
-				if( token && user ) {
+				if (token && user) {
 					window.localStorage.clear();
 					window.localStorage.setItem('token', token);
 					window.localStorage.setItem('user', JSON.stringify(user));
-					if(checkLogin()) {
+					if (checkLogin()) {
 						this.isLoggedIn = true;
 					}
 				}
 			}
 
 			_routeChange(route) {
-				if( route.path == '' ) {
+				if (route.path == '') {
 					this.set('routeData.page', null);
-
 				}
 			}
 
 			_routeDataChange(routeData) {
 				const self = this;
 				this.drawerOpened = false;
-				if ( checkLogin() ) {
+				if (checkLogin()) {
 					switch (routeData.page) {
 						case 'login':
 						case 'register':
@@ -401,18 +405,18 @@
 							break;
 					}
 				}
-				if ( routeData.page ) {
+				if (routeData.page) {
 
 					// IDEA: if profile page
-					if( routeData.page.charAt(0) == '@' ) {
-						// console.log('loding user', routeData.page )
+					if (routeData.page.charAt(0) == '@') {
+						//console.log('loding user', routeData.page )
 
 						return;
 					}
 
 					// IDEA: return if there is no component declared
 					try {
-						if( !this.shadowRoot.querySelector('#' + routeData.page ) ) {
+						if (!this.shadowRoot.querySelector('#' + routeData.page)) {
 							self._showPage404();
 							return;
 						}
@@ -421,16 +425,16 @@
 						return;
 					}
 
-          Polymer.Base.importHref(
+					Polymer.Base.importHref(
 						'/elements/thegrid/pages/grid-' + routeData.page + '.html',
 						() => {
 							self.page = routeData.page
 						},
 						self._showPage404.bind(self),
-            true
+						true
 					);
 
-        } else {
+				} else {
 					self.page = null;
 					Polymer.Base.importHref(
 						'/elements/thegrid/components/grid-map.html',
@@ -466,21 +470,21 @@
 
 			_hasConfirmationToken(confirmation_token) {
 				const self = this;
-				if(confirmation_token.token) {
+				if (confirmation_token.token) {
 
 					axios.post(API_URL + '/users/confirmation/' + confirmation_token.token)
-					.then( res => {
+						.then(res => {
 
-						// alert(res.data.message);
-						// window.location.href = LOGIN_URL;
-						self.redirectLogin();
+							// alert(res.data.message);
+							// window.location.href = LOGIN_URL;
+							self.redirectLogin();
 
-					}).catch( err => {
-						if ( err.response ) {
+						}).catch(err => {
+							if (err.response) {
 								alert(err.response.data.message)
-						}
+							}
 
-					});
+						});
 				}
 			}
 

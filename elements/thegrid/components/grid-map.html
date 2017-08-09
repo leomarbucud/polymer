@@ -2,6 +2,7 @@
 <link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 <link rel="import" href="/behaviors/map-behavior.html">
+<link rel="import" href="/behaviors/navigation-behavior.html">
 
 <dom-module id="grid-map">
   <template>
@@ -34,7 +35,7 @@
 
   <script>
 
-    class GridMap extends MapBehaviorMixin(ReduxBehavior(Polymer.Element)) {
+    class GridMap extends GridNavigation(MapBehaviorMixin(ReduxBehavior(Polymer.Element))) {
 
       static get is() { return 'grid-map'; }
 
@@ -227,6 +228,10 @@
 				// 	return (marker.lat == data.lat) && (marker.lng == data.lng);
 				// });
 
+        var post_url = (username, post_id) => {
+          return '/@' + username + '/posts/' + post_id; 
+        };
+
 				self.addMarker({
 					id: data.id,
 					price: data.price,
@@ -235,12 +240,12 @@
 					lat: parseFloat(data.lat),
 					lng: parseFloat(data.lng),
 					icon: svg,
-					content: content,
+					// content: content,
 					events: [
 						{
 							name: 'spider_click',
 							callback: function(e, obj) {
-                console.log(data.id, data.name, data.lat, data.lng);
+                this.redirect(post_url(data.user.username, data.id));
 							}
 						}
 					],

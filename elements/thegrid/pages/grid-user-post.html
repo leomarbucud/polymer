@@ -1,0 +1,174 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-user-post">
+	<template>
+		<style include="grid iron-flex">
+			:host {
+				display: block;
+				height: 100vh;
+				background: var(--dark-grey);
+			}
+
+			img.circle {
+        height: 64px;
+        width: 64px;
+        border-radius: 50%;
+      }
+
+			.user-info .name {
+				padding-left: 16px;
+			}
+
+			.user-info .name span {
+				color: #FFFFFF;
+				font-size: 32px;
+				font-weight: 400;
+				display: block;
+			}
+			.user-info .name small {
+				font-size: 14px;
+				color: #FFFFFF;
+				opacity: 0.7;
+			}
+		</style>
+
+		<div id="toolbar" class="toolbar">
+			<paper-icon-button icon="close" class="red pointer" on-click="redirectHome"></paper-icon-button>
+			<span class="flex"></span>
+		</div>
+
+		<main class="scroll-area flex">
+			<section class="p-y-1 user-info">
+				<div class="flex layout horizontal">
+					<div class="avatar">
+						<a><img class="circle" src$="[[_profileImage(post.user.profile.profile_image_url)]]"></a>
+					</div>
+					<div class="name">
+						<span>[[post.user.name]]</span>
+						<small>[[_fromNow(post.created_at)]]</small>
+					</div>
+				</div>
+			</section>
+			<section class="p-y-1">
+				<h1 class="white">[[post.name]]</h1>
+				<h2 class="white">AED [[post.price]]</h2>
+				<span class="white">[[_fromNow(post.date)]]</span>
+			</section>
+
+			<section class="p-y-1">
+				<paper-icon-button icon="maps:place" class="white" on-tap="viewOnMap"></paper-icon-button>
+			</section>
+
+			<template is="dom-if" if="[[canBid]]">
+				<section class="p-y-1 white">
+					User can bid
+				</section>
+			</template>
+		</main>
+
+		<template is="dom-if" if="[[isLoading]]">
+			<div class="overlay dgrey-bg" style="margin-top: 64px;">
+				<div class="align-center">
+					<paper-spinner active$="[[isLoading]]"></paper-spinner>
+				</div>
+			</div>
+		</template>
+
+
+	</template>
+
+	<script>
+		class GridUserPost extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+
+			static get is() { return 'grid-user-post'; }
+
+			static get properties() {
+				return {
+					user: {
+						type: Object,
+						statePath: 'user'
+					},
+					isLoading: {
+						type: Boolean,
+						value: false
+					},
+					canBid: {
+						type: Boolean,
+						value: false
+					}
+				}
+			}
+
+			static get observers() {
+				return [
+					'_postIdChange(postId)',
+					'_postUserId(post.user.id)'
+				]
+			}
+
+			static get actions() {
+				return {
+					
+				};
+			}
+
+			constructor() {
+				super();
+
+			}
+
+			connectedCallback() {
+				super.connectedCallback();
+
+			}
+
+			viewOnMap() {
+				if (!this.post && this.map) return;
+
+				const job = this.post;
+				const position = new google.maps.LatLng(job.lat, job.lng);
+
+				this.map.setCenter(position);
+				this.map.setZoom(20);
+				this.redirectHome();
+			}
+
+			_postIdChange(postId) {
+				if (!postId) return;
+				this.isLoading = true;
+				axios.get(this.url.API_URL + '/jobs/' + postId)
+					.then(res => {
+						this.post = res.data;
+					}).then(() => {
+						this.isLoading = false;
+					});
+			}
+
+			_fromNow(date) {
+				return moment(date).fromNow();
+			}
+
+			_profileImage(img) {
+        if( img ) {
+          return this.url.API_BASE_URL + '/storage/avatars/' + img;
+        }
+        if(this.post.user) return LetterAvatar(this.post.user.name, '64');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
+
+        return LetterAvatar('Grid', 64);
+
+      }
+
+			_postUserId(id) {
+				if( ! id ) return;
+
+				this.canBid = false;
+				if( this.user.id == id ) return;
+				this.canBid = true;
+			}
+
+		}
+
+		customElements.define(GridUserPost.is, GridUserPost);
+	</script>
+</dom-module>
