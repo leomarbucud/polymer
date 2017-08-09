@@ -60,7 +60,7 @@
                 data-message-required="Your name is required." />
           </div>
 
-          <div class="input-group suffix" data-step="2" data-question="Hello %name. Your Email?">
+          <div class="input-group suffix" data-step="2" data-question="Hello! Your email?">
             <input id="email" name="email" type="text" class="input"
                 autocomplete="off"
                 on-keyup="checkEmailInput"
@@ -180,8 +180,14 @@
       static get observers() {
         return [
           '_passwordState(isPasswordHidden)',
-          '_formDone(name, email, phone_number, password)'
+          '_formDone(name, email, phone_number, password)',
+          '_nameChange(name)'
         ];
+      }
+
+      _nameChange(name) {
+        var q = "Hello " + name + ". Your Email?";
+        this.shadowRoot.querySelector('div[data-step="2"]').setAttribute('data-question', q);
       }
 
       static get actions() {

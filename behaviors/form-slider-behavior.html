@@ -85,11 +85,11 @@
             item.style.paddingLeft = '0px';
             item.style.paddingRight = '0px';
             if(item.querySelector('input')) {
-              item.querySelector('input').removeAttribute('disabled');
+              // item.querySelector('input').removeAttribute('disabled');
               item.querySelector('input').focus();
             }
             if(item.querySelector('select')) {
-              item.querySelector('select').removeAttribute('disabled');
+              // item.querySelector('select').removeAttribute('disabled');
               item.querySelector('select').focus();
             }
           } else {
@@ -110,10 +110,10 @@
               item.style.paddingRight = w + 'px';
             }
             if(item.querySelector('input')) {
-              item.querySelector('input').setAttribute('disabled', 'disabled');
+              // item.querySelector('input').setAttribute('disabled', 'disabled');
             }
             if(item.querySelector('select')) {
-              item.querySelector('select').setAttribute('disabled', 'disabled');
+              // item.querySelector('select').setAttribute('disabled', 'disabled');
             }
           }
         });
@@ -126,23 +126,28 @@
         const self = this;
 
         self.steps.forEach(function(step) {
+
           const _step = step.getAttribute('data-step');
-          const _question = step.getAttribute('data-question');
-          var question = _question;
 
           var focus = function() {
+
+            let _question = step.getAttribute('data-question');
+
+            if ( _step > self.currentStep ) {
+              if(!self.validate(self.currentStep)) return;
+            }
 
             self.activeStep = _step;
             self.arrangeSteps(_step);
 
-            if( _step == 2 ) {
-
-              question = _question.replace('%name', self.name || '');
-
-            }
+            // if( _step == 2 ) {
+            //
+            //   question = _question.replace('%name', self.name || '');
+            //
+            // }
 
             self.set('step.no', _step);
-            self.set('step.question', question);
+            self.set('step.question', _question);
 
           };
 
