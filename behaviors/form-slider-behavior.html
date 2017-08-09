@@ -129,12 +129,16 @@
 
           const _step = step.getAttribute('data-step');
 
-          var focus = function() {
+          var focus = function(e) {
 
             let _question = step.getAttribute('data-question');
 
             if ( _step > self.currentStep ) {
-              if(!self.validate(self.currentStep)) return;
+              if(!self.validate(self.currentStep)) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
             }
 
             self.activeStep = _step;
@@ -151,10 +155,14 @@
 
           };
 
-          const click = function() {
+          const click = function(e) {
 
             if ( _step > self.currentStep ) {
-              if(!self.validate(self.currentStep)) return;
+              if(!self.validate(self.currentStep)) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
             }
 
             self.arrangeSteps(_step);
