@@ -1,4 +1,4 @@
-<link rel="import" href="/bower_components/polymer-redux/polymer-redux.html">
+<link rel="import" href="../bower_components/polymer-redux/polymer-redux.html">
 
 <script>
 
@@ -99,8 +99,8 @@
     }
   };
 
-  const store = Redux.createStore(reducer);
-  const ReduxBehavior = PolymerRedux(store);
+  const _store = Redux.createStore(reducer);
+  const ReduxBehavior = PolymerRedux(_store);
 
   window.gAxios = null;
 

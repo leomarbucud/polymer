@@ -1,4 +1,4 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
 <script>
   const FormSliderBehavior = Polymer.dedupingMixin(function(superClass){
     return class FormSliderBehavior extends superClass {
@@ -204,6 +204,7 @@
           if( input ) {
             input.addEventListener('focus', focus);
             input.addEventListener('keydown', keydown);
+            input.addEventListener('click', click);
           }
           step.addEventListener('click', click);
 

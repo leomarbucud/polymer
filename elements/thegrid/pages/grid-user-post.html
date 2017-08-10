@@ -1,5 +1,5 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="/elements/thegrid/grid-styles.html">
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../grid-styles.html">
 
 <dom-module id="grid-user-post">
 	<template>
@@ -7,15 +7,15 @@
 			:host {
 				display: block;
 				position: relative;
-				height: 100vh;
+				height: 100%;
 				background: var(--dark-grey);
 			}
 
 			img.circle {
-        height: 64px;
-        width: 64px;
-        border-radius: 50%;
-      }
+				height: 64px;
+				width: 64px;
+				border-radius: 50%;
+			}
 
 			.user-info .name {
 				padding-left: 16px;
@@ -27,6 +27,7 @@
 				font-weight: 400;
 				display: block;
 			}
+
 			.user-info .name small {
 				font-size: 14px;
 				color: #FFFFFF;
@@ -61,11 +62,20 @@
 				<paper-icon-button icon="maps:place" class="white" on-tap="viewOnMap"></paper-icon-button>
 			</section>
 
-			<template is="dom-if" if="[[canBid]]">
+			<template is="dom-if" if="[[user]]">
+				<template is="dom-if" if="[[canBid]]">
+					<section class="p-y-1 white">
+						User can bid
+					</section>
+				</template>
+			</template>
+
+			<template is="dom-if" if="[[!user]]">
 				<section class="p-y-1 white">
-					User can bid
+					<span class="pointer" on-click="redirectLogin">Login to bid on this job</span>
 				</section>
 			</template>
+
 		</main>
 
 		<template is="dom-if" if="[[isLoading]]">
@@ -75,7 +85,6 @@
 				</div>
 			</div>
 		</template>
-
 
 	</template>
 
@@ -110,7 +119,7 @@
 
 			static get actions() {
 				return {
-					
+
 				};
 			}
 
@@ -151,20 +160,22 @@
 			}
 
 			_profileImage(img) {
-        if( img ) {
-          return this.url.API_BASE_URL + '/storage/avatars/' + img;
-        }
-        if(this.post.user) return LetterAvatar(this.post.user.name, '64');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
+				if (img) {
+					return this.url.API_BASE_URL + '/storage/avatars/' + img;
+				}
+				if (this.post.user) return LetterAvatar(this.post.user.name, '64');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
 
-        return LetterAvatar('Grid', 64);
+				return LetterAvatar('Grid', 64);
 
-      }
+			}
 
 			_postUserId(id) {
-				if( ! id ) return;
+				if (!id) return;
 
 				this.canBid = false;
-				if( this.user.id == id ) return;
+				if( this.user )
+					if (this.user.id == id) 
+						return;
 				this.canBid = true;
 			}
 

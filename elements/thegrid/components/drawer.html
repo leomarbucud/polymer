@@ -1,8 +1,8 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="/bower_components/paper-ripple/paper-ripple.html">
-<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="/elements/thegrid/grid-icons.html">
-<link rel="import" href="/elements/thegrid/grid-styles.html">
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../grid-icons.html">
+<link rel="import" href="../grid-styles.html">
 
 <dom-module id="grid-drawer">
   <template>
@@ -152,7 +152,7 @@
 
   <script>
 
-    class GrdiDrawer extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+    class GridDrawer extends GridNavigation(ReduxBehavior(Polymer.Element)) {
 
       static get is() { return 'grid-drawer'; }
 
@@ -205,6 +205,6 @@
 
     }
 
-    customElements.define(GrdiDrawer.is, GrdiDrawer);
+    customElements.define(GridDrawer.is, GridDrawer);
 	</script>
 </dom-module>

@@ -1,6 +1,7 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="/behaviors/navigation-behavior.html">
-<link rel="import" href="/elements/thegrid/grid-styles.html">
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../behaviors/navigation-behavior.html">
+<!-- <link rel="import" href="../components/grid-map.html"> -->
+<link rel="import" href="../grid-styles.html">
 
 <dom-module id="grid-search">
   <template>
@@ -178,13 +179,13 @@
       constructor() {
         super();
 
-        // grid map is required so the map needs to be loaded
-        Polymer.Base.importHref(
-          '/elements/thegrid/components/grid-map.html',
-          () => {
-            // do something after elements has been imported
-          }
-        );
+        // // grid map is required so the map needs to be loaded
+        // Polymer.Base.importHref(
+        //   '/elements/thegrid/components/grid-map.html',
+        //   () => {
+        //     // do something after elements has been imported
+        //   }
+        // );
 
         // see if there is recent search
         var rs = window.localStorage.getItem('recent_searches');
