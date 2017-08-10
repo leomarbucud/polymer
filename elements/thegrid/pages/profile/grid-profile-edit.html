@@ -138,6 +138,7 @@
       }
 
       _profileImage(img) {
+        if(!this.user) return;
         if( img ) {
           if(img.indexOf('data:image') != -1) {
             return img;

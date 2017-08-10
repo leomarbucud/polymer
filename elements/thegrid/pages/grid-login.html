@@ -1,10 +1,10 @@
-<link rel="import" href="../../..//bower_components/polymer/polymer.html">
-<link rel="import" href="../../..//bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../..//bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../../..//bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../redux/grid-redux-store.html">
-<link rel="import" href="../grid-styles.html">
-<link rel="import" href="../components/login-components.html">
+ <link rel="import" href="../grid-styles.html"> 
+ <link rel="import" href="../components/login-components.html"> 
 
 <dom-module id="grid-login">
   <template>
@@ -16,7 +16,7 @@
         width: 100%;
         height: 100%;
         margin: 0 auto;
-        background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
+        background: var(--gradient-red);
       }
       .header-action {
         height: 56px;
@@ -25,7 +25,7 @@
 
     </style>
 
-    <app-location route="{{route}}"></app-location>
+    <!-- <app-location route="{{route}}"></app-location> -->
     <!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
 
 		<app-route route="{{route}}"
@@ -38,10 +38,10 @@
       <span class="white pointer" on-click="redirectRegister">SIGN UP</span>
     </div>
 
-    <login-components is-logging-in="{{isLoggingIn}}"
+     <login-components is-logging-in="{{isLoggingIn}}"
                       is-logged-in="{{isLoggedIn}}"
                       login-attempt="{{loginAttempt}}"
-                      login-error="{{loginError}}" ></login-components>
+                      login-error="{{loginError}}" ></login-components> 
 
     <paper-toast id="loginErrToast" duration="0" class="fit-bottom">
       <div class="flex layout horizontal">
