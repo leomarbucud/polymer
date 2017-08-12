@@ -13,6 +13,12 @@
         position: relative;
         height: 100%;
         background: var(--dark-grey);
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
       }
 
       .title h1 {
@@ -72,7 +78,7 @@
       <paper-icon-button icon="more-vert" class="red pointer"></paper-icon-button>
     </div>
 
-    <main class="scroll-area flex">
+    <main class="flex">
       <section class="p-y-1 title">
         <h1 class="white m-0">Posts</h1>
       </section>
@@ -162,7 +168,7 @@
       }
 
       _postChange(post) {
-        console.log(post);
+        // console.log(post);
       }
 
       static get actions() {

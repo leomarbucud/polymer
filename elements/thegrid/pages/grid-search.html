@@ -8,9 +8,14 @@
     <style include="grid iron-flex">
 
       :host {
-        display: block;
         height: 100%;
         background: var(--dark-grey);
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
       }
 
       .search-box {
@@ -67,6 +72,10 @@
         cursor: pointer;
       }
 
+      main {
+        overflow: auto;
+      }
+
     </style>
 
     <app-location route="{{route}}"></app-location>
@@ -84,7 +93,7 @@
       <input id="search-input" type="text" class="search-input" placeholder="Start Typing..." value="{{q::input}}"/>
     </div>
 
-    <main class="scroll-area flex">
+    <main class="flex">
       <div class="p-y-1">
         <div class="white" hidden$="[[!show_recent_searches]]">
           <div class="flex layout horizontal recent-searches-title">

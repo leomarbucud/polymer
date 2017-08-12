@@ -82,37 +82,34 @@
 				window.dispatchEvent(new CustomEvent('open-drawer'));
       }
 
-			setMarker(options) {
-				if(this.marker) {
-					this.marker.setMap(null);
-					this.marker = null;
-					this.shadowRoot.querySelector('#location').classList.add('inactive');
-					return;
-				}
-				this.marker = new google.maps.Marker(options);
-				this.map.setCenter(options.position);
-				this.shadowRoot.querySelector('#location').classList.remove('inactive');
-			}
-
-      setCurrentLocation() {
-				const self = this;
+			setMarker(latLng) {
 
 				var options = {
-					map: self.map,
+					map: this.map,
 					icon: window.location.origin + '/assets/images/currentlocation.png',
 					zIndex: 9999999999999,
 					optimized: false,
+					position: latLng
 				};
 
-				if(self.currentLocation) {
-					options.position = self.currentLocation;
-					self.setMarker(options);
-					return;
+				if(this.marker) {
+					this.marker.setMap(null);
+					this.marker = null;
+					// this.shadowRoot.querySelector('#location').classList.add('inactive');
+					// return;
 				}
+				this.marker = new google.maps.Marker(options);
+				this.map.setCenter(latLng);
+				// this.map.setZoom(18);
+				this.shadowRoot.querySelector('#location').classList.remove('inactive');
+			}
+
+			getCurrentLocation() {
+				const self = this;
 				if (navigator.geolocation) {
 					var blink = 0;
 					var locationAvtivating = setInterval( () => {
-						if(!self.marker) {
+						if(!this.marker) {
 							if( blink == 0 ) {
 								this.shadowRoot.querySelector('#location').classList.add('inactive');
 								blink = 1;
@@ -122,17 +119,25 @@
 							}
 						}
 					}, 500);
-          navigator.geolocation.getCurrentPosition(function(position) {
+          navigator.geolocation.watchPosition( function(position) {
 						self.currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
-						options.position = self.currentLocation;
-						clearInterval(locationAvtivating);
-						self.setMarker(options);
-						setTimeout( () => {
-							self.currentLocation = null;
-						}, self.locationTimeout );
-          })
+						if(!self.marker) {
+							clearInterval(locationAvtivating);
+							self.setCurrentLocation();
+						}
+          });
         }
+			}
+
+      setCurrentLocation() {
+				if(this.currentLocation) {
+					this.setMarker(this.currentLocation);
+				} else {
+					this.getCurrentLocation();
+				}
+				
       }
+
 
     }
 

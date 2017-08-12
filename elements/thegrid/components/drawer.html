@@ -139,13 +139,15 @@
         <a href="/help"><iron-icon src="/assets/images/icons/help_feedback.svg" class="icon"></iron-icon> <span>Help &amp; Feedback</span></a>
         <paper-ripple></paper-ripple>
       </li>
-      <li class="divider">
-        <hr />
-      </li>
-      <li hidden$="[[!isLoggedIn]]">
-        <a href="/logout"><iron-icon icon="logout" class="icon"></iron-icon> <span>Logout</span></a>
-        <paper-ripple></paper-ripple>
-      </li>
+      <template is="dom-if" if="[[isLoggedIn]]">
+        <li class="divider">
+          <hr />
+        </li>
+        <li>
+          <a href="/logout"><iron-icon icon="logout" class="icon"></iron-icon> <span>Logout</span></a>
+          <paper-ripple></paper-ripple>
+        </li>
+      </template>
     </ul>
 
   </template>

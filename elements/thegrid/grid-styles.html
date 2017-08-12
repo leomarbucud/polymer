@@ -287,12 +287,16 @@
         border-radius: 50%;
       }
 
+			main {
+				overflow-y:auto
+			}
+
       main.scroll-area {
         overflow-y: auto;
         height: calc(100% - 64px);
       }
 
-      main.scroll-area::-webkit-scrollbar {
+      main.scroll-area::-webkit-scrollbar, main::-webkit-scrollbar {
           width: 0px;
           background: transparent; /* make scrollbar transparent */
       }

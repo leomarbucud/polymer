@@ -131,6 +131,13 @@
 			connectedCallback() {
 				super.connectedCallback();
 
+				// grid map is required so the map needs to be loaded
+        Polymer.Base.importHref(
+          '/elements/thegrid/components/grid-map.html',
+          () => {
+            // do something after elements has been imported
+          }
+        );
 			}
 
 			viewOnMap() {
@@ -173,8 +180,8 @@
 				if (!id) return;
 
 				this.canBid = false;
-				if( this.user )
-					if (this.user.id == id) 
+				if (this.user)
+					if (this.user.id == id)
 						return;
 				this.canBid = true;
 			}
