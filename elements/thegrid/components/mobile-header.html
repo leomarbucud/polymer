@@ -82,14 +82,15 @@
 				window.dispatchEvent(new CustomEvent('open-drawer'));
       }
 
-			setMarker(latLng) {
+			setMarker(latLng, center) {
 
 				var options = {
 					map: this.map,
 					icon: window.location.origin + '/assets/images/currentlocation.png',
 					zIndex: 9999999999999,
 					optimized: false,
-					position: latLng
+					position: latLng,
+					clickable: false
 				};
 
 				if(this.marker) {
@@ -99,7 +100,8 @@
 					// return;
 				}
 				this.marker = new google.maps.Marker(options);
-				this.map.setCenter(latLng);
+				if(center)
+					this.map.setCenter(latLng);
 				// this.map.setZoom(18);
 				this.shadowRoot.querySelector('#location').classList.remove('inactive');
 			}
@@ -123,7 +125,7 @@
 						self.currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
 						if(!self.marker) {
 							clearInterval(locationAvtivating);
-							self.setCurrentLocation();
+							self.setMarker(self.currentLocation, false);
 						}
           });
         }
@@ -131,7 +133,7 @@
 
       setCurrentLocation() {
 				if(this.currentLocation) {
-					this.setMarker(this.currentLocation);
+					this.setMarker(this.currentLocation, true);
 				} else {
 					this.getCurrentLocation();
 				}
