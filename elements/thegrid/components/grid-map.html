@@ -67,6 +67,14 @@
             statePath: 'r_markers'
           },
 
+          gmap: {
+						type: Object,
+						value: function () {
+							return this;
+						},
+						notify: true
+					}
+
         }
 
       }
@@ -203,6 +211,10 @@
         }
       }
 
+      newMarker(data) {
+        this._newMarker(data);
+      }
+
       _newMarker(data) {
 				var self = this;
 				var customPin = {
@@ -220,9 +232,15 @@
 					content = document.createElement('grid-info-window');
 				content.data = d;
 				content.isMyPost = data.isMyPost;
-				content.isBidded = data.isBidded;
+        content.isBidded = data.isBidded;
 
         content = data.name + '<br/>' + 'AED ' + data.price;
+
+        var icon = '/assets/images/icons/unrelated-marker.svg';
+
+        if( data.isBidded || data.isMyPost ) {
+          icon = '/assets/images/icons/related-marker.svg';
+        }
 
 				// var dups = self.findBy( marker => {
 				// 	return (marker.lat == data.lat) && (marker.lng == data.lng);
@@ -239,7 +257,7 @@
 					isMyPost: data.isMyPost,
 					lat: parseFloat(data.lat),
 					lng: parseFloat(data.lng),
-					icon: svg,
+					icon: icon,
 					// content: content,
 					events: [
 						{
@@ -249,12 +267,12 @@
 							}
 						}
 					],
-					label: {
-						text: "AED " + data.price,
-						color: '#FFF',
-						fontSize: '12px',
-						fontWeight: 'normal',
-					}
+					// label: {
+					// 	text: "AED " + data.price,
+					// 	color: '#FFF',
+					// 	fontSize: '12px',
+					// 	fontWeight: 'normal',
+					// }
 				});
 			}
 

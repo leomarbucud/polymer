@@ -106,9 +106,9 @@
 
 		<app-route route="{{route}}" pattern="/:user/posts/:id" data="{{userPost}}"></app-route>
 
-		<grid-map user="[[user]]" map="{{map}}"></grid-map>
+		<grid-map user="[[user]]" map="{{map}}" gmap="{{gmap}}"></grid-map>
 
-		<mobile-header map="{{map}}"></mobile-header>
+		<mobile-header map="{{map}}" gmap="[[gmap]]"></mobile-header>
 
 		<paper-fab id="searchFab" icon="search" class="grid-main-fab" on-tap="redirectSearch"></paper-fab>
 		<paper-fab id="addFab" icon="add" class="grid-main-fab" on-tap="redirectPostsAdd"></paper-fab>
@@ -149,7 +149,7 @@
 
 			<section data-page="posts" class="overlay">
 				<div class="center-page">
-					<grid-posts id="posts" map="{{map}}"></grid-posts>
+					<grid-posts id="posts" map="{{map}}" gmap="[[gmap]]"></grid-posts>
 				</div>
 			</section>
 

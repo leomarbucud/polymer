@@ -73,7 +73,7 @@
   <script>
 
     class GrdiPostsAdd2 extends
-      MapBehaviorMixin(FormSliderBehavior(GridNavigation(ReduxBehavior(Polymer.Element)))) {
+      FormSliderBehavior(GridNavigation(ReduxBehavior(Polymer.Element))) {
 
       static get is() { return 'grid-posts-add-2'; }
 
@@ -155,7 +155,7 @@
 					location: this.data.where,
 					date: this.data.when,
           category_id: this.category
-        }
+        };
 
         // dispatch posting event
         window.dispatchEvent(new CustomEvent('posting'));
@@ -167,75 +167,23 @@
           this.redirectHome();
 
           // set marker options
-          data.fillColor = this.markerType.myJob.color;
 					data.isMyPost = true;
 					data.isBidded = false;
 
           // add new marker to the map
-					this._newMarker(data);
+					this.gmap.newMarker(data);
 
-          // dispatch event to clear the form
-          window.dispatchEvent(new CustomEvent('done-posting'));
+          
 				}).catch( err => {
 					if (err.response) {
-
+            alert('Oops something went wrong.. \n Please reload the page.');
+            window.location.href = '/';
           }
-				});
+				}).then( () => {
+          // dispatch event to clear the form
+          window.dispatchEvent(new CustomEvent('done-posting'));
+        });
       }
-      _newMarker(data) {
-				var self = this;
-				var customPin = {
-					path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
-					fillColor: data.fillColor,
-					fillOpacity: 1,
-					scale: 1.5,
-					strokeColor: data.fillColor,
-					strokeWeight: 0.5,
-					width: 36,
-					height: 36
-				};
-				var svg = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="'+customPin.width+'" height="'+customPin.height+'"><path transform="scale('+customPin.scale+')" fill="'+customPin.fillColor+'" stroke="'+customPin.strokeColor+'" stroke-width="'+customPin.strokeWeight+'" d="'+customPin.path+'"/></svg>';
-				var d = JSON.stringify(data),
-					content = document.createElement('grid-info-window');
-				content.data = d;
-				content.isMyPost = data.isMyPost;
-				content.isBidded = data.isBidded;
-
-        content = data.name + '<br/>' + 'AED ' + data.price;
-
-				// var dups = self.findBy( marker => {
-				// 	return (marker.lat == data.lat) && (marker.lng == data.lng);
-				// });
-
-        var post_url = (username, post_id) => {
-          return '/@' + username + '/posts/' + post_id; 
-        };
-
-				self.addMarker({
-					id: data.id,
-					price: data.price,
-					isBidded: data.isBidded,
-					isMyPost: data.isMyPost,
-					lat: parseFloat(data.lat),
-					lng: parseFloat(data.lng),
-					icon: svg,
-					// content: content,
-					events: [
-						{
-							name: 'click',
-							callback: function(e, obj) {
-                this.redirect(post_url(data.user.username, data.id));
-							}
-						}
-					],
-					label: {
-						text: "AED " + data.price,
-						color: '#FFF',
-						fontSize: '12px',
-						fontWeight: 'normal',
-					}
-				});
-			}
 
       _formDone(price, category) {
         this.readyPost = false;

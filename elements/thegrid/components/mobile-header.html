@@ -56,6 +56,8 @@
 
   <script>
 
+
+
     class MobileHeader extends ReduxBehavior(Polymer.Element) {
       static get is() { return 'mobile-header'; }
 
@@ -84,30 +86,63 @@
 
 			setMarker(latLng, center) {
 
-				var options = {
-					map: this.map,
-					icon: window.location.origin + '/assets/images/currentlocation.png',
-					zIndex: 9999999999999,
-					optimized: false,
-					position: latLng,
-					clickable: false
-				};
-
 				if(this.marker) {
 					this.marker.setMap(null);
-					this.marker = null;
-					// this.shadowRoot.querySelector('#location').classList.add('inactive');
-					// return;
+					this.marker = null;;
 				}
-				this.marker = new google.maps.Marker(options);
+
+				//creating the class to exntend the google map OverlayView class
+				function MapLocationIcon(latlng) {
+					this.pos = latlng;
+					this.height = 16;
+					this.width = 16;
+					this.icon = window.location.origin + '/assets/images/currentlocation.png';
+				}
+
+				//make a copy of the OverlayView to extend it
+				MapLocationIcon.prototype = new google.maps.OverlayView();
+				MapLocationIcon.prototype.onRemove = function () { }
+
+				//prepare the overlay with DOM
+				MapLocationIcon.prototype.onAdd = function () {
+					var div = document.createElement('DIV');
+					div.id = 'loc';
+					div.style.backgroundColor = 'transparent';
+					div.style.backgroundImage = 'url(' + this.icon + ')';
+					div.style.backgroundPosition = 'center center';
+					
+					div.style.position = 'absolute';
+					div.style.width = this.width + 'px';
+					div.style.height = this.height + 'px';
+
+					this.div = div;
+					var panes = this.getPanes();
+					panes.overlayImage.appendChild(this.div);
+				}
+
+				//set position
+				MapLocationIcon.prototype.draw = function () {
+					var overlayProjection = this.getProjection();
+					var position = overlayProjection.fromLatLngToDivPixel(this.pos);
+					var panes = this.getPanes();
+					panes.overlayImage.style.left = (position.x - parseInt(this.width / 2, 10)) + 'px';
+					panes.overlayImage.style.top = (position.y - parseInt(this.height, 10)) + 'px';
+					panes.overlayImage.style.zIndex = 999999;
+				}
+
+				//to use it
+				this.marker = new MapLocationIcon(latLng);
+				this.marker.setMap(this.map);
+				
 				if(center)
-					this.map.setCenter(latLng);
-				// this.map.setZoom(18);
+					this.gmap.map.setCenter(latLng);
+
 				this.shadowRoot.querySelector('#location').classList.remove('inactive');
 			}
 
 			getCurrentLocation() {
 				const self = this;
+				
 				if (navigator.geolocation) {
 					var blink = 0;
 					var locationAvtivating = setInterval( () => {
@@ -123,10 +158,9 @@
 					}, 500);
           navigator.geolocation.watchPosition( function(position) {
 						self.currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
-						if(!self.marker) {
-							clearInterval(locationAvtivating);
-							self.setMarker(self.currentLocation, false);
-						}
+						clearInterval(locationAvtivating);
+						self.setMarker(self.currentLocation, !self.marker);
+						
           });
         }
 			}
