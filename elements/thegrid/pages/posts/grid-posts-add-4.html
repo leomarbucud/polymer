@@ -6,7 +6,7 @@
 <link rel="import" href="/behaviors/map-behavior.html">
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
-<dom-module id="grid-posts-add-2">
+<dom-module id="grid-posts-add-4">
 	<template>
 		<style include="grid iron-flex">
 			:host {
@@ -18,11 +18,11 @@
 
 		<div id="toolbar" class="toolbar dgrey-bg">
 			<div class="flex">
-				<paper-icon-button icon="chevron-left" class="white pointer" on-click="goBack"></paper-icon-button>
+				<paper-icon-button icon="chevron-left" class="white pointer" on-click="goStep2"></paper-icon-button>
 			</div>
 			<div id="indicator"></div>
 			<div class="flex align-right" style="padding-right: 8px;">
-				<span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span>
+				<span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Post</span>
 			</div>
 		</div>
 
@@ -30,32 +30,28 @@
 
 			<div class="header-text-container">
 				<h1 class="header-text m-0">
-					<span hidden$="[[step.message]]">[[step.question]]</span>
-					<span hidden$="[[!step.message]]">[[step.message]]</span>
+					<span>Add a brief description</span>
 				</h1>
 			</div>
-			<div id="wr" class="wr">
-				<form class="form" id="formCarousel" form-carousel>
+            <form class="form" id="formCarousel">
 
-					<div class="input-group prefix" data-step="1" data-question="How much is your budget?">
-						<div class="addon-prefix flex layout horizontal">
-							<span>AED </span>
-						</div>
-						<input id="price" type="number" class="input" autofocus autocomplete="off" placeholder="Price" value="{{price::input}}" data-validate="required"
-						 data-message-required="Please tell us our budget." />
-					</div>
-
-				</form>
-			</div>
+                <div class="input-group suffix" >
+                    <textarea rows="6" class="input" value="{{details::input}}" style="resize: none; height: 150px; padding: 16px;" placeholder="Start typing.."></textarea>
+                    <div class="addon-suffix flex layout horizontal" style="padding-top: 16px; height: 150px;">
+                        <iron-icon src="/assets/images/icons/attach.svg"></iron-icon>
+                    </div>
+                </div>
+                
+            </form>
 		</div>
 
 	</template>
 
 	<script>
-		class GrdiPostsAdd2 extends
+		class GrdiPostsAdd4 extends
 			FormSliderBehavior(GridNavigation(ReduxBehavior(Polymer.Element))) {
 
-			static get is() { return 'grid-posts-add-2'; }
+			static get is() { return 'grid-posts-add-4'; }
 
 			static get properties() {
 				return {
@@ -76,7 +72,7 @@
 
 			static get observers() {
 				return [
-					'_formDone(price)'
+					'_formDone(details)'
 				]
 			}
 
@@ -101,41 +97,36 @@
 				const self = this;
 				super.connectedCallback();
 
-				// IDEA: This came from FormSliderBahavior
-				this.initForm();
-				// IDEA: Initialize some properties
-				this.set('step.message', 'Tell us more');
-
 				// clear form after adding and rearrange steps
 				window.addEventListener('done-posting', () => {
-					this.shadowRoot.querySelector('[form-carousel]').reset();
-					this.arrangeSteps(1);
-					this.readyPost = false;
+                    this.readyPost = false;
+                    this.details = '';
 				});
 
 			}
 
-			goBack() {
-				this.redirect('/posts/add/#1');
+			goStep2() {
+				this.redirect('/posts/add/#2');
 			}
 
 			submit() {
+                this.data.details = this.details;
+
 				const data = {
 					user_id: this.user.id,
 					name: this.data.what,
-					price: this.price,
+					price: this.data.price,
 					lat: this.data.lat,
 					lng: this.data.lng,
 					location: this.data.where,
 					date: this.data.when,
 					category_id: this.data.category,
-					skills: this.data.skills
-				};
+                    skills: this.data.skills,
+                    details: this.details
+                };
+                
 
-				this.data.price = this.price;
-
-				this.redirect('/posts/add/#3');
-				return;
+				console.log(data);
 				
 
 				// dispatch posting event
@@ -165,15 +156,15 @@
 					});
 			}
 
-			_formDone(price) {
+			_formDone(details) {
 				this.readyPost = false;
-				if (price) {
+				if (details) {
 					this.readyPost = true;
 				}
 			}
 
 		}
 
-		customElements.define(GrdiPostsAdd2.is, GrdiPostsAdd2);
+		customElements.define(GrdiPostsAdd4.is, GrdiPostsAdd4);
 	</script>
 </dom-module>

@@ -75,6 +75,15 @@
             </div>
           </div>
 
+          <div class="input-group" data-step="4" data-question="Set Category">
+            <select id="category" class="input" data-validate="required" data-message-required="Category is required.">
+            <option value="">--Please select category--</option>
+            <template is="dom-repeat" items="[[jobCategories]]" as="cat">
+              <option value$="[[cat.id]]">[[cat.category]]</option>
+            </template>
+            </select>
+          </div>
+
         </form>
       </div>
     </div>
@@ -116,7 +125,7 @@
 
       static get observers() {
         return [
-          '_formDone(what, when, where)',
+          '_formDone(what, when, where, category)',
           '_isMapInit(map)'
         ]
       }
@@ -135,6 +144,8 @@
 
       connectedCallback() {
         super.connectedCallback();
+
+        const self = this;
 
         // IDEA: This came from FormSliderBahavior
         this.initForm();
@@ -172,7 +183,16 @@
         window.addEventListener('done-posting', () => {
           this.shadowRoot.querySelector('[form-carousel]').reset();
           this.arrangeSteps(1);
+          this.readyPost = false;
         });
+
+        const cat = this.$.category;
+				const change = function (e) {
+					self.category = this.value;
+				};
+				cat.addEventListener('change', change);
+
+				this._getCategories();
 
       }
 
@@ -210,14 +230,16 @@
           where: this.where,
           when: this.when,
           lat: this.lat,
-          lng: this.lng
+          lng: this.lng,
+          category: this.category
         };
+        console.log(this.data);
         this.redirect('/posts/add/#2');
       }
 
-      _formDone(what, when, where) {
+      _formDone(what, when, where, category) {
         this.readyPost = false;
-        if(what && when && where) {
+        if(what && when && where && category) {
           this.readyPost = true;
         }
       }
@@ -254,6 +276,18 @@
 					});
         }
       }
+
+      _getCategories() {
+				gAxios.get('/jobs/categories')
+				.then(res => {
+					var data = res.data;
+					this.jobCategories = data;
+				}).catch(err => {
+					if (err.response) {
+
+					}
+				});
+			}
 
 
 
