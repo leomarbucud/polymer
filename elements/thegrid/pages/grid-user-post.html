@@ -66,6 +66,7 @@
 			</section>
 			<section class="p-y-1 white">
 				<h2 class="title">[[post.name]]</h2>
+				<small class="category">Category: [[post.category.category]]</small>
 				<h2 class="white">Budget AED [[post.price]]</h2>
 				<span class="white">Job needed [[_fromNow(post.date)]]</span>
 			</section>
@@ -166,7 +167,12 @@
 
 			static get actions() {
 				return {
-
+					addBid(bid) {
+						return {
+							type: 'ADD_BID',
+							bid: bid
+						}
+					}
 				};
 			}
 
@@ -223,7 +229,7 @@
 						job_id: this.post.id,
 						price_bid: this.price
 					}).then( res => {
-						console.log(res.data);
+						this.dispatch('addBid', res.data);
 						this.bidded = true;
 					}).catch( err => {
 

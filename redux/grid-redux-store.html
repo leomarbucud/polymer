@@ -79,7 +79,6 @@
         let posts = state.posts.slice(0);
         posts.unshift(action.post);
         user.jobs_count += 1;
-        console.log(user);
         return Object.assign({}, state, {
           posts: posts,
           user: user
@@ -89,6 +88,17 @@
       case 'SET_BIDS': {
         return Object.assign({}, state, {
           bids: action.bids
+        });
+        break;
+      }
+      case 'ADD_BID': {
+        let bids = state.bids.slice(0);
+        let user = JSON.parse(JSON.stringify(state.user));
+        bids.unshift(action.bid);
+        user.bids_count += 1;
+        return Object.assign({}, state, {
+          bids: bids,
+          user: user
         });
         break;
       }

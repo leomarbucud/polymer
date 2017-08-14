@@ -85,7 +85,7 @@
         <template is="dom-repeat" items="[[bids]]" as="bid">
           <div class="row" on-click="viewBid">
             <div class="job-title">{{bid.job.name}}</div>
-            <div secondary class="time" data-time$="[[job.created_at]]">{{_computeDate(bid.job.created_at)}}</div>
+            <div secondary class="time" data-time$="[[job.created_at]]">{{_computeDate(bid.created_at)}}</div>
             <paper-ripple></paper-ripple>
           </div>
           <div class="divider"><hr/></div>
