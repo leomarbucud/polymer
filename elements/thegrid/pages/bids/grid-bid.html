@@ -1,0 +1,145 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-bid">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        background: var(--dark-grey);
+        height: 100%;
+      }
+
+    </style>
+
+    <div id="toolbar" class="toolbar">
+      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectBids"></paper-icon-button>
+      <span class="flex"></span>
+      <paper-icon-button icon="create" class="red pointer"></paper-icon-button>
+    </div>
+
+    <main class="scroll-area flex">
+      <section class="p-y-1">
+        <h1 class="white">[[bid.job.name]]</h1>
+        <h2 class="white">AED [[bid.job.price]]</h2>
+        <span class="white">[[_fromNow(bid.job.date)]]</span>
+      </section>
+
+      <section class="p-y-1">
+        <paper-icon-button icon="maps:place" class="white" on-tap="viewOnMap"></paper-icon-button>
+      </section>
+
+    </main>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay dgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+
+    class GridBid extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+
+      static get is() { return 'grid-bid'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          isLoading: {
+            type: Boolean,
+            value: false
+          }
+
+        }
+      }
+
+      static get observers() {
+        return [
+          '_bidChange(bid)',
+          '_bidIdChange(bidId)',
+        ]
+      }
+
+      static get actions() {
+  			return {
+
+  			};
+  		}
+
+      constructor() {
+        super();
+
+        // grid map is required so the map needs to be loaded
+        Polymer.Base.importHref(
+          '/elements/thegrid/components/grid-map.html',
+          () => {
+            // do something after elements has been imported
+          }
+        );
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      renderBid(bid) {
+        if( !this.user ) return;
+
+        this.bid = bid;
+        this.isLoading = false;
+      }
+
+      viewOnMap() {
+        if( ! this.bid && this.map ) return;
+
+        const job = this.bid.job;
+        const position = new google.maps.LatLng(job.lat, job.lng);
+
+        this.map.setCenter(position);
+        this.map.setZoom(20);
+        this.redirectHome();
+      }
+
+      _bidChange(bid) {
+        if(!bid) return;
+        this.renderBid(bid)
+      }
+
+      _bidIdChange(bidId) {
+        if(!bidId) return;
+        if( !this.user ) return;
+        if( this.bid ) return;
+        this.isLoading = true;
+        gAxios.get('/users/' + this.user.id + '/bids/' + bidId)
+        .then( res => {
+          this.bid = res.data
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      _fromNow(date) {
+        return moment(date).fromNow();
+      }
+
+
+    }
+
+    customElements.define(GridBid.is, GridBid);
+	</script>
+</dom-module>

@@ -1,0 +1,250 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../grid-styles.html">
+<link rel="import" href="bids/grid-bid.html">
+
+<dom-module id="grid-bids">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        position: relative;
+        height: 100%;
+        background: var(--dark-grey);
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+      }
+
+      .title h1 {
+        font-weight: 400;
+        font-size: 32px;
+      }
+
+      .row {
+        color: #FFFFFF;
+        padding: 8px 16px;
+        position: relative;
+        cursor: pointer;
+      }
+
+      .row .job-title {
+        line-height: 24px;
+        font-size: 18px;
+      }
+
+      .row [secondary] {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        opacity: 0.7;
+      }
+
+      .divider {
+        padding: 0 16px;
+      }
+
+      .divider hr {
+        margin: 0;
+        opacity: 0.12;
+      }
+
+    </style>
+
+    <app-location route="{{route}}" ></app-location>
+
+		<app-route route="{{route}}"
+		    pattern="/bids"
+		    data="{{routeData}}"
+		    tail="{{subroute}}"></app-route>
+
+		<app-route route="{{subroute}}"
+		    pattern="/:id"
+		    data="{{subrouteData}}"></app-route>
+
+    <app-route route="{{route}}"
+        pattern="/bids/:id"
+        data="{{bid}}"></app-route>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <span class="flex"></span>
+      <paper-icon-button icon="search" class="red pointer"></paper-icon-button>
+      <paper-icon-button icon="more-vert" class="red pointer"></paper-icon-button>
+    </div>
+
+    <main class="flex">
+      <section class="p-y-1 title">
+        <h1 class="white m-0">Bids</h1>
+      </section>
+      <section class="list" id="post-list">
+        <template is="dom-repeat" items="[[bids]]" as="bid">
+          <div class="row" on-click="viewBid">
+            <div class="job-title">{{bid.job.name}}</div>
+            <div secondary class="time" data-time$="[[job.created_at]]">{{_computeDate(bid.job.created_at)}}</div>
+            <paper-ripple></paper-ripple>
+          </div>
+          <div class="divider"><hr/></div>
+				</template>
+      </section>
+    </main>
+
+    <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
+
+      <section data-page="bid" class="sub-page">
+        <grid-bid map="{{map}}" bid="[[_bid]]"  bid-id="[[bid.id]]"></grid-bid>
+      </section>
+
+    </iron-pages>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay dgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+
+    class GridBids extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+
+      static get is() { return 'grid-bids'; }
+
+      static get properties() {
+        return {
+
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          bids: {
+            type: Array,
+            statePath: 'bids'
+          },
+
+          map: {
+            type: Object,
+            notify: true
+          },
+
+          isLoading: {
+            type: Boolean,
+            value: true
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_subrouteChange(subroute)',
+          '_subrouteDataChange(subrouteData)',
+          '_postChange(post)'
+        ]
+      }
+
+      _postChange(post) {
+        // console.log(post);
+      }
+
+      static get actions() {
+  			return {
+  				setBids(bids) {
+  					return {
+  						type: 'SET_BIDS',
+  						bids: bids
+  					}
+  				}
+  			};
+  		}
+
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        if(!this.user) return;
+
+        gAxios.get('/users/'+ this.user.id + '/bids')
+				.then( res => {
+					var data = res.data;
+					this.dispatch('setBids', data.data);
+					this.pagination = {
+						total: data.total,
+						per_page: data.per_page,
+						current_page: data.current_page,
+						last_page: data.last_page,
+						next_page_url: data.next_page_url,
+						prev_page_url: data.prev_page_url,
+						from: data.from,
+						to: data.to
+					};
+				}).then( () => {
+          this.isLoading = false;
+        });
+
+        // update time automatically every 1 minute
+        const plist = this.shadowRoot.querySelector('#post-list');
+
+        setInterval( () => {
+          var times = plist.querySelectorAll('[data-time]');
+          times.forEach( item => {
+            let time = item.getAttribute('data-time');
+            item.innerHTML = this._computeDate(time);
+          });
+        }, 60000);
+
+      }
+
+      viewBid(e) {
+        const bid_id = e.model.bid.id;
+        this.redirect('/bids/' + bid_id);
+        this._bid = e.model.bid;
+      }
+
+      _computeDate(date) {
+        return moment(date).fromNow();
+        // return moment(date, "YYYY-MM-DD").endOf('minute').fromNow();
+      }
+
+      _subrouteChange(subroute) {
+				if( subroute.path == '' ) {
+					this.set('subrouteData.id', null);
+          this.subPage = null;
+				}
+			}
+
+      _subrouteDataChange(subrouteData) {
+        const self = this;
+        if( subrouteData.id ) {
+          if( this.shadowRoot.querySelector('#bids-' + subrouteData.id) ) {
+            Polymer.Base.importHref(
+  						'/elements/thegrid/pages/bids/grid-bids-' + subrouteData.id + '.html',
+  						() => {
+                self.subPage = subrouteData.id;
+  						}
+  					);
+          } else {
+            // go to post page by default
+            self.subPage = 'bid';
+          }
+        } else {
+          self.subPage = null;
+        }
+      }
+
+    }
+
+    customElements.define(GridBids.is, GridBids);
+	</script>
+</dom-module>

@@ -26,6 +26,7 @@
                 POSTS_URL : '/posts',
                 POSTS_ADD_URL : '/posts/add',
                 SEARCH_URL : '/search',
+                BIDS_URL: '/bids'
               }
             }
           }
@@ -88,6 +89,10 @@
 
       redirectSearch() {
         this.redirect(this.url.SEARCH_URL);
+      }
+
+      redirectBids() {
+        this.redirect(this.url.BIDS_URL);
       }
 
     }

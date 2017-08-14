@@ -7,337 +7,337 @@
 <link rel="import" href="/elements/thegrid/grid-styles.html">
 
 <dom-module id="grid-posts-add-3">
-    <template>
-        <style include="grid iron-flex">
-             :host {
-                display: block;
-                height: 100%;
-                background: var(--dark-grey);
-            }
+	<template>
+		<style include="grid iron-flex">
+			:host {
+				display: block;
+				height: 100%;
+				background: var(--dark-grey);
+			}
 
-            .auto-complete {
-                position: absolute;
-                top: 52px;
-                background: #FFFFFF;
-                left: 0;
-                right: 0;
-                border-bottom-left-radius: 2px;
-                border-bottom-right-radius: 2px;
-                display: none;
-                min-height: 0px;
-                max-height: 400px;
-                z-index: 1;
-                overflow-y: auto;
-            }
+			.auto-complete {
+				position: absolute;
+				top: 52px;
+				background: #FFFFFF;
+				left: 0;
+				right: 0;
+				border-bottom-left-radius: 2px;
+				border-bottom-right-radius: 2px;
+				display: none;
+				min-height: 0px;
+				max-height: 400px;
+				z-index: 1;
+				overflow-y: auto;
+			}
 
-            .auto-complete .row {
-                padding: 8px 16px;
-                border-top: 1px solid rgba(0, 0, 0, 0.12);
-                position: relative;
-            }
+			.auto-complete .row {
+				padding: 8px 16px;
+				border-top: 1px solid rgba(0, 0, 0, 0.12);
+				position: relative;
+			}
 
-            .auto-complete .row span {
-                display: block;
-            }
+			.auto-complete .row span {
+				display: block;
+			}
 
-            .auto-complete .row span[secondary] {
-                opacity: 0.38;
-            }
+			.auto-complete .row span[secondary] {
+				opacity: 0.38;
+			}
 
-            .skills-container {
-                overflow-y: auto;
-                max-height: 350px;
-                padding: 32px 0;
-            }
+			.skills-container {
+				overflow-y: auto;
+				max-height: 350px;
+				padding: 32px 0;
+			}
 
-            .skills-container::-webkit-scrollbar {
-                width: 0px;
-                background: transparent;
-            }
+			.skills-container::-webkit-scrollbar {
+				width: 0px;
+				background: transparent;
+			}
 
-            .selected {
-                background: rgba(142, 142, 142, 0.13);
-            }
-        </style>
+			.selected {
+				background: rgba(142, 142, 142, 0.13);
+			}
+		</style>
 
-        <div id="toolbar" class="toolbar dgrey-bg">
-            <div class="flex">
-                <paper-icon-button icon="chevron-left" class="white pointer" on-click="goBack"></paper-icon-button>
-            </div>
-            <div id="indicator"></div>
-            <div class="flex align-right" style="padding-right: 8px;">
-                <span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span>
-            </div>
-        </div>
+		<div id="toolbar" class="toolbar dgrey-bg">
+			<div class="flex">
+				<paper-icon-button icon="chevron-left" class="white pointer" on-click="goBack"></paper-icon-button>
+			</div>
+			<div id="indicator"></div>
+			<div class="flex align-right" style="padding-right: 8px;">
+				<span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span>
+			</div>
+		</div>
 
-        <div class="p-y-1">
+		<div class="p-y-1">
 
-            <div class="header-text-container">
-                <h1 class="header-text m-0">
-                    <span>What skills would you require?</span>
-                </h1>
-            </div>
-            <form class="form" action="#">
-                <div class="input-group suffix">
-                    <input id="skill" type="text" class="input" autocomplete="off" autofocus value="{{query::input}}" placeholder="Enter Skill.."
-                    />
+			<div class="header-text-container">
+				<h1 class="header-text m-0">
+					<span>What skills would you require?</span>
+				</h1>
+			</div>
+			<form class="form" action="#">
+				<div class="input-group suffix">
+					<input id="skill" type="text" class="input" autocomplete="off" autofocus value="{{query::input}}" placeholder="Enter Skill.."
+					/>
 
-                    <div class="addon-suffix">
-                        <span class="input-action pointer" on-click="cancelSearch">
+					<div class="addon-suffix">
+						<span class="input-action pointer" on-click="cancelSearch">
                         <iron-icon icon="close" class="red"></iron-icon>
                         </span>
-                    </div>
+					</div>
 
-                    <div id="result" class="auto-complete">
-                        <template is="dom-repeat" items="[[_skills]]" as="skill" filter="{{_filter(query)}}">
-                            <div class="row" on-click="select">
-                                <span>[[skill.skill]]</span>
-                                <span secondary>[[skill.skill]]</span>
-                                <paper-ripple></paper-ripple>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </form>
-            <div class="skills-container">
-                <div hidden$="[[skills]]" class="white">Loading your awesome skills...</div>
-                <template is="dom-repeat" items="[[skills]]" as="skill">
-                    <div class="chip">
-                        <span>[[skill.skill]]</span>
-                        <span class="close">
+					<div id="result" class="auto-complete">
+						<template is="dom-repeat" items="[[_skills]]" as="skill" filter="{{_filter(query)}}">
+							<div class="row" on-click="select">
+								<span>[[skill.skill]]</span>
+								<span secondary>[[skill.skill]]</span>
+								<paper-ripple></paper-ripple>
+							</div>
+						</template>
+					</div>
+				</div>
+			</form>
+			<div class="skills-container">
+				<div hidden$="[[skills]]" class="white">Loading your awesome skills...</div>
+				<template is="dom-repeat" items="[[skills]]" as="skill">
+					<div class="chip">
+						<span>[[skill.skill]]</span>
+						<span class="close">
                             <iron-icon icon="close" class="small" on-click="removeSkill"></iron-icon>
                         </span>
-                    </div>
-                </template>
-            </div>
-        </div>
+					</div>
+				</template>
+			</div>
+		</div>
 
-    </template>
+	</template>
 
-    <script>
-        class GrdiPostsAdd3 extends
-                FormSliderBehavior(
-                    GridNavigation(
-                        ReduxBehavior(Polymer.Element)))
-            {
+	<script>
+		class GrdiPostsAdd3 extends
+			FormSliderBehavior(
+				GridNavigation(
+					ReduxBehavior(Polymer.Element)))
+		{
 
-            static get is() { return 'grid-posts-add-3'; }
+			static get is() { return 'grid-posts-add-3'; }
 
-            static get properties() {
-                return {
-                    user: {
-                        type: Object,
-                        statePath: 'user'
-                    },
-                    posts: {
-                        type: Object,
-                        statePath: 'posts'
-                    },
-                    step1: {
-                        type: Boolean,
-                        value: false,
-                        notify: true
-                    },
-                    data: {
-                        type: Object,
-                        notify: true
-                    },
+			static get properties() {
+				return {
+					user: {
+						type: Object,
+						statePath: 'user'
+					},
+					posts: {
+						type: Object,
+						statePath: 'posts'
+					},
+					step1: {
+						type: Boolean,
+						value: false,
+						notify: true
+					},
+					data: {
+						type: Object,
+						notify: true
+					},
 
-                    _skills: {
-                        type: Object
-                    },
+					_skills: {
+						type: Object
+					},
 
-                    skills: {
-                        type: Array,
-                        value: function() {
-                            return [];
-                        },
-                        notify: true
-                    },
-                    skillCount: {
-                        type: Number,
-                        value: 0
-                    }
-                }
-            }
+					skills: {
+						type: Array,
+						value: function () {
+							return [];
+						},
+						notify: true
+					},
+					skillCount: {
+						type: Number,
+						value: 0
+					}
+				}
+			}
 
-            static get observers() {
-                return [
-                    '_formDone(skillCount)',
-                    '_searching(query)',
-                ]
-            }
+			static get observers() {
+				return [
+					'_formDone(skillCount)',
+					'_searching(query)',
+				]
+			}
 
-            static get actions() {
-                return {
+			static get actions() {
+				return {
 
-                };
-            }
+				};
+			}
 
-            constructor() {
-                super();
-                this.readyPost = false;
-                gAxios.get('/users/skills')
-                .then(res => {
-                    this.set('_skills', res.data);
-                });
-            }
+			constructor() {
+				super();
+				this.readyPost = false;
+				gAxios.get('/users/skills')
+					.then(res => {
+						this.set('_skills', res.data);
+					});
+			}
 
-            connectedCallback() {
-                super.connectedCallback();
+			connectedCallback() {
+				super.connectedCallback();
 
-                const self = this;
-                const skillInput = this.$.skill;
+				const self = this;
+				const skillInput = this.$.skill;
 
-                self.selected = -1;
-                self.scroll = 0;
+				self.selected = -1;
+				self.scroll = 0;
 
-                const keydown = function (e) {
+				const keydown = function (e) {
 
-                    const result = self.shadowRoot.querySelector('#result');
-                    const results = result.querySelectorAll('.row');
+					const result = self.shadowRoot.querySelector('#result');
+					const results = result.querySelectorAll('.row');
 
-                    const resultHeight = result.offsetHeight;
+					const resultHeight = result.offsetHeight;
 
-                    if (e.keyCode == 40) {
-                        if (self.selected == results.length - 1) return;
-                        e.preventDefault();
-                        e.stopPropagation();
-                        var elem = results[self.selected];
-                        if (elem) {
-                            elem.classList.remove('selected');
-                        }
-                        self.selected += 1;
-                        if (results[self.selected]) {
-                            elem = results[self.selected];
-                            elem.classList.add('selected');
-                            if (resultHeight < (self.selected * elem.offsetHeight) + elem.offsetHeight) {
-                                result.scrollTop += elem.offsetHeight;
-                            }
-                        }
-                    }
+					if (e.keyCode == 40) {
+						if (self.selected == results.length - 1) return;
+						e.preventDefault();
+						e.stopPropagation();
+						var elem = results[self.selected];
+						if (elem) {
+							elem.classList.remove('selected');
+						}
+						self.selected += 1;
+						if (results[self.selected]) {
+							elem = results[self.selected];
+							elem.classList.add('selected');
+							if (resultHeight < (self.selected * elem.offsetHeight) + elem.offsetHeight) {
+								result.scrollTop += elem.offsetHeight;
+							}
+						}
+					}
 
-                    if (e.keyCode == 38) {
-                        if (self.selected == -1) return;
-                        e.preventDefault();
-                        e.stopPropagation();
-                        var elem = results[self.selected];
-                        if (elem) {
-                            elem.classList.remove('selected');
-                        }
-                        self.selected -= 1;
-                        if (results[self.selected]) {
-                            elem = results[self.selected];
-                            elem.classList.add('selected');
-                            if (result.scrollTop > self.selected * elem.offsetHeight) {
-                                result.scrollTop -= elem.offsetHeight;
-                            }
-                        }
-                    }
+					if (e.keyCode == 38) {
+						if (self.selected == -1) return;
+						e.preventDefault();
+						e.stopPropagation();
+						var elem = results[self.selected];
+						if (elem) {
+							elem.classList.remove('selected');
+						}
+						self.selected -= 1;
+						if (results[self.selected]) {
+							elem = results[self.selected];
+							elem.classList.add('selected');
+							if (result.scrollTop > self.selected * elem.offsetHeight) {
+								result.scrollTop -= elem.offsetHeight;
+							}
+						}
+					}
 
-                    if (e.keyCode == 13) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        results[self.selected].click();
-                    }
+					if (e.keyCode == 13) {
+						e.preventDefault();
+						e.stopPropagation();
+						results[self.selected].click();
+					}
 
-                };
+				};
 
 
-                skillInput.addEventListener('keydown', keydown);
+				skillInput.addEventListener('keydown', keydown);
 
-                window.addEventListener('done-posting', () => {
-                    this.set('query', '');
-                    this.set('skills', []);
-                    this.readyPost = false;
-                });
+				window.addEventListener('done-posting', () => {
+					this.set('query', '');
+					this.set('skills', []);
+					this.readyPost = false;
+				});
 
-            }
+			}
 
-            goBack() {
-                this.redirect('/posts/add/#2');
-            }
+			goBack() {
+				this.redirect('/posts/add/#2');
+			}
 
-            submit() {
-                this.data.skills = this.skills;
-                this.redirect('/posts/add/#4');
-            }
+			submit() {
+				this.data.skills = this.skills;
+				this.redirect('/posts/add/#4');
+			}
 
-            select(e) {
-                const skill = e.model.skill;
+			select(e) {
+				const skill = e.model.skill;
 
-                var found = this.skills.find(function (item) {
-                    return item.id === skill.id;
-                });
+				var found = this.skills.find(function (item) {
+					return item.id === skill.id;
+				});
 
-                if (!found) {
-                    this.push('skills', skill);
-                    this.skillCount += 1;
-                }
-                this.set('query', '');
-                this.$.skill.focus();
-            }
+				if (!found) {
+					this.push('skills', skill);
+					this.skillCount += 1;
+				}
+				this.set('query', '');
+				this.$.skill.focus();
+			}
 
-            cancelSearch(e) {
-                this.set('query', '');
-            }
+			cancelSearch(e) {
+				this.set('query', '');
+			}
 
-            removeSkill(e) {
-                const skill = e.model.skill;
+			removeSkill(e) {
+				const skill = e.model.skill;
 
-                const index = this.skills.indexOf(skill);
+				const index = this.skills.indexOf(skill);
 
-                if (index != -1) {
-                    this.splice('skills', index, 1);
-                    this.skillCount -= 1;
-                }
+				if (index != -1) {
+					this.splice('skills', index, 1);
+					this.skillCount -= 1;
+				}
 
-            }
+			}
 
-            _formDone(skillCount) {
-                this.readyPost = false;
-                if (skillCount > 0) {
-                    this.readyPost = true;
-                }
-            }
+			_formDone(skillCount) {
+				this.readyPost = false;
+				if (skillCount > 0) {
+					this.readyPost = true;
+				}
+			}
 
-            _filter(query) {
-                if (!query) {
-                    return null;
-                } else {
-                    query = query.toLowerCase();
-                    return function (item) {
-                        var name = item.skill.toLowerCase();
-                        return (name.indexOf(query) != -1);
-                    };
-                }
-            }
+			_filter(query) {
+				if (!query) {
+					return null;
+				} else {
+					query = query.toLowerCase();
+					return function (item) {
+						var name = item.skill.toLowerCase();
+						return (name.indexOf(query) != -1);
+					};
+				}
+			}
 
-            _searching(query) {
-                this.selected = -1;
-                const result = this.shadowRoot.querySelector('#result');
-                const results = result.querySelectorAll('.row');
-                var h = 55;
-                if (results[0]) {
-                    h = results[0].offsetHeight;
-                    if (h <= 0) {
-                        h = 55;
-                    }
-                }
-                results.forEach(item => {
-                    item.classList.remove('selected');
-                });
-                result.scrollTop = 0;
-                result.style.maxHeight = h * 5 + 'px';
-                if (query != '') {
-                    this.$.result.style.display = 'block';
-                } else {
-                    this.$.result.style.display = 'none';
-                }
-            }
+			_searching(query) {
+				this.selected = -1;
+				const result = this.shadowRoot.querySelector('#result');
+				const results = result.querySelectorAll('.row');
+				var h = 55;
+				if (results[0]) {
+					h = results[0].offsetHeight;
+					if (h <= 0) {
+						h = 55;
+					}
+				}
+				results.forEach(item => {
+					item.classList.remove('selected');
+				});
+				result.scrollTop = 0;
+				result.style.maxHeight = h * 5 + 'px';
+				if (query != '') {
+					this.$.result.style.display = 'block';
+				} else {
+					this.$.result.style.display = 'none';
+				}
+			}
 
-        }
+		}
 
-        customElements.define(GrdiPostsAdd3.is, GrdiPostsAdd3);
-    </script>
+		customElements.define(GrdiPostsAdd3.is, GrdiPostsAdd3);
+	</script>
 </dom-module>

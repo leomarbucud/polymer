@@ -23,6 +23,7 @@
     auth: false,
     skills: null,
     posts: null,
+    bids: null,
     r_markers: null
   };
 
@@ -82,6 +83,12 @@
         return Object.assign({}, state, {
           posts: posts,
           user: user
+        });
+        break;
+      }
+      case 'SET_BIDS': {
+        return Object.assign({}, state, {
+          bids: action.bids
         });
         break;
       }
