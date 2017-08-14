@@ -7,13 +7,14 @@
 <dom-module id="grid-post">
   <template>
     <style include="grid iron-flex">
-
-      :host {
+       :host {
         display: block;
         background: var(--dark-grey);
         height: 100%;
       }
-
+      .chip {
+        padding-right: 16px;
+      }
     </style>
 
     <div id="toolbar" class="toolbar">
@@ -23,14 +24,31 @@
     </div>
 
     <main class="scroll-area flex">
-      <section class="p-y-1">
-        <h1 class="white">[[post.name]]</h1>
-        <h2 class="white">AED [[post.price]]</h2>
-        <span class="white">[[_fromNow(post.date)]]</span>
+      <section class="p-y-1 white">
+        <h2 class="title">[[post.name]]</h2>
+        <small class="category">Category: [[post.category.category]]</small>
+        <h2 class="white">Budget AED [[post.price]]</h2>
+        <span class="white">Job needed [[_fromNow(post.date)]]</span>
+      </section>
+      <section class="p-y-1 white">
+        <h2 class="title">Details</h2>
+        <p>[[_details(post.details)]]</p>
+      </section>
+
+      <section class="p-y-1 white">
+        <h2 class="title">Skills Required</h2>
+        <template is="dom-repeat" items="[[post.skills]]" as="skill">
+          <div class="chip">
+            <span>[[skill.skill]]</span>
+          </div>
+        </template>
+        <template is="dom-if" if="[[!post.skills.length]]">
+          <p>No set of skills provided.</p>
+        </template>
       </section>
 
       <section class="p-y-1">
-        <paper-icon-button icon="maps:place" class="white" on-tap="viewOnMap"></paper-icon-button>
+        <p><span class="white pointer" on-click="viewOnMap">View on map</span></p>
       </section>
 
     </main>
@@ -46,7 +64,6 @@
   </template>
 
   <script>
-
     class GridPost extends GridNavigation(ReduxBehavior(Polymer.Element)) {
 
       static get is() { return 'grid-post'; }
@@ -74,15 +91,15 @@
       }
 
       static get actions() {
-  			return {
-  				login(user) {
-  					return {
-  						type: 'LOGGED_USER',
-  						user: user
-  					}
-  				}
-  			};
-  		}
+        return {
+          login(user) {
+            return {
+              type: 'LOGGED_USER',
+              user: user
+            }
+          }
+        };
+      }
 
       constructor() {
         super();
@@ -103,14 +120,14 @@
       }
 
       renderPost(post) {
-        if( !this.user ) return;
+        if (!this.user) return;
 
         this.post = post;
         this.isLoading = false;
       }
 
       viewOnMap() {
-        if( ! this.post && this.map ) return;
+        if (!this.post && this.map) return;
 
         const job = this.post;
         const position = new google.maps.LatLng(job.lat, job.lng);
@@ -121,30 +138,35 @@
       }
 
       _postChange(post) {
-        if(!post) return;
+        if (!post) return;
         this.renderPost(post)
       }
 
       _postIdChange(postId) {
-        if(!postId) return;
-        if( !this.user ) return;
-        if( this.post ) return;
+        if (!postId) return;
+        if (!this.user) return;
+        if (this.post) return;
         this.isLoading = true;
         gAxios.get('/users/' + this.user.id + '/jobs/' + postId)
-        .then( res => {
-          this.post = res.data
-        }).then( () => {
-          this.isLoading = false;
-        });
+          .then(res => {
+            this.post = res.data
+          }).then(() => {
+            this.isLoading = false;
+          });
       }
 
       _fromNow(date) {
         return moment(date).fromNow();
       }
 
+      _details(details) {
+				if(details) return details;
+
+				return 'No details provided.';
+			}
 
     }
 
     customElements.define(GridPost.is, GridPost);
-	</script>
+  </script>
 </dom-module>
