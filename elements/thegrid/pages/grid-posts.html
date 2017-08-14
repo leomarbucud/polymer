@@ -168,7 +168,20 @@
       }
 
       _postChange(post) {
-        // console.log(post);
+        // update time automatically every 1 minute
+        const plist = this.shadowRoot.querySelector('#post-list');
+
+        if( this.iterval ) {
+          clearInterval(this.interval);
+        }
+
+        this.interval = setInterval( () => {
+          var times = plist.querySelectorAll('[data-time]');
+          times.forEach( item => {
+            let time = item.getAttribute('data-time');
+            item.innerHTML = this._computeDate(time);
+          });
+        }, 60000);
       }
 
       static get actions() {
@@ -209,17 +222,6 @@
 				}).then( () => {
           this.isLoading = false;
         });
-
-        // update time automatically every 1 minute
-        const plist = this.shadowRoot.querySelector('#post-list');
-
-        setInterval( () => {
-          var times = plist.querySelectorAll('[data-time]');
-          times.forEach( item => {
-            let time = item.getAttribute('data-time');
-            item.innerHTML = this._computeDate(time);
-          });
-        }, 60000);
 
       }
 

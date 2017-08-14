@@ -91,15 +91,18 @@
 				<p><span class="white pointer" on-click="viewOnMap">View on map</span></p>
 			</section>
 
-			<div class="divider p-y-1"><hr/></div>
 			<template is="dom-if" if="[[user]]">
+				<div class="divider p-y-1"><hr/></div>
+				<section class="p-y-1 white">
+					[[message]]
+				</section>
 				<template is="dom-if" if="[[canBid]]">
 					<section class="p-y-1 relative">
 						
 						
 						<!--:start Bidding section -->
 						<h2 class="title">Bid</h2>
-						<form class="form" hidden$=[[checking]]>
+						<form class="form" hidden$="[[checking]]">
 								<div class="input-group prefix">
 									<div class="addon-prefix flex layout horizontal">
 										<span>AED </span>
@@ -108,22 +111,18 @@
 								</div>
 								<paper-button class="white w-100" on-tap="bid">Bid</paper-button>
 						</form>
-
 						<!--:end Bidding section -->
-						<template is="dom-if" if="[[checking]]">
-							<div class="overlay dgrey-bg">
-								<div class="align-center">
-									<paper-spinner active$="[[checking]]"></paper-spinner>
-								</div>
-							</div>
-						</template>
+
 					</section>
 				</template>
 			</template>
-
-			<section class="p-y-1 white">
-				[[message]]
-			</section>
+			<template is="dom-if" if="[[checking]]">
+				<section class="p-y-1 relative">
+					<div class="align-center">
+						<paper-spinner active></paper-spinner>
+					</div>
+				</section>
+			</template>
 
 			<template is="dom-if" if="[[!user]]">
 				<section class="p-y-1 white">
@@ -161,7 +160,7 @@
 				return [
 					'_postIdChange(postId)',
 					'_postUserId(post.user.id)',
-					'_userBidded(bidded)'
+					// '_userBidded(bidded)'
 				]
 			}
 
@@ -229,8 +228,8 @@
 						job_id: this.post.id,
 						price_bid: this.price
 					}).then( res => {
+						this._userBidded(true);
 						this.dispatch('addBid', res.data);
-						this.bidded = true;
 					}).catch( err => {
 
 					}).then( () => {
@@ -273,36 +272,35 @@
 					if (this.user.id == id) {
 						return;
 					}
+				} else {
+					return;
 				}
-
+				this.message = '';
 				this.checking = true;
 				gAxios.get('/users/' + this.user.id + '/bid/check/' + this.post.id)
 				.then( res => {
-					if( res.data.bidded ) {
-						this.canBid = false;
-						this.bidded = true;
-					} else {
-						this.canBid = true;
-						this.bidded = false;
-					}
+					// if( res.data.bidded ) {
+					// 	this.bidded = true;
+					// 	this.canBid = false;
+					// } else {
+					// 	this.bidded = false;
+					// 	this.canBid = true;
+					// }
+					this._userBidded(res.data.bidded);
 				}).then( () => {
 					this.checking = false;
 				});
 			}
 
 			_userBidded(bidded) {
+				this.bidded = bidded;
 				if(bidded) {
 					this.message = 'You already bidded to this post.';
 					this.canBid = false;
+					this.price = '';
 				} else {
 					this.message = '';
 					this.canBid = true;
-				}
-				if(!this.$.priceBid) return;
-				if(bidded) {
-					this.$.priceBid.setAttribute('disabled', 'disabled');
-				} else {
-					this.$.priceBid.removeAttribute('disabled');
 				}
 			}
 
@@ -310,6 +308,22 @@
 				if(details) return details;
 
 				return 'No details provided.';
+			}
+
+			_getDistance(p1, p2) {
+				if (!p1 || !p2) {
+					return 0;
+				}
+
+				var R = 6371; // Radius of the Earth in km
+				var dLat = (p2.lat() - p1.lat()) * Math.PI / 180;
+				var dLon = (p2.lng() - p1.lng()) * Math.PI / 180;
+				var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+					Math.cos(p1.lat() * Math.PI / 180) * Math.cos(p2.lat() * Math.PI / 180) *
+					Math.sin(dLon / 2) * Math.sin(dLon / 2);
+				var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+				var d = R * c;
+				return d;
 			}
 
 		}
