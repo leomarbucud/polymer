@@ -66,7 +66,7 @@
 			<iron-dropdown id="filters" horizontal-align="right" vertical-align="top">
 				<div slot="dropdown-content" class="dropdown-menu">
 					<template is="dom-repeat" items="[[_filters]]" as="filter">
-						<div class="item" on-click="filterPosts" data-filter$="[[filter.value]]">
+						<div class="item" on-click="filterPosts" hidden$="[[filter.hidden]]">
 							<span>[[filter.name]]</span>
 							<paper-ripple></paper-ripple>
 						</div>
@@ -89,10 +89,17 @@
 
 			static get properties() {
 				return {
+
 					locationTimeout: {
 						type: Number,
 						value: 10000
 					},
+
+					user: {
+            type: Object,
+            statePath: 'user'
+					},
+					
 					today: {
 						type: String,
 						value: function() {
@@ -100,22 +107,16 @@
 						}
 					},
 
+					auth: {
+						type: Boolean,
+						statePath: 'auth'
+					},
+
 					_filters: {
 						type: Array,
 						value: function() {
 							return [
-								{
-									name: 'All Posts',
-									value: 0
-								},
-								{
-									name: 'Services',
-									value: 1
-								},
-								{
-									name: 'Products',
-									value: 2
-								},
+								
 							];
 						}
 					}
@@ -124,12 +125,47 @@
 
 			static get observers() {
 				return [
-					'_gmap(gmap)'
+					'_gmap(gmap)',
+					'_auth(auth)'
 				];
+			}
+
+			setFilters() {
+				let _filters = [
+					{
+						name: 'All Posts',
+						value: 0,
+						hidden: false
+					},
+					{
+						name: 'Services',
+						value: 1,
+						hidden: false
+					},
+					{
+						name: 'Products',
+						value: 2,
+						hidden: false
+					},
+					{
+						name: 'My Posts',
+						value: 'm_p',
+						hidden: !this.auth
+					},
+					{
+						name: 'My Bids',
+						value: 'm_b',
+						hidden: !this.auth
+					}
+				];
+
+				this.set('_filters', _filters);
 			}
 
 			connectedCallback() {
 				super.connectedCallback();
+
+				this.setFilters();
 			}
 
       openDrawer() {
@@ -234,26 +270,54 @@
 				const filter = e.model.filter;
 				const gmap = this.gmap;
 
-				if(filter.value == 0) {
+				const showAllPosts = () => {
 					gmap.markers.forEach( marker => {
 						marker.setVisible(true);
 					});
-					gmap.markerClusterer.repaint();
-					return;
+				};
+
+				const showMyPosts = () => {
+					gmap.markers.forEach( marker => {
+						marker.setVisible(marker.isMyPost);
+					});
+				};
+
+				const showMyBids = () => {
+					gmap.markers.forEach( marker => {
+						marker.setVisible(marker.isBidded);
+					});
+				};
+				
+				const filterByCategory = () => {
+					gmap.markers.forEach( marker => {
+						marker.setVisible(false);
+						if(marker.category == filter.value) {
+							marker.setVisible(true);
+						}
+					});
+				};
+
+				switch(filter.value) {
+					case 0: {
+						showAllPosts();
+						break;
+					}
+					case 'm_p': {
+						showMyPosts();
+						break;
+					}
+					case 'm_b': {
+						showMyBids();
+						break;
+					}
+					default: {
+						filterByCategory()
+						break;
+					}
 				}
 
-				gmap.markers.forEach( marker => {
-					marker.setVisible(false);
-					if(marker.category == filter.value) {
-						marker.setVisible(true);
-					}
-				});
 				gmap.markerClusterer.repaint();
 
-				// if(!filtered.length) return;
-
-
-				// console.log(filtered);
 			}
 
 			_gmap(gmap) {
@@ -261,6 +325,9 @@
 				if(gmap) {
 					this.markers = gmap.markers;
 				}
+			}
+			_auth(auth) {
+				this.setFilters();
 			}
 
     }
