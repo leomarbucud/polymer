@@ -133,13 +133,14 @@
 						<!--:start Bidding section -->
 						<!-- <h2 class="title">Bid</h2> -->
 						<span class="white">Bid</span>
+						<span class="white">[[message]]</span>
 						<form class="form" hidden$="[[checking]]">
 							<div class="input-group prefix suffix">
 								<div class="addon-prefix flex layout horizontal">
 									<span>AED </span>
 								</div>
-								<input id="price" id="priceBid" type="number" class="input" autofocus autocomplete="off" placeholder="Price" value="{{price::input}}"
-								 max$="[[post.price]]" />
+								<input id="price" id="priceBid" type="number" class="input" autofocus autocomplete="off" placeholder="Amount to Bid" value="{{price::input}}"
+								 max$="[[post.price]]" on-keydown="priceBidEvent"/>
 
 								 <div class="addon-suffix">
 										<paper-button class="red" on-tap="bid">Bid</paper-button>
@@ -230,6 +231,15 @@
 						// do something after elements has been imported
 					}
 				);
+
+				
+			}
+
+			priceBidEvent(e) {
+				if( e.keyCode == 13 ) {
+					this.bid();
+					e.preventDefault();
+				}
 			}
 
 			_initValue() {
@@ -252,15 +262,19 @@
 
 			bid() {
 				if (!this.post) return;
-
+				
+				if(!this.price) {
+					this.message = '[Please enter the amount to bid.]';
+					return;
+				}
 				this.message = '';
 				// validate maximum bid
-				if (this.price > parseFloat(this.post.price)) {
+				if (parseFloat(this.price) > parseFloat(this.post.price)) {
 					// alert user that max input is this.post.price
-					this.message = 'Maximum bid is AED ' + this.post.price;
+					this.message = '[Maximum bid is AED ' + this.post.price + ']';
 				} else {
 
-					this.isLoading = true;
+					this.checking = true;
 
 					gAxios.post('/users/' + this.user.id + '/bids', {
 						job_id: this.post.id,
@@ -272,7 +286,7 @@
 					}).catch(err => {
 
 					}).then(() => {
-						this.isLoading = false;
+						this.checking = false;
 					});
 
 				}
