@@ -36,14 +36,36 @@
 			}
 
 			.chip {
-        padding-right: 16px;
-      }
+				padding-right: 16px;
+			}
 
 			.title {
 				font-size: 24px;
 				color: #FFFFFF;
 				font-weight: 400;
 				line-height: 32px;
+			}
+
+			#bid-box {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				height: 100px;
+				width: 100%;
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				background: #424141;
+				padding: 16px 0;
+			}
+
+			#bid-box .addon-suffix {
+				padding: 0;
+			}
+
+			main {
+				padding-bottom: 100px;
 			}
 		</style>
 
@@ -74,7 +96,7 @@
 				<h2 class="title">Details</h2>
 				<p>[[_details(post.details)]]</p>
 			</section>
-			
+
 			<section class="p-y-1 white">
 				<h2 class="title">Skills Required</h2>
 				<template is="dom-repeat" items="[[post.skills]]" as="skill">
@@ -91,31 +113,47 @@
 				<p><span class="white pointer" on-click="viewOnMap">View on map</span></p>
 			</section>
 
+		</main>
+		<div id="bid-box">
 			<template is="dom-if" if="[[user]]">
-				<div class="divider p-y-1"><hr/></div>
-				<section class="p-y-1 white">
+				<!-- <div class="divider p-y-1"><hr/></div> -->
+
+				<template is="dom-if" if="[[bidded]]">
+						<section class="p-y-1 w-100 white">
+							<span>You bidded:</span>
+							<h2 class="title m-0">AED [[bidded_details.price_bid]]</h2>
+						</section>
+				</template>
+
+				<!-- <section class="p-y-1 white">
 					[[message]]
-				</section>
+				</section> -->
 				<template is="dom-if" if="[[canBid]]">
-					<section class="p-y-1 relative">
-						
-						
+					<section class="p-y-1 w-100">
 						<!--:start Bidding section -->
-						<h2 class="title">Bid</h2>
+						<!-- <h2 class="title">Bid</h2> -->
+						<span class="white">Bid</span>
 						<form class="form" hidden$="[[checking]]">
-								<div class="input-group prefix">
-									<div class="addon-prefix flex layout horizontal">
-										<span>AED </span>
-									</div>
-									<input id="price" id="priceBid" type="number" class="input" autofocus autocomplete="off" placeholder="Price" value="{{price::input}}" max$="[[post.price]]"/>
+							<div class="input-group prefix suffix">
+								<div class="addon-prefix flex layout horizontal">
+									<span>AED </span>
 								</div>
-								<paper-button class="white w-100" on-tap="bid">Bid</paper-button>
+								<input id="price" id="priceBid" type="number" class="input" autofocus autocomplete="off" placeholder="Price" value="{{price::input}}"
+								 max$="[[post.price]]" />
+
+								 <div class="addon-suffix">
+										<paper-button class="red" on-tap="bid">Bid</paper-button>
+								 </div>
+							</div>
+							
 						</form>
 						<!--:end Bidding section -->
 
 					</section>
 				</template>
+
 			</template>
+
 			<template is="dom-if" if="[[checking]]">
 				<section class="p-y-1 relative">
 					<div class="align-center">
@@ -129,8 +167,8 @@
 					<span class="pointer" on-click="redirectLogin">Login to bid on this job</span>
 				</section>
 			</template>
+		</div>
 
-		</main>
 
 		<template is="dom-if" if="[[isLoading]]">
 			<div class="overlay dgrey-bg" style="margin-top: 64px;">
@@ -213,11 +251,11 @@
 			}
 
 			bid() {
-				if(!this.post) return;
+				if (!this.post) return;
 
 				this.message = '';
 				// validate maximum bid
-				if(this.price > parseFloat(this.post.price)) {
+				if (this.price > parseFloat(this.post.price)) {
 					// alert user that max input is this.post.price
 					this.message = 'Maximum bid is AED ' + this.post.price;
 				} else {
@@ -227,12 +265,13 @@
 					gAxios.post('/users/' + this.user.id + '/bids', {
 						job_id: this.post.id,
 						price_bid: this.price
-					}).then( res => {
+					}).then(res => {
+						this.bidded_details = res.data;
 						this._userBidded(true);
 						this.dispatch('addBid', res.data);
-					}).catch( err => {
+					}).catch(err => {
 
-					}).then( () => {
+					}).then(() => {
 						this.isLoading = false;
 					});
 
@@ -278,23 +317,27 @@
 				this.message = '';
 				this.checking = true;
 				gAxios.get('/users/' + this.user.id + '/bid/check/' + this.post.id)
-				.then( res => {
-					// if( res.data.bidded ) {
-					// 	this.bidded = true;
-					// 	this.canBid = false;
-					// } else {
-					// 	this.bidded = false;
-					// 	this.canBid = true;
-					// }
-					this._userBidded(res.data.bidded);
-				}).then( () => {
-					this.checking = false;
-				});
+					.then(res => {
+						// if( res.data.bidded ) {
+						// 	this.bidded = true;
+						// 	this.canBid = false;
+						// } else {
+						// 	this.bidded = false;
+						// 	this.canBid = true;
+						// }
+						const data = res.data;
+						if( data.bidded ) {
+							this.bidded_details = res.data.bid;
+						}
+						this._userBidded(data.bidded);
+					}).then(() => {
+						this.checking = false;
+					});
 			}
 
 			_userBidded(bidded) {
 				this.bidded = bidded;
-				if(bidded) {
+				if (bidded) {
 					this.message = 'You already bidded to this post.';
 					this.canBid = false;
 					this.price = '';
@@ -305,7 +348,7 @@
 			}
 
 			_details(details) {
-				if(details) return details;
+				if (details) return details;
 
 				return 'No details provided.';
 			}

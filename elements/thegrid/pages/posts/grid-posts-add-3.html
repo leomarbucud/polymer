@@ -79,13 +79,12 @@
 			</div>
 			<form class="form" action="#">
 				<div class="input-group suffix">
-					<input id="skill" type="text" class="input" autocomplete="off" autofocus value="{{query::input}}" placeholder="Enter Skill.."
-					/>
+					<input id="skill" type="text" class="input" autocomplete="off" autofocus value="{{query::input}}" placeholder="Enter Skill.."	/>
 
 					<div class="addon-suffix">
 						<span class="input-action pointer" on-click="cancelSearch">
-                        <iron-icon icon="close" class="red"></iron-icon>
-                        </span>
+							<iron-icon icon="close" class="red"></iron-icon>
+						</span>
 					</div>
 
 					<div id="result" class="auto-complete">
@@ -105,8 +104,8 @@
 					<div class="chip">
 						<span>[[skill.skill]]</span>
 						<span class="close">
-                            <iron-icon icon="close" class="small" on-click="removeSkill"></iron-icon>
-                        </span>
+							<iron-icon icon="close" class="small" on-click="removeSkill"></iron-icon>
+						</span>
 					</div>
 				</template>
 			</div>
@@ -238,6 +237,12 @@
 					if (e.keyCode == 13) {
 						e.preventDefault();
 						e.stopPropagation();
+						console.log(self.selected);
+						if( self.selected == -1 ) {
+							// add new skill to database
+							
+							return;
+						}
 						results[self.selected].click();
 					}
 

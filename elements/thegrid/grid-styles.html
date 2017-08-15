@@ -121,10 +121,13 @@
 			.input-group.suffix .addon-suffix {
 				height: 44px;
 				padding: 0 16px;
-				line-height: 47px;
+				/* line-height: 47px; */
 				font-size: 14px;
 				background-color: #FFFFFF;
 				white-space: nowrap;
+				display: flex;
+				justify-content: center;
+				align-items: center;
 			}
 
 			.input-group.prefix .addon-prefix {
@@ -242,6 +245,13 @@
 				--paper-spinner-layer-2-color: #FFFFFF;
 				--paper-spinner-layer-3-color: #FFFFFF;
 				--paper-spinner-layer-4-color: #FFFFFF;
+			}
+
+			paper-spinner.red {
+				--paper-spinner-layer-1-color: var(--red);
+				--paper-spinner-layer-2-color: var(--red);
+				--paper-spinner-layer-3-color: var(--red);
+				--paper-spinner-layer-4-color: var(--red);
 			}
 
 			a {

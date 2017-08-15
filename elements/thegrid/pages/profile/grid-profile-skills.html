@@ -1,11 +1,11 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="/bower_components/iron-list/iron-list.html">
-<link rel="import" href="/bower_components/paper-ripple/paper-ripple.html">
-<link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="/redux/grid-redux-store.html">
-<link rel="import" href="/elements/thegrid/grid-styles.html">
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../../redux/grid-redux-store.html">
+<link rel="import" href="../../grid-styles.html">
 
 <dom-module id="grid-profile-skills">
   <template>
@@ -86,7 +86,8 @@
               placeholder="Enter Skill.." />
 
           <div class="addon-suffix">
-              <span class="input-action pointer" on-click="cancelSearch">
+              <paper-spinner active$="[[isAddingSkill]]" class="red" hidden$="[[!isAddingSkill]]"></paper-spinner>
+              <span class="input-action pointer" on-click="cancelSearch" hidden$="[[isAddingSkill]]">
                 <iron-icon icon="close" class="red"></iron-icon>
               </span>
           </div>
@@ -188,6 +189,7 @@
       constructor() {
         super();
         const self = this;
+        this.isAddingSkill = false;
         gAxios.get('/users/skills')
         .then( res => {
           // console.log(res);
@@ -250,6 +252,20 @@
           if( e.keyCode == 13 ) {
             e.preventDefault();
             e.stopPropagation();
+            if(self.selected == -1) {
+              // add new skill
+              self.isAddingSkill = true;
+              gAxios.post('/users/' + self.user.id + '/skills', {
+                skill: self.query
+              })
+              .then( res => {
+                self.set('query', '');
+                self.$.skill.focus();
+                self.dispatch('addSkill', res.data);
+                self.isAddingSkill = false;
+              });
+              return;
+            }
             results[self.selected].click();
           }
 
