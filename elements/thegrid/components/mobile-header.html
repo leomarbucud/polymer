@@ -52,7 +52,7 @@
 			<iron-dropdown id="filters" horizontal-align="right" vertical-align="top">
 				<div slot="dropdown-content" class="dropdown-menu">
 					<template is="dom-repeat" items="[[_filters]]" as="filter">
-						<div class="item" on-click="filterPosts" hidden$="[[filter.hidden]]">
+						<div class="item" on-tap="filterPosts" hidden$="[[filter.hidden]]">
 							<span>[[filter.name]]</span>
 							<paper-ripple></paper-ripple>
 						</div>
