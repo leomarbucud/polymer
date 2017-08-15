@@ -1,5 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-dropdown/iron-dropdown.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../../bower_components/app-layout/app-toolbar/app-toolbar.html">
@@ -40,13 +42,37 @@
 				opacity: 0.5;
 			}
 
+			.dropdown-menu {
+				background: #FFFFFF;
+				width: 150px;
+				margin-right: 16px;
+				margin-top: 16px;
+			}
+
+			.dropdown-menu .item {
+				padding: 16px;
+				cursor: pointer;
+				position: relative;
+				user-select: none;
+			}
+
     </style>
 
     <div class="toolbar">
       <paper-icon-button icon="menu" on-tap="openDrawer" class="red"></paper-icon-button>
       <span class="flex"></span>
       <paper-icon-button id="location" icon="maps:my-location" on-tap="setCurrentLocation" class="red inactive"></paper-icon-button>
-      <paper-icon-button icon="filter-list" class="red"></paper-icon-button>
+			<paper-icon-button icon="filter-list" slot="dropdown-trigger" class="red" on-tap="toggleFilters"></paper-icon-button>
+			<iron-dropdown id="filters" horizontal-align="right" vertical-align="top">
+				<div slot="dropdown-content" class="dropdown-menu">
+					<template is="dom-repeat" items="[[_filters]]" as="filter">
+						<div class="item" on-click="filterPosts" data-filter$="[[filter.value]]">
+							<span>[[filter.name]]</span>
+							<paper-ripple></paper-ripple>
+						</div>
+					</template>
+				</div>
+			</iron-dropdown>
     </div>
     <app-toolbar>
 			<span class="date">[[today]]</span>
@@ -72,8 +98,34 @@
 						value: function() {
 							return moment().format("dddd, MMMM D");
 						}
+					},
+
+					_filters: {
+						type: Array,
+						value: function() {
+							return [
+								{
+									name: 'All Posts',
+									value: 0
+								},
+								{
+									name: 'Services',
+									value: 1
+								},
+								{
+									name: 'Products',
+									value: 2
+								},
+							];
+						}
 					}
 				}
+			}
+
+			static get observers() {
+				return [
+					'_gmap(gmap)'
+				];
 			}
 
 			connectedCallback() {
@@ -174,6 +226,42 @@
 				
       }
 
+			toggleFilters() {
+				this.$.filters.open();
+			}
+
+			filterPosts(e) {
+				const filter = e.model.filter;
+				const gmap = this.gmap;
+
+				if(filter.value == 0) {
+					gmap.markers.forEach( marker => {
+						marker.setVisible(true);
+					});
+					gmap.markerClusterer.repaint();
+					return;
+				}
+
+				gmap.markers.forEach( marker => {
+					marker.setVisible(false);
+					if(marker.category == filter.value) {
+						marker.setVisible(true);
+					}
+				});
+				gmap.markerClusterer.repaint();
+
+				// if(!filtered.length) return;
+
+
+				// console.log(filtered);
+			}
+
+			_gmap(gmap) {
+				console.log(gmap);
+				if(gmap) {
+					this.markers = gmap.markers;
+				}
+			}
 
     }
 

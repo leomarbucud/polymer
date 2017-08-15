@@ -29,6 +29,7 @@
     "app-layout": "PolymerElements/app-layout#^2.0.1",
     "paper-icon-button": "PolymerElements/paper-icon-button#^2.0.0",
     "iron-list": "PolymerElements/iron-list#^2.0.6",
-    "paper-fab": "PolymerElements/paper-fab#^2.0.0"
+    "paper-fab": "PolymerElements/paper-fab#^2.0.0",
+    "iron-dropdown": "PolymerElements/iron-dropdown#^2.0.0"
   }
 }
