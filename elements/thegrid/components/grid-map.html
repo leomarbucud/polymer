@@ -141,7 +141,11 @@
 
         this.map = new google.maps.Map(e, options);
         this.map.setOptions({ zoomControlOptions: { position: google.maps.ControlPosition.LEFT_BOTTOM } });
-
+        
+        if(window.mobilecheck()) {
+          console.log('this is mobile');
+          this.map.setOptions({zoomControl: false});
+        }
         this.listenMapEvents();
         this.populateJobMarkers();
       }
