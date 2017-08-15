@@ -108,13 +108,19 @@
 			.input-group.prefix .input {
 				border-top-left-radius: 0px;
 				border-bottom-left-radius: 0px;
-				padding-left: 0;
+				/* padding-left: 0; */
 			}
 
 			.input-group.suffix .input {
 				border-top-right-radius: 0px;
 				border-bottom-right-radius: 0px;
-				padding-right: 0;
+				/* padding-right: 0; */
+			}
+
+			input::-webkit-outer-spin-button,
+			input::-webkit-inner-spin-button {
+					-webkit-appearance: none;
+					margin: 0; 
 			}
 
 			.input-group.prefix .addon-prefix,
@@ -366,6 +372,20 @@
       .inactive {
         opacity: 0.5;
       }
+
+			.dropdown-menu {
+				background: #FFFFFF;
+				width: 150px;
+				margin-right: 16px;
+				margin-top: 16px;
+			}
+
+			.dropdown-menu .item {
+				padding: 16px;
+				cursor: pointer;
+				position: relative;
+				user-select: none;
+			}
 
 		</style>
 	</template>

@@ -15,6 +15,33 @@
       .chip {
         padding-right: 16px;
       }
+
+      .bidder-list {
+        width: 100%;
+        text-align: left;
+      }
+      .section-title, .section-details {
+        display: flex;
+        justify-content: left;
+        align-items: center;
+      }
+
+      .section-title .title {
+        font-size: 24px;
+				color: #FFFFFF;
+				font-weight: 400;
+				line-height: 34px;
+        margin-bottom: 8px;
+      }
+
+      div.divider {
+        padding: 8px 0;
+      }
+
+      div.divider hr {
+        margin: 0;
+        opacity: 0.12;
+      }
     </style>
 
     <div id="toolbar" class="toolbar">
@@ -25,18 +52,52 @@
 
     <main class="scroll-area flex">
       <section class="p-y-1 white">
-        <h2 class="title">[[post.name]]</h2>
-        <small class="category">Category: [[post.category.category]]</small>
-        <h2 class="white">Budget AED [[post.price]]</h2>
-        <span class="white">Job needed [[_fromNow(post.date)]]</span>
-      </section>
-      <section class="p-y-1 white">
-        <h2 class="title">Details</h2>
-        <p>[[_details(post.details)]]</p>
-      </section>
+        <div class="section-title">
+          <div class="flex">
+           <span class="title">[[post.name]]</span>
+           <small class="category block">Category: [[post.category.category]]</small>
+          </div>
+          <paper-icon-button icon="maps:pin-drop" class="red pointer" on-tap="viewOnMap"></paper-icon-button>
+        </div>
 
-      <section class="p-y-1 white">
-        <h2 class="title">Skills Required</h2>
+        <div class="divider"><hr/></div>
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">Details</span>
+          </div>
+        </div>
+
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Budget</span>
+          </div>
+          <span>AED [[post.price]]</span>
+        </div>
+
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Job needed</span>
+          </div>
+          <span>[[_fromNow(post.date)]]</span>
+        </div>
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Posted</span>
+          </div>
+          <span>[[_fromNow(post.created_at)]]</span>
+        </div>
+
+        <p>[[_details(post.details)]]</p>
+
+        <div class="divider"><hr/></div>
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">Required Skills</span>
+          </div>
+        </div>
+
         <template is="dom-repeat" items="[[post.skills]]" as="skill">
           <div class="chip">
             <span>[[skill.skill]]</span>
@@ -45,10 +106,35 @@
         <template is="dom-if" if="[[!post.skills.length]]">
           <p>No set of skills provided.</p>
         </template>
-      </section>
 
-      <section class="p-y-1">
-        <p><span class="white pointer" on-click="viewOnMap">View on map</span></p>
+        <div class="divider"><hr/></div>
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">Bidders</span>
+          </div>
+        </div>
+        <template is="dom-if" if="[[post.bidders.length]]">
+          <table class="bidder-list">
+            <thead>
+              <tr>
+                <th>Bidder</th>
+                <th>Bid</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template is="dom-repeat" items="[[post.bidders]]" as="bidder">
+                <tr>
+                  <td>[[bidder.user.name]]</td>
+                  <td>[[bidder.price_bid]]</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </template>
+        <template is="dom-if" if="[[!post.bidders.length]]">
+          <p>No bidders on this post.</p>
+        </template>
       </section>
 
     </main>
@@ -162,7 +248,7 @@
       _details(details) {
 				if(details) return details;
 
-				return 'No details provided.';
+				return '';
 			}
 
     }
