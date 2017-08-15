@@ -1089,11 +1089,17 @@ ClusterIcon.prototype.onAdd = function() {
       that.triggerClusterClick(event);
     }
   });
-  google.maps.event.addDomListener(this.div_, 'mousedown', function() {
+  // google.maps.event.addDomListener(this.div_, 'mousedown', function() {
+  //   isDragging = false;
+  // });
+  // google.maps.event.addDomListener(this.div_, 'mousemove', function() {
+  //   isDragging = true;
+  // });
+  google.maps.event.addDomListener(this.div_, 'mousedown', function () {
+    google.maps.event.addListenerOnce(that.map_, "dragstart", function () {
+      isDragging = true;
+    });
     isDragging = false;
-  });
-  google.maps.event.addDomListener(this.div_, 'mousemove', function() {
-    isDragging = true;
   });
 };
 
