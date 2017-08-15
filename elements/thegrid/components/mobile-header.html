@@ -48,13 +48,14 @@
       <paper-icon-button icon="menu" on-tap="openDrawer" class="red"></paper-icon-button>
       <span class="flex"></span>
       <paper-icon-button id="location" icon="maps:my-location" on-tap="setCurrentLocation" class="red inactive"></paper-icon-button>
-			<paper-icon-button icon="filter-list" slot="dropdown-trigger" class="red" on-tap="toggleFilters"></paper-icon-button>
+			<paper-icon-button icon="filter-list" slot="dropdown-trigger" class="red" on-tap="openFilters"></paper-icon-button>
 			<iron-dropdown id="filters" horizontal-align="right" vertical-align="top">
 				<div slot="dropdown-content" class="dropdown-menu">
+					<!-- Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam amet blanditiis officia. Quo sint consectetur magnam harum eius esse dolores voluptate vitae, rerum velit minima dignissimos! Ducimus rem eligendi id! -->
 					<template is="dom-repeat" items="[[_filters]]" as="filter">
-						<div class="item" on-tap="filterPosts" hidden$="[[filter.hidden]]">
+						<div class="item" on-click="filterPosts" hidden$="[[filter.hidden]]">
 							<span>[[filter.name]]</span>
-							<paper-ripple></paper-ripple>
+							<!-- <paper-ripple></paper-ripple> -->
 						</div>
 					</template>
 				</div>
@@ -248,11 +249,12 @@
 				
       }
 
-			toggleFilters() {
+			openFilters() {
 				this.$.filters.open();
 			}
 
 			filterPosts(e) {
+				console.log('selecting');
 				const filter = e.model.filter;
 				const gmap = this.gmap;
 
