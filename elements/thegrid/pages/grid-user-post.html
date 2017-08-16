@@ -338,6 +338,9 @@
 						this.updateMarker(this.post.id)
 
 						this.dispatch('addBid', res.data);
+
+						// dispatch event
+						window.dispatchEvent(new CustomEvent('user:bidded', { detail: res.data }) );
 					}).catch(err => {
 
 					}).then(() => {

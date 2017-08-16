@@ -20,3 +20,12 @@ window.addEventListener('user:posted', e => {
 socket.on('user:posted', data => {
   logger(data);
 });
+
+window.addEventListener('user:bidded', e => {
+  const data = e.detail;
+  socket.emit('user:bidded', data);
+});
+
+socket.on('user:bidded', data => {
+  logger(data);
+});

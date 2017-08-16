@@ -56,6 +56,7 @@
           <div class="flex">
            <span class="title">[[post.name]]</span>
            <small class="category block">Category: [[post.category.category]]</small>
+           <small class="location block">Location: [[post.location]]</small>
           </div>
           <paper-icon-button icon="maps:pin-drop" class="red pointer" on-tap="viewOnMap"></paper-icon-button>
         </div>
@@ -263,13 +264,21 @@
         // when new post is posted
         socket.on('user:posted', data => {
           const _data = data;
-					console.log('new post to be added to list', _data);
           if(this.auth) {
             if(_data.user.id == this.user.id) {
               this.dispatch('addPost', _data);
             }
           }
+        });
 
+        // when user bidded on the job
+        socket.on('user:bidded', data => {
+          const _data = data;
+          if(this.auth) {
+            if(_data.user.id == this.user.id) {
+              this.dispatch('addPost', _data);
+            }
+          }
         });
       }
 

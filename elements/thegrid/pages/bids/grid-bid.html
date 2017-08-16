@@ -109,6 +109,11 @@
             statePath: 'user'
           },
 
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
+          },
+
           isLoading: {
             type: Boolean,
             value: false
@@ -125,10 +130,10 @@
       }
 
       static get actions() {
-  			return {
-
-  			};
-  		}
+				return {
+					
+				};
+			}
 
       constructor() {
         super();
@@ -202,7 +207,7 @@
 				if(details) return details;
 
 				return 'No details provided.';
-			}
+      }
 
 
     }

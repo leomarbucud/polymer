@@ -125,6 +125,11 @@
             statePath: 'user'
           },
 
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
+          },
+
           bids: {
             type: Array,
             statePath: 'bids'
@@ -161,13 +166,20 @@
   						type: 'SET_BIDS',
   						bids: bids
   					}
-  				}
+          },
+          
+          addBid(bid) {
+						return {
+							type: 'ADD_BID',
+							bid: bid
+						}
+					}
   			};
   		}
 
       constructor() {
         super();
-
+        this._initSocketEvents();
       }
 
       connectedCallback() {
@@ -241,6 +253,20 @@
         } else {
           self.subPage = null;
         }
+      }
+
+      _initSocketEvents() {
+
+        // when user bidded on the job
+        socket.on('user:bidded', data => {
+          const _data = data;
+          if(this.auth) {
+            if(_data.user.id == this.user.id) {
+              this.dispatch('addBid', _data);
+            }
+          }
+        });
+
       }
 
     }
