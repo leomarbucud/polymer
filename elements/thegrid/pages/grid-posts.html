@@ -143,6 +143,11 @@
             statePath: 'user'
           },
 
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
+          },
+
           posts: {
             type: Array,
             statePath: 'posts'
@@ -169,7 +174,6 @@
       }
 
       _postChange(post) {
-        console.log('aaa');
         // update time automatically every 1 minute
         const plist = this.shadowRoot.querySelector('#post-list');
 
@@ -193,13 +197,27 @@
   						type: 'SET_POSTS',
   						posts: posts
   					}
-  				}
+          },
+
+          addPost(post) {
+						return {
+							type: 'ADD_POST',
+							post: post
+						}
+          },
+          
+          updatePost(post) {
+            return {
+              type: 'UPDATE_POST',
+              post: post
+            }
+          }
   			};
   		}
 
       constructor() {
         super();
-
+        this._initSocketEvents();
       }
 
       connectedCallback() {
@@ -272,6 +290,32 @@
         } else {
           self.subPage = null;
         }
+      }
+
+      _initSocketEvents() {
+
+        // when new post is posted
+        socket.on('user:posted', data => {
+          const _data = data;
+          if(this.auth) {
+            if(_data.user.id == this.user.id) {
+              this.dispatch('addPost', _data);
+            }
+          }
+        });
+
+        // when user bidded on the job
+        socket.on('user:bidded', data => {
+          const _data = data;
+          if(this.auth) {
+            if(_data.job.user.id == this.user.id) {
+              if(_data.job.id == this.post.id) {
+                console.log('updating post');
+                this.dispatch('updatePost', _data.job);
+              }
+            }
+          }
+        });
       }
 
     }

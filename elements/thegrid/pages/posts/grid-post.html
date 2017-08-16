@@ -167,6 +167,11 @@
             statePath: 'auth'
           },
 
+          posts: {
+            type: Array,
+            statePath: 'posts'
+          },
+
           isLoading: {
             type: Boolean,
             value: false
@@ -177,6 +182,7 @@
 
       static get observers() {
         return [
+          '_postsChange(posts)',
           '_postChange(post)',
           '_postIdChange(postId)',
         ]
@@ -184,12 +190,7 @@
 
       static get actions() {
 				return {
-					addPost(post) {
-						return {
-							type: 'ADD_POST',
-							post: post
-						}
-					}
+					
 				};
 			}
 
@@ -203,8 +204,6 @@
             // do something after elements has been imported
           }
         );
-
-        this._initSocketEvents();
 
       }
 
@@ -233,20 +232,28 @@
 
       _postChange(post) {
         if (!post) return;
-        this.renderPost(post)
+        this.renderPost(post);
       }
 
       _postIdChange(postId) {
         if (!postId) return;
-        if (!this.user) return;
+        if (!this.auth) return;
         if (this.post) return;
         this.isLoading = true;
         gAxios.get('/users/' + this.user.id + '/jobs/' + postId)
           .then(res => {
-            this.post = res.data
+            this.renderPost(res.data);
           }).then(() => {
             this.isLoading = false;
           });
+      }
+
+      _postsChange(posts) {
+        posts.map(post => {
+          if(post.id === this.post.id){
+            this.renderPost(post)
+          }
+        });
       }
 
       _fromNow(date) {
@@ -259,29 +266,6 @@
 				return '';
       }
       
-      _initSocketEvents() {
-
-        // when new post is posted
-        socket.on('user:posted', data => {
-          const _data = data;
-          if(this.auth) {
-            if(_data.user.id == this.user.id) {
-              this.dispatch('addPost', _data);
-            }
-          }
-        });
-
-        // when user bidded on the job
-        socket.on('user:bidded', data => {
-          const _data = data;
-          if(this.auth) {
-            if(_data.user.id == this.user.id) {
-              this.dispatch('addPost', _data);
-            }
-          }
-        });
-      }
-
     }
 
     customElements.define(GridPost.is, GridPost);

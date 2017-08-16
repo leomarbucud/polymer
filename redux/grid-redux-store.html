@@ -85,6 +85,19 @@
         });
         break;
       }
+      case 'UPDATE_POST': {
+        let posts = state.posts.slice(0);
+        const updatedPosts = posts.map(item => {
+          if(item.id === action.post.id){
+            return action.post;
+          }
+          return item
+        });
+        return Object.assign({}, state, {
+          posts: updatedPosts
+        });
+        break;
+      }
       case 'SET_BIDS': {
         return Object.assign({}, state, {
           bids: action.bids
