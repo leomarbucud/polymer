@@ -250,7 +250,7 @@
 
       _postsChange(posts) {
         posts.map(post => {
-          if(post.id === this.postId){
+          if(parseInt(post.id) === parseInt(this.postId)) {
             this.renderPost(post)
           }
         });
