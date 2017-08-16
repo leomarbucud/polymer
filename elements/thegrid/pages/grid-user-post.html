@@ -299,13 +299,13 @@
 			}
 
 			viewOnMap() {
-				if (!this.post && this.map) return;
+				if (!this.post && this.gmap.map) return;
 
 				const job = this.post;
 				const position = new google.maps.LatLng(job.lat, job.lng);
 
-				this.map.setCenter(position);
-				this.map.setZoom(20);
+				this.gmap.map.setCenter(position);
+				this.gmap.map.setZoom(20);
 				this.redirectHome();
 			}
 
@@ -331,6 +331,10 @@
 					}).then(res => {
 						this.bidded_details = res.data;
 						this._userBidded(true);
+
+						// update the marker
+						this.updateMarker(this.post.id)
+
 						this.dispatch('addBid', res.data);
 					}).catch(err => {
 
@@ -338,6 +342,24 @@
 						this.checking = false;
 					});
 
+				}
+			}
+
+			updateMarker(id) {
+				const marker = this.gmap.findBy( marker => {
+					return marker.id == id;
+				});
+				if(marker){
+					const _marker = marker[0];
+					_marker.isBidded = true;
+
+					// remove marker
+					this.gmap.removeBy( marker => {
+						return marker.id == id;
+					})
+
+					// add the updated marker
+					this.gmap.newMarker(_marker);
 				}
 			}
 

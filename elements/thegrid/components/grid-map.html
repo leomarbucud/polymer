@@ -232,13 +232,13 @@
 					height: 36
 				};
 				var svg = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="'+customPin.width+'" height="'+customPin.height+'"><path transform="scale('+customPin.scale+')" fill="'+customPin.fillColor+'" stroke="'+customPin.strokeColor+'" stroke-width="'+customPin.strokeWeight+'" d="'+customPin.path+'"/></svg>';
-				var d = JSON.stringify(data),
-					content = document.createElement('grid-info-window');
-				content.data = d;
-				content.isMyPost = data.isMyPost;
-        content.isBidded = data.isBidded;
+				// var d = JSON.stringify(data),
+				// 	content = document.createElement('grid-info-window');
+				// content.data = d;
+				// content.isMyPost = data.isMyPost;
+        // content.isBidded = data.isBidded;
 
-        content = data.name + '<br/>' + 'AED ' + data.price;
+        var content = data.name + '<br/>' + 'AED ' + data.price;
 
         var icon = '/assets/images/icons/unrelated-marker.svg';
 
@@ -263,6 +263,7 @@
 					lat: parseFloat(data.lat),
 					lng: parseFloat(data.lng),
 					icon: icon,
+          user: data.user,
 					// content: content,
 					events: [
 						{
