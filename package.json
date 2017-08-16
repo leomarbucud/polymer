@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.html",
   "dependencies": {
+    "avatar-crop": "0.0.1",
     "axios": "^0.16.2",
     "moment": "^2.18.1",
     "redux": "^3.7.2",
-    "avatar-crop": "0.0.1"
+    "socket.io-client": "^2.0.3"
   },
   "devDependencies": {},
   "scripts": {

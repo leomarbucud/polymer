@@ -121,13 +121,9 @@
 					location: this.data.where,
 					date: this.data.when,
 					category_id: this.data.category,
-                    skills: this.data.skills,
-                    details: this.details
-                };
-                
-
-				console.log(data);
-				
+					skills: this.data.skills,
+					details: this.details
+				};	
 
 				// dispatch posting event
 				window.dispatchEvent(new CustomEvent('posting'));
@@ -135,7 +131,9 @@
 				gAxios.post('/users/' + this.user.id + '/jobs', data)
 					.then(res => {
 						var data = res.data;
+
 						this.dispatch('addPost', data);
+
 						this.redirectHome();
 
 						// set marker options
@@ -144,6 +142,9 @@
 
 						// add new marker to the map
 						this.gmap.newMarker(data);
+
+						// dispatch event
+						window.dispatchEvent(new CustomEvent('user:posted', { detail: data }) );
 
 					}).catch(err => {
 						if (err.response) {

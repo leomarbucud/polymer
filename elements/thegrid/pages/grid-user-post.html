@@ -110,6 +110,7 @@
 					<div class="flex">
 						<span class="title">[[post.name]]</span>
 						<small class="category block">Category: [[post.category.category]]</small>
+						<small class="block">Location: [[post.location]]</small>
 					</div>
 					<paper-icon-button icon="maps:pin-drop" class="red pointer" on-tap="viewOnMap"></paper-icon-button>
 				</div>
@@ -135,6 +136,7 @@
 					</div>
 					<span>[[_fromNow(post.date)]]</span>
 				</div>
+				
 				<div class="section-details">
 					<div class="flex">
 						<span class="title">Posted</span>
@@ -356,7 +358,7 @@
 					// remove marker
 					this.gmap.removeBy( marker => {
 						return marker.id == id;
-					})
+					});
 
 					// add the updated marker
 					this.gmap.newMarker(_marker);

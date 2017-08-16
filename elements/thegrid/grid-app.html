@@ -339,6 +339,8 @@
 								// IDEA: update the user redux store
 								self.dispatch('loggedUser', res.data);
 
+								socket.emit('user:connect', res.data);
+
 								if (!res.data.is_account_setup) {
 									// redirect(SETUP_URL);
 								}

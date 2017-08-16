@@ -128,6 +128,8 @@
           )
         });
 
+        this._initSocketEvents()
+
       }
 
       connectedCallback() {
@@ -284,6 +286,26 @@
 
       _authChange(auth) {
         this.populateJobMarkers();
+      }
+
+      _initSocketEvents() {
+
+        // when new post is posted
+        socket.on('user:posted', data => {
+          const _data = data;
+
+          // assume that the post is not posted by the user connected
+          _data.isMyPost = false;
+          // check if user is loggedin and it is his post set isMyPost to true
+          if(this.auth) {
+            if(_data.user.id == this.user.id) {
+              _data.isMyPost = true;
+            }
+          }
+
+          this._newMarker(_data);
+
+        });
       }
 
 
