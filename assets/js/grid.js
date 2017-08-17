@@ -1,4 +1,5 @@
-var socket = new io.connect('http://127.0.0.1:3000');
+// var socket = new io.connect('http://127.0.0.1:3000');
+var socket = new io.connect('https://thegridsocket.azurewebsites.net');
 
 const logger = str => {
   console.log('Socket: ', str);

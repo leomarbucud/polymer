@@ -14,12 +14,23 @@
         height: 100%;
       }
 
+      :host(.selecting) {
+				position: absolute;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				left: 0;
+				z-index: 98;
+			}
+
       #mapCanvas {
         height: 100%;
         width: 100%;
       }
 
     </style>
+
+    
 
     <div id="mapCanvas">
 
@@ -30,7 +41,6 @@
       </div>
 
     </div>
-
   </template>
 
   <script>
@@ -153,9 +163,18 @@
       }
 
       listenMapEvents() {
-        // this.mapListener('click', function(a, e) {
-        //   console.log("finish dragging",a, e);
-        // });
+        const self = this;
+        this.mapListener('center_changed', function() {
+
+          if(!self.classList.contains('selecting')) return;
+
+          let detail = {
+            lat: this.map.getCenter().lat(),
+            lng: this.map.getCenter().lng(),
+            location: ';;;'
+          };
+          window.dispatchEvent(new CustomEvent('map:center_changed', { detail: detail} ));
+        });
       }
 
       populateJobMarkers() {

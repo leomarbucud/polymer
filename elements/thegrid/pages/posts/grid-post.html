@@ -238,20 +238,27 @@
       _postIdChange(postId) {
         if (!postId) return;
         if (!this.auth) return;
+        if (!this.posts) return;
         if (this.post) return;
         this.isLoading = true;
-        gAxios.get('/users/' + this.user.id + '/jobs/' + postId)
-          .then(res => {
-            this.renderPost(res.data);
-          }).then(() => {
+        this.posts.map(post => {
+          if(parseInt(post.id) === parseInt(this.postId)) {
+            this.renderPost(post);
             this.isLoading = false;
-          });
+          }
+        });
+        // gAxios.get('/users/' + this.user.id + '/jobs/' + postId)
+        //   .then(res => {
+        //     this.renderPost(res.data);
+        //   }).then(() => {
+        //     this.isLoading = false;
+        //   });
       }
 
       _postsChange(posts) {
         posts.map(post => {
           if(parseInt(post.id) === parseInt(this.postId)) {
-            this.renderPost(post)
+            this.renderPost(post);
           }
         });
       }

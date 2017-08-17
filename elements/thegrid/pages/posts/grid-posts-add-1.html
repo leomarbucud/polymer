@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="/behaviors/form-slider-behavior.html">
@@ -14,6 +15,42 @@
         display: block;
         height: 100%;
         background: var(--dark-grey);
+      }
+
+      .map-control {
+        position: absolute !important;
+        z-index: 99;
+        width: 100%;
+        display: none;
+      }
+
+      .map-control.active {
+        display: block !important;
+      }
+
+      .map-control.map-control-input {
+        top: 0;
+      }
+
+      .map-control .input-group {
+        padding: 0;
+      }
+
+      .map-control.map-control-marker {
+        width: 27px;
+        height: 33px;
+        top: calc(50% - 33px);
+        left: calc(50% - 13px);
+        pointer-events: none;
+      }
+
+      .map-control.map-control-button {
+        bottom: 0;
+        margin: 0;
+        text-align: center;
+        background: var(--red);
+        color: #FFFFFF;
+        border-radius: 0;
       }
 
     </style>
@@ -70,8 +107,12 @@
                 value="{{where::input}}"
                 data-validate="required"
                 data-message-required="Please tell us where." />
-            <div class="addon-suffix flex layout horizontal">
-              <span id="locationButton" on-click="myLocation" class="pointer inactive" hidden$="[[!map]]"><iron-icon icon="maps:my-location" class="red" title="Press for current location"></iron-icon></span>
+            <div class="addon-suffix has-icon">
+              <paper-icon-button icon="maps:pin-drop" class="red" hidden$="[[!gmap.map]]" on-tap="showMap"></paper-icon-button>
+              <paper-icon-button id="locationButton" class="red" icon="maps:my-location" hidden$="[[!gmap.map]]" on-tap="myLocation"></paper-icon-button>
+              <!-- <span id="locationButton" on-click="myLocation" class="pointer inactive" hidden$="[[!map]]">
+                <iron-icon icon="maps:my-location" class="red" title="Press for current location"></iron-icon>
+              </span> -->
             </div>
           </div>
 
@@ -87,6 +128,20 @@
         </form>
       </div>
     </div>
+
+    <div class="map-control map-control-input">
+      <div class="input-group suffix p-0">
+        <input id="search-location" type="text" class="input" placeholder="Search location"/>
+
+        <div class="addon-suffix has-icon">
+          <paper-icon-button class="red" icon="close"></paper-icon-button>
+        </div>
+      </div>
+    </div>
+
+    <iron-icon class="map-control map-control-marker" src="/assets/images/icons/related-marker.svg"></iron-icon>
+
+    <paper-button class="map-control map-control-button" on-tap="hideMap">Done</paper-button>
 
   </template>
 
@@ -126,7 +181,7 @@
       static get observers() {
         return [
           '_formDone(what, when, where, category)',
-          '_isMapInit(map)'
+          '_isMapInit(gmap)'
         ]
       }
 
@@ -192,8 +247,68 @@
 				};
 				cat.addEventListener('change', change);
 
-				this._getCategories();
+        this._getCategories();
+        
+        window.addEventListener('map:center_changed', e => {
+          let detail = e.detail;
+          this.lat = detail.lat;
+          this.lng = detail.lng;
+        });
 
+      }
+
+      _setMarkerVisibility(visible) {
+        const gmap = this.gmap;
+        if(!gmap) return;
+
+        if(visible){
+          gmap.classList.remove('selecting');
+        } else {
+          gmap.classList.add('selecting');
+        }
+
+        gmap.markers.forEach( marker => {
+          marker.setVisible(visible);
+        });
+        gmap.markerClusterer.repaint();
+      }
+
+      showMap() {
+        const gmap = this.gmap;
+        if(!gmap) return;
+
+        this._setMarkerVisibility(false);
+
+        var mapControls = this.shadowRoot.querySelectorAll('.map-control');
+        mapControls.forEach( control => {
+          control.classList.add('active');
+        });
+
+      }
+
+      hideMap() {
+        const gmap = this.gmap;
+        if(!gmap) return;
+
+        this._setMarkerVisibility(true);
+
+        var mapControls = this.shadowRoot.querySelectorAll('.map-control');
+
+        mapControls.forEach( control => {
+          control.classList.remove('active');
+        });
+
+        const pos = {
+          lat: this.lat,
+          lng: this.lng
+        };
+        
+        gmap.geocodeLatLng(pos)
+        .then( res => {
+          this.where = res[0].formatted_address;
+        }).catch( err => {
+          console.log(err);
+        });
       }
 
       myLocation() {
@@ -210,7 +325,7 @@
             self.lat = pos.lat;
             self.lng = pos.lng;
 
-            self.map.setCenter(pos);
+            self.gmap.map.setCenter(pos);
 
   					self.geocodeLatLng(pos)
     					.then( res => {
@@ -244,8 +359,8 @@
         }
       }
 
-      _isMapInit(map) {
-        if(!map) return;
+      _isMapInit(gmap) {
+        if(!gmap) return;
 
         const self = this;
         const searchBox = self.shadowRoot.querySelector('#where');
@@ -261,7 +376,7 @@
 							return;
 						}
 						const bounds = new google.maps.LatLngBounds();
-            console.log(bounds);
+            
 						for (var i = 0, place; place = places[i]; i++) {
 							bounds.extend(place.geometry.location);
 						}
@@ -273,6 +388,34 @@
 					google.maps.event.addListener(self.map, 'bounds_changed', () => {
 						var bounds = self.map.getBounds();
 						_searchBox.setBounds(bounds);
+					});
+        }
+
+        const searchLoc = self.shadowRoot.querySelector('#search-location');
+
+        if(searchLoc) {
+          var _searchLoc = new google.maps.places.SearchBox(searchLoc);
+
+					_searchLoc.addListener('places_changed', function() {
+
+						// self.where = searchLoc.value;
+						var places = _searchLoc.getPlaces();
+						if (places.length == 0) {
+							return;
+						}
+						const bounds = new google.maps.LatLngBounds();
+            
+						for (var i = 0, place; place = places[i]; i++) {
+							bounds.extend(place.geometry.location);
+						}
+						self.gmap.map.fitBounds(bounds);
+            // self.lat = self.map.getCenter().lat();
+            // self.lng = self.map.getCenter().lng();
+					});
+
+					google.maps.event.addListener(self.map, 'bounds_changed', () => {
+						var bounds = self.map.getBounds();
+						_searchLoc.setBounds(bounds);
 					});
         }
       }
