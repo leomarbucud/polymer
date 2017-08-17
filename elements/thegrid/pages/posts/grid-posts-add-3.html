@@ -74,11 +74,12 @@
 
 			<div class="header-text-container">
 				<h1 class="header-text m-0">
-					<span>What skills would you require?</span>
+					<span hidden$="[[step.message]]">[[step.question]]</span>
+					<span hidden$="[[!step.message]]">[[step.message]]</span>
 				</h1>
 			</div>
-			<form class="form" action="#">
-				<div class="input-group suffix">
+			<form class="form" id="formCarousel" form-carousel>
+				<div class="input-group suffix" data-step="1" data-question="What skills would you require?">
 					<input id="skill" type="text" class="input" autocomplete="off" autofocus value="{{query::input}}" placeholder="Enter Skill.."	/>
 
 					<div class="addon-suffix">
@@ -97,18 +98,19 @@
 						</template>
 					</div>
 				</div>
+
+				<div class="skills-container">
+					<div hidden$="[[skills]]" class="white">Loading your awesome skills...</div>
+					<template is="dom-repeat" items="[[skills]]" as="skill">
+						<div class="chip">
+							<span>[[skill.skill]]</span>
+							<span class="close">
+								<iron-icon icon="close" class="small" on-click="removeSkill"></iron-icon>
+							</span>
+						</div>
+					</template>
+				</div>
 			</form>
-			<div class="skills-container">
-				<div hidden$="[[skills]]" class="white">Loading your awesome skills...</div>
-				<template is="dom-repeat" items="[[skills]]" as="skill">
-					<div class="chip">
-						<span>[[skill.skill]]</span>
-						<span class="close">
-							<iron-icon icon="close" class="small" on-click="removeSkill"></iron-icon>
-						</span>
-					</div>
-				</template>
-			</div>
 		</div>
 
 	</template>
@@ -184,6 +186,9 @@
 
 			connectedCallback() {
 				super.connectedCallback();
+
+				this.initForm();
+				this.set('step.message', 'What skills would you require?');
 
 				const self = this;
 				const skillInput = this.$.skill;

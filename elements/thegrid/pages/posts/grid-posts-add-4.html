@@ -30,19 +30,20 @@
 
 			<div class="header-text-container">
 				<h1 class="header-text m-0">
-					<span>Add a brief description</span>
+					<span hidden$="[[step.message]]">[[step.question]]</span>
+					<span hidden$="[[!step.message]]">[[step.message]]</span>
 				</h1>
 			</div>
-            <form class="form" id="formCarousel">
+			<form class="form" id="formCarousel" form-carousel>
 
-                <div class="input-group suffix" >
-                    <textarea rows="6" class="input" value="{{details::input}}" style="resize: none; height: 150px; padding: 16px;" placeholder="Start typing.."></textarea>
-                    <div class="addon-suffix flex layout horizontal" style="padding-top: 16px; height: 150px;">
-                        <iron-icon src="/assets/images/icons/attach.svg"></iron-icon>
-                    </div>
-                </div>
-                
-            </form>
+				<div class="input-group suffix" data-step="1" data-question="Add a brief description.">
+						<textarea rows="6" class="input" value="{{details::input}}" style="resize: none; height: 150px; padding: 16px;" placeholder="Start typing.."></textarea>
+						<div class="addon-suffix flex layout horizontal" style="padding-top: 16px; height: 150px;">
+								<iron-icon src="/assets/images/icons/attach.svg"></iron-icon>
+						</div>
+				</div>
+					
+			</form>
 		</div>
 
 	</template>
@@ -100,6 +101,8 @@
 			connectedCallback() {
 				const self = this;
 				super.connectedCallback();
+				this.initForm();
+				this.set('step.message', 'Add a brief description.');
 
 				// clear form after adding and rearrange steps
 				window.addEventListener('done-posting', () => {

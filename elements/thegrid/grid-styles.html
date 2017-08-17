@@ -396,3 +396,90 @@
 		</style>
 	</template>
 </dom-module>
+<dom-module id="grid-progress">
+	<template>
+		<style>
+			.progress-indicator {
+        margin: 16px 0;
+        padding: 0;
+        font-size: 80%;
+        text-transform: uppercase;
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+      }
+
+      .progress-indicator>li {
+        list-style: none;
+        text-align: center;
+        width: auto;
+        padding: 0;
+        margin: 0;
+        position: relative;
+        text-overflow: ellipsis;
+        color: #bbbbbb;
+        display: block;
+				font-size: 12px;
+				-ms-flex: 1;
+        -webkit-flex: 1;
+        -moz-flex: 1;
+        flex: 1;
+      }
+
+      .progress-indicator>li.completed {
+				color: var(--red);
+      }
+
+      .progress-indicator>li .bubble {
+        border-radius: 1000px;
+        width: 20px;
+        height: 20px;
+        background-color: #bbbbbb;
+        display: block;
+        margin: 0 auto 0.5em auto;
+				line-height: 20px;
+				color: #FFFFFF;
+      }
+
+      .progress-indicator>li.completed .bubble {
+        background-color: var(--red);
+        color: #FFFFFF;
+        border-color: var(--drak-red);
+      }
+
+      .progress-indicator>li .bubble:before,
+      .progress-indicator>li .bubble:after {
+        display: block;
+        position: absolute;
+        top: 9px;
+        width: calc(50% - 10px);
+        height: 3px;
+        content: '';
+        background-color: #bbbbbb;
+      }
+
+      .progress-indicator>li.completed .bubble:before,
+      .progress-indicator>li.completed .bubble:after {
+        background-color: var(--red);
+        border-color: var(--drak-red);
+      }
+
+      .progress-indicator>li .bubble:before {
+        left: 0;
+      }
+
+      .progress-indicator>li.completed .bubble:before,
+      .progress-indicator>li.completed .bubble:after {
+        background-color: var(--red);
+        border-color: var(--drak-red);
+      }
+
+      .progress-indicator>li .bubble:after {
+        right: 0;
+      }
+
+		</style>
+	</template>
+</dom-module>

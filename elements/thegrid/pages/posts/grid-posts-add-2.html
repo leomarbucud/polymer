@@ -41,7 +41,7 @@
 						<div class="addon-prefix flex layout horizontal">
 							<span>AED </span>
 						</div>
-						<input id="price" type="number" class="input" autofocus autocomplete="off" placeholder="Price" value="{{price::input}}" data-validate="required"
+						<input id="price" type="number" class="input" autocomplete="off" placeholder="Price" value="{{price::input}}" data-validate="required"
 						 data-message-required="Please tell us our budget." />
 					</div>
 
@@ -104,7 +104,7 @@
 				// IDEA: This came from FormSliderBahavior
 				this.initForm();
 				// IDEA: Initialize some properties
-				this.set('step.message', 'Tell us more');
+				this.set('step.message', 'How much is your budget?');
 
 				// clear form after adding and rearrange steps
 				window.addEventListener('done-posting', () => {
