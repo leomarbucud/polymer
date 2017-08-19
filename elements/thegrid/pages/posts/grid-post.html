@@ -240,6 +240,11 @@
             statePath: 'posts'
           },
 
+          inbox: {
+            type: Array,
+            statePath: 'inbox'
+          },
+
           isLoading: {
             type: Boolean,
             value: false
@@ -262,6 +267,13 @@
             return {
               type: 'UPDATE_POST',
               post: post
+            }
+          },
+
+          addInbox(conversation) {
+            return {
+              type: 'ADD_INBOX',
+              conversation: conversation
             }
           }
         };
@@ -331,7 +343,24 @@
       messageBidder() {
         if( !this.post.winner ) return;
 
-        console.log(this.post.winner);
+        gAxios.post('/users/' + this.user.id + '/inbox', {
+          job_id: this.post.id,
+          user_id_1: this.user.id,
+          user_id_2: this.post.winner.user.id
+        }).then( res => {
+          
+          var convoExist = false;
+          this.inbox.forEach(item => {
+            if(item.id == res.data.id){
+              convoExist = true;
+            }
+          });
+          if(!convoExist) {
+            this.dispatch('addInbox', res.data);
+          }
+          this.redirect('/inbox/' + res.data.id);
+
+        });
       }
 
       _postChange(post) {

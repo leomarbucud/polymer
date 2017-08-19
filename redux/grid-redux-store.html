@@ -24,6 +24,7 @@
     skills: [],
     posts: [],
     bids: [],
+    inbox: [],
     r_markers: null
   };
 
@@ -112,6 +113,41 @@
         return Object.assign({}, state, {
           bids: bids,
           user: user
+        });
+        break;
+      }
+      case 'SET_INBOX': {
+        return Object.assign({}, state, {
+          inbox: action.inbox
+        });
+        break;
+      }
+      case 'ADD_INBOX': {
+        let inbox = state.inbox.slice(0);
+        inbox.unshift(action.conversation);
+        return Object.assign({}, state, {
+          inbox: inbox,
+        });
+        break;
+      }
+      case 'ADD_MESSAGE': {
+        let inbox = state.inbox.slice(0);
+        
+        var conversation = inbox.find(item => {
+          return item.id == action.id;
+        });
+
+        conversation.messages.push(action.message);
+
+        const updatedInbox = inbox.map(item => {
+          if(item.id == action.id){
+            return conversation;
+          }
+          return item
+        });
+
+        return Object.assign({}, state, {
+          inbox: updatedInbox,
         });
         break;
       }

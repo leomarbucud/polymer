@@ -1,0 +1,360 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-conversation">
+  <template>
+    <style include="grid iron-flex">
+       :host {
+        display: block;
+        background: var(--dark-grey);
+        height: 100%;
+      }
+
+      main {
+        padding-bottom: 76px;
+      }
+
+      .chat {
+        list-style-type: none;
+        width: 100%;
+        padding: 0;
+      }
+
+      .chat:after {
+        content: ' ';
+        display: block;
+        height: 0;
+        clear: both;
+      }
+
+      .chat-bubble {
+        margin-bottom: 3px;
+        padding: 5px 10px;
+        clear: both;
+        border-radius: 10px 10px 2px 2px;
+      }
+
+      .chat-bubble-rcvd {
+        background: #f2f2f2;
+        color: black;
+        float: left;
+        border-bottom-right-radius: 10px;
+      }
+
+      .chat-bubble-sent {
+        background: #0066ff;
+        color: white;
+        float: right;
+        border-bottom-left-radius: 10px;
+      }
+
+      .chat-bubble-sent+.chat-bubble-sent {
+        border-top-right-radius: 2px;
+      }
+
+      .chat-bubble-rcvd+.chat-bubble-rcvd {
+        border-top-left-radius: 2px;
+      }
+
+      .chat-bubble-stop,
+      li.chat-bubble:nth-last-child(2) {
+        border-bottom-right-radius: 10px !important;
+        border-bottom-left-radius: 10px !important;
+      }
+
+      .messages-wrapper {
+        display: flex;
+				align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        min-height: 100%;
+      }
+
+      #message-box {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 100%;
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				background: #424141;
+				padding: 8px 16px;
+			}
+
+      img.circle {
+        width: 32px;
+        height: 32px;
+      }
+
+      .conversation-header {
+        display: flex;
+        align-items: center;
+        justify-content: left;
+      }
+
+      .conversation-header .avatar {
+        margin-right: 16px;
+      }
+
+    </style>
+
+    <div id="toolbar" class="toolbar">
+      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectInbox"></paper-icon-button>
+      <div class="flex">
+        <div class="conversation-header">
+          <template is="dom-if" if="[[conversation]]">
+            <div class="avatar">
+              <img class="circle" src$="[[_recipientProfileImage]]">
+            </div>
+            <span class="name white">[[_getRecipientName]]</span>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <main class="scroll-area flex">
+      <section class="messages-wrapper p-y-1">
+        <div class="flex"></div>
+        <ul id="chat" class="chat">
+          <template id="messagesTemplate" is="dom-repeat" items="[[conversation.messages]]" as="message" sort="_sort">
+            <li id$="[[message.id]]" class$="chat-bubble [[_getClass(message.author_id, index)]]" title="[[message.created_at]]">
+              <small hidden$="[[!message.sending]]">
+                <paper-spinner active style="width: 12px; height: 12px;"></paper-spinner>
+              </small>
+              <span>[[message.message]]</span>
+            </li>
+          </template>
+        </ul>
+      </section>
+
+    </main>
+
+    <div id="message-box">
+      <section class="w-100">
+        <form class="form">
+          <div class="input-group suffix">
+            <input id="message" type="text" class="input" autocomplete="off" placeholder="Type a message..." value="{{message::input}}"
+            on-keydown="messageEvent"/>
+
+            <div class="addon-suffix has-button">
+                <paper-button class="red" on-tap="send">Send</paper-button>
+            </div>
+          </div>
+          
+        </form>
+      </section>
+    </div>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay dgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+    class GridConversation extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+
+      static get is() { return 'grid-conversation'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
+          },
+
+          inbox: {
+            type: Boolean,
+            statePath: 'inbox'
+          },
+
+        }
+      }
+
+      static get observers() {
+        return [
+          '_conversationIdChange(conversationId)',
+          '_inboxChange(inbox)',
+        ]
+      }
+
+      static get actions() {
+        return {
+          addMessage(id, message) {
+						return {
+							type: 'ADD_MESSAGE',
+							id: id,
+              message: message
+						}
+					}
+        };
+      }
+
+      constructor() {
+        super();
+        this.isLoading = true;
+        this.conversation = null;
+        this._recipientProfileImage = this._profileImage(null, 'Grid');
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      renderConversation(conversation) {
+        if (!this.auth) return;
+
+        // this.set('conversation', conversation);
+        this.conversation = conversation;
+        // console.log('new conversation', this.conversation);
+        this.shadowRoot.querySelector('#messagesTemplate').render();
+        this.scrollToBottom();
+        this.isLoading = false;
+        this._recipientProfileImage = this._getRecipientProfileImage();
+        this._getRecipientName = this._getRecipient().name;
+      }
+
+      scrollToBottom(smooth) {
+				setTimeout( () => {
+					var height = this.shadowRoot.querySelector('.messages-wrapper').scrollHeight;
+					this.shadowRoot.querySelector('.scroll-area').scrollTop = height;
+				}, 50);
+			}
+
+      send() {
+
+        if(!this.auth || !this.message) return;
+
+        gAxios.post('/users/' + this.user.id + '/conversations/' + this.conversationId, {
+					message: this.message,
+					recipient_id: this._getRecipientId()
+				})
+				.then( res => {
+					var data = res.data; 
+          // this.dispatch('addMessage', this.conversationId, data);
+          this.message = '';
+          window.dispatchEvent(new CustomEvent('user:send_message', { detail: data }));
+				})
+				.catch( err => {
+
+				});
+        
+      }
+
+      messageEvent(e) {
+				if( e.keyCode == 13 ) {
+					this.send();
+					e.preventDefault();
+				}
+			}
+
+      _getRecipientId() {
+        if(this.conversation.user_id_1 == this.user.id) {
+          return this.conversation.user_id_2;
+        }
+
+        return this.conversation.user_id_1;
+      }
+
+      _getRecipient() {
+        return (this.conversation.user1.id == this._getRecipientId()) ? this.conversation.user1 : this.conversation.user2;
+      }
+
+      _getRecipientProfileImage() {
+        const recipient = this._getRecipient();
+        if(recipient.profile) {
+          if(recipient.profile.profile_image_url)
+            return this._profileImage(recipient.profile.profile_image_url, recipient.name);
+        }
+
+        return this._profileImage(null, recipient.name);
+
+      }
+
+      viewOnMap() {
+        if (!this.bid && this.map) return;
+
+        const job = this.bid.job;
+        const position = new google.maps.LatLng(job.lat, job.lng);
+
+        this.map.setCenter(position);
+        this.map.setZoom(20);
+        this.redirectHome();
+      }
+
+      _conversationIdChange(conversationId) {
+        if (!conversationId) return;
+        if (!this.auth) return;
+
+        this.isLoading = true;
+        this.inbox.map(conversation => {
+          if (parseInt(conversation.id) === parseInt(conversationId)) {
+            this.renderConversation(conversation);
+            this.isLoading = false;
+          }
+        });
+      }
+
+      _inboxChange(inbox) {
+        this._conversationIdChange(this.conversationId);
+      }
+
+      _sort(a, b) {
+				a = new Date(a.created_at);
+				b = new Date(b.created_at);
+				return b > a ? -1 : b < a ? 1 : 0;
+			}
+
+      _getClass(id, index) {
+				// if ( this.i != id ) {
+				// 	this.i = id;
+				// 	var li = document.querySelector('li[data-index="'+(index-1)+'"]');
+				// 	if(li) {
+				// 		li.className += " chat-bubble-stop";
+				// 	}
+				// }
+				if ( this.user.id == id ) {
+					return 'chat-bubble-sent';
+				} else {
+					return 'chat-bubble-rcvd';
+				}
+			}
+
+      _fromNow(date) {
+        return moment(date).fromNow();
+      }
+
+      _profileImage(img, name) {
+        if (img) {
+          return this.url.API_BASE_URL + '/storage/avatars/' + img;
+        }
+        return LetterAvatar(name, '32');
+
+      }
+
+      _details(details) {
+        if (details) return details;
+
+        return 'No details provided.';
+      }
+
+    }
+
+    customElements.define(GridConversation.is, GridConversation);
+  </script>
+</dom-module>

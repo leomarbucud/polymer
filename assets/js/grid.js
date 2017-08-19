@@ -14,6 +14,11 @@ window.addEventListener('user:connected', e => {
   logger('connected to socket');
 });
 
+window.addEventListener('user:logged', e => {
+  const user = e.detail;
+  socket.emit('user:logged', user);
+});
+
 window.addEventListener('user:posted', e => {
   const data = e.detail;
   socket.emit('user:posted', data);
@@ -26,6 +31,15 @@ socket.on('user:posted', data => {
 window.addEventListener('user:bidded', e => {
   const data = e.detail;
   socket.emit('user:bidded', data);
+});
+
+socket.on('user:bidded', data => {
+  logger(data);
+});
+
+window.addEventListener('user:send_message', e => {
+  const data = e.detail;
+  socket.emit('user:send_message', data);
 });
 
 socket.on('user:bidded', data => {

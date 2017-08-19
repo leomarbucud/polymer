@@ -160,6 +160,12 @@
 				</div>
 			</section>
 
+			<section data-page="inbox" class="overlay">
+					<div class="center-page">
+						<grid-inbox id="inbox" gmap="[[gmap]]"></grid-inbox>
+					</div>
+				</section>
+
 			<section data-page="search" class="overlay">
 				<div class="center-page">
 					<grid-search id="search" map="{{map}}"></grid-search>
@@ -286,6 +292,15 @@
 			constructor() {
 				super();
 				this._checkLogin();
+				
+				window.addEventListener('user:connected', e => {
+					
+					var user = window.localStorage.getItem('user');
+
+					if(user) {
+						window.dispatchEvent( new CustomEvent('user:logged', { detail: JSON.parse(user)}));
+					}
+				});
 			}
 
 			connectedCallback() {
@@ -325,6 +340,7 @@
 						// .then( res => {
 						//   self.dispatch('setSkills', res.data);
 						// });
+						// window.dispatchEvent( new CustomEvent('user:logged', { detail: JSON.parse(user)}));
 						timeout = 100;
 					}
 
@@ -340,7 +356,9 @@
 								// IDEA: update the user redux store
 								self.dispatch('loggedUser', res.data);
 
-								socket.emit('user:connect', res.data);
+								// socket.emit('user:connect', res.data);
+
+								window.dispatchEvent( new CustomEvent('user:logged', { detail: res.data}));
 
 								if (!res.data.is_account_setup) {
 									// redirect(SETUP_URL);

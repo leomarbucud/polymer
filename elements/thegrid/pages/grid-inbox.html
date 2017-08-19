@@ -1,0 +1,288 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-dropdown/iron-dropdown.html">
+<link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../grid-styles.html">
+<link rel="import" href="inbox/grid-conversation.html">
+
+<dom-module id="grid-inbox">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        position: relative;
+        height: 100%;
+        background: var(--dark-grey);
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+      }
+
+      .title h1 {
+        font-weight: 400;
+        font-size: 32px;
+      }
+
+      .row {
+        color: #FFFFFF;
+        padding: 8px 16px;
+        position: relative;
+        cursor: pointer;
+      }
+
+      .row .job-title {
+        line-height: 24px;
+        font-size: 18px;
+      }
+
+      .row [secondary] {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        opacity: 0.7;
+      }
+
+      .divider {
+        padding: 0 16px;
+      }
+
+      .divider hr {
+        margin: 0;
+        opacity: 0.12;
+      }
+
+    </style>
+
+    <app-location route="{{route}}" ></app-location>
+
+		<app-route route="{{route}}"
+		    pattern="/inbox"
+		    data="{{routeData}}"
+		    tail="{{subroute}}"></app-route>
+
+		<app-route route="{{subroute}}"
+		    pattern="/:id"
+		    data="{{subrouteData}}"></app-route>
+
+    <app-route route="{{route}}"
+        pattern="/inbox/:id"
+        data="{{conversation}}"></app-route>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <span class="flex"></span>
+      <paper-icon-button icon="search" class="red pointer"></paper-icon-button>
+      <paper-icon-button icon="more-vert" class="red pointer" on-tap="openMenu"></paper-icon-button>
+      <iron-dropdown id="menu" horizontal-align="right" vertical-align="top">
+        <div slot="dropdown-content" class="dropdown-menu">
+          <div class="item" on-click="refreshJobs">
+            <span>Refresh</span>
+            <paper-ripple></paper-ripple>
+          </div>
+        </div>
+      </iron-dropdown>
+    </div>
+
+    <main class="flex">
+      <section class="p-y-1 title">
+        <h1 class="white m-0">Inbox</h1>
+      </section>
+      <section class="list" id="post-list">
+        <template is="dom-repeat" items="[[inbox]]" as="_conversation">
+          <div class="row" on-tap="viewConversation">
+            <div class="job-title">{{_conversation.job.name}}</div>
+            <div secondary class="time" data-time$="[[_conversation.job.created_at]]">{{_fromNow(_conversation.created_at)}}</div>
+            <paper-ripple></paper-ripple>
+          </div>
+          <div class="divider"><hr/></div>
+				</template>
+      </section>
+    </main>
+
+    <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
+
+      <section data-page="conversation" class="sub-page">
+        <grid-conversation conversation-id="[[conversation.id]]" gmap="[[gmap]]"></grid-conversation>
+      </section>
+
+    </iron-pages>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay dgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+
+    class GridInbox extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+
+      static get is() { return 'grid-inbox'; }
+
+      static get properties() {
+        return {
+
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
+          },
+
+          inbox: {
+            type: Array,
+            statePath: 'inbox'
+          },
+
+          isLoading: {
+            type: Boolean,
+            value: true
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_subrouteChange(subroute)',
+          '_subrouteDataChange(subrouteData)',
+          '_postChange(post)'
+        ]
+      }
+
+      static get actions() {
+  			return {
+          setInbox(inbox) {
+  					return {
+  						type: 'SET_INBOX',
+  						inbox: inbox
+  					}
+          },
+
+          addInbox(conversation) {
+						return {
+							type: 'ADD_INBOX',
+							conversation: conversation
+						}
+          },
+
+          addMessage(id, message) {
+						return {
+							type: 'ADD_MESSAGE',
+							id: id,
+              message: message
+						}
+					}
+        }
+  		}
+
+      constructor() {
+        super();
+        this._initSocketEvents();
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        this.populateInbox();
+      }
+
+      populateInbox() {
+        if(!this.user) return;
+
+        gAxios.get('/users/'+ this.user.id + '/inbox')
+				.then( res => {
+          var data = res.data;
+					this.dispatch('setInbox', data.data);
+					this.pagination = {
+						total: data.total,
+						per_page: data.per_page,
+						current_page: data.current_page,
+						last_page: data.last_page,
+						next_page_url: data.next_page_url,
+						prev_page_url: data.prev_page_url,
+						from: data.from,
+						to: data.to
+					};
+				}).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      viewConversation(e) {
+        const inbox_id = e.model._conversation.id;
+        this.redirect('/inbox/' + inbox_id);
+        // this._post = e.model.inbox;
+      }
+
+      openMenu() {
+        this.$.menu.open();
+      }
+
+      refreshJobs() {
+        this.populateJobs();
+      }
+
+      _fromNow(date) {
+        return moment(date).fromNow();
+        // return moment(date, "YYYY-MM-DD").endOf('minute').fromNow();
+      }
+
+      _subrouteChange(subroute) {
+				if( subroute.path == '' ) {
+					this.set('subrouteData.id', null);
+          this.subPage = null;
+				}
+			}
+
+      _subrouteDataChange(subrouteData) {
+        const self = this;
+        if( subrouteData.id ) {
+          if( this.shadowRoot.querySelector('#posts-' + subrouteData.id) ) {
+            Polymer.Base.importHref(
+  						'/elements/thegrid/pages/inbox/grid-inbox-' + subrouteData.id + '.html',
+  						() => {
+                self.subPage = subrouteData.id;
+  						}
+  					);
+          } else {
+            // go to conversation by default
+            self.subPage = 'conversation';
+          }
+        } else {
+          self.subPage = null;
+        }
+      }
+
+      _initSocketEvents() {
+
+        // when when user 
+        socket.on('user:receive_message', data => {
+          if(this.auth) {
+            this.dispatch('addMessage', data.conversation_id, data);
+          }
+        });
+
+        // when message sent
+        socket.on('user:sent_message', data => {
+          if(this.auth) {
+            this.dispatch('addMessage', data.conversation_id, data);
+          }
+        });
+
+      }
+
+    }
+
+    customElements.define(GridInbox.is, GridInbox);
+	</script>
+</dom-module>
