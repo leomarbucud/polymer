@@ -102,6 +102,12 @@
         margin-right: 16px;
       }
 
+      .typing-indicator-wr {
+        position: absolute;
+        bottom: 76px;
+        left: 16px;
+      }
+
       .typing-indicator {
         background-color: #f2f2f2;
         will-change: transform;
@@ -224,7 +230,7 @@
           </template>
         </ul>
         <template is="dom-if" if="[[isTyping]]">
-          <div class="w-100">
+          <div class="typing-indicator-wr w-100">
             <div class="typing-indicator">
               <span></span>
               <span></span>
