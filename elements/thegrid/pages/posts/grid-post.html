@@ -349,14 +349,13 @@
           user_id_2: this.post.winner.user.id
         }).then( res => {
           
-          var convoExist = false;
-          this.inbox.forEach(item => {
-            if(item.id == res.data.id){
-              convoExist = true;
-            }
+          var convoExist = this.inbox.find(item => {
+            return item.id == res.data.id;
           });
+          
           if(!convoExist) {
             this.dispatch('addInbox', res.data);
+            window.dispatchEvent(new CustomEvent('user:create_conversation', { detail: res.data }));
           }
           this.redirect('/inbox/' + res.data.id);
 

@@ -45,3 +45,12 @@ window.addEventListener('user:send_message', e => {
 socket.on('user:bidded', data => {
   logger(data);
 });
+
+window.addEventListener('user:create_conversation', e => {
+  const data = e.detail;
+  socket.emit('user:create_conversation', data);
+});
+
+socket.on('user:create_conversation', data => {
+  logger(data);
+});

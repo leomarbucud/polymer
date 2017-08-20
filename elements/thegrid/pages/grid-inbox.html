@@ -358,18 +358,28 @@
 
         // when when user 
         socket.on('user:receive_message', data => {
-          if(this.auth) {
-            console.log('user receive', data);
-            this.dispatch('addMessage', data.conversation_id, data);
-          }
+          if(!this.auth) return;
+
+          console.log('user receive', data);
+          this.dispatch('addMessage', data.conversation_id, data);
+          
         });
 
         // when message sent
         socket.on('user:sent_message', data => {
-          if(this.auth) {
-            console.log('user sent', data);
-            this.dispatch('addMessage', data.conversation_id, data);
-          }
+          if(!this.auth) return;
+          
+          console.log('user sent', data);
+          this.dispatch('addMessage', data.conversation_id, data);
+          
+        });
+
+        // when new conversation
+        socket.on('user:create_conversation', data => {
+          if(!this.auth) return;
+
+          this.dispatch('addInbox', data);
+
         });
 
       }
