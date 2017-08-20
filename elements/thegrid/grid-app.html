@@ -9,6 +9,7 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
 <link rel="import" href="../../redux/grid-redux-store.html">
 <link rel="import" href="../../behaviors/navigation-behavior.html">
@@ -92,6 +93,14 @@
 				position: absolute;
 				right: 16px;
 				bottom: 22px;
+			}
+
+			#notificationToast {
+				--paper-toast-background-color: var(--red);
+				--paper-toast-color: #FFFFFF;
+			}
+			#notificationToast a {
+				text-decoration: none;
 			}
 
 		</style>
@@ -187,6 +196,10 @@
 		<app-drawer id="drawer" align="start" swipe-open opened="{{drawerOpened}}">
 			<grid-drawer user="user" is-logged-in="[[isLoggedIn]]"></grid-drawer>
 		</app-drawer>
+
+		<paper-toast id="notificationToast" vertical-align="top" horizontal-align="right" >
+			
+		</paper-toast>
 
 	</template>
 
@@ -292,7 +305,8 @@
 			constructor() {
 				super();
 				this._checkLogin();
-				
+				this._initSocketEvents();
+
 				window.addEventListener('user:connected', e => {
 					
 					var user = window.localStorage.getItem('user');
@@ -524,6 +538,33 @@
 			_setUpNeeded(setupAccount) {
 				// console.log('setup account', setupAccount);
 			}
+
+			_initSocketEvents() {
+				
+        // when user receive message
+        socket.on('user:receive_message', data => {
+					if(!this.auth) return;
+
+					console.log(data);
+					
+					let $notificationToast = this.$.notificationToast;
+					
+					$notificationToast.innerHTML = '<a href="/inbox/' + data.conversation_id + '" class="white" >New message received</a>';
+					$notificationToast.open();
+				});
+				
+				socket.on('user:bidded', data => {
+					if(!this.auth) return;
+
+					console.log(data);
+					
+					let $notificationToast = this.$.notificationToast;
+					
+					$notificationToast.innerHTML = '<a href="/posts/' + data.job.id + '" class="white" >A new bidder bids on your job</a>';
+					$notificationToast.open();
+				});
+
+      }
 
 		}
 

@@ -328,17 +328,6 @@
         this._recipientProfileImage = this._profileImage(null, 'Grid');
         this.isTyping = false;
 
-        socket.on('user:typing', data => {
-          if (!data) return;
-          if (data.conversation_id == this.conversationId) {
-            this.isTyping = true;
-            console.log('user is typing...');
-            if (this.senderTimeout) clearTimeout(this.senderTimeout);
-            this.senderTimeout = setTimeout(() => {
-              this.isTyping = false;
-            }, 1000);
-          }
-        });
       }
 
       connectedCallback() {
@@ -477,7 +466,10 @@
       }
 
       _conversationIdChange(conversationId) {
-        if (!conversationId) return;
+        if (!conversationId) {
+          this.conversation = [];
+          return;
+        }
         if (!this.auth) return;
 
         this.isLoading = true;
@@ -541,6 +533,30 @@
         if (details) return details;
 
         return 'No details provided.';
+      }
+
+      _initSocketEvents() {
+
+        // when user receive message
+        socket.on('user:receive_message', data => {
+          if(!this.auth) return;
+          this.isTyping = false;
+        });
+
+
+        // when user is typing
+        socket.on('user:typing', data => {
+          if (!data) return;
+          if (data.conversation_id == this.conversationId) {
+            this.isTyping = true;
+            console.log('user is typing...');
+            if (this.senderTimeout) clearTimeout(this.senderTimeout);
+            this.senderTimeout = setTimeout(() => {
+              this.isTyping = false;
+            }, 1000);
+          }
+        });
+
       }
 
     }
