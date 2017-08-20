@@ -60,7 +60,8 @@
       }
 
       .chat-bubble-stop,
-      li.chat-bubble:nth-last-child(2) {
+      li.chat-bubble:nth-last-child(0),
+      li.chat-bubble:last-child {
         border-bottom-right-radius: 10px !important;
         border-bottom-left-radius: 10px !important;
       }
@@ -122,12 +123,22 @@
         <div class="flex"></div>
         <ul id="chat" class="chat">
           <template id="messagesTemplate" is="dom-repeat" items="[[conversation.messages]]" as="message" sort="_sort">
-            <li id$="[[message.id]]" class$="chat-bubble [[_getClass(message.author_id, index)]]" title="[[message.created_at]]">
+            <li id$="[[message.id]]" class$="chat-bubble [[_getClass(message.author_id, index)]]" title="[[message.created_at]]" data-index$="[[index]]">
               <small hidden$="[[!message.sending]]">
                 <paper-spinner active style="width: 12px; height: 12px;"></paper-spinner>
               </small>
               <span>[[message.message]]</span>
             </li>
+          </template>
+          <template is="dom-if" if="[[_hasTmpMessage]]">
+            <template is="dom-repeat" items="[[_tmpMessage]]" as="message">
+              <li class="chat-bubble chat-bubble-sent">
+                <small hidden$="[[!message.sending]]">
+                  <paper-spinner active style="width: 12px; height: 12px;"></paper-spinner>
+                </small>
+                <span>[[message.message]]</span>
+              </li>
+            </template>
           </template>
         </ul>
       </section>
@@ -139,7 +150,7 @@
         <form class="form">
           <div class="input-group suffix">
             <input id="message" type="text" class="input" autocomplete="off" placeholder="Type a message..." value="{{message::input}}"
-            on-keydown="messageEvent"/>
+            on-keydown="messageEvent" on-click="readMessage"/>
 
             <div class="addon-suffix has-button">
                 <paper-button class="red" on-tap="send">Send</paper-button>
@@ -178,7 +189,7 @@
           },
 
           inbox: {
-            type: Boolean,
+            type: Object,
             statePath: 'inbox'
           },
 
@@ -200,6 +211,13 @@
 							id: id,
               message: message
 						}
+          },
+          updateConversation(id, conversation) {
+						return {
+							type: 'UPDATE_CONVERSATION',
+							id: id,
+              conversation: conversation
+						}
 					}
         };
       }
@@ -208,6 +226,8 @@
         super();
         this.isLoading = true;
         this.conversation = null;
+        this._tmpMessage = [];
+        this._hasTmpMessage = false;
         this._recipientProfileImage = this._profileImage(null, 'Grid');
       }
 
@@ -240,19 +260,37 @@
 
         if(!this.auth || !this.message) return;
 
+        var tmpMessage = {
+          id: 'tmpMessage',
+          message: this.message,
+          // recipient_id: self.recipient.id,
+          // author_id: Grid.user.id,
+          created_at: new Date().getTime(),
+          sending: true
+        };
+
+        this._createTmpMessage(tmpMessage);
+        const m = this.message;
+
+        this.message = '';
+
         gAxios.post('/users/' + this.user.id + '/conversations/' + this.conversationId, {
-					message: this.message,
+					message: m,
 					recipient_id: this._getRecipientId()
 				})
 				.then( res => {
 					var data = res.data; 
           // this.dispatch('addMessage', this.conversationId, data);
-          this.message = '';
           window.dispatchEvent(new CustomEvent('user:send_message', { detail: data }));
 				})
 				.catch( err => {
 
-				});
+				}).then( () => {
+
+          this.set('_tmpMessage', []);
+          this._hasTmpMessage = false;
+          
+        });
         
       }
 
@@ -261,7 +299,27 @@
 					this.send();
 					e.preventDefault();
 				}
-			}
+      }
+      
+      readMessage(e) {
+        if(!this.auth) return;
+
+        if(this.conversation.last_updated_by == this.user.id || this.conversation.unread_count == 0) return;
+
+        gAxios.post('/users/' + this.user.id + '/conversations/' + this.conversationId + '/read', {
+					
+				})
+				.then( res => {
+          var data = res.data;
+          console.log(data);
+          this.dispatch('updateConversation', this.conversationId, data);
+          //this.message = '';
+          //window.dispatchEvent(new CustomEvent('user:send_message', { detail: data }));
+				})
+				.catch( err => {
+
+				});
+      }
 
       _getRecipientId() {
         if(this.conversation.user_id_1 == this.user.id) {
@@ -310,6 +368,12 @@
         });
       }
 
+      _createTmpMessage(message) {
+        this._hasTmpMessage = true;
+        this.push('_tmpMessage', message);
+        this.scrollToBottom();
+      }
+
       _inboxChange(inbox) {
         this._conversationIdChange(this.conversationId);
       }
@@ -321,13 +385,13 @@
 			}
 
       _getClass(id, index) {
-				// if ( this.i != id ) {
-				// 	this.i = id;
-				// 	var li = document.querySelector('li[data-index="'+(index-1)+'"]');
-				// 	if(li) {
-				// 		li.className += " chat-bubble-stop";
-				// 	}
-				// }
+				if ( this.i != id ) {
+					this.i = id;
+					var li = this.$.chat.querySelector('li[data-index="'+(index-1)+'"]');
+					if(li) {
+						li.className += " chat-bubble-stop";
+					}
+				}
 				if ( this.user.id == id ) {
 					return 'chat-bubble-sent';
 				} else {

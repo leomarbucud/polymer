@@ -55,6 +55,28 @@
         opacity: 0.12;
       }
 
+      .badge.unread {
+        background: var(--red);
+        font-size: 9px;
+        width: 16px;
+        height: 16px;
+        display: block;
+        text-align: center;
+        line-height: 16px;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        right: 16px;
+      }
+
+      .time {
+        font-size: 12px;
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        opacity: 0.7;
+      }
+
     </style>
 
     <app-location route="{{route}}" ></app-location>
@@ -79,7 +101,7 @@
       <paper-icon-button icon="more-vert" class="red pointer" on-tap="openMenu"></paper-icon-button>
       <iron-dropdown id="menu" horizontal-align="right" vertical-align="top">
         <div slot="dropdown-content" class="dropdown-menu">
-          <div class="item" on-click="refreshJobs">
+          <div class="item" on-click="populateInbox">
             <span>Refresh</span>
             <paper-ripple></paper-ripple>
           </div>
@@ -92,10 +114,16 @@
         <h1 class="white m-0">Inbox</h1>
       </section>
       <section class="list" id="post-list">
-        <template is="dom-repeat" items="[[inbox]]" as="_conversation">
-          <div class="row" on-tap="viewConversation">
-            <div class="job-title">{{_conversation.job.name}}</div>
-            <div secondary class="time" data-time$="[[_conversation.job.created_at]]">{{_fromNow(_conversation.created_at)}}</div>
+        <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt">
+          <div class="row" on-click="viewConversation">
+            <div class="job-title">[[convo.job.name]]</div>
+            <div secondary>[[_lastMesage(convo.messages)]]</div>
+
+            <div class="time" data-time$="[[convo.updated_at]]">[[_fromNow(convo.updated_at)]]</div>
+            
+            <template is="dom-if" if="[[_lastRecipient(convo.last_updated_by, convo.unread_count)]]">
+              <span class="badge unread white">[[convo.unread_count]]</span>
+            </template>
             <paper-ripple></paper-ripple>
           </div>
           <div class="divider"><hr/></div>
@@ -156,7 +184,7 @@
         return [
           '_subrouteChange(subroute)',
           '_subrouteDataChange(subrouteData)',
-          '_postChange(post)'
+          '_inboxChange(inbox)'
         ]
       }
 
@@ -182,13 +210,25 @@
 							id: id,
               message: message
 						}
-					}
+          },
+
+          addConversation(conversation) {
+						return {
+							type: 'UPDATE_CONVERSATION',
+							conversation: conversation
+						}
+          },
+          
         }
   		}
 
       constructor() {
         super();
         this._initSocketEvents();
+
+        window.addEventListener('user:connected', e => {
+          this.populateInbox();
+				});
       }
 
       connectedCallback() {
@@ -219,7 +259,7 @@
       }
 
       viewConversation(e) {
-        const inbox_id = e.model._conversation.id;
+        const inbox_id = e.model.convo.id;
         this.redirect('/inbox/' + inbox_id);
         // this._post = e.model.inbox;
       }
@@ -230,6 +270,51 @@
 
       refreshJobs() {
         this.populateJobs();
+      }
+
+      renderInbox(inbox) {
+        if(!inbox) return;
+
+        console.log('rendering inbox');
+
+        const _inbox = inbox.slice(0);
+
+        this.conversations = _inbox;
+
+        for(var i = 0; i < _inbox.length; i++) {
+          this.notifyPath('conversations.' + i + '.unread_count', _inbox[i].unread_count);
+          this.notifyPath('conversations.' + i + '.updated_at', _inbox[i].updated_at);
+          this.notifyPath('conversations.' + i + '.messages', _inbox[i].messages);
+        }
+        // this.set('conversations', []);
+        setTimeout( () => {
+          // this.set('conversations', _inbox);
+        }, 10);
+
+        //this.notifyPath('conversations', inbox);
+        
+        //this.shadowRoot.querySelector('#inboxList').render();
+      }
+
+      _inboxChange(inbox) {
+        console.log('inbox change', inbox);
+        this.renderInbox(inbox);
+      }
+
+      _lastRecipient(last_updated_by, unread_count) {
+        if(!this.auth) return;
+        return (this.user.id != last_updated_by && unread_count > 0);
+      }
+
+      _lastMesage(messages) {
+        if(!messages.length) return 'Start a conversation...';
+
+        var y = 'You: ';
+        var m = messages[messages.length - 1].message;
+        if(messages[messages.length - 1].author_id != this.user.id) {
+          var y = '';
+        }
+        return y + m;
       }
 
       _fromNow(date) {
@@ -263,11 +348,18 @@
         }
       }
 
+      _sortByUpdatedAt(a, b) {
+				a = new Date(a.updated_at);
+				b = new Date(b.updated_at);
+				return b < a ? -1 : b > a ? 1 : 0;
+			}
+
       _initSocketEvents() {
 
         // when when user 
         socket.on('user:receive_message', data => {
           if(this.auth) {
+            console.log('user receive', data);
             this.dispatch('addMessage', data.conversation_id, data);
           }
         });
@@ -275,6 +367,7 @@
         // when message sent
         socket.on('user:sent_message', data => {
           if(this.auth) {
+            console.log('user sent', data);
             this.dispatch('addMessage', data.conversation_id, data);
           }
         });

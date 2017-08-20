@@ -218,6 +218,10 @@
       constructor() {
         super();
         this._initSocketEvents();
+
+        window.addEventListener('user:connected', e => {
+          this.populateJobs();
+				});
       }
 
       connectedCallback() {

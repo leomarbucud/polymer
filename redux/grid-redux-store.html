@@ -137,7 +137,48 @@
           return item.id == action.id;
         });
 
+        const _conversation = action.message.conversation;
+
+        if(_conversation && conversation) {
+          console.log('is conversation', _conversation);
+          conversation.last_updated_by = Number(_conversation.last_updated_by);
+          conversation.unread_count = Number(_conversation.unread_count);
+          conversation.updated_at = _conversation.updated_at;
+
+          delete action.message.conversation;
+        }
+
         conversation.messages.push(action.message);
+
+        const updatedInbox = inbox.map(item => {
+          if(item.id == action.id){
+            return conversation;
+          }
+          return item
+        });
+
+        return Object.assign({}, state, {
+          inbox: updatedInbox,
+        });
+        break;
+      }
+      case 'UPDATE_CONVERSATION': {
+        let inbox = state.inbox.slice(0);
+        console.log('updating conversation');
+        
+        var conversation = inbox.find(item => {
+          return item.id == action.id;
+        });
+
+        const _conversation = action.conversation;
+
+        if(_conversation && conversation) {
+
+          conversation.last_updated_by = Number(_conversation.last_updated_by);
+          conversation.unread_count = Number(_conversation.unread_count);
+          conversation.updated_at = _conversation.updated_at;
+
+        }
 
         const updatedInbox = inbox.map(item => {
           if(item.id == action.id){
