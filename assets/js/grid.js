@@ -54,3 +54,8 @@ window.addEventListener('user:create_conversation', e => {
 socket.on('user:create_conversation', data => {
   logger(data);
 });
+
+window.addEventListener('user:typing', e => {
+  const data = e.detail;
+  socket.emit('user:typing', data);
+});

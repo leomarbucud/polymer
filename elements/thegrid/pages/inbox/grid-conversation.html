@@ -68,24 +68,24 @@
 
       .messages-wrapper {
         display: flex;
-				align-items: center;
+        align-items: center;
         justify-content: center;
         flex-direction: column;
         min-height: 100%;
       }
 
       #message-box {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				width: 100%;
-				position: absolute;
-				bottom: 0;
-				left: 0;
-				right: 0;
-				background: #424141;
-				padding: 8px 16px;
-			}
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #424141;
+        padding: 8px 16px;
+      }
 
       img.circle {
         width: 32px;
@@ -102,6 +102,90 @@
         margin-right: 16px;
       }
 
+      .typing-indicator {
+        background-color: #f2f2f2;
+        will-change: transform;
+        width: auto;
+        border-radius: 50px;
+        padding: 8px;
+        display: table;
+        /* margin: 0 auto; */
+        margin-bottom: 16px;
+        position: relative;
+        -webkit-animation: 2s bulge infinite ease-out;
+        animation: 2s bulge infinite ease-out;
+      }
+
+      .typing-indicator::before,
+      .typing-indicator::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: -2px;
+        height: 10px;
+        width: 10px;
+        border-radius: 50%;
+        background-color: #f2f2f2;
+      }
+
+      .typing-indicator::after {
+        height: 5px;
+        width: 5px;
+        left: -5px;
+        bottom: -5px;
+      }
+
+      .typing-indicator span {
+        height: 8px;
+        width: 8px;
+        float: left;
+        margin: 0 1px;
+        background-color: #9E9EA1;
+        display: block;
+        border-radius: 50%;
+        opacity: 0.4;
+      }
+
+      .typing-indicator span:nth-of-type(1) {
+        -webkit-animation: 1s blink infinite 0.3333s;
+        animation: 1s blink infinite 0.3333s;
+      }
+
+      .typing-indicator span:nth-of-type(2) {
+        -webkit-animation: 1s blink infinite 0.6666s;
+        animation: 1s blink infinite 0.6666s;
+      }
+
+      .typing-indicator span:nth-of-type(3) {
+        -webkit-animation: 1s blink infinite 0.9999s;
+        animation: 1s blink infinite 0.9999s;
+      }
+
+      @-webkit-keyframes blink {
+        50% {
+          opacity: 1;
+        }
+      }
+
+      @keyframes blink {
+        50% {
+          opacity: 1;
+        }
+      }
+
+      @-webkit-keyframes bulge {
+        50% {
+          -webkit-transform: scale(1.05);
+          transform: scale(1.05);
+        }
+      }
+
+      @keyframes bulge {
+        50% {
+          -webkit-transform: scale(1.05);
+          transform: scale(1.05);
+        }
+      }
     </style>
 
     <div id="toolbar" class="toolbar">
@@ -139,6 +223,15 @@
             </template>
           </template>
         </ul>
+        <template is="dom-if" if="[[isTyping]]">
+          <div class="w-100">
+            <div class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </template>
       </section>
 
     </main>
@@ -148,13 +241,13 @@
         <form class="form">
           <div class="input-group suffix">
             <input id="message" type="text" class="input" autocomplete="off" placeholder="Type a message..." value="{{message::input}}"
-            on-keydown="messageEvent" on-click="readMessage"/>
+              on-keydown="messageEvent" on-click="readMessage" />
 
             <div class="addon-suffix has-button">
-                <paper-button class="red" on-tap="send">Send</paper-button>
+              <paper-button class="red" on-tap="send">Send</paper-button>
             </div>
           </div>
-          
+
         </form>
       </section>
     </div>
@@ -204,19 +297,19 @@
       static get actions() {
         return {
           addMessage(id, message) {
-						return {
-							type: 'ADD_MESSAGE',
-							id: id,
+            return {
+              type: 'ADD_MESSAGE',
+              id: id,
               message: message
-						}
+            }
           },
           updateConversation(id, conversation) {
-						return {
-							type: 'UPDATE_CONVERSATION',
-							id: id,
+            return {
+              type: 'UPDATE_CONVERSATION',
+              id: id,
               conversation: conversation
-						}
-					}
+            }
+          }
         };
       }
 
@@ -227,6 +320,19 @@
         this._tmpMessage = [];
         this._hasTmpMessage = false;
         this._recipientProfileImage = this._profileImage(null, 'Grid');
+        this.isTyping = false;
+
+        socket.on('user:typing', data => {
+          if (!data) return;
+          if (data.conversation_id == this.conversationId) {
+            this.isTyping = true;
+            console.log('user is typing...');
+            if (this.senderTimeout) clearTimeout(this.senderTimeout);
+            this.senderTimeout = setTimeout(() => {
+              this.isTyping = false;
+            }, 1000);
+          }
+        });
       }
 
       connectedCallback() {
@@ -248,15 +354,15 @@
       }
 
       scrollToBottom(smooth) {
-				setTimeout( () => {
-					var height = this.shadowRoot.querySelector('.messages-wrapper').scrollHeight;
-					this.shadowRoot.querySelector('.scroll-area').scrollTop = height;
-				}, 50);
-			}
+        setTimeout(() => {
+          var height = this.shadowRoot.querySelector('.messages-wrapper').scrollHeight;
+          this.shadowRoot.querySelector('.scroll-area').scrollTop = height;
+        }, 50);
+      }
 
       send() {
 
-        if(!this.auth || !this.message) return;
+        if (!this.auth || !this.message) return;
 
         var tmpMessage = {
           id: 'tmpMessage',
@@ -273,54 +379,65 @@
         this.message = '';
 
         gAxios.post('/users/' + this.user.id + '/conversations/' + this.conversationId, {
-					message: m,
-					recipient_id: this._getRecipientId()
-				})
-				.then( res => {
-					var data = res.data; 
-          // this.dispatch('addMessage', this.conversationId, data);
-          window.dispatchEvent(new CustomEvent('user:send_message', { detail: data }));
-				})
-				.catch( err => {
+          message: m,
+          recipient_id: this._getRecipientId()
+        })
+          .then(res => {
+            var data = res.data;
+            // this.dispatch('addMessage', this.conversationId, data);
+            window.dispatchEvent(new CustomEvent('user:send_message', { detail: data }));
+          })
+          .catch(err => {
 
-				}).then( () => {
+          }).then(() => {
 
-          this.set('_tmpMessage', []);
-          this._hasTmpMessage = false;
-          
-        });
-        
+            this.set('_tmpMessage', []);
+            this._hasTmpMessage = false;
+
+          });
+
       }
 
       messageEvent(e) {
-				if( e.keyCode == 13 ) {
-					this.send();
-					e.preventDefault();
-				}
+        const self = this;
+        if (e.keyCode == 13) {
+          this.send();
+          e.preventDefault();
+          return;
+        }
+        if (this.timeout) clearTimeout(this.timeout);
+        this.timeout = setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('user:typing', {
+            detail: {
+              recipient_id: this._getRecipientId(),
+              conversation_id: this.conversationId
+            }
+          }));
+        }, 500);
       }
-      
-      readMessage(e) {
-        if(!this.auth) return;
 
-        if(this.conversation.last_updated_by == this.user.id || this.conversation.unread_count == 0) return;
+      readMessage(e) {
+        if (!this.auth) return;
+
+        if (this.conversation.last_updated_by == this.user.id || this.conversation.unread_count == 0) return;
 
         gAxios.post('/users/' + this.user.id + '/conversations/' + this.conversationId + '/read', {
-					
-				})
-				.then( res => {
-          var data = res.data;
-          console.log(data);
-          this.dispatch('updateConversation', this.conversationId, data);
-          //this.message = '';
-          //window.dispatchEvent(new CustomEvent('user:send_message', { detail: data }));
-				})
-				.catch( err => {
 
-				});
+        })
+          .then(res => {
+            var data = res.data;
+            console.log(data);
+            this.dispatch('updateConversation', this.conversationId, data);
+            //this.message = '';
+            //window.dispatchEvent(new CustomEvent('user:send_message', { detail: data }));
+          })
+          .catch(err => {
+
+          });
       }
 
       _getRecipientId() {
-        if(this.conversation.user_id_1 == this.user.id) {
+        if (this.conversation.user_id_1 == this.user.id) {
           return this.conversation.user_id_2;
         }
 
@@ -333,8 +450,8 @@
 
       _getRecipientProfileImage() {
         const recipient = this._getRecipient();
-        if(recipient.profile) {
-          if(recipient.profile.profile_image_url)
+        if (recipient.profile) {
+          if (recipient.profile.profile_image_url)
             return this._profileImage(recipient.profile.profile_image_url, recipient.name);
         }
 
@@ -382,25 +499,25 @@
       }
 
       _sort(a, b) {
-				a = new Date(a.created_at);
-				b = new Date(b.created_at);
-				return b > a ? -1 : b < a ? 1 : 0;
-			}
+        a = new Date(a.created_at);
+        b = new Date(b.created_at);
+        return b > a ? -1 : b < a ? 1 : 0;
+      }
 
       _getClass(id, index) {
-				if ( this.i != id ) {
-					this.i = id;
-					var li = this.$.chat.querySelector('li[data-index="'+(index-1)+'"]');
-					if(li) {
-						li.className += " chat-bubble-stop";
-					}
-				}
-				if ( this.user.id == id ) {
-					return 'chat-bubble-sent';
-				} else {
-					return 'chat-bubble-rcvd';
-				}
-			}
+        if (this.i != id) {
+          this.i = id;
+          var li = this.$.chat.querySelector('li[data-index="' + (index - 1) + '"]');
+          if (li) {
+            li.className += " chat-bubble-stop";
+          }
+        }
+        if (this.user.id == id) {
+          return 'chat-bubble-sent';
+        } else {
+          return 'chat-bubble-rcvd';
+        }
+      }
 
       _fromNow(date) {
         return moment(date).fromNow();
