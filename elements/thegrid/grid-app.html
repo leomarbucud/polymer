@@ -103,6 +103,24 @@
 				text-decoration: none;
 			}
 
+			#offline {
+				background: var(--red);
+				color: #FFFFFF;
+				text-align: center;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 20px;
+				font-size: 10px;
+				line-height: 20px;
+				display: none;
+			}
+
+			#offline.active {
+				display: block;
+			}
+
 		</style>
 
 		<!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
@@ -202,6 +220,8 @@
 		<paper-toast id="notificationToast" vertical-align="top" horizontal-align="right" >
 			
 		</paper-toast>
+
+		<div id="offline">You are currently offline</div>
 
 	</template>
 
@@ -316,6 +336,14 @@
 					if(user) {
 						window.dispatchEvent( new CustomEvent('user:logged', { detail: JSON.parse(user)}));
 					}
+				});
+
+				window.addEventListener('online',  () => {
+					this.$.offline.classList.remove('active');
+					window.dispatchEvent(new CustomEvent('user:connected'));
+				});
+  			window.addEventListener('offline', () => {
+					this.$.offline.classList.add('active');
 				});
 			}
 

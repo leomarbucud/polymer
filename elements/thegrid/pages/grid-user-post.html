@@ -170,10 +170,15 @@
 				<!-- <div class="divider p-y-1"><hr/></div> -->
 
 				<template is="dom-if" if="[[bidded]]">
-						<section class="p-y-1 w-100 white">
+					<section class="p-y-1 w-100 white layout horizontal">
+						<div class="flex">
 							<span>You bidded:</span>
 							<h2 class="title m-0">AED [[bidded_details.price_bid]]</h2>
-						</section>
+						</div>
+						<div class="layout vertical">
+							<a href$="/bids/[[bidded_details.id]]" class="red">View details</a>
+						</div>
+					</section>
 				</template>
 
 				<!-- <section class="p-y-1 white">
