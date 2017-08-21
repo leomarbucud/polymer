@@ -60,7 +60,7 @@
       }
 
       .chat-bubble-stop,
-      li.chat-bubble:nth-last-child(3),
+      li.chat-bubble:nth-last-child(2),
       li.chat-bubble:last-child {
         border-bottom-right-radius: 10px !important;
         border-bottom-left-radius: 10px !important;
@@ -328,6 +328,7 @@
         this._recipientProfileImage = this._profileImage(null, 'Grid');
         this.isTyping = false;
 
+        this._initSocketEvents();
       }
 
       connectedCallback() {
@@ -408,7 +409,7 @@
               conversation_id: this.conversationId
             }
           }));
-        }, 500);
+        }, 1000);
       }
 
       readMessage(e) {
@@ -549,11 +550,10 @@
           if (!data) return;
           if (data.conversation_id == this.conversationId) {
             this.isTyping = true;
-            console.log('user is typing...');
             if (this.senderTimeout) clearTimeout(this.senderTimeout);
             this.senderTimeout = setTimeout(() => {
               this.isTyping = false;
-            }, 1000);
+            }, 5000);
           }
         });
 
