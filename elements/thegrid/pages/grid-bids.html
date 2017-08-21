@@ -174,6 +174,13 @@
 							bid: bid
 						}
           },
+
+          updateBid(bid) {
+						return {
+							type: 'UPDATE_BID',
+							bid: bid
+						}
+          },
           
           updatedBidders(id, bidders) {
 						return {
@@ -271,24 +278,60 @@
           if(this.auth) {
             if(_data.user.id == this.user.id) {
               this.dispatch('addBid', _data);
+              // console.log('this is bid data', d_ata);
+              // gAxios.get('/users/' + this.user.id + '/bids/' + _data.id)
+              // .then(res => {
+              //   this.dispatch('addBid', res.data);
+              // }).then(() => {
+              //   this.isLoading = false;
+              // });
             }
           }
         });
 
         // when other user bidded on the job
         socket.on('user:other_bidded', data => {
-          const _data = data;
-          if(this.auth) {
+          if(!this.auth) return;
             
-            const bid = _data.find(bidder => {
-              return bidder.user_id == this.user.id;
+          // const bid = _data.find(bidder => {
+          //   return bidder.user_id == this.user.id;
+          // });
+
+          // console.log('updating bidders', bid);
+
+          // this.dispatch('updatedBidders', bid.id, _data);
+          
+          const bid_id = data;
+
+          gAxios.get('/users/' + this.user.id + '/bids/' + bid_id)
+          .then(res => {
+            const existingBid = this.bids.find(bid => {
+              return bid.id == res.data.id;
             });
+            if(existingBid) {
+              this.dispatch('updateBid', res.data);
+            } else {
+              this.dispatch('addBid', res.data);
+            }
+          }).then(() => {
+            this.isLoading = false;
+          });
 
-            console.log('updating bidders', bid);
+        });
 
-            this.dispatch('updatedBidders', bid.id, _data);
+        // when job is granted
+        socket.on('user:grant_job', data => {
+          const _data = data;
+          if(!this.auth) return;
+            
+          const bid = _data.find(bidder => {
+            return bidder.user_id == this.user.id;
+          });
 
-          }
+          console.log('updating bidders', bid);
+
+          this.dispatch('updatedBidders', bid.id, _data);
+
         });
 
       }

@@ -59,3 +59,14 @@ window.addEventListener('user:typing', e => {
   const data = e.detail;
   socket.emit('user:typing', data);
 });
+
+window.addEventListener('user:grant_job', e => {
+  const data = e.detail;
+  console.log('grant', data);
+  socket.emit('user:grant_job', data);
+});
+
+window.addEventListener('user:other_bidded', e => {
+  const data = e.detail;
+  socket.emit('user:other_bidded', data);
+});

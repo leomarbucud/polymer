@@ -329,6 +329,7 @@
       grantJob(e) {
         if(!this.auth) return;
 
+        this.isLoading = true;
         const bidder = e.model.bidder;
         
         gAxios.post('/users/' + this.user.id + '/bids/' + bidder.id + '/approve', {
@@ -337,12 +338,16 @@
         }).then( res => {
           console.log(res.data);
           this.dispatch('updatePost', res.data);
+          window.dispatchEvent( new CustomEvent('user:grant_job', { detail: res.data.winner }));
+        }).then( () => {
+          this.isLoading = false;
         });
       }
 
       messageBidder() {
         if( !this.post.winner ) return;
 
+        this.isLoading = true;
         gAxios.post('/users/' + this.user.id + '/inbox', {
           job_id: this.post.id,
           user_id_1: this.user.id,
@@ -359,6 +364,8 @@
           }
           this.redirect('/inbox/' + res.data.id);
 
+        }).then( () => {
+          this.isLoading = false;
         });
       }
 

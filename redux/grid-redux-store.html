@@ -116,6 +116,20 @@
         });
         break;
       }
+      case 'UPDATE_BID': {
+        console.log('updating bid..', action.bid);
+        let bids = state.bids.slice(0);
+        const updatedBids = bids.map(item => {
+          if(item.id === action.bid.id){
+            return action.bid;
+          }
+          return item
+        });
+        return Object.assign({}, state, {
+          bids: updatedBids
+        });
+        break;
+      }
       case 'UPDATE_BIDDERS': {
         let bids = state.bids.slice(0);
 

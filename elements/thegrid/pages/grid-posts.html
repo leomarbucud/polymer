@@ -317,11 +317,22 @@
         // when user bidded on the job
         socket.on('user:bidded', data => {
           const _data = data;
+          console.log('dispachito', _data);
           if(this.auth) {
             if(_data.job.user.id == this.user.id) {
               if(_data.job.id == this.post.id) {
                 console.log('updating post');
-                this.dispatch('updatePost', _data.job);
+                 gAxios.get('/users/' + this.user.id + '/jobs/' + this.post.id)
+                  .then(res => {
+
+                    const data = res.data;
+
+                    window.dispatchEvent( new CustomEvent('user:other_bidded', { detail: data.bidders }));
+                    
+                    this.dispatch('updatePost', data);
+                  }).then(() => {
+                    this.isLoading = false;
+                  });
               }
             }
           }
