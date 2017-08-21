@@ -368,6 +368,7 @@
       }
 
       _postIdChange(postId) {
+        console.log('postId', postId);
         if (!postId) return;
         if (!this.auth) return;
         if (!this.posts) return;

@@ -99,7 +99,13 @@
             <paper-ripple></paper-ripple>
           </div>
           <div class="divider"><hr/></div>
-				</template>
+        </template>
+        <template is="dom-if" if="[[!posts.length]]">
+            <div class="row">
+              <div class="job-title">You don't have any post</div>
+              <div secondary class="time"></div>
+            </div>
+        </template>
       </section>
     </main>
 

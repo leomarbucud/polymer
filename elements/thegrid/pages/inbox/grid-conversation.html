@@ -198,7 +198,7 @@
       <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectInbox"></paper-icon-button>
       <div class="flex">
         <div class="conversation-header">
-          <template is="dom-if" if="[[conversation]]">
+          <template is="dom-if" if="[[conversation.messages]]">
             <div class="avatar">
               <img class="circle" src$="[[_recipientProfileImage]]">
             </div>

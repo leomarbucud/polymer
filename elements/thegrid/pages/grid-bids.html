@@ -96,7 +96,7 @@
     <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
 
       <section data-page="bid" class="sub-page">
-        <grid-bid map="{{map}}" bid="[[_bid]]"  bid-id="[[bid.id]]"></grid-bid>
+        <grid-bid map="{{map}}" bid-id="[[bid.id]]"></grid-bid>
       </section>
 
     </iron-pages>
@@ -172,6 +172,14 @@
 						return {
 							type: 'ADD_BID',
 							bid: bid
+						}
+          },
+          
+          updatedBidders(id, bidders) {
+						return {
+              type: 'UPDATE_BIDDERS',
+              id: id,
+							bidders: bidders
 						}
 					}
   			};
@@ -264,6 +272,22 @@
             if(_data.user.id == this.user.id) {
               this.dispatch('addBid', _data);
             }
+          }
+        });
+
+        // when other user bidded on the job
+        socket.on('user:other_bidded', data => {
+          const _data = data;
+          if(this.auth) {
+            
+            const bid = _data.find(bidder => {
+              return bidder.user_id == this.user.id;
+            });
+
+            console.log('updating bidders', bid);
+
+            this.dispatch('updatedBidders', bid.id, _data);
+
           }
         });
 
