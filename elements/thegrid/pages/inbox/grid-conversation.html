@@ -269,7 +269,10 @@
   </template>
 
   <script>
-    class GridConversation extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+    class GridConversation extends 
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
 
       static get is() { return 'grid-conversation'; }
 
@@ -302,20 +305,7 @@
 
       static get actions() {
         return {
-          addMessage(id, message) {
-            return {
-              type: 'ADD_MESSAGE',
-              id: id,
-              message: message
-            }
-          },
-          updateConversation(id, conversation) {
-            return {
-              type: 'UPDATE_CONVERSATION',
-              id: id,
-              conversation: conversation
-            }
-          }
+          
         };
       }
 
@@ -336,14 +326,15 @@
 
       }
 
-      renderConversation(conversation) {
+      renderConversation(conversation, smooth = true) {
         if (!this.auth) return;
 
         // this.set('conversation', conversation);
         this.conversation = conversation;
         // console.log('new conversation', this.conversation);
+        this._removeTmpMessage();
         this.shadowRoot.querySelector('#messagesTemplate').render();
-        this.scrollToBottom();
+        this.scrollToBottom(smooth);
         this.isLoading = false;
         this._recipientProfileImage = this._getRecipientProfileImage();
         this._getRecipientName = this._getRecipient().name;
@@ -351,8 +342,26 @@
 
       scrollToBottom(smooth) {
         setTimeout(() => {
-          var height = this.shadowRoot.querySelector('.messages-wrapper').scrollHeight;
-          this.shadowRoot.querySelector('.scroll-area').scrollTop = height;
+
+          const height = this.shadowRoot.querySelector('.messages-wrapper').scrollHeight;
+          const elem = this.shadowRoot.querySelector('.scroll-area')
+          
+          elem.scrollTop = height;
+
+          let scrollOptions = {
+            top: height, 
+            left: 0
+          };
+
+          if( smooth ) {
+            scrollOptions.behavior = 'smooth' ;
+          }
+
+          console.log(scrollOptions);
+
+          elem.scroll(scrollOptions);
+
+
         }, 50);
       }
 
@@ -363,8 +372,6 @@
         var tmpMessage = {
           id: 'tmpMessage',
           message: this.message,
-          // recipient_id: self.recipient.id,
-          // author_id: Grid.user.id,
           created_at: new Date().getTime(),
           sending: true
         };
@@ -377,20 +384,17 @@
         gAxios.post('/users/' + this.user.id + '/conversations/' + this.conversationId, {
           message: m,
           recipient_id: this._getRecipientId()
-        })
-          .then(res => {
-            var data = res.data;
-            // this.dispatch('addMessage', this.conversationId, data);
-            window.dispatchEvent(new CustomEvent('user:send_message', { detail: data }));
-          })
-          .catch(err => {
+        }).then(res => {
+          var data = res.data;
+          // this.dispatch('addMessage', this.conversationId, data);
+          window.dispatchEvent(new CustomEvent('user:send_message', { detail: data }));
+        }).catch(err => {
 
-          }).then(() => {
+        }).then(() => {
 
-            this.set('_tmpMessage', []);
-            this._hasTmpMessage = false;
+          // this._removeTmpMessage();
 
-          });
+        });
 
       }
 
@@ -430,6 +434,11 @@
           .catch(err => {
 
           });
+      }
+
+      _removeTmpMessage() {
+        this.set('_tmpMessage', []);
+        this._hasTmpMessage = false;
       }
 
       _getRecipientId() {
@@ -476,7 +485,7 @@
         this.isLoading = true;
         this.inbox.map(conversation => {
           if (parseInt(conversation.id) === parseInt(conversationId)) {
-            this.renderConversation(conversation);
+            this.renderConversation(conversation, false);
             this.readMessage();
             this.isLoading = false;
           }
@@ -486,11 +495,17 @@
       _createTmpMessage(message) {
         this._hasTmpMessage = true;
         this.push('_tmpMessage', message);
-        this.scrollToBottom();
+        this.scrollToBottom(true);
       }
 
       _inboxChange(inbox) {
-        this._conversationIdChange(this.conversationId);
+        this.inbox.map(conversation => {
+          if (parseInt(conversation.id) === parseInt(this.conversationId)) {
+            this.renderConversation(conversation);
+            this.readMessage();
+            this.isLoading = false;
+          }
+        });
       }
 
       _getMessageStatus(status) {

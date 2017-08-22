@@ -245,8 +245,131 @@
     }
   };
 
-  const _store = Redux.createStore(reducer);
+  const _store = Redux.createStore(
+    reducer,
+    Redux.applyMiddleware(ReduxThunk.default)
+  );
+
   const ReduxBehavior = PolymerRedux(_store);
+
+  const ReduxAsyncActionBehavior = superclass => class extends superclass {
+
+    static get actions() {
+      return {
+
+        loggedUser(user) {
+          return {
+            type: 'LOGGED_USER',
+            user: user
+          }
+        },
+
+        logout() {
+          return {
+            type: 'LOGOUT_USER'
+          }
+        },
+
+        setSkills(skills) {
+          return {
+            type: 'SET_SKILLS',
+            skills: skills
+          }
+        },
+
+        // posts
+        setPosts(posts) {
+          return {
+            type: 'SET_POSTS',
+            posts: posts
+          }
+        },
+
+        addPost(post) {
+          return {
+            type: 'ADD_POST',
+            post: post
+          }
+        },
+        
+        updatePost(post) {
+          return {
+            type: 'UPDATE_POST',
+            post: post
+          }
+        },
+
+        // bids
+        setBids(bids) {
+          return {
+            type: 'SET_BIDS',
+            bids: bids
+          }
+        },
+        
+        addBid(bid) {
+          return {
+            type: 'ADD_BID',
+            bid: bid
+          }
+        },
+
+        updateBid(bid) {
+          return {
+            type: 'UPDATE_BID',
+            bid: bid
+          }
+        },
+        
+        updatedBidders(id, bidders) {
+          return {
+            type: 'UPDATE_BIDDERS',
+            id: id,
+            bidders: bidders
+          }
+        },
+
+        // inbox
+        setInbox(inbox) {
+          return {
+            type: 'SET_INBOX',
+            inbox: inbox
+          }
+        },
+
+        addInbox(conversation) {
+          return {
+            type: 'ADD_INBOX',
+            conversation: conversation
+          }
+        },
+
+        addMessage(id, message) {
+          return {
+            type: 'ADD_MESSAGE',
+            id: id,
+            message: message
+          }
+        },
+
+        addConversation(conversation) {
+          return {
+            type: 'UPDATE_CONVERSATION',
+            conversation: conversation
+          }
+        },
+
+        updateConversation(id, conversation) {
+          return {
+            type: 'UPDATE_CONVERSATION',
+            id: id,
+            conversation: conversation
+          }
+        }
+
+      }
+    }
+  };
 
   window.gAxios = null;
 

@@ -226,7 +226,10 @@
 	</template>
 
 	<script>
-		class GridApp extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+		class GridApp extends 
+			GridNavigation(
+				ReduxAsyncActionBehavior(
+					ReduxBehavior(Polymer.Element))) {
 
 			static get is() { return 'grid-app'; }
 
@@ -295,32 +298,6 @@
 					this.shadowRoot.querySelector('iron-pages').classList.add('open');
 				} else {
 					this.shadowRoot.querySelector('iron-pages').classList.remove('open');
-				}
-			}
-
-			static get actions() {
-				return {
-
-					loggedUser(user) {
-						return {
-							type: 'LOGGED_USER',
-							user: user
-						}
-					},
-
-					logout() {
-						return {
-							type: 'LOGOUT_USER'
-						}
-					},
-
-					setSkills(skills) {
-						return {
-							type: 'SET_SKILLS',
-							skills: skills
-						}
-					}
-
 				}
 			}
 
@@ -570,6 +547,13 @@
 			}
 
 			_initSocketEvents() {
+
+				const openNotification = (href, text) => {
+					let $notificationToast = this.$.notificationToast;
+					
+					$notificationToast.innerHTML = '<a href="' + href + '" class="white" >' + text + '</a>';
+					$notificationToast.open();
+				};
 				
         // when user receive message
         socket.on('user:receive_message', data => {
@@ -577,22 +561,27 @@
 
 					if(this.routeData.page == 'inbox' && this.conversation.id == data.conversation_id) return;
 					
-					let $notificationToast = this.$.notificationToast;
-					
-					$notificationToast.innerHTML = '<a href="/inbox/' + data.conversation_id + '" class="white" >New message received</a>';
-					$notificationToast.open();
+					let href = '/inbox/' + data.conversation_id;
+					let text = 'New message received';
+					openNotification(href, text);
 				});
 				
 				socket.on('user:bidded', data => {
 					if(!this.auth) return;
-
-					console.log(data);
 					
-					let $notificationToast = this.$.notificationToast;
-					
-					$notificationToast.innerHTML = '<a href="/posts/' + data.job.id + '" class="white" >A new bidder bids on your job</a>';
-					$notificationToast.open();
+					let href = '/posts/' + data.job.id;
+					let text = 'A new bidder bids on your job.';
+					openNotification(href, text);
 				});
+
+				socket.on('user:grant_job', data => {
+          if(!this.auth) return;
+
+					let href = '/bids/' + data.bid_id;
+					let text = 'Your bid has been awarded to you.';
+					openNotification(href, text);
+
+        });
 
       }
 

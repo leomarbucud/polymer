@@ -113,7 +113,10 @@
 
   <script>
 
-    class GridBids extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+    class GridBids extends 
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
 
       static get is() { return 'grid-bids'; }
 
@@ -161,34 +164,7 @@
 
       static get actions() {
   			return {
-  				setBids(bids) {
-  					return {
-  						type: 'SET_BIDS',
-  						bids: bids
-  					}
-          },
-          
-          addBid(bid) {
-						return {
-							type: 'ADD_BID',
-							bid: bid
-						}
-          },
-
-          updateBid(bid) {
-						return {
-							type: 'UPDATE_BID',
-							bid: bid
-						}
-          },
-          
-          updatedBidders(id, bidders) {
-						return {
-              type: 'UPDATE_BIDDERS',
-              id: id,
-							bidders: bidders
-						}
-					}
+  				
   			};
   		}
 
@@ -324,13 +300,12 @@
           const _data = data;
           if(!this.auth) return;
             
-          const bid = _data.find(bidder => {
-            return bidder.user_id == this.user.id;
+          gAxios.get('/users/' + this.user.id + '/bids/' + _data.bid_id)
+          .then(res => {
+            this.dispatch('updateBid', res.data);
+          }).then(() => {
+            this.isLoading = false;
           });
-
-          console.log('updating bidders', bid);
-
-          this.dispatch('updatedBidders', bid.id, _data);
 
         });
 

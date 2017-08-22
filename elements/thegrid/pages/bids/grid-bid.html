@@ -319,6 +319,17 @@
         this.bid = bid;
         this.isLoading = false;
         this._setRank();
+
+        const status = this.shadowRoot.querySelector('#status');
+        const progressList = status.querySelectorAll('[data-progress]');
+
+        progressList.forEach( progress => {
+          let p = progress.getAttribute('data-progress');
+          progress.classList.remove('completed');
+          if(Number(bid.job.status) >= Number(p)) {
+            progress.classList.add('completed');
+          }
+        });
       }
 
       viewOnMap() {

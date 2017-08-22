@@ -19,10 +19,6 @@
         height: 100%;
         background: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
       }
-      /*.header-action {
-        height: 56px;
-        padding: 16px;
-      }*/
 
     </style>
 
@@ -91,13 +87,13 @@
 
         static get observers() {
           return [
-              '_registered(isRegistered)',
-              '_hasErrorRegister(hasErrorRegister)',
-              '_currentStepChange(currentStep)',
-              '_totalStepsChange(totalSteps)',
-              '_nextChange(next)',
-              '_subrouteChange(subroute)',
-              '_subrouteDataChange(subrouteData)',
+            '_registered(isRegistered)',
+            '_hasErrorRegister(hasErrorRegister)',
+            '_currentStepChange(currentStep)',
+            '_totalStepsChange(totalSteps)',
+            '_nextChange(next)',
+            '_subrouteChange(subroute)',
+            '_subrouteDataChange(subrouteData)',
           ]
         }
 

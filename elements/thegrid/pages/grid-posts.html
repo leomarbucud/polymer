@@ -137,7 +137,10 @@
 
   <script>
 
-    class GridPosts extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+    class GridPosts extends 
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
 
       static get is() { return 'grid-posts'; }
 
@@ -198,26 +201,7 @@
 
       static get actions() {
   			return {
-  				setPosts(posts) {
-  					return {
-  						type: 'SET_POSTS',
-  						posts: posts
-  					}
-          },
-
-          addPost(post) {
-						return {
-							type: 'ADD_POST',
-							post: post
-						}
-          },
-          
-          updatePost(post) {
-            return {
-              type: 'UPDATE_POST',
-              post: post
-            }
-          }
+  				
   			};
   		}
 
