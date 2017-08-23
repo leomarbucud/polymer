@@ -62,6 +62,12 @@
         margin: 0;
         opacity: 0.12;
       }
+      
+      .mark-job {
+        display: block;
+        width: 100%;
+        margin-top: 8px;
+      }
     </style>
 
     <div id="toolbar" class="toolbar">
@@ -124,6 +130,28 @@
                 <span class="bubble">4</span> Completed
               </li>
             </ul>
+
+            <template is="dom-if" if="[[bid.winner.review]]" >
+              <ul class="stars">
+                <li class="star" data-star="1">
+                  <iron-icon icon="star-border"></iron-icon>
+                </li>
+                <li class="star" data-star="2">
+                  <iron-icon icon="star-border"></iron-icon>
+                </li>
+                <li class="star" data-star="3">
+                  <iron-icon icon="star-border"></iron-icon>
+                </li>
+                <li class="star" data-star="4">
+                  <iron-icon icon="star-border"></iron-icon>
+                </li>
+                <li class="star" data-star="5">
+                  <iron-icon icon="star-border"></iron-icon>
+                </li>
+              </ul>
+              <p class="white">Review: [[bid.winner.review.review]]</p>
+            </template>
+            
           </template>
 
           <template is="dom-if" if="[[!_awardedToMe]]">
@@ -330,7 +358,10 @@
                   progress.classList.add('completed');
                 }
               });
-            }, 50);
+              if(bid.winner.review) {
+                this._renderStars(bid.winner.review.stars);
+              }
+            }, 0);
           }
         }
       }
@@ -373,12 +404,39 @@
       }
 
       _bidsChange(bids) {
-        console.log('bids change', bids);
+        // console.log('bids change', bids);
         bids.map(bid => {
           if (parseInt(bid.id) === parseInt(this.bidId)) {
             this.renderBid(bid);
           }
         });
+      }
+
+      _renderStars(star) {
+        if(!star) return;
+
+        if(!this.shadowRoot.querySelector('.stars')) return;
+
+        const stars = this.shadowRoot.querySelector('.stars').querySelectorAll('li.star');
+
+        stars.forEach( _star => {
+          if( star < _star.getAttribute('data-star' )) {
+            _star.querySelector('[icon]').icon = 'star-border';
+          } else {
+            _star.querySelector('[icon]').icon = 'star';
+          }
+        });
+
+      }
+
+      _nextStatus(status) {
+        if(!this.bid) return;
+
+        if( this.bid.job.status + 1 == status ) {
+          return true;
+        }
+
+        return false;
       }
 
       _fromNow(date) {

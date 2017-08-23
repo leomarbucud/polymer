@@ -2,6 +2,7 @@
 <link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../grid-styles.html">
 
@@ -46,6 +47,13 @@
         margin: 0;
         opacity: 0.12;
       }
+
+      .mark-job {
+        display: block;
+        width: 100%;
+        margin-top: 8px;
+      }
+
     </style>
 
     <div id="toolbar" class="toolbar">
@@ -80,19 +88,59 @@
         </div>
 
         <ul id="status" class="progress-indicator">
-          <li data-progress="1">
-            <span class="bubble">1</span> Awarded
-          </li>
-          <li data-progress="2">
-            <span class="bubble">2</span> In-progress
-          </li>
-          <li data-progress="3">
-            <span class="bubble">3</span> Review
-          </li>
-          <li data-progress="4">
-            <span class="bubble">4</span> Completed
-          </li>
+          
+            <li data-progress="1">
+              <span class="bubble">1</span> Awarded
+            </li>
+            <li data-progress="2">
+              <span class="bubble">2</span> In-progress
+              <template is="dom-if" if="[[_awarded]]">
+                <button type="button" class="mark-job" on-tap="markInProgress">Mark</button>
+              </template>
+            </li>
+            <li data-progress="3">
+              <span class="bubble">3</span> Review
+              <template is="dom-if" if="[[_inProgress]]">
+                <button type="button" class="mark-job" on-tap="showReview">Review</button>
+              </template>
+            </li>
+            <li data-progress="4">
+              <span class="bubble">4</span> Completed
+              <template is="dom-if" if="[[_review]]">
+                <button type="button" class="mark-job">Mark</button>
+              </template>
+            </li>
+          
         </ul>
+
+        <div hidden$="[[!_showReview]]">
+          <ul class="stars">
+            <li class="star" data-star="1">
+              <iron-icon icon="star-border"></iron-icon>
+            </li>
+            <li class="star" data-star="2">
+              <iron-icon icon="star-border"></iron-icon>
+            </li>
+            <li class="star" data-star="3">
+              <iron-icon icon="star-border"></iron-icon>
+            </li>
+            <li class="star" data-star="4">
+              <iron-icon icon="star-border"></iron-icon>
+            </li>
+            <li class="star" data-star="5">
+              <iron-icon icon="star-border"></iron-icon>
+            </li>
+          </ul>
+          <template is="dom-if" if="[[!post.winner.review]]">
+            <div class="input-group">
+              <textarea rows="6" class="input" value="{{review::input}}" style="resize: none; height: 100px; padding: 16px;" placeholder="Your review.."></textarea>
+            </div>
+            <button type="button" on-tap="submitReview">Submit</button>
+          </template>
+          <template is="dom-if" if="[[post.winner.review]]">
+            <p class="white">Your review: [[post.winner.review.review]]</p>
+          </template>
+        </div>
 
         <template is="dom-if" if="[[post.winner]]">
           <div class="section-details">
@@ -258,6 +306,7 @@
           '_postsChange(posts)',
           '_postChange(post)',
           '_postIdChange(postId)',
+          '_renderStars(star)',
         ]
       }
 
@@ -303,6 +352,12 @@
         this.post = post;
         this.isLoading = false;
 
+        this._awarded = false;
+        this._inProgress = false;
+        this._review = false;
+        this.star = 1;
+        this._showReview = false;
+
         const status = this.shadowRoot.querySelector('#status');
         const progressList = status.querySelectorAll('[data-progress]');
 
@@ -313,6 +368,30 @@
             progress.classList.add('completed');
           }
         });
+
+        switch(this.post.status) {
+          case 1: {
+            this._awarded = true;
+            break;
+          }
+          case 2: {
+            this._inProgress = true;
+            break;
+          }
+          case 3: {
+            this._review = true;
+          }
+        }
+
+        if(this.post.winner) {
+          if(this.post.winner.review) {
+
+            this.showReview(false);
+            this.star = this.post.winner.review.stars;
+
+          }
+        }
+
       }
 
       viewOnMap() {
@@ -352,6 +431,99 @@
         });
       }
 
+      markInProgress() {
+        if(!this.post) return;
+        
+        this.isLoading = true;
+        gAxios.post('/users/' + this.user.id + '/jobs/' + this.post.id + '/status', {
+          status: 2
+        }).then( res => {
+          // console.log(res.data);
+          this.dispatch('updatePost', res.data);
+        }).catch( err => {
+
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      _renderStars(star = 1) {
+
+        if(!this.shadowRoot.querySelector('.stars')) return;
+
+        const stars = this.shadowRoot.querySelector('.stars').querySelectorAll('li.star');
+
+        stars.forEach( _star => {
+          if( star < _star.getAttribute('data-star' )) {
+            _star.querySelector('[icon]').icon = 'star-border';
+          } else {
+            _star.querySelector('[icon]').icon = 'star';
+          }
+        });
+
+      }
+
+      showReview(event = true) {
+
+        console.log('event', event);
+        this._showReview = true;
+
+        const stars = this.shadowRoot.querySelector('.stars').querySelectorAll('li.star');
+        const self = this;
+
+        const mouseover = function(e) {
+          const _star = this.getAttribute('data-star');
+          self._renderStars(_star);
+        }
+
+        const mouseout = function(e) {
+          self._renderStars(self.star);
+        }
+
+        const click = function(e) {
+          self.star = this.getAttribute('data-star');
+        }
+
+        if(!event) {
+          stars.forEach( star => {
+            star.style.pointerEvents = 'none';
+          });
+          return;
+        }
+
+        if(this.assignStarEvent) return;
+
+        stars.forEach( star => {
+          
+          star.addEventListener('mouseover', mouseover, true);
+          star.addEventListener('mouseout', mouseout, true);
+          star.addEventListener('click', click, true);
+
+        });
+
+        this.assignStarEvent = true;
+      }
+
+      submitReview() {
+        if(!this.auth) return;
+
+        this.isLoading = true;
+
+        gAxios.post('/users/' + this.user.id + '/review', {
+          user_id: this.post.winner.user.id,
+          job_id: this.post.id,
+          review: this.review,
+          stars: this.star
+        }).then( res => {
+          console.log(res.data);
+          this.dispatch('updatePost', res.data);
+        }).catch( err => {
+
+        }).then( () => {
+          this.isLoading = false;
+        })
+      }
+
       messageBidder() {
         if( !this.post.winner ) return;
 
@@ -377,13 +549,24 @@
         });
       }
 
+      _nextStatus(status) {
+        if(!this.post) return false;
+
+        
+        if( this.post.status + 1 == status ) {
+          return true;
+        }
+
+        return false;
+      }
+
       _postChange(post) {
         if (!post) return;
         this.renderPost(post);
       }
 
       _postIdChange(postId) {
-        console.log('postId', postId);
+        // console.log('postId', postId);
         if (!postId) return;
         if (!this.auth) return;
         if (!this.posts) return;

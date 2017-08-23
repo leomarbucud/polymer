@@ -3,6 +3,7 @@
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../grid-styles.html">
+<link rel="import" href="../../components/divider-text.html">
 
 <dom-module id="grid-conversation">
   <template>
@@ -36,6 +37,10 @@
         clear: both;
         border-radius: 10px 10px 2px 2px;
         max-width: 90%;
+      }
+
+      .chat-date {
+        clear: both;
       }
 
       .chat-bubble-rcvd {
@@ -216,6 +221,13 @@
               <span>[[message.message]]</span>
               <!-- <span class="status">[[_getMessageStatus(message.status)]]</span> -->
             </li>
+            <!-- <template is="dom-if" if="[[!_sameAsDateBefore(message.created_at, index)]]">
+              <li class="chat-date">
+                <divider-text line-width="1px" line-color="#FFFFFF">
+                  <span class="white">[[_fromNow(message.created_at)]]</span>
+                </divider-text>
+              </li>
+            </template> -->
           </template>
           <template is="dom-if" if="[[_hasTmpMessage]]">
             <template is="dom-repeat" items="[[_tmpMessage]]" as="message">
@@ -352,7 +364,6 @@
 
           if(i == chats.length-1) {
             chat.classList.add('chat-bubble-stop');
-            console.log(chat.innerHTML);
           }
           
         });
@@ -374,8 +385,6 @@
           if( smooth ) {
             scrollOptions.behavior = 'smooth' ;
           }
-
-          console.log(scrollOptions);
 
           elem.scroll(scrollOptions);
 
@@ -549,6 +558,20 @@
         } else {
           return 'chat-bubble-rcvd';
         }
+      }
+
+      _sameAsDateBefore(date, index) {
+        var endDate = moment(date, "YYYY-MM-DD");
+        var diff = 0;
+        var li = this.$.chat.querySelector('li[data-index="' + (index - 1) + '"]');
+        if(li) {
+          var startDate = moment(li.getAttribute('title'), "YYYY-MM-DD");
+
+          diff = Math.abs(startDate.diff(endDate, 'days'));
+          console.log(index, diff);
+        }
+
+        return (diff === 0) ? true : false;
       }
 
       _fromNow(date) {
