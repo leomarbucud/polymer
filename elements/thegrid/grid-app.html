@@ -577,10 +577,15 @@
 				socket.on('user:grant_job', data => {
           if(!this.auth) return;
 
-					let href = '/bids/' + data.bid_id;
-					let text = 'Your bid has been awarded to you.';
-					openNotification(href, text);
-
+					if(data.winner_user_id == this.user.id) {
+						let href = '/bids/' + data.bid;
+						let text = 'Your bid has been awarded to you.';
+						openNotification(href, text);
+					} else {
+						let href = '/bids/' + data.bid;
+						let text = 'Your bidded job has been awarded to other bidder.';
+						openNotification(href, text);
+					}
         });
 
       }

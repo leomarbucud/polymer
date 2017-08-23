@@ -103,20 +103,33 @@
           </div>
         </div>
 
-        <ul id="status" class="progress-indicator">
-          <li data-progress="1">
-            <span class="bubble">1</span> Granted
-          </li>
-          <li data-progress="2">
-            <span class="bubble">2</span> In-progress
-          </li>
-          <li data-progress="3">
-            <span class="bubble">3</span> Review
-          </li>
-          <li data-progress="4">
-            <span class="bubble">4</span> Completed
-          </li>
-        </ul>
+        <template is="dom-if" if="[[!_awarded]]">
+          <p>Wait for [[bid.job.user.name]] to award this job.</p>
+        </template>
+
+        <template is="dom-if" if="[[_awarded]]">
+        
+          <template is="dom-if" if="[[_awardedToMe]]">
+            <ul id="status" class="progress-indicator">
+              <li data-progress="1">
+                <span class="bubble">1</span> Awarded
+              </li>
+              <li data-progress="2">
+                <span class="bubble">2</span> In-progress
+              </li>
+              <li data-progress="3">
+                <span class="bubble">3</span> Review
+              </li>
+              <li data-progress="4">
+                <span class="bubble">4</span> Completed
+              </li>
+            </ul>
+          </template>
+
+          <template is="dom-if" if="[[!_awardedToMe]]">
+            <p>Sorry this job has been awarded to other bidder.</p>
+          </template>
+        </template>
 
         <div class="divider">
           <hr/>
@@ -141,6 +154,13 @@
           </div>
           <span>[[rank]]</span>
         </div>
+
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Number of bidders</span>
+          </div>
+          <span>[[totalBidders]]</span>
+        </div>
       
         <div class="section-details">
           <div class="flex">
@@ -155,35 +175,6 @@
           </div>
           <span>AED [[lowestBid]]</span>
         </div>
-
-        <!-- <template is="dom-if" if="[[bid.job.only_bids.length]]">
-          <table class="bidder-list">
-            <thead>
-              <tr>
-                <th>Bidder</th>
-                <th>Bid</th>
-              </tr>
-            </thead>
-            <tbody>
-              <template is="dom-repeat" items="[[bid.job.only_bids]]" as="bidder">
-                <tr>
-                  <td>
-                    <template is="dom-if" if="[[_myBid(bidder.user_id)]]">
-                      [[user.name]]
-                    </template>
-                    <template is="dom-if" if="[[!_myBid(bidder.user_id)]]">
-                      Anonimous
-                    </template>
-                  </td>
-                  <td>[[bidder.price_bid]]</td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-        </template>
-        <template is="dom-if" if="[[!bid.job.only_bids.length]]">
-          <p>No bidders on this bid.job.</p>
-        </template> -->
 
         <div class="divider">
           <hr/>
@@ -320,16 +311,28 @@
         this.isLoading = false;
         this._setRank();
 
-        const status = this.shadowRoot.querySelector('#status');
-        const progressList = status.querySelectorAll('[data-progress]');
+        this._awarded = false;
+        this._awardedToMe = false;
 
-        progressList.forEach( progress => {
-          let p = progress.getAttribute('data-progress');
-          progress.classList.remove('completed');
-          if(Number(bid.job.status) >= Number(p)) {
-            progress.classList.add('completed');
+        if(bid.job.awarded) {
+          this._awarded = true;
+          if(bid.job.awarded.user_id == this.user.id) {
+            this._awardedToMe = true;
+
+            setTimeout( () => {
+              const status = this.shadowRoot.querySelector('#status');
+              const progressList = status.querySelectorAll('[data-progress]');
+
+              progressList.forEach( progress => {
+                let p = progress.getAttribute('data-progress');
+                progress.classList.remove('completed');
+                if(Number(bid.job.status) >= Number(p)) {
+                  progress.classList.add('completed');
+                }
+              });
+            }, 50);
           }
-        });
+        }
       }
 
       viewOnMap() {
@@ -407,6 +410,7 @@
                     }) + 1;
 				this.lowestBid = sorted[0].price_bid;
         this.highestBid = sorted[sorted.length-1].price_bid;
+        this.totalBidders = this.bid.job.only_bids.length;
         
       }
       

@@ -300,7 +300,7 @@
           const _data = data;
           if(!this.auth) return;
             
-          gAxios.get('/users/' + this.user.id + '/bids/' + _data.bid_id)
+          gAxios.get('/users/' + this.user.id + '/bids/' + _data.id)
           .then(res => {
             this.dispatch('updateBid', res.data);
           }).then(() => {
