@@ -3,6 +3,7 @@
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../grid-styles.html">
+<link rel="import" href="../../components/ratings.html">
 
 <dom-module id="grid-bid">
   <template>
@@ -132,23 +133,7 @@
             </ul>
 
             <template is="dom-if" if="[[bid.winner.review]]" >
-              <ul class="stars">
-                <li class="star" data-star="1">
-                  <iron-icon icon="star-border"></iron-icon>
-                </li>
-                <li class="star" data-star="2">
-                  <iron-icon icon="star-border"></iron-icon>
-                </li>
-                <li class="star" data-star="3">
-                  <iron-icon icon="star-border"></iron-icon>
-                </li>
-                <li class="star" data-star="4">
-                  <iron-icon icon="star-border"></iron-icon>
-                </li>
-                <li class="star" data-star="5">
-                  <iron-icon icon="star-border"></iron-icon>
-                </li>
-              </ul>
+              <grid-ratings rate="[[bid.winner.review.stars]]"></grid-ratings>
               <p class="white">Review: [[bid.winner.review.review]]</p>
             </template>
             

@@ -1,0 +1,144 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/elements/thegrid/grid-styles.html">
+
+<dom-module id="grid-ratings">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+      }
+
+      .stars {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .stars .star {
+        display: inline;
+        color: yellow;
+      }
+
+    </style>
+
+    <ul class="stars">
+      <li class="star" data-star="1">
+        <iron-icon icon="star-border"></iron-icon>
+      </li>
+      <li class="star" data-star="2">
+        <iron-icon icon="star-border"></iron-icon>
+      </li>
+      <li class="star" data-star="3">
+        <iron-icon icon="star-border"></iron-icon>
+      </li>
+      <li class="star" data-star="4">
+        <iron-icon icon="star-border"></iron-icon>
+      </li>
+      <li class="star" data-star="5">
+        <iron-icon icon="star-border"></iron-icon>
+      </li>
+    </ul>
+
+  </template>
+
+  <script>
+
+    class GridRatings extends Polymer.Element {
+
+      static get is() { return 'grid-ratings'; }
+
+      static get properties() {
+        return {
+          rate: {
+            type: Number,
+            value: 1,
+            notify: true
+          },
+          selectable: {
+            type: Boolean,
+            value: false,
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_starsChange(rate)',
+          '_selectableChange(selectable)'
+        ]
+      }
+
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        const self = this;
+        this._mouseover = function(e) {
+          const _star = this.getAttribute('data-star');
+          self._starsChange(_star);
+        }
+
+        this._mouseout = function(e) {
+          self._starsChange(self.rate);
+        }
+
+        this._click = function(e) {
+          self.rate = this.getAttribute('data-star');
+        }
+
+        this.mouseover = this._mouseover;
+        this.mouseout = this._mouseout;
+        this.click = this._click;
+      }
+
+      _starsChange(rate) {
+
+        const stars = this.shadowRoot.querySelector('.stars').querySelectorAll('li.star');
+
+        stars.forEach( _star => {
+          if( rate < _star.getAttribute('data-star' )) {
+            _star.querySelector('[icon]').icon = 'star-border';
+          } else {
+            _star.querySelector('[icon]').icon = 'star';
+          }
+        });
+      }
+
+      _selectableChange(selectable) {
+
+        console.log('selectable change', selectable);
+
+        const self = this;
+
+        const stars = this.shadowRoot.querySelector('.stars').querySelectorAll('li.star');
+
+        stars.forEach( star => {
+
+          if(this.selectable) {
+          
+            star.addEventListener('mouseover', this.mouseover, true);
+            star.addEventListener('mouseout', this.mouseout, true);
+            star.addEventListener('click', this.click, true);
+
+          } else {
+            
+            star.removeEventListener('mouseover', this.mouseover, true);
+            star.removeEventListener('mouseout', this.mouseout, true);
+            star.removeEventListener('click', this.click, true);
+
+          }
+
+        });
+        
+      }
+      
+
+    }
+
+    customElements.define(GridRatings.is, GridRatings);
+	</script>
+</dom-module>

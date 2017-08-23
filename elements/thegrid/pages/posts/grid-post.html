@@ -5,6 +5,7 @@
 <link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../grid-styles.html">
+<link rel="import" href="../../components/ratings.html">
 
 <dom-module id="grid-post">
   <template>
@@ -114,23 +115,7 @@
         </ul>
 
         <div hidden$="[[!_showReview]]">
-          <ul class="stars">
-            <li class="star" data-star="1">
-              <iron-icon icon="star-border"></iron-icon>
-            </li>
-            <li class="star" data-star="2">
-              <iron-icon icon="star-border"></iron-icon>
-            </li>
-            <li class="star" data-star="3">
-              <iron-icon icon="star-border"></iron-icon>
-            </li>
-            <li class="star" data-star="4">
-              <iron-icon icon="star-border"></iron-icon>
-            </li>
-            <li class="star" data-star="5">
-              <iron-icon icon="star-border"></iron-icon>
-            </li>
-          </ul>
+          <grid-ratings rate="{{rate}}" selectable="[[!_review]]"></grid-ratings>
           <template is="dom-if" if="[[!post.winner.review]]">
             <div class="input-group">
               <textarea rows="6" class="input" value="{{review::input}}" style="resize: none; height: 100px; padding: 16px;" placeholder="Your review.."></textarea>
@@ -306,7 +291,6 @@
           '_postsChange(posts)',
           '_postChange(post)',
           '_postIdChange(postId)',
-          '_renderStars(star)',
         ]
       }
 
@@ -387,7 +371,7 @@
           if(this.post.winner.review) {
 
             this.showReview(false);
-            this.star = this.post.winner.review.stars;
+            this.rate = this.post.winner.review.stars;
 
           }
         }
@@ -447,61 +431,11 @@
         });
       }
 
-      _renderStars(star = 1) {
-
-        if(!this.shadowRoot.querySelector('.stars')) return;
-
-        const stars = this.shadowRoot.querySelector('.stars').querySelectorAll('li.star');
-
-        stars.forEach( _star => {
-          if( star < _star.getAttribute('data-star' )) {
-            _star.querySelector('[icon]').icon = 'star-border';
-          } else {
-            _star.querySelector('[icon]').icon = 'star';
-          }
-        });
-
-      }
-
       showReview(event = true) {
 
         console.log('event', event);
         this._showReview = true;
 
-        const stars = this.shadowRoot.querySelector('.stars').querySelectorAll('li.star');
-        const self = this;
-
-        const mouseover = function(e) {
-          const _star = this.getAttribute('data-star');
-          self._renderStars(_star);
-        }
-
-        const mouseout = function(e) {
-          self._renderStars(self.star);
-        }
-
-        const click = function(e) {
-          self.star = this.getAttribute('data-star');
-        }
-
-        if(!event) {
-          stars.forEach( star => {
-            star.style.pointerEvents = 'none';
-          });
-          return;
-        }
-
-        if(this.assignStarEvent) return;
-
-        stars.forEach( star => {
-          
-          star.addEventListener('mouseover', mouseover, true);
-          star.addEventListener('mouseout', mouseout, true);
-          star.addEventListener('click', click, true);
-
-        });
-
-        this.assignStarEvent = true;
       }
 
       submitReview() {
@@ -513,7 +447,7 @@
           user_id: this.post.winner.user.id,
           job_id: this.post.id,
           review: this.review,
-          stars: this.star
+          stars: this.rate
         }).then( res => {
           console.log(res.data);
           this.dispatch('updatePost', res.data);

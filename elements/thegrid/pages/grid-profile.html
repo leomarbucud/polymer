@@ -1,6 +1,7 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="/elements/thegrid/grid-styles.html">
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../grid-styles.html">
+<link rel="import" href="../components/ratings.html">
 
 <dom-module id="grid-profile">
   <template>
@@ -107,13 +108,15 @@
         <div class="layout horizontal white">
           <div class="flex m-0">
             <span class="block" style="height: 28px;">
+              <!-- <iron-icon icon="star"></iron-icon>
               <iron-icon icon="star"></iron-icon>
               <iron-icon icon="star"></iron-icon>
               <iron-icon icon="star"></iron-icon>
               <iron-icon icon="star"></iron-icon>
-              <iron-icon icon="star"></iron-icon>
+               -->
+               <grid-ratings rate="[[rate]]"></grid-ratings>
             </span>
-            <span class="block white-7">123,456 Ratings</span>
+            <span class="block white-7">[[user.reviews.length]] Ratings</span>
           </div>
           <div class="stats">
             <span class="block num">[[user.jobs_count]]</span>
@@ -251,6 +254,19 @@
         main.addEventListener('scroll', scroll);
 
         LetterAvatar.transform();
+
+        const totalNumReviews = this.user.reviews.length;
+        var sumStar = 0;
+        this.user.reviews.forEach( review => {
+          sumStar += review.stars;
+        });
+
+        if(sumStar == 0) {
+          this.rate = 3;
+        } else {
+          this.rate = Math.floor(sumStar/totalNumReviews);
+        }
+
       }
 
       editProfile() {
