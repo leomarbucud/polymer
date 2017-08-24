@@ -1,5 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/iron-dropdown/iron-dropdown.html">
+<link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="../../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../grid-styles.html">
@@ -84,7 +86,7 @@
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
       <paper-icon-button icon="search" class="red pointer"></paper-icon-button>
-      <paper-icon-button icon="more-vert" class="red pointer" on-tap="openMenu"></paper-icon-button>
+      <!-- <paper-icon-button icon="more-vert" class="red pointer" on-tap="openMenu"></paper-icon-button>
       <iron-dropdown id="menu" horizontal-align="right" vertical-align="top">
         <div slot="dropdown-content" class="dropdown-menu">
           <div class="item" on-click="refreshJobs">
@@ -92,7 +94,28 @@
             <paper-ripple></paper-ripple>
           </div>
         </div>
-      </iron-dropdown>
+      </iron-dropdown> -->
+      <paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
+        <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
+        <div slot="dropdown-content" class="dropdown-menu">
+          <div class="item" on-click="refreshJobs">
+            <span>Refresh</span>
+            <paper-ripple></paper-ripple>
+          </div>
+          <div class="item-title">
+            <span>Show only</span>
+          </div>
+          <div class="item">
+            <paper-checkbox value="1" on-change="filterCheck">Awarded</paper-checkbox>
+          </div>
+          <div class="item">
+            <paper-checkbox value="2" on-change="filterCheck">In progress</paper-checkbox>
+          </div>
+          <div class="item">
+            <paper-checkbox value="4" on-change="filterCheck">Completed</paper-checkbox>
+          </div>
+        </div>
+      </paper-menu-button>
     </div>
 
     <main class="flex">
@@ -100,7 +123,7 @@
         <h1 class="white m-0">Posts</h1>
       </section>
       <section class="list" id="post-list">
-        <template is="dom-repeat" items="[[posts]]" as="job">
+        <template is="dom-repeat" items="[[posts]]" as="job" filter="{{_filterPost(query)}}">
           <div class="row" on-click="viewPost">
             <div class="job-title">{{job.name}}</div>
             <div secondary>Date needed: [[_fromNow(job.date)]]</div>
@@ -179,6 +202,11 @@
           isLoading: {
             type: Boolean,
             value: true
+          },
+
+          query: {
+            type: Array,
+            value: []
           }
         }
       }
@@ -262,6 +290,33 @@
 
       refreshJobs() {
         this.populateJobs();
+      }
+
+      filterCheck(e) {
+        const target = e.target;
+
+        if( target.checked ) {
+					this.push('query', parseInt(target.value));
+				} else {
+					const index = this.query.indexOf(parseInt(target.value));
+					if(index != -1) {
+						this.query.splice(index, 1);
+					}
+        }
+        
+        const q = this.query.slice(0);
+        this.set('query', q);
+
+      }
+
+      _filterPost(query) {
+        if (!query.length) {
+          return null;
+        } else {
+          return function(item) {
+            return (query.indexOf(item.status) != -1);
+          };
+        }
       }
 
       _fromNow(date) {
