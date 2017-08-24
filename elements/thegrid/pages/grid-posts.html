@@ -55,6 +55,14 @@
         opacity: 0.12;
       }
 
+      .time {
+        font-size: 12px;
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        opacity: 0.7;
+      }
+
     </style>
 
     <app-location route="{{route}}" ></app-location>
@@ -95,7 +103,8 @@
         <template is="dom-repeat" items="[[posts]]" as="job">
           <div class="row" on-click="viewPost">
             <div class="job-title">{{job.name}}</div>
-            <div secondary class="time" data-time$="[[job.created_at]]">{{_computeDate(job.created_at)}}</div>
+            <div secondary>Date needed: [[_fromNow(job.date)]]</div>
+            <div class="time" data-time$="[[job.created_at]]">[[_fromNow(job.created_at)]]</div>
             <paper-ripple></paper-ripple>
           </div>
           <div class="divider"><hr/></div>
@@ -194,7 +203,7 @@
           var times = plist.querySelectorAll('[data-time]');
           times.forEach( item => {
             let time = item.getAttribute('data-time');
-            item.innerHTML = this._computeDate(time);
+            item.innerHTML = this._fromNow(time);
           });
         }, 60000);
       }
@@ -255,7 +264,7 @@
         this.populateJobs();
       }
 
-      _computeDate(date) {
+      _fromNow(date) {
         return moment(date).fromNow();
         // return moment(date, "YYYY-MM-DD").endOf('minute').fromNow();
       }

@@ -108,7 +108,7 @@
             <li data-progress="4">
               <span class="bubble">4</span> Completed
               <template is="dom-if" if="[[_review]]">
-                <button type="button" class="mark-job">Mark</button>
+                <button type="button" class="mark-job" on-click="markCompleted">Mark</button>
               </template>
             </li>
           
@@ -120,7 +120,7 @@
             <div class="input-group">
               <textarea rows="6" class="input" value="{{review::input}}" style="resize: none; height: 100px; padding: 16px;" placeholder="Your review.."></textarea>
             </div>
-            <button type="button" on-tap="submitReview">Submit</button>
+            <button type="button" on-click="submitReview">Submit</button>
           </template>
           <template is="dom-if" if="[[post.winner.review]]">
             <p class="white">Your review: [[post.winner.review.review]]</p>
@@ -417,10 +417,28 @@
 
       markInProgress() {
         if(!this.post) return;
+        if(this.post.status != 1) return;
         
         this.isLoading = true;
         gAxios.post('/users/' + this.user.id + '/jobs/' + this.post.id + '/status', {
           status: 2
+        }).then( res => {
+          // console.log(res.data);
+          this.dispatch('updatePost', res.data);
+        }).catch( err => {
+
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      markCompleted() {
+        if(!this.post) return;
+        if(this.post.status != 3) return;
+        
+        this.isLoading = true;
+        gAxios.post('/users/' + this.user.id + '/jobs/' + this.post.id + '/status', {
+          status: 4
         }).then( res => {
           // console.log(res.data);
           this.dispatch('updatePost', res.data);

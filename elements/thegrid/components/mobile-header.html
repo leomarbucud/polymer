@@ -1,5 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/iron-dropdown/iron-dropdown.html">
+<link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
@@ -48,10 +50,10 @@
       <paper-icon-button icon="menu" on-tap="openDrawer" class="red"></paper-icon-button>
       <span class="flex"></span>
       <paper-icon-button id="location" icon="maps:my-location" on-tap="setCurrentLocation" class="red inactive"></paper-icon-button>
-			<paper-icon-button icon="filter-list" slot="dropdown-trigger" class="red" on-tap="openFilters"></paper-icon-button>
+			<!-- <paper-icon-button icon="filter-list" slot="dropdown-trigger" class="red" on-tap="openFilters"></paper-icon-button>
 			<iron-dropdown id="filters" horizontal-align="right" vertical-align="top">
 				<div slot="dropdown-content" class="dropdown-menu">
-					<!-- Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam amet blanditiis officia. Quo sint consectetur magnam harum eius esse dolores voluptate vitae, rerum velit minima dignissimos! Ducimus rem eligendi id! -->
+					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam amet blanditiis officia. Quo sint consectetur magnam harum eius esse dolores voluptate vitae, rerum velit minima dignissimos! Ducimus rem eligendi id!
 					<template is="dom-repeat" items="[[_filters]]" as="filter">
 						<div class="item" on-click="filterPosts" hidden$="[[filter.hidden]]">
 							<span>[[filter.name]]</span>
@@ -59,7 +61,42 @@
 						</div>
 					</template>
 				</div>
-			</iron-dropdown>
+			</iron-dropdown> -->
+			<paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
+				<paper-icon-button icon="filter-list" slot="dropdown-trigger" class="red"></paper-icon-button>
+				<div slot="dropdown-content" class="dropdown-menu">
+					<template is="dom-repeat" items="[[_filters]]" as="filter">
+						<!-- <div class="item" on-click="filterPosts" hidden$="[[filter.hidden]]">
+							<span>[[filter.name]]</span>
+							<paper-ripple></paper-ripple>
+						</div> -->
+						
+					</template>
+					<div class="item-title">
+						<span>Show only</span>
+					</div>
+					<div class="item">
+						<paper-checkbox value="m_p" on-change="filterCheck">My Posts</paper-checkbox>
+					</div>
+					<div class="item">
+						<paper-checkbox value="m_b" on-change="filterCheck">My Bids</paper-checkbox>
+					</div>
+					<div class="item">
+						<paper-checkbox value="m_s" on-change="filterCheck">My Skills</paper-checkbox>
+					</div>
+
+					<div class="item-title">
+						<span>View</span>
+					</div>
+					<div class="item">
+						<paper-checkbox>Price</paper-checkbox>
+					</div>
+					<div class="item">
+						<paper-checkbox>Time remaining</paper-checkbox>
+					</div>
+
+				</div>
+			</paper-menu-button>
     </div>
     <app-toolbar>
 			<span class="date">[[today]]</span>
@@ -106,6 +143,11 @@
 								
 							];
 						}
+					},
+
+					visiblePins: {
+						type: Array,
+						value: []
 					}
 				}
 			}
@@ -113,8 +155,64 @@
 			static get observers() {
 				return [
 					'_gmap(gmap)',
-					'_auth(auth)'
+					'_auth(auth)',
+					// '_visiblePinsChange(visiblePins)'
 				];
+			}
+
+			filterCheck(e) {
+				const gmap = this.gmap;
+				const target = e.target;
+
+				if( target.checked ) {
+					this.push('visiblePins', target.value);
+				} else {
+					const index = this.visiblePins.indexOf(target.value);
+					if(index != -1) {
+						this.visiblePins.splice(index, 1);
+					}
+				}
+
+				if(this.visiblePins.length == 0) {
+					gmap.markers.forEach( marker => {
+						marker.setVisible(true);
+					});
+					return;
+				}
+
+				gmap.markers.forEach( marker => {
+					marker.setVisible(false);
+				});
+
+				this.visiblePins.forEach( v => {
+
+					console.log(v);
+
+					if(v == 'm_p') {
+						gmap.markers.forEach( marker => {
+							if(marker.isMyPost){
+								marker.setVisible(true);
+							}
+						});
+					}
+
+					if(v == 'm_b') {
+						gmap.markers.forEach( marker => {
+							if(marker.isBidded){
+								marker.setVisible(true);
+							}
+						});
+					}
+
+				});
+
+				
+
+				gmap.markerClusterer.repaint();
+			}
+
+			_visiblePinsChange(visiblePins) {
+				console.log(visiblePins);
 			}
 
 			setFilters() {
