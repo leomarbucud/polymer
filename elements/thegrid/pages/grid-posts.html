@@ -106,6 +106,12 @@
             <span>Show only</span>
           </div>
           <div class="item">
+            <paper-checkbox value="nobidders" on-change="filterCheck">No bidders</paper-checkbox>
+          </div>
+          <div class="item">
+            <paper-checkbox value="bidded" on-change="filterCheck">Bidded</paper-checkbox>
+          </div>
+          <div class="item">
             <paper-checkbox value="1" on-change="filterCheck">Awarded</paper-checkbox>
           </div>
           <div class="item">
@@ -296,9 +302,9 @@
         const target = e.target;
 
         if( target.checked ) {
-					this.push('query', parseInt(target.value));
+					this.push('query', target.value);
 				} else {
-					const index = this.query.indexOf(parseInt(target.value));
+					const index = this.query.indexOf(target.value);
 					if(index != -1) {
 						this.query.splice(index, 1);
 					}
@@ -314,7 +320,26 @@
           return null;
         } else {
           return function(item) {
-            return (query.indexOf(item.status) != -1);
+
+            if(item.status == 0) {
+
+              if(query.indexOf('bidded') != -1 && query.indexOf('nobidders') != -1) {
+                return true;
+              }
+              if(query.indexOf('bidded') != -1 ) {
+                return (item.bidders.length > 0);
+              }
+
+              if(query.indexOf('nobidders') != -1) {
+                return (item.bidders.length == 0);
+              }
+
+              return true;
+
+            }
+            
+            return (query.indexOf(item.status.toString()) != -1);
+            
           };
         }
       }
