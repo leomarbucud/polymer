@@ -283,15 +283,22 @@
           return '/@' + username + '/posts/' + post_id; 
         };
 
+        var _icon = {
+          url: icon,
+          labelOrigin: new google.maps.Point(10, 40)
+        }
+
 				self.addMarker({
           id: data.id,
           category: data.category_id,
-					price: data.price,
+          currency: 'AED',
+					price: 'AED ' + data.price,
+          date: data.date,
 					isBidded: data.isBidded,
 					isMyPost: data.isMyPost,
 					lat: parseFloat(data.lat),
 					lng: parseFloat(data.lng),
-					icon: icon,
+					icon: _icon,
           user: data.user,
 					// content: content,
 					events: [

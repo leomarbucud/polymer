@@ -72,27 +72,29 @@
 						</div> -->
 						
 					</template>
-					<div class="item-title">
-						<span>Show only</span>
-					</div>
-					<div class="item">
-						<paper-checkbox value="m_p" on-change="filterCheck">My Posts</paper-checkbox>
-					</div>
-					<div class="item">
-						<paper-checkbox value="m_b" on-change="filterCheck">My Bids</paper-checkbox>
-					</div>
-					<div class="item">
-						<paper-checkbox value="m_s" on-change="filterCheck">My Skills</paper-checkbox>
-					</div>
+					<template is="dom-if" if="[[auth]]">
+						<div class="item-title">
+							<span>Show only</span>
+						</div>
+						<div class="item">
+							<paper-checkbox value="m_p" on-change="filterCheck">My Posts</paper-checkbox>
+						</div>
+						<div class="item">
+							<paper-checkbox value="m_b" on-change="filterCheck">My Bids</paper-checkbox>
+						</div>
+						<div class="item">
+							<paper-checkbox value="m_s" on-change="filterCheck">My Skills</paper-checkbox>
+						</div>
+					</template>
 
 					<div class="item-title">
 						<span>View</span>
 					</div>
 					<div class="item">
-						<paper-checkbox>Price</paper-checkbox>
+						<paper-checkbox value="p" on-change="updateView">Price</paper-checkbox>
 					</div>
 					<div class="item">
-						<paper-checkbox>Time remaining</paper-checkbox>
+						<paper-checkbox value="t" on-change="updateView">Time remaining</paper-checkbox>
 					</div>
 
 				</div>
@@ -146,6 +148,11 @@
 					},
 
 					visiblePins: {
+						type: Array,
+						value: []
+					},
+
+					markerView: {
 						type: Array,
 						value: []
 					}
@@ -350,6 +357,54 @@
 
 			openFilters() {
 				this.$.filters.open();
+			}
+
+			updateView(e) {
+				const gmap = this.gmap;
+				const target = e.target;
+
+				if(target.checked) {
+					this.push('markerView', target.value);
+				} else {
+					const index = this.markerView.indexOf(target.value);
+					if(index != -1) {
+						this.markerView.splice(index, 1);
+					}
+				}
+
+				if(this.markerView.length == 0) {
+					gmap.markers.forEach( marker => {
+						marker.set('label', null);
+					});
+					return;
+				}
+
+				
+
+				
+
+				gmap.markers.forEach( marker => {
+					var labelContent = [];
+
+					this.markerView.forEach( v => {
+						if( v == 'p') {
+							labelContent.push(marker.price);
+						}
+						if( v == 't') {
+							labelContent.push(moment(marker.date).fromNow()); 
+						}
+					});
+
+					var label =  {
+						text: labelContent.join(',\r\n '),
+						color: '#FFFFFF',
+						fontSize: '12px',
+						fontWeight: 'bold',
+						y: 10
+					}
+					marker.set('label', label);
+				});
+				
 			}
 
 			filterPosts(e) {
