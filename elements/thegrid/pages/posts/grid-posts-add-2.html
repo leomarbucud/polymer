@@ -134,8 +134,14 @@
 
 				this.data.price = this.price;
 
-				this.redirect('/posts/add/#3');
-				return;
+				if( this.data.category == 1) {
+					this.redirect('/posts/add/#3');
+					return;
+				} else {
+					this.redirect('/posts/add/#4');
+					return;
+				}
+
 				
 
 				// dispatch posting event

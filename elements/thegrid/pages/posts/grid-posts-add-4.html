@@ -18,7 +18,7 @@
 
 		<div id="toolbar" class="toolbar dgrey-bg">
 			<div class="flex">
-				<paper-icon-button icon="chevron-left" class="white pointer" on-click="goStep2"></paper-icon-button>
+				<paper-icon-button icon="chevron-left" class="white pointer" on-click="goBack"></paper-icon-button>
 			</div>
 			<div id="indicator"></div>
 			<div class="flex align-right" style="padding-right: 8px;">
@@ -112,12 +112,16 @@
 
 			}
 
-			goStep2() {
+			goBack() {
+				if(this.data.category == 1) {
+					this.redirect('/posts/add/#3');
+					return;
+				}
 				this.redirect('/posts/add/#2');
 			}
 
 			submit() {
-                this.data.details = this.details;
+        this.data.details = this.details;
 
 				const data = {
 					user_id: this.user.id,
