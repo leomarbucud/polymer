@@ -1,0 +1,111 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-settings-account">
+  <template>
+    <style include="grid iron-flex">
+       :host {
+        display: block;
+        background: var(--dark-grey);
+        height: 100%;
+      }
+    </style>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
+      <span class="flex"></span>
+    </div>
+
+    <main class="flex">
+      <section class="p-y-1 title">
+        <h1 class="white m-0">Account Settings</h1>
+      </section>
+
+      <section class="p-y-1">
+        
+        <div class="input-group">
+          <label>Email</label>
+          <input type="text" value="{{email::input}}" class="input" placeholder="Eamil" />
+        </div>
+
+        <button on-click="updateEmail">Update Email</button>
+
+        <div class="input-group">
+            <label>Old Password</label>
+          <input type="password" value="{{old_password::input}}" class="input" placeholder="Password" />
+        </div>
+
+        <div class="input-group">
+            <label>New Password</label>
+          <input type="password" value="{{new_password::input}}" class="input" placeholder="New Password" />
+        </div>
+
+        <div class="input-group">
+            <label>Confirm Password</label>
+          <input type="password" value="{{confirm_password::input}}" class="input" placeholder="Confirm Password" />
+        </div>
+
+        <button on-click="updatePassword">Update Password</button>
+
+      </section>
+
+    </main>
+
+  </template>
+
+  <script>
+    class GridSettingsAccount extends
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'grid-settings-account'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+          gmap: Object,
+          route: Object
+        }
+      }
+
+      constructor() {
+        super();
+
+        
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        
+        this.email = this.user.email;
+      }
+
+      updateEmail() {
+        gAxios.post('/users/' + this.user.id + '/settings/account/email', {
+          email: this.email
+        }).then( res => {
+          console.log(res.data);
+          this.dispatch('updateUser', res.data);
+        });
+      }
+
+      updatePassword() {
+        gAxios.post('/users/' + this.user.id + '/settings/account/password', {
+          old_password: this.old_password,
+          password: this.new_password,
+          password_confirmation: this.confirm_password
+        }).then( res => {
+          console.log(res.data);
+          // this.dispatch('updateUser', res.data);
+        });
+      }
+
+    }
+
+    customElements.define(GridSettingsAccount.is, GridSettingsAccount);
+  </script>
+</dom-module>

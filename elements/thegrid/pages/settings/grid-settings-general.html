@@ -1,0 +1,118 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-settings-general">
+  <template>
+    <style include="grid iron-flex">
+       :host {
+        display: block;
+        background: var(--dark-grey);
+        height: 100%;
+      }
+    </style>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
+      <span class="flex"></span>
+    </div>
+
+    <main class="flex">
+      <section class="p-y-1 title">
+        <h1 class="white m-0">General Settings</h1>
+      </section>
+
+      <section class="p-y-1">
+        
+        <div class="input-group">
+          <label>Username</label>
+          <input type="text" value="{{username::input}}" class="input" placeholder="Username" />
+        </div>
+
+        <div class="input-group">
+            <label>Display Name</label>
+          <input type="text" value="{{name::input}}" class="input" placeholder="Name" />
+        </div>
+
+        <div class="input-group">
+            <label>First Name</label>
+          <input type="text" value="{{first_name::input}}" class="input" placeholder="First Name" />
+        </div>
+
+        <div class="input-group">
+            <label>Middle Name</label>
+          <input type="text" value="{{middle_name::input}}" class="input" placeholder="Middle Name" />
+        </div>
+
+        <div class="input-group">
+            <label>Last Name</label>
+          <input type="text" value="{{last_name::input}}" class="input" placeholder="Last Name" />
+        </div>
+
+        <button on-click="save">Update</button>
+
+      </section>
+
+    </main>
+
+  </template>
+
+  <script>
+    class GridSettingsGeneral extends
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'grid-settings-general'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+          gmap: Object,
+          route: Object
+        }
+      }
+
+      constructor() {
+        super();
+
+        
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        
+        this.username = this.user.username;
+        this.name = this.user.name;
+
+        if( this.user.profile ) {
+          this.first_name = this.user.profile.first_name;
+          this.middle_name = this.user.profile.middle_name;
+          this.last_name = this.user.profile.last_name;
+        } 
+      }
+
+      save() {
+        gAxios.post('/users/' + this.user.id + '/settings/general', {
+          user: {
+            username: this.username,
+            name: this.name
+          },
+          profile: {
+            first_name: this.first_name,
+            middle_name: this.middle_name,
+            last_name: this.last_name
+          }
+        }).then( res => {
+          console.log(res.data);
+          this.dispatch('updateUser', res.data);
+        });
+      }
+
+    }
+
+    customElements.define(GridSettingsGeneral.is, GridSettingsGeneral);
+  </script>
+</dom-module>

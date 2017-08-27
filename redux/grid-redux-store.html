@@ -37,6 +37,11 @@
         return Object.assign({}, state, { user: user, auth: true } );
         break;
       }
+      case 'UPDATE_USER': {
+        const user = action.user;
+        return Object.assign({}, state, { user: user } );
+        break;
+      }
       case 'LOGOUT_USER': {
         return Object.assign({}, state, { user: null, auth: false, token: null, skills: null } );
         break;
@@ -260,6 +265,13 @@
         loggedUser(user) {
           return {
             type: 'LOGGED_USER',
+            user: user
+          }
+        },
+
+        updateUser(user) {
+          return {
+            type: 'UPDATE_USER',
             user: user
           }
         },

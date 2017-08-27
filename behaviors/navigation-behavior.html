@@ -27,7 +27,8 @@
                 POSTS_ADD_URL : '/posts/add',
                 SEARCH_URL : '/search',
                 BIDS_URL: '/bids',
-                INBOX_URL: '/inbox'
+                INBOX_URL: '/inbox',
+                SETTINGS_URL: '/settings'
               }
             }
           }
@@ -98,6 +99,10 @@
 
       redirectInbox() {
         this.redirect(this.url.INBOX_URL);
+      }
+      
+      redirectSettings() {
+        this.redirect(this.url.SETTINGS_URL);
       }
 
     }

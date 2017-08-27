@@ -1,4 +1,8 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../../../bower_components/paper-badge/paper-badge.html">
 <link rel="import" href="../../../bower_components/iron-dropdown/iron-dropdown.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="../../../bower_components/iron-list/iron-list.html">
@@ -71,10 +75,24 @@
 
       .time {
         font-size: 12px;
-        position: absolute;
+        /* position: absolute;
         top: 12px;
-        right: 16px;
+        right: 16px; */
         opacity: 0.7;
+      }
+
+      .avatar {
+        width: 40px;
+        height: 40px;
+        display: block;
+      }
+      .avatar .circle {
+        width: 40px;
+        height: 40px;
+      }
+
+      .red {
+        --paper-badge-background: var(--red);
       }
 
     </style>
@@ -113,7 +131,28 @@
       <section class="p-y-1 title">
         <h1 class="white m-0">Inbox</h1>
       </section>
-      <section class="list" id="post-list">
+      <div class="white" role="listbox">
+        <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt">
+          <paper-icon-item on-click="viewConversation">
+            <div class="avatar" slot="item-icon">
+              <img class="circle" src$="[[_otherUserProfileImage(convo.user1, convo.user2)]]">
+            </div>
+            <paper-item-body two-line>
+              <div>[[convo.job.name]]</div>
+              <div secondary>[[_lastMesage(convo.messages)]]</div>
+            </paper-item-body>
+            <div>
+              <div class="time" data-time$="[[convo.updated_at]]">[[_fromNow(convo.updated_at)]]</div>
+              <div>
+                <template is="dom-if" if="[[_lastRecipient(convo.last_updated_by, convo.unread_count)]]">
+                  <paper-badge label="[[convo.unread_count]]" class="red"></paper-badge>
+                </template>
+              </div>
+            </div>
+          </paper-icon-item>
+        </template>
+      </div>
+      <!-- <section class="list" id="post-list">
         <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt">
           <div class="row" on-click="viewConversation">
             <div class="job-title">[[convo.job.name]]</div>
@@ -128,7 +167,7 @@
           </div>
           <div class="divider"><hr/></div>
 				</template>
-      </section>
+      </section> -->
     </main>
 
     <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
@@ -273,13 +312,21 @@
       }
 
       _inboxChange(inbox) {
-        console.log('inbox change', inbox);
+        // console.log('inbox change', inbox);
         this.renderInbox(inbox);
       }
 
       _lastRecipient(last_updated_by, unread_count) {
         if(!this.auth) return;
         return (this.user.id != last_updated_by && unread_count > 0);
+      }
+
+      _otherUserProfileImage(user1, user2) {
+        var name = user1.name;
+        if(user1.id == this.user.id) {
+          name = user2.name;
+        }
+        return LetterAvatar(name, 40);
       }
 
       _lastMesage(messages) {
@@ -329,6 +376,16 @@
 				b = new Date(b.updated_at);
 				return b < a ? -1 : b > a ? 1 : 0;
 			}
+
+      _profileImage(name) {
+        // if( img ) {
+        //   return this.url.API_BASE_URL + '/storage/avatars/' + img;
+        // }
+        // if(this.user) return LetterAvatar(this.user.name, '64');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
+
+        return LetterAvatar(name, 64);
+
+      }
 
       _initSocketEvents() {
 

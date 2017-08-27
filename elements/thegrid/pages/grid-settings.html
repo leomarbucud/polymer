@@ -1,0 +1,135 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../grid-styles.html">
+<link rel="import" href="settings/grid-settings-general.html">
+<link rel="import" href="settings/grid-settings-account.html">
+
+<dom-module id="grid-settings">
+  <template>
+    <style include="grid iron-flex">
+       :host {
+        display: block;
+        position: relative;
+        background: var(--dark-grey);
+        height: 100%;
+      }
+    </style>
+
+    <app-route route="{{route}}" pattern="/settings/:id" data="{{settings}}"></app-route>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <span class="flex"></span>
+    </div>
+
+    <main class="flex">
+      <section class="p-y-1 title">
+        <h1 class="white m-0">Settings</h1>
+      </section>
+      <div class="white" role="listbox">
+        <paper-item on-tap="generalSettings">
+          <paper-item-body two-line>
+            <div>General</div>
+            <div secondary>Change your username and name</div>
+          </paper-item-body>
+        </paper-item>
+        <paper-item on-tap="accountSettings">
+          <paper-item-body two-line>
+            <div>Account</div>
+            <div secondary>Change your email, password</div>
+          </paper-item-body>
+        </paper-item>
+        <paper-item>
+          <paper-item-body two-line>
+            <div>Locations</div>
+            <div secondary>Change your locations such as home and work</div>
+          </paper-item-body>
+        </paper-item>
+        <paper-item>
+          <paper-item-body two-line>
+            <div>Connected Accounts</div>
+            <div secondary>Facebook, Google</div>
+          </paper-item-body>
+        </paper-item>
+        <paper-item>
+          <paper-item-body two-line>
+            <div>Privacy</div>
+            <div secondary>Change your privacy settings</div>
+          </paper-item-body>
+        </paper-item>
+      </div>
+    </main>
+
+    <iron-pages id="subPages" attr-for-selected="data-page" selected="[[settings.id]]">
+
+      <section data-page="general" class="sub-page">
+        <grid-settings-general></grid-settings-general>
+      </section>
+
+      <section data-page="account" class="sub-page">
+        <grid-settings-account></grid-settings-account>
+      </section>
+
+    </iron-pages>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay dgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+    class GridSettings extends
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'grid-settings'; }
+
+      static get properties() {
+        return {
+          gmap: Object,
+          route: Object
+        }
+      }
+
+      static get observers() {
+        return [
+          '_routeChange(route)'
+        ]
+      }
+
+      constructor() {
+        super();
+
+      }
+
+      generalSettings() {
+        this.redirect('/settings/general');
+      }
+
+      accountSettings() {
+        this.redirect('/settings/account');
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+      }
+
+      _routeChange(route) {
+        if(route.path == '/settings') {
+          this.set('settings.id', null);
+        }
+      }
+
+    }
+
+    customElements.define(GridSettings.is, GridSettings);
+  </script>
+</dom-module>
