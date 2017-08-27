@@ -54,6 +54,8 @@
 
     </main>
 
+    <paper-toast id="toast" class="fit-bottom"></paper-toast>
+
   </template>
 
   <script>
@@ -92,9 +94,18 @@
           this.middle_name = this.user.profile.middle_name;
           this.last_name = this.user.profile.last_name;
         } 
+
+        this.$.toast.fitInto = this;
+      }
+
+      openToast(html = '') {
+        this.$.toast.close();
+        this.$.toast.innerHTML = html;
+        this.$.toast.open();
       }
 
       save() {
+        this.openToast('Updating your details, please wait...');
         gAxios.post('/users/' + this.user.id + '/settings/general', {
           user: {
             username: this.username,
@@ -108,6 +119,11 @@
         }).then( res => {
           console.log(res.data);
           this.dispatch('updateUser', res.data);
+          this.openToast('Successfully updated!');
+        }).catch( err => {
+          if( err.response ) {
+            
+          }
         });
       }
 

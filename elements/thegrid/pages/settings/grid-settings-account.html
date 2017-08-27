@@ -51,6 +51,8 @@
 
     </main>
 
+    <paper-toast id="toast" class="fit-bottom"></paper-toast>
+
   </template>
 
   <script>
@@ -82,18 +84,40 @@
         super.connectedCallback();
         
         this.email = this.user.email;
+        this.old_password = '';
+        this.new_password = '';
+        this.password = '';
+
+        this.$.toast.fitInto = this;
+      }
+
+      openToast(html = '') {
+        this.$.toast.close();
+        this.$.toast.innerHTML = html;
+        this.$.toast.open();
       }
 
       updateEmail() {
+        this.isLoading = true;
+        this.openToast('Updating email, please wait...');
         gAxios.post('/users/' + this.user.id + '/settings/account/email', {
           email: this.email
         }).then( res => {
           console.log(res.data);
           this.dispatch('updateUser', res.data);
+          this.openToast('Successfully updated');
+        }).catch( err => {
+          if(err.response) {
+            console.log(err.response.data);
+          }
+        }).then( () => {
+          this.isLoading = false;
         });
       }
 
       updatePassword() {
+        this.isLoading = true;
+        this.openToast('Updating password, please wait...');
         gAxios.post('/users/' + this.user.id + '/settings/account/password', {
           old_password: this.old_password,
           password: this.new_password,
@@ -101,6 +125,24 @@
         }).then( res => {
           console.log(res.data);
           // this.dispatch('updateUser', res.data);
+          this.openToast('Successfully updated');
+        }).catch( err => {
+          if(err.response) {
+            console.log(err.response.data);
+            const data = err.response.data;
+            if(data.message) {
+              console.log('data.message', data.message);
+              this.openToast(data.message);
+              return;
+            }
+
+            if(data.password) {
+              this.openToast(data.password[0]);
+              return;
+            }
+          }
+        }).then( () => {
+          this.isLoading = false;
         });
       }
 
