@@ -5,9 +5,15 @@
   <template>
     <style include="grid iron-flex">
        :host {
-        display: block;
+        position: relative;
         background: var(--dark-grey);
         height: 100%;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
       }
     </style>
 
@@ -22,30 +28,35 @@
       </section>
 
       <section class="p-y-1">
-        
+
         <div class="input-group">
           <label>Username</label>
           <input type="text" value="{{username::input}}" class="input" placeholder="Username" />
         </div>
 
         <div class="input-group">
-            <label>Display Name</label>
+          <label>Display Name</label>
           <input type="text" value="{{name::input}}" class="input" placeholder="Name" />
         </div>
 
         <div class="input-group">
-            <label>First Name</label>
+          <label>First Name</label>
           <input type="text" value="{{first_name::input}}" class="input" placeholder="First Name" />
         </div>
 
         <div class="input-group">
-            <label>Middle Name</label>
+          <label>Middle Name</label>
           <input type="text" value="{{middle_name::input}}" class="input" placeholder="Middle Name" />
         </div>
 
         <div class="input-group">
-            <label>Last Name</label>
+          <label>Last Name</label>
           <input type="text" value="{{last_name::input}}" class="input" placeholder="Last Name" />
+        </div>
+
+        <div class="input-group">
+          <label>About</label>
+          <textarea rows="6" max="191" class="input" value="{{about::input}}" style="resize: none; height: 150px; padding: 16px;" placeholder="Start typing.."></textarea>
         </div>
 
         <button on-click="save">Update</button>
@@ -80,20 +91,21 @@
       constructor() {
         super();
 
-        
+
       }
 
       connectedCallback() {
         super.connectedCallback();
-        
+
         this.username = this.user.username;
         this.name = this.user.name;
 
-        if( this.user.profile ) {
+        if (this.user.profile) {
           this.first_name = this.user.profile.first_name;
           this.middle_name = this.user.profile.middle_name;
           this.last_name = this.user.profile.last_name;
-        } 
+          this.about = this.user.profile.bio;
+        }
 
         this.$.toast.fitInto = this;
       }
@@ -114,15 +126,16 @@
           profile: {
             first_name: this.first_name,
             middle_name: this.middle_name,
-            last_name: this.last_name
+            last_name: this.last_name,
+            bio: this.about
           }
-        }).then( res => {
+        }).then(res => {
           console.log(res.data);
           this.dispatch('updateUser', res.data);
           this.openToast('Successfully updated!');
-        }).catch( err => {
-          if( err.response ) {
-            
+        }).catch(err => {
+          if (err.response) {
+
           }
         });
       }

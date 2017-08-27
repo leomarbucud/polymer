@@ -5,9 +5,15 @@
   <template>
     <style include="grid iron-flex">
        :host {
-        display: block;
+        position: relative;
         background: var(--dark-grey);
         height: 100%;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
       }
     </style>
 
