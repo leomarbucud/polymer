@@ -141,8 +141,6 @@
           let detail = e.detail;
           this.lat = detail.lat;
           this.lng = detail.lng;
-
-          console.log(detail);
         });
         
       }
@@ -161,15 +159,15 @@
       }
 
       saveLocations() {
-        console.log('saving locations...');
-        console.log(this.home, this.work);
+
+        this.openToast('Saving your locations...');
 
         gAxios.post('/users/' + this.user.id + '/settings/locations', {
           home: this.home,
           work: this.work
-        }).then( res => {
-          console.log(res.data);
+        }).then( res => {          
           this.dispatch('updateUser', res.data);
+          this.openToast('Successfully saved!');
         });
       }
 
