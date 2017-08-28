@@ -1,0 +1,348 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-settings-locations">
+  <template>
+    <style include="grid iron-flex">
+       :host {
+        position: relative;
+        background: var(--dark-grey);
+        height: 100%;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+      }
+      .map-control {
+        position: absolute !important;
+        z-index: 99;
+        width: 100%;
+        display: none;
+      }
+
+      .map-control.active {
+        display: block !important;
+      }
+
+      .map-control.map-control-input {
+        top: 0;
+      }
+
+      .map-control .input-group {
+        padding: 0;
+      }
+
+      .map-control.map-control-marker {
+        width: 27px;
+        height: 33px;
+        top: calc(50% - 33px);
+        left: calc(50% - 13px);
+        pointer-events: none;
+      }
+
+      .map-control.map-control-button {
+        bottom: 0;
+        margin: 0;
+        text-align: center;
+        background: var(--red);
+        color: #FFFFFF;
+        border-radius: 0;
+      }
+    </style>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
+      <span class="flex"></span>
+    </div>
+
+    <main class="flex">
+      <section class="p-y-1 title">
+        <h1 class="white m-0">My Locations</h1>
+      </section>
+
+      <section class="p-y-1">
+        
+        <div class="input-group prefix suffix">
+          <div class="addon-prefix">
+            Home
+          </div>
+          <input type="text" value="{{_home::input}}" class="input input-location" data-location="home" placeholder="Home" />
+          <div class="addon-suffix has-icon">
+            <paper-icon-button icon="maps:pin-drop" class="red" hidden$="[[!gmap.map]]" on-tap="showMap" data-location="home"></paper-icon-button>
+            <paper-icon-button id="locationButton" class="red" icon="maps:my-location" hidden$="[[!gmap.map]]" on-tap="myLocation" data-location="home"></paper-icon-button>
+          </div>
+        </div>
+
+        <div class="input-group prefix suffix">
+          <div class="addon-prefix">
+            Work
+          </div>
+          <input type="text" value="{{_work::input}}" class="input input-location" data-location="work" placeholder="Work" />
+          <div class="addon-suffix has-icon">
+            <paper-icon-button icon="maps:pin-drop" class="red" hidden$="[[!gmap.map]]" on-tap="showMap" data-location="work"></paper-icon-button>
+            <paper-icon-button id="locationButton" class="red" icon="maps:my-location" hidden$="[[!gmap.map]]" on-tap="myLocation" data-location="work"></paper-icon-button>
+          </div>
+        </div>
+        <button on-click="saveLocations">Save</button>
+
+      </section>
+
+    </main>
+
+    <div class="map-control map-control-input">
+      <div class="input-group suffix p-0">
+        <input id="search-location" type="text" class="input input-location" placeholder="Search location"/>
+
+        <div class="addon-suffix has-icon">
+          <paper-icon-button class="red" icon="close"></paper-icon-button>
+        </div>
+      </div>
+    </div>
+
+    <iron-icon class="map-control map-control-marker" src="/assets/images/icons/related-marker.svg"></iron-icon>
+
+    <paper-button class="map-control map-control-button" on-tap="hideMap">Done</paper-button>
+
+    <paper-toast id="toast" class="fit-bottom"></paper-toast>
+
+  </template>
+
+  <script>
+    class GridSettingsLocations extends
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'grid-settings-locations'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+          gmap: Object,
+          route: Object
+        }
+      }
+
+      static get observers() {
+        return [
+          '_isMapInit(gmap)'
+        ]
+      }
+
+      constructor() {
+        super();
+
+        window.addEventListener('map:center_changed', e => {
+          let detail = e.detail;
+          this.lat = detail.lat;
+          this.lng = detail.lng;
+
+          console.log(detail);
+        });
+        
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.$.toast.fitInto = this;
+
+        if(this.user.keyedLocations) {
+          this.home = this.user.keyedLocations.home;
+          this._home = this.home.location;
+          this.work = this.user.keyedLocations.work;
+          this._work = this.work.location;
+        }
+      }
+
+      saveLocations() {
+        console.log('saving locations...');
+        console.log(this.home, this.work);
+
+        gAxios.post('/users/' + this.user.id + '/settings/locations', {
+          home: this.home,
+          work: this.work
+        }).then( res => {
+          console.log(res.data);
+          this.dispatch('updateUser', res.data);
+        });
+      }
+
+      openToast(html = '') {
+        this.$.toast.close();
+        this.$.toast.innerHTML = html;
+        this.$.toast.open();
+      }
+
+      showMap(e) {
+        const gmap = this.gmap;
+        if(!gmap) return;
+
+        this.targetLocation = e.target.getAttribute('data-location');
+
+        this._setMarkerVisibility(false);
+
+        var mapControls = this.shadowRoot.querySelectorAll('.map-control');
+        
+        mapControls.forEach( control => {
+          control.classList.add('active');
+        });
+
+      }
+
+      hideMap() {
+        const gmap = this.gmap;
+        if(!gmap) return;
+
+        this._setMarkerVisibility(true);
+
+        var mapControls = this.shadowRoot.querySelectorAll('.map-control');
+
+        mapControls.forEach( control => {
+          control.classList.remove('active');
+        });
+
+        const pos = {
+          lat: this.lat,
+          lng: this.lng
+        };
+        
+        
+        gmap.geocodeLatLng(pos)
+        .then( res => {
+          let address = res[0].formatted_address;
+          const loc = {
+            location: address,
+            lat: pos.lat,
+            lng: pos.lng
+          };
+          
+          this.setLocation(loc);
+        }).catch( err => {
+          console.log(err);
+        });
+      }
+
+      myLocation(e) {
+        const self = this;
+        const target = e.target;
+        this.targetLocation = e.target.getAttribute('data-location');
+        if (navigator.geolocation) {
+          target.classList.add('inactive');
+          navigator.geolocation.getCurrentPosition( position => {
+
+            let pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+
+            this.gmap.map.setCenter(pos);
+
+  					this.gmap.geocodeLatLng(pos)
+            .then( res => {
+              let address = res[0].formatted_address;
+              const loc = {
+                location: address,
+                lat: pos.lat,
+                lng: pos.lng
+              };
+              
+              this.setLocation(loc);
+
+              target.classList.remove('inactive');
+        
+            }).catch( err => {
+              console.log(err);
+            });
+          });
+        }
+      }
+
+      setLocation(location) {
+        if( this.targetLocation == 'home') {
+          this.home = location;
+          this._home = location.location;
+        } else if( this.targetLocation == 'work') {
+          this.work = location;
+          this._work = location.location;
+        }
+        console.log('aaa', location);
+        this.targetLocation = null;
+      }
+
+      _setMarkerVisibility(visible) {
+        const gmap = this.gmap;
+        if(!gmap) return;
+
+        if(visible){
+          gmap.classList.remove('selecting');
+        } else {
+          gmap.classList.add('selecting');
+        }
+
+        gmap.markers.forEach( marker => {
+          marker.setVisible(visible);
+        });
+
+        gmap.markerClusterer.repaint();
+      }
+
+      _isMapInit(gmap) {
+        if(!gmap.map) return;
+
+        for(let input of this.shadowRoot.querySelectorAll('.input-location')) {
+          if(input) {
+            const s = new google.maps.places.SearchBox(input);
+
+            s.addListener('places_changed', () => {
+
+              const places = s.getPlaces();
+
+              if(places.length == 0) {
+                return;
+              }
+
+              const bounds = new google.maps.LatLngBounds();
+
+              for (var i = 0, place; place = places[i]; i++) {
+                bounds.extend(place.geometry.location);
+              }
+
+              gmap.map.fitBounds(bounds);
+
+              const pos = {
+                lat: this.gmap.map.getCenter().lat(),
+                lng: this.gmap.map.getCenter().lng()
+              };
+
+              if(!input.getAttribute('data-location')) {
+                return;
+              }
+
+              const loc = {
+                location: input.value,
+                lat: pos.lat,
+                lng: pos.lng
+              };
+
+              this.targetLocation = input.getAttribute('data-location');
+              
+              this.setLocation(loc);              
+
+            });
+
+          }
+        }
+
+      }
+
+    }
+
+    customElements.define(GridSettingsLocations.is, GridSettingsLocations);
+  </script>
+</dom-module>

@@ -5,6 +5,7 @@
 <link rel="import" href="../grid-styles.html">
 <link rel="import" href="settings/grid-settings-general.html">
 <link rel="import" href="settings/grid-settings-account.html">
+<link rel="import" href="settings/grid-settings-locations.html">
 
 <dom-module id="grid-settings">
   <template>
@@ -21,10 +22,6 @@
         -webkit-flex-direction: column;
         flex-direction: column;
       }
-
-      main {
-        max-height: calc(100% - 64px);
-      }
     </style>
 
     <app-route route="{{route}}" pattern="/settings/:id" data="{{settings}}"></app-route>
@@ -39,19 +36,19 @@
         <h1 class="white m-0">Settings</h1>
       </section>
       <div class="white" role="listbox">
-        <paper-item on-tap="generalSettings">
+        <paper-item on-click="generalSettings">
           <paper-item-body two-line>
             <div>General</div>
             <div secondary>Change your username and name</div>
           </paper-item-body>
         </paper-item>
-        <paper-item on-tap="accountSettings">
+        <paper-item on-click="accountSettings">
           <paper-item-body two-line>
             <div>Account</div>
             <div secondary>Change your email, password</div>
           </paper-item-body>
         </paper-item>
-        <paper-item>
+        <paper-item on-click="locationsSettings">
           <paper-item-body two-line>
             <div>Locations</div>
             <div secondary>Change your locations such as home and work</div>
@@ -80,6 +77,10 @@
 
       <section data-page="account" class="sub-page">
         <grid-settings-account></grid-settings-account>
+      </section>
+
+      <section data-page="locations" class="sub-page">
+        <grid-settings-locations gmap="[[gmap]]"></grid-settings-locations>
       </section>
 
     </iron-pages>
@@ -126,6 +127,10 @@
 
       accountSettings() {
         this.redirect('/settings/account');
+      }
+
+      locationsSettings() {
+        this.redirect('/settings/locations');
       }
 
       connectedCallback() {
