@@ -585,11 +585,11 @@
           if(!this.auth) return;
 
 					if(data.winner_user_id == this.user.id) {
-						let href = '/bids/' + data.bid;
+						let href = '/bids/' + data.id;
 						let text = 'Your bid has been awarded to you.';
 						openNotification(href, text);
 					} else {
-						let href = '/bids/' + data.bid;
+						let href = '/bids/' + data.id;
 						let text = 'Your bidded job has been awarded to other bidder.';
 						openNotification(href, text);
 					}

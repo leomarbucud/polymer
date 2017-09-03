@@ -1,8 +1,9 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../../bower_components/iron-dropdown/iron-dropdown.html">
 <link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../grid-styles.html">
 <link rel="import" href="posts/grid-post.html">
@@ -59,10 +60,38 @@
 
       .time {
         font-size: 12px;
-        position: absolute;
-        top: 12px;
-        right: 16px;
         opacity: 0.7;
+      }
+
+      .top-search-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        display: none;
+        background: #424242;
+        height: 64px;
+        color: #A8A8A8 !important;
+      }
+
+      .top-search-bar .input, 
+      .top-search-bar .input-group,
+      .top-search-bar .input-group .addon-suffix,
+      .top-search-bar .input-group .addon-prefix  {
+        background: #424242;
+        color: #A8A8A8;
+      }
+
+      .top-search-bar .input-group {
+        width: 100%;
+      }
+
+      .top-search-bar.active {
+        display: block;
+      }
+
+      .toolbar {
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.24), 0px 0px 4px rgba(0, 0, 0, 0.12);
       }
 
     </style>
@@ -85,16 +114,7 @@
     <div id="toolbar" class="toolbar dgrey-bg">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
-      <paper-icon-button icon="search" class="red pointer"></paper-icon-button>
-      <!-- <paper-icon-button icon="more-vert" class="red pointer" on-tap="openMenu"></paper-icon-button>
-      <iron-dropdown id="menu" horizontal-align="right" vertical-align="top">
-        <div slot="dropdown-content" class="dropdown-menu">
-          <div class="item" on-click="refreshJobs">
-            <span>Refresh</span>
-            <paper-ripple></paper-ripple>
-          </div>
-        </div>
-      </iron-dropdown> -->
+      <paper-icon-button icon="search" class="red pointer" on-click="openSearchBar"></paper-icon-button>
       <paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
         <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
         <div slot="dropdown-content" class="dropdown-menu">
@@ -124,11 +144,37 @@
       </paper-menu-button>
     </div>
 
+    <div class="top-search-bar">
+      <div class="toolbar">
+        <div class="input-group suffix prefix">
+          <div class="addon-prefix has-button">
+            <paper-icon-button icon="chevron-left" class="pointer" on-click="closeSearchBar"></paper-icon-button>
+          </div>
+          <input type="text" class="input" value="{{search::input}}" placeholder="Search..."/>
+          <div class="addon-suffix has-button">
+            <paper-icon-button icon="close" class="pointer" on-click="clearSearchBar"></paper-icon-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <main class="flex">
       <section class="p-y-1 title">
         <h1 class="white m-0">Posts</h1>
       </section>
-      <section class="list" id="post-list">
+      <div id="post-list" class="white" role="listbox">
+        <template is="dom-repeat" items="[[posts]]" as="job" filter="{{_filterPost(query)}}">
+          <paper-item on-click="viewPost">
+            <paper-item-body two-line>
+              <div>[[job.name]]</div>
+              <div secondary>Date needed: [[_fromNow(job.date)]]</div>
+              <paper-ripple></paper-ripple>
+            </paper-item-body>
+            <div class="time" data-time$="[[job.created_at]]">[[_fromNow(job.created_at)]]</div>
+          </paper-item>
+        </template>
+      </div>
+      <!-- <section class="list" id="post-list">
         <template is="dom-repeat" items="[[posts]]" as="job" filter="{{_filterPost(query)}}">
           <div class="row" on-click="viewPost">
             <div class="job-title">{{job.name}}</div>
@@ -144,7 +190,7 @@
               <div secondary class="time"></div>
             </div>
         </template>
-      </section>
+      </section> -->
     </main>
 
     <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
@@ -213,7 +259,9 @@
           query: {
             type: Array,
             value: []
-          }
+          },
+
+          search: String
         }
       }
 
@@ -221,7 +269,8 @@
         return [
           '_subrouteChange(subroute)',
           '_subrouteDataChange(subrouteData)',
-          '_postChange(post)'
+          '_postChange(post)',
+          '_search(search)'
         ]
       }
 
@@ -239,7 +288,7 @@
             let time = item.getAttribute('data-time');
             item.innerHTML = this._fromNow(time);
           });
-        }, 60000);
+        }, 30000);
       }
 
       static get actions() {
@@ -315,17 +364,60 @@
 
       }
 
+      openSearchBar() {
+        const sb = this.shadowRoot.querySelector('.top-search-bar')
+        sb.classList.add('active');
+        sb.querySelector('input').focus();
+      }
+
+      closeSearchBar() {
+        this.shadowRoot.querySelector('.top-search-bar').classList.remove('active');
+      }
+
+      clearSearchBar() {
+        this.search = '';
+        const sb = this.shadowRoot.querySelector('.top-search-bar')
+        sb.querySelector('input').focus();
+      }
+
+      _search(search) {
+        let a = this.query.slice(0);
+        if(!search) {
+          a.search = null;
+        }
+        if(search) {
+          a.search = search;
+        }
+
+        this.set('query', a);
+      }
+
       _filterPost(query) {
-        if (!query.length) {
+        const self = this;
+
+        if (!query.length && !query.search) {
           return null;
         } else {
           return function(item) {
+
+            if(query.search) {
+              let s = query.search.toLowerCase();
+              let n = item.name.toLowerCase();
+              if(n.indexOf(s) == -1) {
+                return false;
+              }
+            }
+
+            if(!query.length) {
+              return true;
+            }
 
             if(item.status == 0) {
 
               if(query.indexOf('bidded') != -1 && query.indexOf('nobidders') != -1) {
                 return true;
               }
+
               if(query.indexOf('bidded') != -1 ) {
                 return (item.bidders.length > 0);
               }
