@@ -63,37 +63,6 @@
         opacity: 0.7;
       }
 
-      .top-search-bar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        display: none;
-        background: #424242;
-        height: 64px;
-        color: #A8A8A8 !important;
-      }
-
-      .top-search-bar .input, 
-      .top-search-bar .input-group,
-      .top-search-bar .input-group .addon-suffix,
-      .top-search-bar .input-group .addon-prefix  {
-        background: #424242;
-        color: #A8A8A8;
-      }
-
-      .top-search-bar .input-group {
-        width: 100%;
-      }
-
-      .top-search-bar.active {
-        display: block;
-      }
-
-      .toolbar {
-        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.24), 0px 0px 4px rgba(0, 0, 0, 0.12);
-      }
-
     </style>
 
     <app-location route="{{route}}" ></app-location>
@@ -111,7 +80,7 @@
         pattern="/posts/:id"
         data="{{post}}"></app-route>
 
-    <div id="toolbar" class="toolbar dgrey-bg">
+    <div id="toolbar" class="toolbar dgrey-bg shadow">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
       <paper-icon-button icon="search" class="red pointer" on-click="openSearchBar"></paper-icon-button>
@@ -163,7 +132,7 @@
         <h1 class="white m-0">Posts</h1>
       </section>
       <div id="post-list" class="white" role="listbox">
-        <template is="dom-repeat" items="[[posts]]" as="job" filter="{{_filterPost(query)}}">
+        <template is="dom-repeat" items="[[posts]]" as="job" filter="{{_filterPosts(query)}}">
           <paper-item on-click="viewPost">
             <paper-item-body two-line>
               <div>[[job.name]]</div>
@@ -392,7 +361,7 @@
         this.set('query', a);
       }
 
-      _filterPost(query) {
+      _filterPosts(query) {
         const self = this;
 
         if (!query.length && !query.search) {

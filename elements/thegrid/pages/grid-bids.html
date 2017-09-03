@@ -1,4 +1,9 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="../grid-styles.html">
 <link rel="import" href="bids/grid-bid.html">
@@ -70,27 +75,65 @@
         pattern="/bids/:id"
         data="{{bid}}"></app-route>
 
-    <div id="toolbar" class="toolbar dgrey-bg">
+    <div id="toolbar" class="toolbar shadow dgrey-bg">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
-      <paper-icon-button icon="search" class="red pointer"></paper-icon-button>
-      <paper-icon-button icon="more-vert" class="red pointer"></paper-icon-button>
+      <paper-icon-button icon="search" class="red pointer" on-click="openSearchBar"></paper-icon-button>
+      <paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
+        <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
+        <div slot="dropdown-content" class="dropdown-menu">
+          <div class="item" on-click="refreshBids">
+            <span>Refresh</span>
+            <paper-ripple></paper-ripple>
+          </div>
+          <div class="item-title">
+            <span>Show only</span>
+          </div>
+          <div class="item">
+            <paper-checkbox value="1" on-change="filterCheck">Awarded</paper-checkbox>
+          </div>
+          <div class="item">
+            <paper-checkbox value="2" on-change="filterCheck">In progress</paper-checkbox>
+          </div>
+          <div class="item">
+            <paper-checkbox value="3" on-change="filterCheck">Review</paper-checkbox>
+          </div>
+          <div class="item">
+            <paper-checkbox value="4" on-change="filterCheck">Completed</paper-checkbox>
+          </div>
+        </div>
+      </paper-menu-button>
+    </div>
+
+    <div class="top-search-bar">
+      <div class="toolbar">
+        <div class="input-group suffix prefix">
+          <div class="addon-prefix has-button">
+            <paper-icon-button icon="chevron-left" class="pointer" on-click="closeSearchBar"></paper-icon-button>
+          </div>
+          <input type="text" class="input" value="{{search::input}}" placeholder="Search..."/>
+          <div class="addon-suffix has-button">
+            <paper-icon-button icon="close" class="pointer" on-click="clearSearchBar"></paper-icon-button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <main class="flex">
       <section class="p-y-1 title">
         <h1 class="white m-0">Bids</h1>
       </section>
-      <section class="list" id="post-list">
-        <template is="dom-repeat" items="[[bids]]" as="bid">
-          <div class="row" on-click="viewBid">
-            <div class="job-title">{{bid.job.name}}</div>
-            <div secondary class="time" data-time$="[[job.created_at]]">{{_computeDate(bid.created_at)}}</div>
-            <paper-ripple></paper-ripple>
-          </div>
-          <div class="divider"><hr/></div>
-				</template>
-      </section>
+      <div id="post-list" class="white" role="listbox">
+          <template is="dom-repeat" items="[[bids]]" as="bid" filter="{{_filterBids(query)}}">
+            <paper-item on-click="viewBid">
+              <paper-item-body two-line>
+                <div>[[bid.job.name]]</div>
+                <div secondary>Date needed: [[_fromNow(bid.created_at)]]</div>
+                <paper-ripple></paper-ripple>
+              </paper-item-body>
+            </paper-item>
+          </template>
+        </div>
     </main>
 
     <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
@@ -146,7 +189,12 @@
           isLoading: {
             type: Boolean,
             value: true
-          }
+          },
+
+          query: {
+            type: Array,
+            value: []
+          },
         }
       }
 
@@ -154,7 +202,8 @@
         return [
           '_subrouteChange(subroute)',
           '_subrouteDataChange(subrouteData)',
-          '_postChange(post)'
+          '_postChange(post)',
+          '_search(search)'
         ]
       }
 
@@ -176,6 +225,22 @@
       connectedCallback() {
         super.connectedCallback();
 
+        this.populateBids();
+
+        // update time automatically every 1 minute
+        const plist = this.shadowRoot.querySelector('#post-list');
+
+        setInterval( () => {
+          var times = plist.querySelectorAll('[data-time]');
+          times.forEach( item => {
+            let time = item.getAttribute('data-time');
+            item.innerHTML = this._fromNow(time);
+          });
+        }, 30000);
+
+      }
+
+      populateBids() {
         if(!this.user) return;
 
         gAxios.get('/users/'+ this.user.id + '/bids')
@@ -195,18 +260,10 @@
 				}).then( () => {
           this.isLoading = false;
         });
+      }
 
-        // update time automatically every 1 minute
-        const plist = this.shadowRoot.querySelector('#post-list');
-
-        setInterval( () => {
-          var times = plist.querySelectorAll('[data-time]');
-          times.forEach( item => {
-            let time = item.getAttribute('data-time');
-            item.innerHTML = this._computeDate(time);
-          });
-        }, 60000);
-
+      refreshBids() {
+        this.populateBids();
       }
 
       viewBid(e) {
@@ -215,7 +272,78 @@
         this._bid = e.model.bid;
       }
 
-      _computeDate(date) {
+      openSearchBar() {
+        const sb = this.shadowRoot.querySelector('.top-search-bar')
+        sb.classList.add('active');
+        sb.querySelector('input').focus();
+      }
+
+      closeSearchBar() {
+        this.shadowRoot.querySelector('.top-search-bar').classList.remove('active');
+      }
+
+      clearSearchBar() {
+        this.search = '';
+        const sb = this.shadowRoot.querySelector('.top-search-bar')
+        sb.querySelector('input').focus();
+      }
+
+      _search(search) {
+        let a = this.query.slice(0);
+        if(!search) {
+          a.search = null;
+        }
+        if(search) {
+          a.search = search;
+        }
+
+        this.set('query', a);
+      }
+
+      filterCheck(e) {
+        const target = e.target;
+
+        if( target.checked ) {
+					this.push('query', target.value);
+				} else {
+					const index = this.query.indexOf(target.value);
+					if(index != -1) {
+						this.query.splice(index, 1);
+					}
+        }
+        
+        const q = this.query.slice(0);
+        this.set('query', q);
+
+      }
+
+      _filterBids(query) {
+        const self = this;
+
+        if (!query.length && !query.search) {
+          return null;
+        } else {
+          return function(item) {
+
+            if(query.search) {
+              let s = query.search.toLowerCase();
+              let n = item.job.name.toLowerCase();
+              if(n.indexOf(s) == -1) {
+                return false;
+              }
+            }
+
+            if(!query.length) {
+              return true;
+            }
+            
+            return (query.indexOf(item.job.status.toString()) != -1);
+            
+          };
+        }
+      }
+
+      _fromNow(date) {
         return moment(date).fromNow();
         // return moment(date, "YYYY-MM-DD").endOf('minute').fromNow();
       }

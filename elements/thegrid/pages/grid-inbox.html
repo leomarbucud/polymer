@@ -1,11 +1,12 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/paper-badge/paper-badge.html">
 <link rel="import" href="../../../bower_components/iron-dropdown/iron-dropdown.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
-<link rel="import" href="../../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../grid-styles.html">
 <link rel="import" href="inbox/grid-conversation.html">
 
@@ -112,19 +113,48 @@
         pattern="/inbox/:id"
         data="{{conversation}}"></app-route>
 
-    <div id="toolbar" class="toolbar dgrey-bg">
+    <div id="toolbar" class="toolbar shadow dgrey-bg">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
-      <paper-icon-button icon="search" class="red pointer"></paper-icon-button>
-      <paper-icon-button icon="more-vert" class="red pointer" on-tap="openMenu"></paper-icon-button>
-      <iron-dropdown id="menu" horizontal-align="right" vertical-align="top">
+      <paper-icon-button icon="search" class="red pointer" on-click="openSearchBar"></paper-icon-button>
+      <paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
+        <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
         <div slot="dropdown-content" class="dropdown-menu">
-          <div class="item" on-click="populateInbox">
+          <div class="item" on-click="refreshInbox">
             <span>Refresh</span>
             <paper-ripple></paper-ripple>
           </div>
+          <div class="item-title">
+            <span>Show only</span>
+          </div>
+          <div class="item">
+            <paper-checkbox value="1" on-change="filterCheck">Awarded</paper-checkbox>
+          </div>
+          <div class="item">
+            <paper-checkbox value="2" on-change="filterCheck">In progress</paper-checkbox>
+          </div>
+          <div class="item">
+            <paper-checkbox value="3" on-change="filterCheck">Review</paper-checkbox>
+          </div>
+          <div class="item">
+            <paper-checkbox value="4" on-change="filterCheck">Completed</paper-checkbox>
+          </div>
         </div>
-      </iron-dropdown>
+      </paper-menu-button>
+    </div>
+
+    <div class="top-search-bar">
+      <div class="toolbar">
+        <div class="input-group suffix prefix">
+          <div class="addon-prefix has-button">
+            <paper-icon-button icon="chevron-left" class="pointer" on-click="closeSearchBar"></paper-icon-button>
+          </div>
+          <input type="text" class="input" value="{{search::input}}" placeholder="Search..."/>
+          <div class="addon-suffix has-button">
+            <paper-icon-button icon="close" class="pointer" on-click="clearSearchBar"></paper-icon-button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <main class="flex">
@@ -132,7 +162,7 @@
         <h1 class="white m-0">Inbox</h1>
       </section>
       <div class="white" role="listbox">
-        <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt">
+        <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt" filter="{{_filterInbox(query)}}">
           <paper-icon-item on-click="viewConversation">
             <div class="avatar" slot="item-icon">
               <img class="circle" src$="[[_otherUserProfileImage(convo.user1, convo.user2)]]">
@@ -152,22 +182,6 @@
           </paper-icon-item>
         </template>
       </div>
-      <!-- <section class="list" id="post-list">
-        <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt">
-          <div class="row" on-click="viewConversation">
-            <div class="job-title">[[convo.job.name]]</div>
-            <div secondary>[[_lastMesage(convo.messages)]]</div>
-
-            <div class="time" data-time$="[[convo.updated_at]]">[[_fromNow(convo.updated_at)]]</div>
-            
-            <template is="dom-if" if="[[_lastRecipient(convo.last_updated_by, convo.unread_count)]]">
-              <span class="badge unread white">[[convo.unread_count]]</span>
-            </template>
-            <paper-ripple></paper-ripple>
-          </div>
-          <div class="divider"><hr/></div>
-				</template>
-      </section> -->
     </main>
 
     <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
@@ -218,7 +232,12 @@
           isLoading: {
             type: Boolean,
             value: true
-          }
+          },
+
+          query: {
+            type: Array,
+            value: []
+          },
         }
       }
 
@@ -226,7 +245,8 @@
         return [
           '_subrouteChange(subroute)',
           '_subrouteDataChange(subrouteData)',
-          '_inboxChange(inbox)'
+          '_inboxChange(inbox)',
+          '_search(search)'
         ]
       }
 
@@ -273,10 +293,86 @@
         });
       }
 
+      refreshInbox() {
+        this.populateInbox();
+      }
+
       viewConversation(e) {
         const inbox_id = e.model.convo.id;
         this.redirect('/inbox/' + inbox_id);
         // this._post = e.model.inbox;
+      }
+
+      openSearchBar() {
+        const sb = this.shadowRoot.querySelector('.top-search-bar')
+        sb.classList.add('active');
+        sb.querySelector('input').focus();
+      }
+
+      closeSearchBar() {
+        this.shadowRoot.querySelector('.top-search-bar').classList.remove('active');
+      }
+
+      clearSearchBar() {
+        this.search = '';
+        const sb = this.shadowRoot.querySelector('.top-search-bar')
+        sb.querySelector('input').focus();
+      }
+
+      _search(search) {
+        let a = this.query.slice(0);
+        if(!search) {
+          a.search = null;
+        }
+        if(search) {
+          a.search = search;
+        }
+
+        this.set('query', a);
+      }
+
+      filterCheck(e) {
+        const target = e.target;
+
+        if( target.checked ) {
+					this.push('query', target.value);
+				} else {
+					const index = this.query.indexOf(target.value);
+					if(index != -1) {
+						this.query.splice(index, 1);
+					}
+        }
+        
+        const q = this.query.slice(0);
+        this.set('query', q);
+
+      }
+
+      _filterInbox(query) {
+        const self = this;
+
+        if (!query.length && !query.search) {
+          return null;
+        } else {
+          return function(item) {
+
+            if(query.search) {
+              let s = query.search.toLowerCase();
+              let n = item.job.name.toLowerCase();
+              
+              if(n.indexOf(s) == -1) {
+                return false;
+              }
+            }
+
+            if(!query.length) {
+              return true;
+            }
+            
+            return (query.indexOf(item.job.status.toString()) != -1);
+            
+          };
+        }
       }
 
       openMenu() {
