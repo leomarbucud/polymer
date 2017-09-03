@@ -39,16 +39,18 @@
         <iron-image src="/assets/images/thegrid.svg"></iron-image>
       </div>
       <form id="loginForm" class="form">
-        <div class="form-group">
-          <input id="username" type="text" class="form-input"
+        <div class="input-group">
+          <input id="username" type="text" class="input"
               placeholder="Email"
               on-keydown="watchEnter" value="{{username::input}}"/>
         </div>
-        <div class="form-group relative">
-          <input id="password" type="password" class="form-input"
+        <div class="input-group suffix">
+          <input id="password" type="password" class="input"
               placeholder="Password"
               on-keydown="watchEnter"/>
-          <span class="password-control" on-click="tooglePassword">[[togglePasswordText]]</span>
+          <div class="addon-suffix has-button">
+            <paper-button class="red" on-click="tooglePassword">[[togglePasswordText]]</paper-button>
+          </div>
         </div>
         <div class="form-group">
           <paper-button class="w-100 white" on-tap="signIn">
@@ -61,14 +63,14 @@
         <span class="white">Or</span>
       </divider-text>
 
-      <div class="form-control">
+      <div class="form-control" hidden$="[[!fbConnected]]">
         <social-button class="facebook" id="loginFacebook" >
           <iron-icon class="icon" src="/assets/images/facebook.svg"></iron-icon>
           <span>Continue with Facebook</spa>
         </social-button>
       </div>
 
-      <div class="form-control">
+      <div class="form-control" hidden$="[[!googleConnected]]">
         <social-button id="loginGoogle" class="google" on-tap="loginGoogle">
           <iron-icon class="icon" src="/assets/images/google.svg"></iron-icon>
           <span>Continue with Google</spa>
@@ -164,7 +166,14 @@
             }
           }
   			};
-  		}
+      }
+      
+      constructor() {
+        super();
+
+        this.fbConnected = false;
+        this.googleConnected = false;
+      }
 
       _passwordState(isPasswordHidden) {
         if ( ! isPasswordHidden ) {
@@ -247,7 +256,9 @@
 
           const googleButton = this.$.loginGoogle;
 
-          gapi.load('auth2', function() {
+          gapi.load('auth2', () => {
+
+            this.googleConnected = true;
 
             var auth2 = gapi.auth2.init({
               client_id: '186352805872-hqq59ghhfq4pdf6tttonigp3ipbgmdbb.apps.googleusercontent.com',
@@ -256,7 +267,7 @@
             });
 
             auth2.attachClickHandler(googleButton, { ux_mode: 'popup' },
-              function(googleUser) {
+              googleUser => {
                 const profile = googleUser.getBasicProfile();
 
                 const data = {
@@ -265,7 +276,7 @@
                   email: profile.getEmail()
                 };
 
-                self.signInSocial('google', data);
+                this.signInSocial('google', data);
 
               },
               function(error) {
@@ -311,6 +322,7 @@
               };
 
               if ( res.status === 'connected' ) {
+                this.fbConnected = true;
                 fbButton.addEventListener('click', () => {
                   getInfo();
                 });

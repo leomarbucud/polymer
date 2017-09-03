@@ -1,5 +1,6 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../redux/grid-redux-store.html">
@@ -32,10 +33,10 @@
 		    pattern="/login/:provider/:token/:secret/:setup"
 		    data="{{loginData}}"></app-route>
 
-    <div class="header-action flex layout horizontal">
-      <iron-icon icon="close" class="white pointer" on-click="redirectHome"></iron-icon>
+    <div class="toolbar">
+      <paper-icon-button icon="close" class="white pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
-      <span class="white pointer" on-click="redirectRegister">SIGN UP</span>
+      <paper-button class="white pointer" on-click="redirectRegister">SIGN UP</paper-button>
     </div>
 
      <login-components is-logging-in="{{isLoggingIn}}"

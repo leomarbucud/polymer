@@ -84,6 +84,10 @@
 				font-size: 14px;
 			}
 
+			.form-group paper-button {
+				margin: 0;
+			}
+
 			.input-group {
 				padding: 8px 0;
 			}
@@ -252,6 +256,10 @@
 
 			.toolbar paper-menu-button {
 				padding: 0;
+			}
+
+			.toolbar paper-button {
+				min-width: auto;
 			}
 
 			.loading-bg, .red-bg {
@@ -433,6 +441,15 @@
         background: #424242;
         height: 64px;
         color: #A8A8A8 !important;
+
+				/* width: 50%; */
+				/* opacity: 0;
+				transition-property: all;
+				transform-style: cubic-bezier(0.4, 0, 0.2, 1);
+				transition-duration: 350ms;
+
+				transform: scaleX(0.5);
+				transform-origin: right 0; */
       }
 
       .top-search-bar .input, 
@@ -449,6 +466,8 @@
 
       .top-search-bar.active {
         display: block;
+				/* transform: scaleX(1); */
+				/* opacity: 1; */
       }
 
       
