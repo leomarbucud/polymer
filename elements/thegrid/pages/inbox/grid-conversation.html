@@ -3,6 +3,7 @@
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../grid-styles.html">
+<link rel="import" href="../../grid-icons.html">
 <link rel="import" href="../../components/divider-text.html">
 
 <dom-module id="grid-conversation">
@@ -261,7 +262,7 @@
               on-keydown="messageEvent" on-click="readMessage" />
 
             <div class="addon-suffix has-button">
-              <paper-button class="red" on-tap="send">Send</paper-button>
+              <paper-icon-button icon="grid:send" class="red" on-tap="send"></paper-icon-button>
             </div>
           </div>
 

@@ -2,6 +2,10 @@
 const SOCKET_URL = (location.hostname == 'dev.thegrid.com') ? 'http://127.0.0.1:3000' : 'https://thegridsocket.azurewebsites.net';
 var socket = new io.connect(SOCKET_URL);
 
+const _log = l => {
+  console.log('Grid: ', l);
+}
+
 const logger = str => {
   console.log('Socket: ', str);
 };

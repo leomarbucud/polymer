@@ -1,5 +1,8 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../grid-icons.html">
 <link rel="import" href="../grid-styles.html">
@@ -23,8 +26,8 @@
       }
 
       .nav li {
-        padding: 16px 16px;
-        position: relative;
+        /* padding: 16px 16px;
+        position: relative; */
       }
 
       .user-view {
@@ -113,39 +116,88 @@
         </li>
       </template>
       <li>
-        <a href="/posts"><iron-icon icon="grid:posts" class="white icon"></iron-icon> <span>Posts</span></a>
-        <paper-ripple></paper-ripple>
+        <a href="/posts">
+          <paper-icon-item>
+            <iron-icon icon="grid:posts" class="white" slot="item-icon"></iron-icon>
+            <paper-item-body>
+              <div>Posts</div>
+            </paper-item-body>
+            <paper-ripple></paper-ripple>
+          </paper-icon-item>
+        </a>
       </li>
       <li>
-        <a href="/bids"><iron-icon icon="grid:bids" class="icon"></iron-icon> <span>Bids</span></a>
-        <paper-ripple></paper-ripple>
+        <a href="/bids">
+          <paper-icon-item>
+            <iron-icon icon="grid:bids" class="white" slot="item-icon"></iron-icon>
+            <paper-item-body>
+              <div>Bids</div>
+            </paper-item-body>
+            <paper-ripple></paper-ripple>
+          </paper-icon-item>
+        </a>
       </li>
       <li>
-        <a href="/inbox"><iron-icon icon="grid:inbox" class="icon"></iron-icon> <span>Inbox</span></a>
-        <paper-ripple></paper-ripple>
+        <a href="/inbox">
+          <paper-icon-item>
+            <iron-icon icon="grid:inbox" class="white" slot="item-icon"></iron-icon>
+            <paper-item-body>
+              <div>Inbox</div>
+            </paper-item-body>
+            <paper-ripple></paper-ripple>
+          </paper-icon-item>
+        </a>
       </li>
       <li>
-        <a href="/transactions"><iron-icon icon="grid:transactions" class="icon"></iron-icon> <span>Transactions</span></a>
-        <paper-ripple></paper-ripple>
+        <a href="/transactions">
+          <paper-icon-item>
+            <iron-icon icon="grid:transactions" class="white" slot="item-icon"></iron-icon>
+            <paper-item-body>
+              <div>Transactions</div>
+            </paper-item-body>
+            <paper-ripple></paper-ripple>
+          </paper-icon-item>
+        </a>
       </li>
       <li class="divider">
         <hr />
       </li>
       <li>
-        <a href="/settings"><iron-icon icon="grid:settings" class="icon"></iron-icon> <span>Settings</span></a>
-        <paper-ripple></paper-ripple>
+        <a href="/settings">
+          <paper-icon-item>
+            <iron-icon icon="grid:settings" class="white" slot="item-icon"></iron-icon>
+            <paper-item-body>
+              <div>Settings</div>
+            </paper-item-body>
+            <paper-ripple></paper-ripple>
+          </paper-icon-item>
+        </a>
       </li>
       <li>
-        <a href="/help"><iron-icon icon="grid:help-feedback" class="icon"></iron-icon> <span>Help &amp; Feedback</span></a>
-        <paper-ripple></paper-ripple>
+        <a href="/help">
+          <paper-icon-item>
+            <iron-icon icon="grid:help-feedback" class="white" slot="item-icon"></iron-icon>
+            <paper-item-body>
+              <div>Help &amp; Feedback</div>
+            </paper-item-body>
+            <paper-ripple></paper-ripple>
+          </paper-icon-item>
+        </a>
       </li>
       <template is="dom-if" if="[[isLoggedIn]]">
         <li class="divider">
           <hr />
         </li>
         <li>
-          <a href="/logout"><iron-icon icon="logout" class="icon"></iron-icon> <span>Logout</span></a>
-          <paper-ripple></paper-ripple>
+          <a href="/logout">
+            <paper-icon-item>
+              <div slot="item-icon"></div>
+              <paper-item-body>
+                <div>Logout</div>
+              </paper-item-body>
+              <paper-ripple></paper-ripple>
+            </paper-icon-item>
+          </a>
         </li>
       </template>
     </ul>
