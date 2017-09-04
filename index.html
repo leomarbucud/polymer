@@ -72,17 +72,17 @@
 
     <script>
       // Register the base URL
-      // const baseUrl = document.querySelector('base').href;
+      const baseUrl = document.querySelector('base').href;
 
       // Load and register pre-caching Service Worker
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-          // navigator.serviceWorker.register(baseUrl + 'service-worker.js')
-          //       .then( res => {
-          //         console.log('SW Registered');
-          //       }).catch( err => {
-          //         console.log('SW Failed');
-          //       });
+          navigator.serviceWorker.register(baseUrl + 'service-worker.js')
+                .then( res => {
+                  console.log('SW Registered');
+                }).catch( err => {
+                  console.log('SW Failed');
+                });
         });
       }
 
