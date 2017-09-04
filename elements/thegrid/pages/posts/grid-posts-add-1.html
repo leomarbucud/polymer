@@ -128,13 +128,18 @@
         </form>
       </div>
     </div>
-
     <div class="map-control map-control-input">
-      <div class="input-group suffix p-0">
-        <input id="search-location" type="text" class="input" placeholder="Search location"/>
-
-        <div class="addon-suffix has-icon">
-          <paper-icon-button class="red" icon="close"></paper-icon-button>
+      <div class="top-search-bar active">
+        <div class="toolbar shadow">
+          <div class="input-group suffix prefix">
+            <div class="addon-prefix has-button">
+              <paper-icon-button icon="chevron-left" class="pointer" on-click="closeSearchBar"></paper-icon-button>
+            </div>
+            <input id="search-location" type="text" class="input" value="{{search::input}}" placeholder="Search..."/>
+            <div class="addon-suffix has-button">
+              <paper-icon-button icon="close" class="pointer" on-click="clearSearchBar"></paper-icon-button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -279,14 +284,28 @@
 
         this._setMarkerVisibility(false);
 
-        var mapControls = this.shadowRoot.querySelectorAll('.map-control');
+        const mapControls = this.shadowRoot.querySelectorAll('.map-control');
         mapControls.forEach( control => {
           control.classList.add('active');
         });
 
+        const sb = this.shadowRoot.querySelector('.top-search-bar')
+        sb.querySelector('input').focus();
+
       }
 
-      hideMap() {
+      closeSearchBar() {
+        this.hideMap(false);
+
+      }
+
+      clearSearchBar() {
+        this.search = '';
+        const sb = this.shadowRoot.querySelector('.top-search-bar')
+        sb.querySelector('input').focus();
+      }
+
+      hideMap(geocode = true) {
         const gmap = this.gmap;
         if(!gmap) return;
 
@@ -297,6 +316,8 @@
         mapControls.forEach( control => {
           control.classList.remove('active');
         });
+
+        if(!geocode) return;
 
         const pos = {
           lat: this.lat,
