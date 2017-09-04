@@ -63,15 +63,17 @@
       .badge.unread {
         background: var(--red);
         font-size: 9px;
-        width: 16px;
+        min-width: 16px;
         height: 16px;
         display: block;
         text-align: center;
         line-height: 16px;
         border-radius: 50%;
-        position: absolute;
+        color: #FFFFFF;
+        float: right;
+        /* position: absolute;
         top: 50%;
-        right: 16px;
+        right: 16px; */
       }
 
       .time {
@@ -171,13 +173,11 @@
               <div>[[convo.job.name]]</div>
               <div secondary>[[_lastMesage(convo.messages)]]</div>
             </paper-item-body>
-            <div>
+            <div class="layout vertical-reverse">
               <div class="time" data-time$="[[convo.updated_at]]">[[_fromNow(convo.updated_at)]]</div>
-              <div>
-                <template is="dom-if" if="[[_lastRecipient(convo.last_updated_by, convo.unread_count)]]">
-                  <paper-badge label="[[convo.unread_count]]" class="red"></paper-badge>
-                </template>
-              </div>
+              <template is="dom-if" if="[[_lastRecipient(convo.last_updated_by, convo.unread_count)]]">
+                <span class="badge unread">[[convo.unread_count]]</span>
+              </template>
             </div>
           </paper-icon-item>
         </template>
