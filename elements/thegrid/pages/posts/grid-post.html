@@ -492,6 +492,8 @@
           
           if(!convoExist) {
             this.dispatch('addInbox', res.data);
+            let detail = res.data;
+            detail.to = this.post.winner.user.id;
             window.dispatchEvent(new CustomEvent('user:create_conversation', { detail: res.data }));
           }
           this.redirect('/inbox/' + res.data.id);
