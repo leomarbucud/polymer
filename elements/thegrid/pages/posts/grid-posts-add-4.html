@@ -219,7 +219,7 @@
 					img.style.width = '100px';
 
 					// this.files.append('img' + i, f);
-					this.formData.append(`files[${i}]`, f);
+					this.formData.append(`files[]`, f);
 					// this.push('files', f);
 
 					reader.onloadend = () => {
