@@ -5,6 +5,7 @@
 <link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../grid-styles.html">
+<link rel="import" href="../../grid-icons.html">
 <link rel="import" href="../../components/ratings.html">
 
 <dom-module id="grid-post">
@@ -222,19 +223,31 @@
           <hr/>
         </div>
 
-        <div class="section-title">
-          <div class="flex">
-            <span class="title">Required Skills</span>
-          </div>
-        </div>
+        <template is="dom-if" if="[[post.skills.length]]">
 
-        <template is="dom-repeat" items="[[post.skills]]" as="skill">
-          <div class="chip">
-            <span>[[skill.skill]]</span>
+          <div class="section-title">
+            <div class="flex">
+              <span class="title">Required Skills</span>
+            </div>
           </div>
+
+          <template is="dom-repeat" items="[[post.skills]]" as="skill">
+            <div class="chip">
+              <span>[[skill.skill]]</span>
+            </div>
+          </template>
+          <template is="dom-if" if="[[!post.skills.length]]">
+            <p>No set of skills provided.</p>
+          </template>
+
         </template>
-        <template is="dom-if" if="[[!post.skills.length]]">
-          <p>No set of skills provided.</p>
+
+        <template is="dom-if" if="[[post.files.length]]">
+
+          <template is="dom-repeat" items="[[post.files]]" as="file">
+            <img src$="[[_getFilePath(file.path)]]" style="width: 150px;" />
+          </template>
+
         </template>
 
       </section>
@@ -560,6 +573,10 @@
 
       _compareWinnerBidder(id1, id2) {
         return id1 == id2;
+      }
+
+      _getFilePath(path) {
+        return `${this.url.API_BASE_URL}/uploads/${path}`;
       }
 
     }

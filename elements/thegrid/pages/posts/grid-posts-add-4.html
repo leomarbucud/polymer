@@ -6,14 +6,20 @@
 <link rel="import" href="../../../../../behaviors/form-slider-behavior.html">
 <link rel="import" href="../../../../../behaviors/map-behavior.html">
 <link rel="import" href="../../grid-styles.html">
+<link rel="import" href="../../grid-icons.html">
 
 <dom-module id="grid-posts-add-4">
 	<template>
 		<style include="grid iron-flex">
 			:host {
-				display: block;
 				height: 100%;
 				background: var(--dark-grey);
+				display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
 			}
 		</style>
 
@@ -27,26 +33,32 @@
 			</div>
 		</div>
 
-		<div class="p-y-1">
+		<main class="flex">
 
-			<div class="header-text-container">
-				<h1 class="header-text m-0">
-					<span hidden$="[[step.message]]">[[step.question]]</span>
-					<span hidden$="[[!step.message]]">[[step.message]]</span>
-				</h1>
-			</div>
-			<form class="form" id="formCarousel" form-carousel>
+			<div class="p-y-1">
 
-				<div class="input-group suffix" data-step="1" data-question="Add a brief description.">
-						<textarea rows="6" class="input" value="{{details::input}}" style="resize: none; height: 150px; padding: 16px;" placeholder="Start typing.."></textarea>
-						<div class="addon-suffix flex layout horizontal" style="padding-top: 16px; height: 150px;">
-								<iron-icon src="/assets/images/icons/attach.svg"></iron-icon>
-						</div>
+				<div class="header-text-container">
+					<h1 class="header-text m-0">
+						<span hidden$="[[step.message]]">[[step.question]]</span>
+						<span hidden$="[[!step.message]]">[[step.message]]</span>
+					</h1>
 				</div>
-					
-			</form>
-		</div>
+				<form class="form">
 
+					<div class="input-group suffix" >
+						<textarea rows="6" class="input" value="{{details::input}}" style="resize: none; height: 150px; padding: 16px;" placeholder="Start typing.."></textarea>
+						<div class="addon-suffix has-button flex layout vertical" style="height: 150px;">
+							<paper-icon-button icon="grid:attachment" on-click="selectFile"></paper-icon-button>
+							<span class="flex"></span>
+						</div>
+					</div>
+
+				</form>
+				<input type="file" id="files" on-change="previewFiles" multiple/>
+				<img id="aaa" style="width: 100px;" />
+				<div id="previews"></div>
+			</div>
+		</main>
 	</template>
 
 	<script>
@@ -73,12 +85,14 @@
 						type: Object,
 						notify: true
 					},
+					
 				}
 			}
 
 			static get observers() {
 				return [
-					'_formDone(details)'
+					'_formDone(details)',
+					'_filesChange(files)'
 				]
 			}
 
@@ -97,12 +111,15 @@
 				super();
 				this.readyPost = false;
 				this.map = null;
+
+				this.files = [];//new FormData();
+				this.formData = new FormData();
 			}
 
 			connectedCallback() {
 				const self = this;
 				super.connectedCallback();
-				this.initForm();
+				// this.initForm();
 				this.set('step.message', 'Add a brief description.');
 
 				// clear form after adding and rearrange steps
@@ -124,6 +141,9 @@
 			submit() {
         this.data.details = this.details;
 
+				var files    = this.shadowRoot.querySelector('#files').files;
+
+
 				const data = {
 					user_id: this.user.id,
 					name: this.data.what,
@@ -134,13 +154,26 @@
 					date: this.data.when,
 					category_id: this.data.category,
 					skills: this.data.skills,
-					details: this.details
-				};	
+					details: this.details,
+					files: files
+				};
+				
+				this.formData.append('user_id', this.user.id);
+				this.formData.append('name', this.data.what);
+				this.formData.append('price', this.data.price);
+				this.formData.append('lat', this.data.lat);
+				this.formData.append('lng', this.data.lng);
+				this.formData.append('location', this.data.location);
+				this.formData.append('date', this.data.when);
+				this.formData.append('category_id', this.data.category);
+				this.formData.append('skills', this.data.skills);
+				this.formData.append('details', this.details);
+				// this.formData.append('files', files);
 
 				// dispatch posting event
 				window.dispatchEvent(new CustomEvent('posting'));
 
-				gAxios.post('/users/' + this.user.id + '/jobs', data)
+				gAxios.post('/users/' + this.user.id + '/jobs', this.formData)
 					.then(res => {
 						var data = res.data;
 
@@ -167,6 +200,53 @@
 						// dispatch event to clear the form
 						window.dispatchEvent(new CustomEvent('done-posting'));
 					});
+			}
+
+			selectFile() {
+				this.shadowRoot.querySelector('#files').click();
+			}
+
+			previewFiles() {
+				var preview = this.shadowRoot.querySelector('#aaa');
+				var previews = this.shadowRoot.querySelector('#previews');
+				var file    = this.shadowRoot.querySelector('#files').files[0];
+				var files    = this.shadowRoot.querySelector('#files').files;
+				// console.log('files', files);
+
+				for (var i = 0, f; f = files[i]; i++) {
+					let reader  = new FileReader();
+					let img = document.createElement('img');
+					img.style.width = '100px';
+
+					// this.files.append('img' + i, f);
+					this.formData.append(`files[${i}]`, f);
+					// this.push('files', f);
+
+					reader.onloadend = () => {
+						img.src = reader.result;
+					}
+
+					if (f) {
+						reader.readAsDataURL(f);
+						
+					} else {
+						img.src = "";
+					}
+
+					previews.appendChild(img);
+				}
+
+				// gAxios.post('/users/' + this.user.id + '/upload', this.files)
+        // .then( res => {
+				// 	console.log(res);
+        // }).catch( err => {
+        //   console.log(err.response);
+        // });
+				
+			}
+
+			_filesChange(files) {
+				console.log('this.files', files);
 			}
 
 			_formDone(details) {

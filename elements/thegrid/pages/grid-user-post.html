@@ -1,6 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../grid-styles.html">
+<link rel="import" href="../grid-icons.html">
 
 <dom-module id="grid-user-post">
 	<template>
@@ -112,7 +113,7 @@
 						<small class="category block">Category: [[post.category.category]]</small>
 						<small class="block">Location: [[post.location]]</small>
 					</div>
-					<paper-icon-button icon="maps:pin-drop" class="red pointer" on-tap="viewOnMap"></paper-icon-button>
+					<paper-icon-button icon="grid:location" class="white" on-tap="viewOnMap"></paper-icon-button>
 				</div>
 
 				<div class="divider"><hr/></div>
@@ -126,6 +127,7 @@
 				<div class="section-details">
 					<div class="flex">
 						<span class="title">Budget</span>
+						<!-- <iron-icon icon="grid:amount" class="white"></iron-icon> -->
 					</div>
 					<span>AED [[post.price]]</span>
 				</div>
@@ -133,6 +135,7 @@
 				<div class="section-details">
 					<div class="flex">
 						<span class="title">Job needed</span>
+						<!-- <iron-icon icon="grid:clock" class="white"></iron-icon> -->
 					</div>
 					<span>[[_fromNow(post.date)]]</span>
 				</div>
@@ -140,6 +143,7 @@
 				<div class="section-details">
 					<div class="flex">
 						<span class="title">Posted</span>
+						<!-- <iron-icon icon="grid:calendar" class="white"></iron-icon> -->
 					</div>
 					<span>[[_fromNow(post.created_at)]]</span>
 				</div>
