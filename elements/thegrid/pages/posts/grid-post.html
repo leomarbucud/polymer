@@ -7,6 +7,7 @@
 <link rel="import" href="../../grid-styles.html">
 <link rel="import" href="../../grid-icons.html">
 <link rel="import" href="../../components/ratings.html">
+<link rel="import" href="../../components/carousel.html">
 
 <dom-module id="grid-post">
   <template>
@@ -54,6 +55,21 @@
         display: block;
         width: 100%;
         margin-top: 8px;
+      }
+
+      my-carousel {
+        width: 100%;
+        contain: content;
+      }
+      my-carousel::after {
+        display: block;
+        content: '';
+        padding-top: 75%; /* 4:3 = height is 75% of width */
+      }
+      my-carousel img, my-carousel div {
+        position: absolute;
+        width: 100%;
+        height: 100%;
       }
 
     </style>
@@ -242,11 +258,20 @@
 
         </template>
 
+        <div id="carousel"></div>
+
         <template is="dom-if" if="[[post.files.length]]">
 
-          <template is="dom-repeat" items="[[post.files]]" as="file">
-            <img src$="[[_getFilePath(file.path)]]" style="width: 150px;" />
-          </template>
+          
+          <!-- <my-carousel> -->
+              <!-- <img data-src="https://app-layout-assets.appspot.com/assets/bg1.jpg">
+              <img data-src="https://app-layout-assets.appspot.com/assets/bg2.jpg">
+              <img data-src="https://app-layout-assets.appspot.com/assets/bg3.jpg">
+              <img data-src="https://app-layout-assets.appspot.com/assets/bg4.jpg"> -->
+            <!-- <template is="dom-repeat" items="[[post.files]]" as="file">
+              <img data-src$="[[_getFilePath(file.path)]]" />
+            </template> -->
+          <!-- </my-carousel> -->
 
         </template>
 
@@ -388,6 +413,34 @@
 
           }
         }
+
+        // carousel
+        const carousel = this.shadowRoot.querySelector('#carousel');
+        if(post.files.length) {
+          
+          let my_carousel = document.createElement('my-carousel');
+
+          post.files.forEach( file => {
+            let img = document.createElement('img');
+            let div = document.createElement('div');
+            // img.setAttribute('data-src', this._getFilePath(file.path));
+
+            div.style.backgroundImage = `url(${this._getFilePath(file.path)})`;
+            div.style.backgroundSize = 'cover';
+            div.style.backgroundPosition = 'center';
+
+            my_carousel.appendChild(div);
+          });
+
+          carousel.innerHTML = '';
+          carousel.appendChild(my_carousel);
+
+          console.log(carousel);
+        } else {
+          carousel.innerHTML = '';
+        }
+
+        
 
       }
 

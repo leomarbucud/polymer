@@ -2,6 +2,7 @@
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../grid-styles.html">
 <link rel="import" href="../grid-icons.html">
+<link rel="import" href="../components/carousel.html">
 
 <dom-module id="grid-user-post">
 	<template>
@@ -85,6 +86,21 @@
         opacity: 0.12;
       }
 
+			my-carousel {
+        width: 100%;
+        contain: content;
+      }
+      my-carousel::after {
+        display: block;
+        content: '';
+        padding-top: 75%; /* 4:3 = height is 75% of width */
+      }
+      my-carousel img, my-carousel div {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+
 		</style>
 
 		<div id="toolbar" class="toolbar">
@@ -115,6 +131,8 @@
 					</div>
 					<paper-icon-button icon="grid:location" class="white" on-tap="viewOnMap"></paper-icon-button>
 				</div>
+
+				<div id="carousel"></div>
 
 				<div class="divider"><hr/></div>
 
@@ -392,6 +410,30 @@
 						if(this.post.category_id == 1) {
 							this.isService = true;
 						}
+
+						const carousel = this.shadowRoot.querySelector('#carousel');
+						if(this.post.files.length) {
+							
+							let my_carousel = document.createElement('my-carousel');
+
+							this.post.files.forEach( file => {
+								let img = document.createElement('img');
+								let div = document.createElement('div');
+								// img.setAttribute('data-src', this._getFilePath(file.path));
+
+								div.style.backgroundImage = `url(${this._getFilePath(file.path)})`;
+								div.style.backgroundSize = 'cover';
+								div.style.backgroundPosition = 'center';
+
+								my_carousel.appendChild(div);
+							});
+
+							carousel.innerHTML = '';
+							carousel.appendChild(my_carousel);
+						} else {
+							carousel.innerHTML = '';
+						}
+
 					}).then(() => {
 						this.isLoading = false;
 					});
@@ -475,6 +517,10 @@
 				var d = R * c;
 				return d;
 			}
+
+			_getFilePath(path) {
+        return `${this.url.API_BASE_URL}/uploads/${path}`;
+      }
 
 		}
 
