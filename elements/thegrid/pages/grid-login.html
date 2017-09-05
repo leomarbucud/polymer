@@ -40,11 +40,11 @@
     </div>
 
      <login-components is-logging-in="{{isLoggingIn}}"
-                      is-logged-in="{{isLoggedIn}}"
-                      login-attempt="{{loginAttempt}}"
-                      login-error="{{loginError}}" ></login-components> 
+                       is-logged-in="{{isLoggedIn}}"
+                       login-attempt="{{loginAttempt}}"
+                       login-error="{{loginError}}" ></login-components> 
 
-    <paper-toast id="loginErrToast" duration="0" class="fit-bottom">
+    <paper-toast id="loginErrToast" duration="5000" class="fit-bottom">
       <div class="flex layout horizontal">
         <span class="flex">Invalid Email or Password.</span>
         <span><a href="/forgot" class="red anchor">FORGOT?</a></span>
@@ -146,11 +146,9 @@
           if(!loginData.secret) return;
           if(!loginData.token) return;
 
-          const self = this;
+          if( this.isLoggingIn ) return;
 
-          if( self.isLoggingIn ) return;
-
-          self.isLoggingIn = true;
+          this.isLoggingIn = true;
 
           axios.post(API_BASE_URL + '/oauth/token', {
             grant_type: 'social',
@@ -160,16 +158,16 @@
             access_token: loginData.token
           })
           .then( res => {
-            self.isLoggingIn = false;
-            self.isLoggedIn = true;
+            this.isLoggingIn = false;
+            this.isLoggedIn = true;
             if(loginData.setup == 1) {
-              self.setupAccount = true;
+              this.setupAccount = true;
             }
-            self.dispatch('assignToken', res.data);
+            this.dispatch('assignToken', res.data);
           })
           .catch( err => {
 
-            self.isLoggingIn = false;
+            this.isLoggingIn = false;
 
           });
 
