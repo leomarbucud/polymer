@@ -87,6 +87,8 @@
       }
 
 			my-carousel {
+				margin-top: 16px;
+  			margin-bottom: 8px;
         width: 100%;
         contain: content;
       }
@@ -99,6 +101,7 @@
         position: absolute;
         width: 100%;
         height: 100%;
+				/* object-fit: cover; */
       }
 
 		</style>
@@ -419,7 +422,7 @@
 							this.post.files.forEach( file => {
 								let img = document.createElement('img');
 								let div = document.createElement('div');
-								// img.setAttribute('data-src', this._getFilePath(file.path));
+								img.setAttribute('data-src', this._getFilePath(file.path));
 
 								div.style.backgroundImage = `url(${this._getFilePath(file.path)})`;
 								div.style.backgroundSize = 'cover';

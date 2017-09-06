@@ -21,6 +21,46 @@
         -webkit-flex-direction: column;
         flex-direction: column;
 			}
+
+			#previews {
+				display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+			}
+
+			#previews .wrap {
+				margin: 5px 0;
+			}
+
+			.file {
+				display: inline-block;
+				position: relative;
+				color: #FFFFFF;
+				height: 33px;
+				line-height: 33px;
+				background: rgba(33, 33, 33, 0.87);
+				border-radius: 2px;
+				padding: 0 4px;
+			}
+
+			.file img {
+				width: 24px;
+				height: 24px;
+				vertical-align: middle;
+			}
+
+			.file span {
+				line-height: 25px;
+				margin: 0 5px;
+			}
+
+			.file iron-icon {
+				cursor: pointer;
+			}
+
 		</style>
 
 		<div id="toolbar" class="toolbar dgrey-bg">
@@ -54,9 +94,20 @@
 					</div>
 
 				</form>
-				<input type="file" id="files" on-change="previewFiles" multiple/>
-				<img id="aaa" style="width: 100px;" />
-				<div id="previews"></div>
+
+				<input type="file" id="files" on-change="previewFiles" multiple style="position: absolute; left: -99999px; top: -99999px;"/>
+				
+				<div id="previews">
+					<template is="dom-repeat" items="[[files]]" as="file">
+						<div class="wrap">
+							<div class="file">
+								<img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
+								<span>[[file.name]]</span>
+								<iron-icon icon="close" on-click="removeFile"></iron-icon>
+							</div>
+						</div>
+					</template>
+				</div>
 			</div>
 		</main>
 	</template>
@@ -126,6 +177,7 @@
 				window.addEventListener('done-posting', () => {
                     this.readyPost = false;
                     this.details = '';
+										this.files = [];
 				});
 
 			}
@@ -141,22 +193,21 @@
 			submit() {
         this.data.details = this.details;
 
-				var files    = this.shadowRoot.querySelector('#files').files;
+				// var files    = this.shadowRoot.querySelector('#files').files;
 
 
-				const data = {
-					user_id: this.user.id,
-					name: this.data.what,
-					price: this.data.price,
-					lat: this.data.lat,
-					lng: this.data.lng,
-					location: this.data.where,
-					date: this.data.when,
-					category_id: this.data.category,
-					skills: this.data.skills,
-					details: this.details,
-					files: files
-				};
+				// const data = {
+				// 	user_id: this.user.id,
+				// 	name: this.data.what,
+				// 	price: this.data.price,
+				// 	lat: this.data.lat,
+				// 	lng: this.data.lng,
+				// 	location: this.data.where,
+				// 	date: this.data.when,
+				// 	category_id: this.data.category,
+				// 	skills: this.data.skills,
+				// 	details: this.details
+				// };
 				
 				this.formData.append('user_id', this.user.id);
 				this.formData.append('name', this.data.what);
@@ -168,6 +219,12 @@
 				this.formData.append('category_id', this.data.category);
 				this.formData.append('skills', this.data.skills);
 				this.formData.append('details', this.details);
+
+				if(this.files.length) {
+					this.files.forEach( file => {
+						this.formData.append('files[]', file);
+					});
+				}
 				// this.formData.append('files', files);
 
 				// dispatch posting event
@@ -207,46 +264,74 @@
 			}
 
 			previewFiles() {
-				var preview = this.shadowRoot.querySelector('#aaa');
-				var previews = this.shadowRoot.querySelector('#previews');
-				var file    = this.shadowRoot.querySelector('#files').files[0];
-				var files    = this.shadowRoot.querySelector('#files').files;
-				// console.log('files', files);
+
+				const files = this.shadowRoot.querySelector('#files').files;
+
+				let err = [];
 
 				for (var i = 0, f; f = files[i]; i++) {
-					let reader  = new FileReader();
-					let img = document.createElement('img');
-					img.style.width = '100px';
+					console.log(f);
 
-					// this.files.append('img' + i, f);
-					this.formData.append(`files[]`, f);
-					// this.push('files', f);
-
-					reader.onloadend = () => {
-						img.src = reader.result;
+					let validTypes = false;
+	
+					switch (f.type) {
+						case 'image/jpeg':
+						case 'image/png':
+						case 'application/pdf': {
+							validTypes = true;
+						}
 					}
 
-					if (f) {
-						reader.readAsDataURL(f);
-						
+					if(validTypes) {
+						if(f.size <= 1000000) {
+							this.push('files', f);
+						} else {
+							err.push(`${f.name} is greater than 1mb.`);
+						}
 					} else {
-						img.src = "";
+						err.push(`${f.name} is not allowed to upload.`);
 					}
-
-					previews.appendChild(img);
+					
 				}
 
-				// gAxios.post('/users/' + this.user.id + '/upload', this.files)
-        // .then( res => {
-				// 	console.log(res);
-        // }).catch( err => {
-        //   console.log(err.response);
-        // });
+				if(err.length) {
+					alert(err.join('\n'));
+				}
 				
 			}
 
+			removeFile(e) {
+				// console.log(e.model.file);
+				const file = e.model.file;
+				const index = this.files.indexOf(file);
+
+				if(index == -1) return;
+
+				let files = this.files.slice(0);
+				files.splice(index, 1);
+				this.set('files', files);
+			}
+
+			_fileReader(file, index) {
+				const previews = this.shadowRoot.querySelector('#previews');
+				let reader  = new FileReader();
+				reader.onloadend = () => {
+					if(file.type.indexOf('pdf') != -1) {
+						previews.querySelector(`img#file-${index}`).src = `data:image/png;base64,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
+`;
+					} else {
+						previews.querySelector(`img#file-${index}`).src = reader.result;
+					}
+				}
+				if (file) {
+					reader.readAsDataURL(file);
+				} else {
+					previews.querySelector(`img#file-${index}`).src = '';
+				}
+			}
+
 			_filesChange(files) {
-				console.log('this.files', files);
+				// console.log('this.files', files);
 			}
 
 			_formDone(details) {
