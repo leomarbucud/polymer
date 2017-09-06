@@ -55,6 +55,7 @@
 			.file span {
 				line-height: 25px;
 				margin: 0 5px;
+				font-size: 14px;
 			}
 
 			.file iron-icon {
@@ -270,7 +271,11 @@
 				let err = [];
 
 				for (var i = 0, f; f = files[i]; i++) {
-					console.log(f);
+
+					if(this.files.length == 5) {
+						err.push('Only 5 files can be uploaded.');
+						break;
+					}
 
 					let validTypes = false;
 	

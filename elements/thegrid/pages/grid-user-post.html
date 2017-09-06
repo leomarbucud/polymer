@@ -169,6 +169,15 @@
 					<span>[[_fromNow(post.created_at)]]</span>
 				</div>
 
+				<div hidden$="[[!hasPDF]]">
+					<div class="section-details">
+						<div class="flex">
+							<span class="title">PDF</span>
+						</div>
+						<span><div id="docs"></div></span>
+					</div>
+				</div>
+
 				<p>[[_details(post.details)]]</p>
 
 				<template is="dom-if" if="[[isService]]">
@@ -333,6 +342,7 @@
 				this.bidded = false;
 				this.checking = false;
 				this.isService = false;
+				this.hasPDF = false;
 			}
 
 			viewOnMap() {
@@ -415,11 +425,32 @@
 						}
 
 						const carousel = this.shadowRoot.querySelector('#carousel');
-						if(this.post.files.length) {
+						const docs = this.shadowRoot.querySelector('#docs');
+
+						if(this.post.files.length) {	
 							
 							let my_carousel = document.createElement('my-carousel');
+							let pdf = document.createElement('div');
 
 							this.post.files.forEach( file => {
+								let allowFile = false;
+								switch (file.type) {
+									case 'jpeg':
+									case 'png': {
+										allowFile = true;
+										break;
+									}
+									case 'pdf': {
+										let a = document.createElement('a');
+										a.href = this._getFilePath(file.path);
+										a.setAttribute('download', true);
+										a.textContent = file.original_name;
+										pdf.appendChild(a);
+										this.hasPDF = true;
+									}
+								}
+								if( !allowFile ) return;
+						
 								let img = document.createElement('img');
 								let div = document.createElement('div');
 								img.setAttribute('data-src', this._getFilePath(file.path));
@@ -433,6 +464,9 @@
 
 							carousel.innerHTML = '';
 							carousel.appendChild(my_carousel);
+
+							docs.innerHTML = '';
+          		docs.appendChild(pdf);
 						} else {
 							carousel.innerHTML = '';
 						}
