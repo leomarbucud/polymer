@@ -21,6 +21,13 @@
         position: absolute;
         top: 0;
         left: 0;
+				display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+				transition: height 150ms cubic-bezier(0,0,0.31,1);
       }
 
 			.h1 {
@@ -44,34 +51,30 @@
 				opacity: 0.5;
 			}
 
+			.notif-wrapper {
+				/* background: #ffffff; */
+				height: 20px;
+				min-height: 20px;
+				position: relative;
+			}
+
+			#puller {
+				text-align: center;
+				height: 20px;
+				width: 100%;
+				position: absolute;
+				bottom: 0;
+			}
+
     </style>
 
     <div class="toolbar">
       <paper-icon-button icon="menu" on-tap="openDrawer" class="red"></paper-icon-button>
       <span class="flex"></span>
       <paper-icon-button id="location" icon="maps:my-location" on-tap="setCurrentLocation" class="red inactive"></paper-icon-button>
-			<!-- <paper-icon-button icon="filter-list" slot="dropdown-trigger" class="red" on-tap="openFilters"></paper-icon-button>
-			<iron-dropdown id="filters" horizontal-align="right" vertical-align="top">
-				<div slot="dropdown-content" class="dropdown-menu">
-					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam amet blanditiis officia. Quo sint consectetur magnam harum eius esse dolores voluptate vitae, rerum velit minima dignissimos! Ducimus rem eligendi id!
-					<template is="dom-repeat" items="[[_filters]]" as="filter">
-						<div class="item" on-click="filterPosts" hidden$="[[filter.hidden]]">
-							<span>[[filter.name]]</span>
-							<paper-ripple></paper-ripple>
-						</div>
-					</template>
-				</div>
-			</iron-dropdown> -->
 			<paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
 				<paper-icon-button icon="filter-list" slot="dropdown-trigger" class="red"></paper-icon-button>
 				<div slot="dropdown-content" class="dropdown-menu">
-					<template is="dom-repeat" items="[[_filters]]" as="filter">
-						<!-- <div class="item" on-click="filterPosts" hidden$="[[filter.hidden]]">
-							<span>[[filter.name]]</span>
-							<paper-ripple></paper-ripple>
-						</div> -->
-						
-					</template>
 					<template is="dom-if" if="[[auth]]">
 						<div class="item-title">
 							<span>Show only</span>
@@ -82,9 +85,6 @@
 						<div class="item">
 							<paper-checkbox value="m_b" on-change="filterCheck">My Bids</paper-checkbox>
 						</div>
-						<!-- <div class="item">
-							<paper-checkbox value="m_s" on-change="filterCheck">My Skills</paper-checkbox>
-						</div> -->
 					</template>
 
 					<div class="item-title">
@@ -103,7 +103,12 @@
     <app-toolbar>
 			<span class="date">[[today]]</span>
       <div main-title class="h1">The Grid</div>
-    </app-toolbar>
+		</app-toolbar>
+		<div class="flex notif-wrapper">
+			<div id="puller">
+				<iron-icon icon="expand-more" class="pointer red"></iron-icon>
+			</div>
+		</div>
 	</template>
 
   <script>
@@ -259,6 +264,94 @@
 				super.connectedCallback();
 
 				this.setFilters();
+
+				this.setNotificationEvents();
+			}
+
+			setNotificationEvents() {
+				const notif_bar = this.shadowRoot.querySelector('.notif-wrapper');
+				const puller = this.shadowRoot.querySelector('#puller');
+				const self = this;
+				const original_height = 150;
+
+				let startY = 0;
+				let currentY = 0;
+				let draggingY = 0;
+				let isDragging = false;
+				let targetY = 0;
+				let open = false;
+				let height = original_height;
+				
+
+				const update = function() {
+
+					if(draggingY > 0) {
+						if(!isDragging) {
+							height += (targetY - height) / 4;
+						} else {
+							height = original_height + (currentY - startY);
+							
+						}
+					} else if(draggingY < 0){
+						if(isDragging) {
+							height = window.outerHeight - Math.abs(draggingY);
+						} else {
+							height += (targetY - height) / 4;
+						}
+					}
+
+					self.style.height = `${height}px`;
+
+					if(!isDragging) {
+						if(height <= original_height || height >= window.outerHeight) {
+							draggingY = 0;
+							startY = 0;
+							currentY = 0;
+						}
+					}
+					
+					requestAnimationFrame(update);
+				};
+				
+				const handleStart = function(e) {
+					startY = e.pageY || e.touches[0].clientY;
+					draggingY = 0;
+					self.style.willChange = 'height';
+					isDragging = true;
+					requestAnimationFrame(update);
+					e.preventDefault();
+				};
+
+				const handleMove = function(e) {
+					currentY = e.pageY || e.touches[0].clientY;
+					draggingY = currentY - startY;
+					e.preventDefault();
+				}
+
+				const handleEnd = function(e) {
+					draggingY = currentY - startY;
+
+					isDragging = false;
+					targetY = original_height;
+
+					const treshold = (window.outerHeight - 130) * 0.35;
+					
+					if(Math.abs(draggingY) > treshold) {
+						targetY = (draggingY > 0) ? window.outerHeight : original_height;
+					}
+
+					e.preventDefault();
+				};
+
+
+
+				notif_bar.addEventListener('touchstart', handleStart, false);
+				notif_bar.addEventListener('touchmove', handleMove, false);
+				notif_bar.addEventListener('touchend', handleEnd, false);
+				// notif_bar.addEventListener('mousedown', handleStart, false);
+				// notif_bar.addEventListener('mousemove', handleMove, false);
+				// notif_bar.addEventListener('mouseup', handleEnd, false);
+
 			}
 
       openDrawer() {
