@@ -99,12 +99,14 @@
 
 				</div>
 			</paper-menu-button>
-    </div>
-    <app-toolbar>
-			<span class="date">[[today]]</span>
-      <div main-title class="h1">The Grid</div>
-		</app-toolbar>
-		<div class="flex notif-wrapper">
+		</div>
+		<div class="puller">
+			<app-toolbar>
+				<span class="date">[[today]]</span>
+				<div main-title class="h1">The Grid</div>
+			</app-toolbar>
+		</div>
+		<div class="flex notif-wrapper puller">
 			<div id="puller">
 				<iron-icon icon="expand-more" class="pointer red"></iron-icon>
 			</div>
@@ -347,10 +349,17 @@
 				};
 
 
+				this.shadowRoot.querySelectorAll('.puller').forEach(item => {
+					item.addEventListener('touchstart', handleStart, false);
+					item.addEventListener('touchmove', handleMove, false);
+					item.addEventListener('touchend', handleEnd, false);
+				});
 
-				notif_bar.addEventListener('touchstart', handleStart, false);
-				notif_bar.addEventListener('touchmove', handleMove, false);
-				notif_bar.addEventListener('touchend', handleEnd, false);
+
+
+				// notif_bar.addEventListener('touchstart', handleStart, false);
+				// notif_bar.addEventListener('touchmove', handleMove, false);
+				// notif_bar.addEventListener('touchend', handleEnd, false);
 				// notif_bar.addEventListener('mousedown', handleStart, false);
 				// notif_bar.addEventListener('mousemove', handleMove, false);
 				// notif_bar.addEventListener('mouseup', handleEnd, false);
