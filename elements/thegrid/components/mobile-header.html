@@ -288,15 +288,18 @@
 					if(draggingY > 0) {
 						if(!isDragging) {
 							height += (targetY - height) / 4;
+							self.style.transitionDuration = '200ms';
 						} else {
 							height = original_height + (currentY - startY);
-							
+							self.style.transitionDuration = '0ms';
 						}
 					} else if(draggingY < 0){
 						if(isDragging) {
 							height = window.outerHeight - Math.abs(draggingY);
+							self.style.transitionDuration = '0ms';
 						} else {
 							height += (targetY - height) / 4;
+							self.style.transitionDuration = '200ms';
 						}
 					}
 
