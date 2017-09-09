@@ -1,5 +1,8 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/iron-dropdown/iron-dropdown.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
@@ -29,6 +32,7 @@
         -webkit-flex-direction: column;
         flex-direction: column;
 				transition: height 150ms cubic-bezier(0,0,0.31,1);
+				overflow: hidden;
       }
 
 			.h1 {
@@ -104,10 +108,21 @@
 		<div class="puller">
 			<app-toolbar>
 				<span class="date">[[today]]</span>
-				<div main-title class="h1">The Grid</div>
+				<div main-title class="h1">[[mainTitle]]</div>
 			</app-toolbar>
 		</div>
 		<div class="flex notif-wrapper">
+			<div role="list" class="white p-x-1">
+				<template is="dom-repeat" items="[[notifications]]" as="notif">
+					<paper-item on-click="viewNotification">
+						<paper-item-body two-line>
+							<div>[[notif.data.title]]</div>
+							<div secondary>[[_fromNow(notif.created_at)]]</div>
+							<paper-ripple></paper-ripple>
+						</paper-item-body>
+					</paper-item>
+				</template>
+			</div>
 			<div id="puller">
 				<iron-icon id="toggleIcon" icon="expand-more" class="pointer red" on-click="toggleNotification"></iron-icon>
 			</div>
@@ -118,7 +133,10 @@
 
 
 
-    class MobileHeader extends ReduxBehavior(Polymer.Element) {
+    class MobileHeader extends 
+			GridNavigation(
+				ReduxAsyncActionBehavior(
+					ReduxBehavior(Polymer.Element))) {
       static get is() { return 'mobile-header'; }
 
 			static get properties() {
@@ -133,6 +151,11 @@
             type: Object,
             statePath: 'user'
 					},
+
+					notifications: {
+						type: Array,
+						statePath: 'notifications'
+					},
 					
 					today: {
 						type: String,
@@ -144,6 +167,11 @@
 					auth: {
 						type: Boolean,
 						statePath: 'auth'
+					},
+
+					mainTitle: {
+						type: String,
+						value: 'The Grid'
 					},
 
 					_filters: {
@@ -177,6 +205,7 @@
 					'_gmap(gmap)',
 					'_auth(auth)',
 					// '_visiblePinsChange(visiblePins)'
+					'_expandedChange(expanded)'
 				];
 			}
 
@@ -585,6 +614,28 @@
 
 			}
 
+			getNotifications() {
+				if(!this.user) return;
+
+				gAxios.get(`/users/${this.user.id}/notifications`)
+				.then( res => {
+					this.dispatch('setNotifications', res.data);
+				});
+			}
+
+			viewNotification(e) {
+				const notif = e.model.notif;
+
+				if(!notif) return;
+
+				switch (notif.type) {
+					case 'App\\Notifications\\BidToPost' : {
+						this.redirect(`/posts/${notif.data.job_id}`);
+						break;
+					}
+				}
+			}
+
 			_gmap(gmap) {
 				if(gmap) {
 					this.markers = gmap.markers;
@@ -592,6 +643,16 @@
 			}
 			_auth(auth) {
 				this.setFilters();
+
+				this.getNotifications();
+			}
+
+			_fromNow(date) {
+        return moment(date).fromNow();
+      }
+
+			_expandedChange(expanded) {
+				this.mainTitle = (expanded) ? 'Recent' : 'The Grid';
 			}
 
     }

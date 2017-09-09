@@ -25,7 +25,8 @@
     posts: [],
     bids: [],
     inbox: [],
-    r_markers: null
+    r_markers: null,
+    notifications: []
   };
 
   const reducer = (state, action) => {
@@ -247,6 +248,12 @@
         return Object.assign({}, state, { r_markers: markers });
         break;
       }
+      case 'SET_NOTIFCATIONS': {
+        return Object.assign({}, state, {
+          notifications: action.notifications
+        });
+        break;
+      }
     }
   };
 
@@ -376,6 +383,13 @@
             type: 'UPDATE_CONVERSATION',
             id: id,
             conversation: conversation
+          }
+        },
+
+        setNotifications(notifications) {
+          return {
+            type: 'SET_NOTIFCATIONS',
+            notifications: notifications
           }
         }
 
