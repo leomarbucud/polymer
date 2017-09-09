@@ -18,6 +18,7 @@
         background-blend-mode: darken;
         width: 100%;
         height: 150px;
+				max-height: 100%;
         position: absolute;
         top: 0;
         left: 0;
@@ -106,9 +107,9 @@
 				<div main-title class="h1">The Grid</div>
 			</app-toolbar>
 		</div>
-		<div class="flex notif-wrapper puller">
+		<div class="flex notif-wrapper">
 			<div id="puller">
-				<iron-icon icon="expand-more" class="pointer red"></iron-icon>
+				<iron-icon id="toggleIcon" icon="expand-more" class="pointer red" on-click="toggleNotification"></iron-icon>
 			</div>
 		</div>
 	</template>
@@ -162,6 +163,11 @@
 					markerView: {
 						type: Array,
 						value: []
+					},
+
+					expanded: {
+						type: Boolean,
+						value: false
 					}
 				}
 			}
@@ -314,6 +320,12 @@
 							currentY = 0;
 						}
 					}
+
+					if(height >= window.outerHeight) {
+						self.expanded = true;
+					} else if(height <= original_height) {
+						self.expanded = false;
+					}
 					
 					requestAnimationFrame(update);
 				};
@@ -364,6 +376,17 @@
 				// notif_bar.addEventListener('mousemove', handleMove, false);
 				// notif_bar.addEventListener('mouseup', handleEnd, false);
 
+			}
+
+			toggleNotification(e) {
+				if(this.expanded) {
+					this.style.height = '150px';
+					e.target.icon = 'expand-more';
+				} else {
+					this.style.height = `${window.outerHeight}px`;
+					e.target.icon = 'expand-less';
+				}
+				this.expanded = !this.expanded;
 			}
 
       openDrawer() {

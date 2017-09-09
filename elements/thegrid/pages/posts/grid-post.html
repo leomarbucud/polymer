@@ -4,6 +4,7 @@
 <link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../grid-styles.html">
 <link rel="import" href="../../grid-icons.html">
 <link rel="import" href="../../components/ratings.html">
@@ -181,6 +182,7 @@
               <tr>
                 <th>Bidder</th>
                 <th>Bid</th>
+                <th>Files</th>
                 <th></th>
               </tr>
             </thead>
@@ -190,8 +192,16 @@
                   <td>[[bidder.user.name]]</td>
                   <td>[[bidder.price_bid]]</td>
                   <td>
+                    <template is="dom-if" if="[[!bidder.files]]">
+                      <paper-button on-tap="awardJob">Award Job</paper-button>
+                    </template>
+                  </td>
+                  <td>
                     <template is="dom-if" if="[[!post.winner]]">
                       <paper-button on-tap="awardJob">Award Job</paper-button>
+                    </template>
+                    <template is="dom-if" if="[[bidder.files.length]]">
+                      <paper-button on-tap="viewFiles">View Files</paper-button>
                     </template>
                   </td>
                 </tr>
@@ -283,6 +293,17 @@
         </div>
       </div>
     </template>
+
+    <paper-dialog id="filesPreviewDialog" style="min-width: 300px;">
+      <h2>Files</h2>
+      <paper-dialog-scrollable>
+        <div id="docs-dialog"></div>
+        <div id="carousel-dialog"></div>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Close</paper-button>
+      </div>
+    </paper-dialog>
 
   </template>
 
@@ -466,6 +487,7 @@
 
       }
 
+
       viewOnMap() {
         if (!this.post && this.map) return;
 
@@ -589,6 +611,62 @@
         }).then( () => {
           this.isLoading = false;
         });
+      }
+
+      viewFiles(e) {
+        const files = e.model.bidder.files;
+
+        if(files.length) {
+          const carousel = this.shadowRoot.querySelector('#carousel-dialog');
+          const docs = this.shadowRoot.querySelector('#docs-dialog');
+          
+          if(files.length) {
+            
+            let my_carousel = document.createElement('my-carousel');
+            let pdf = document.createElement('div');
+
+            files.forEach( file => {
+              let allowFile = false;
+              switch (file.type) {
+                case 'jpeg':
+                case 'png': {
+                  allowFile = true;
+                  break;
+                }
+                case 'pdf': {
+                  let a = document.createElement('a');
+                  a.href = this._getFilePath(file.path);
+                  a.setAttribute('download', true);
+                  a.textContent = file.original_name;
+                  pdf.appendChild(a);
+                  break;
+                }
+              }
+              if( !allowFile ) return;
+              let img = document.createElement('img');
+              let div = document.createElement('div');
+
+              div.style.backgroundImage = `url(${this._getFilePath(file.path)})`;
+              div.style.backgroundSize = 'cover';
+              div.style.backgroundPosition = 'center';
+
+              my_carousel.appendChild(div);
+            });
+
+            carousel.innerHTML = '';
+            carousel.appendChild(my_carousel);
+
+            docs.innerHTML = '';
+            docs.appendChild(pdf);
+
+            const dialog = this.shadowRoot.querySelector('#filesPreviewDialog');
+            dialog.fitInto = this;
+            dialog.open();
+
+          } else {
+            carousel.innerHTML = '';
+          }
+        }
       }
 
       _nextStatus(status) {
