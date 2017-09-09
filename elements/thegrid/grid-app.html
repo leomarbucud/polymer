@@ -403,6 +403,11 @@
 
 							});
 
+							gAxios.get(`/users/${this.user.id}/notifications`)
+							.then( res => {
+								this.dispatch('setNotifications', res.data);
+							});
+
 					}, timeout);
 
 					// this.set('accountPage', null);

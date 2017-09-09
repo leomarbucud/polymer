@@ -614,15 +614,6 @@
 
 			}
 
-			getNotifications() {
-				if(!this.user) return;
-
-				gAxios.get(`/users/${this.user.id}/notifications`)
-				.then( res => {
-					this.dispatch('setNotifications', res.data);
-				});
-			}
-
 			viewNotification(e) {
 				const notif = e.model.notif;
 
@@ -643,8 +634,6 @@
 			}
 			_auth(auth) {
 				this.setFilters();
-
-				this.getNotifications();
 			}
 
 			_fromNow(date) {
