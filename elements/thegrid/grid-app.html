@@ -140,11 +140,13 @@
 
 		<grid-map user="[[user]]" map="{{map}}" gmap="{{gmap}}"></grid-map>
 
-		<mobile-header map="{{map}}" gmap="[[gmap]]"></mobile-header>
+		
 
 		<paper-fab id="searchFab" icon="search" class="grid-main-fab" on-tap="redirectSearch"></paper-fab>
 		<paper-fab id="addFab" icon="add" class="grid-main-fab" on-tap="redirectPostsAdd"></paper-fab>
 
+		<mobile-header map="{{map}}" gmap="[[gmap]]"></mobile-header>
+		
 		<grid-introduction is-logged-in="[[isLoggedIn]]"></grid-introduction>
 
 		<iron-pages attr-for-selected="data-page" selected="[[page]]" class="-overlay">
