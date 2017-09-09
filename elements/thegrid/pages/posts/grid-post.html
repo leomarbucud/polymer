@@ -589,6 +589,11 @@
       messageBidder() {
         if( !this.post.winner ) return;
 
+        if( this.post.conversation ) {
+          this.redirect('/inbox/' + this.post.conversation.id);
+          return;
+        }
+
         this.isLoading = true;
         gAxios.post('/users/' + this.user.id + '/inbox', {
           job_id: this.post.id,
