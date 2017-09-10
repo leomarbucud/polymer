@@ -35,6 +35,7 @@
     "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.1",
     "paper-item": "PolymerElements/paper-item#^2.0.0",
     "paper-badge": "PolymerElements/paper-badge#^2.0.0",
-    "paper-dialog": "PolymerElements/paper-dialog#^2.0.0"
+    "paper-dialog": "PolymerElements/paper-dialog#^2.0.0",
+    "app-datepicker": "^2.11.1"
   }
 }

@@ -637,6 +637,26 @@
 						this.readNotif(notif.id);
 						break;
 					}
+					case 'App\\Notifications\\AwardBid' : {
+						this.redirect(`/bids/${notif.data.bid_id}`);
+						this.readNotif(notif.id);
+						break;
+					}
+					case 'App\\Notifications\\MarkPostInProgress' : {
+						this.redirect(`/bids/${notif.data.bid_id}`);
+						this.readNotif(notif.id);
+						break;
+					}
+					case 'App\\Notifications\\MarkPostReview' : {
+						this.redirect(`/bids/${notif.data.bid_id}`);
+						this.readNotif(notif.id);
+						break;
+					}
+					case 'App\\Notifications\\MarkPostComplete' : {
+						this.redirect(`/bids/${notif.data.bid_id}`);
+						this.readNotif(notif.id);
+						break;
+					}
 				}
 			}
 
@@ -684,7 +704,7 @@
 			}
 
 			_expandedChange(expanded) {
-				this.mainTitle = (expanded) ? 'Recent' : 'The Grid';
+				this.mainTitle = (expanded) ? 'Recents' : 'The Grid';
 			}
 
     }
