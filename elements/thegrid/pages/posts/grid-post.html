@@ -188,7 +188,7 @@
             <tbody>
               <template is="dom-repeat" items="[[post.bidders]]" as="bidder">
                 <tr>
-                  <td>[[bidder.user.name]]</td>
+                  <td><a href$="/@[[bidder.user.username]]">[[bidder.user.name]]</a></td>
                   <td>[[bidder.price_bid]]</td>
                   <td>
                     <template is="dom-if" if="[[!post.winner]]">

@@ -20,6 +20,7 @@
 <link rel="import" href="components/drawer.html">
 <link rel="import" href="pages/grid-search.html">
 <link rel="import" href="pages/grid-user-post.html">
+<link rel="import" href="pages/grid-user-profile.html">
 <link rel="import" href="grid-icons.html">
 <link rel="import" href="grid-styles.html">
 
@@ -206,6 +207,12 @@
 				</div>
 			</section>
 
+			<section data-page="user-profile" class="overlay">
+				<div class="center-page">
+					<grid-user-profile id="user-profile" username="[[username]]"></grid-user-profile>
+				</div>
+			</section>
+
 			<section data-page="posts" class="overlay">
 				<div class="center-page">
 					<grid-posts id="posts" map="{{map}}" gmap="[[gmap]]"></grid-posts>
@@ -369,16 +376,16 @@
 							past:   "%s ago",
 							s  : 'just now',
 							ss : '%ds',
-							m:  "a minute",
+							m:  "1m",
 							mm: "%dm",
-							h:  "an hour",
+							h:  "1h",
 							hh: "%dh",
-							d:  "a day",
+							d:  "1d",
 							dd: "%dd",
-							M:  "a month",
-							MM: "%dm",
-							y:  "a year",
-							yy: "%dy"
+							M:  "1 month",
+							MM: "%d month",
+							y:  "1 year",
+							yy: "%d year"
 					}
 				});
 			}
@@ -496,14 +503,6 @@
 				});
 			}
 
-			// _tokenChange(token) {
-			// 	if(token) {
-			// 		window.localStorage.clear();
-			// 		window.localStorage.setItem('token', token);
-			// 		this._checkLogin();
-			// 	}
-			// }
-
 			_authenticated(token, user) {
 				if (token && user) {
 					window.localStorage.clear();
@@ -557,7 +556,8 @@
 					// IDEA: if profile page
 					if (routeData.page.charAt(0) == '@') {
 						//console.log('loding user', routeData.page )
-
+						this.page = 'user-profile';
+						this.username = routeData.page.substr(1);
 						return;
 					}
 

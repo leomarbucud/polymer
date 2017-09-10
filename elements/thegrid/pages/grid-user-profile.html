@@ -3,7 +3,7 @@
 <link rel="import" href="../grid-styles.html">
 <link rel="import" href="../components/ratings.html">
 
-<dom-module id="grid-profile">
+<dom-module id="grid-user-profile">
   <template>
     <style include="grid iron-flex">
 
@@ -79,19 +79,12 @@
     <app-location route="{{route}}" ></app-location>
 
 		<app-route route="{{route}}"
-		    pattern="/profile"
-		    data="{{routeData}}"
-		    tail="{{subroute}}"></app-route>
-
-		<app-route route="{{subroute}}"
-		    pattern="/:id"
-		    data="{{subrouteData}}"></app-route>
+		    pattern="/:username"
+		    data="{{routeData}}"></app-route>
 
     <div id="toolbar" class="toolbar dred-bg">
       <paper-icon-button icon="first-page" class="white pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
-      <paper-icon-button icon="create" class="white pointer" on-click="editProfile"></paper-icon-button>
-      <!-- <paper-icon-button icon="more-vert" class="white pointer"></paper-icon-button> -->
     </div>
 
     <main class="scroll-area flex">
@@ -135,7 +128,6 @@
         <div>
           <div class="layout horizontal white section-title">
             <span class="flex title">About</span>
-            <!-- <span class="red">More</span> -->
           </div>
           <p class="white">
             [[user.profile.bio]]
@@ -158,11 +150,10 @@
         <div>
           <div class="layout horizontal white section-title">
             <span class="flex title">Skills</span>
-            <span class="red pointer" on-click="redirectProfileSkills">Edit</span>
           </div>
           <div class="skills-container">
-            <div hidden$="[[skills]]" class="white">Loading your awesome skills...</div>
-            <template is="dom-repeat" items="[[skills]]" as="skill">
+            <div hidden$="[[user.skills]]" class="white">Loading your awesome skills...</div>
+            <template is="dom-repeat" items="[[user.skills]]" as="skill">
               <div class="chip">
                 <span>[[skill.skill]]</span>
               </div>
@@ -173,125 +164,78 @@
       </section>
     </main>
 
-    <!-- <a href="/profile/skills">Skills</a> -->
-
-    <iron-pages attr-for-selected="data-page" selected="[[subPage]]">
-
-      <section data-page="setup" class="sub-page">
-        <grid-setup id="setup"></grid-setup>
-      </section>
-
-      <section data-page="skills" class="sub-page">
-        <grid-profile-skills id="skills"></grid-profile-skills>
-      </section>
-
-      <section data-page="edit" class="sub-page">
-        <grid-profile-edit id="edit"></grid-profile-edit>
-      </section>
-
-    </iron-pages>
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay dred-bg">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
 
   </template>
 
   <script>
 
-    class GridProfile extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+    class GridUserProfile extends GridNavigation(ReduxBehavior(Polymer.Element)) {
 
-      static get is() { return 'grid-profile'; }
+      static get is() { return 'grid-user-profile'; }
 
       static get properties() {
         return {
           user: {
-            type: Object,
-            statePath: 'user'
+            type: Object
           },
-          skills: {
-            type: Object,
-            statePath: 'skills'
-          }
+          username: String
         }
       }
 
       static get observers() {
         return [
-          '_subrouteChange(subroute)',
-          '_subrouteDataChange(subrouteData)',
+          '_usernameChange(username)',
         ]
       }
 
-      static get actions() {
-  			return {
-  				setSkills(skills) {
-  					return {
-  						type: 'SET_SKILLS',
-  						skills: skills
-  					}
-  				}
-  			};
-  		}
-
       constructor() {
         super();
+        this.isLoading = true;
+      }
+
+      _usernameChange(username) {
+        this.isLoading = true;
+        gAxios.get(`/users/${username}`)
+        .then( res => {
+          this.set('user', res.data);
+          
+          const main = this.shadowRoot.querySelector('main');
+
+          const scroll = () => {
+            if( main.scrollTop > 0 ) {
+              this.shadowRoot.querySelector('#toolbar').classList.add('shadow');
+            } else {
+              this.shadowRoot.querySelector('#toolbar').classList.remove('shadow');
+            }
+          };
+
+          main.addEventListener('scroll', scroll);
+
+          const totalNumReviews = this.user.reviews.length;
+          var sumStar = 0;
+          this.user.reviews.forEach( review => {
+            sumStar += review.stars;
+          });
+
+          if(sumStar == 0) {
+            this.rate = 3;
+          } else {
+            this.rate = Math.floor(sumStar/totalNumReviews);
+          }
+
+          this.isLoading = false;
+        });
       }
 
       connectedCallback() {
         super.connectedCallback();
-        gAxios.get('/users/' + this.user.id + '/skills')
-        .then( res => {
-          this.dispatch('setSkills', res.data);
-        });
-
-        const main = this.shadowRoot.querySelector('main');
-        
-        const scroll = () => {
-          if( main.scrollTop > 0 ) {
-            this.shadowRoot.querySelector('#toolbar').classList.add('shadow');
-          } else {
-            this.shadowRoot.querySelector('#toolbar').classList.remove('shadow');
-          }
-        };
-
-        main.addEventListener('scroll', scroll);
-
-        LetterAvatar.transform();
-
-        const totalNumReviews = this.user.reviews.length;
-        var sumStar = 0;
-        this.user.reviews.forEach( review => {
-          sumStar += review.stars;
-        });
-
-        if(sumStar == 0) {
-          this.rate = 3;
-        } else {
-          this.rate = Math.floor(sumStar/totalNumReviews);
-        }
-
-      }
-
-      editProfile() {
-        this.redirect('/profile/edit')
-      }
-
-      _subrouteChange(subroute) {
-				if( subroute.path == '' ) {
-					this.set('subrouteData.id', null);
-          this.subPage = null;
-				}
-			}
-
-      _subrouteDataChange(subrouteData) {
-        const self = this;
-        if( subrouteData.id ) {
-          Polymer.Base.importHref(
-						'/elements/thegrid/pages/profile/grid-profile-' + subrouteData.id + '.html',
-						() => {
-              self.subPage = subrouteData.id;
-						}
-					);
-        } else {
-          self.subPage = null;
-        }
       }
 
       _profileImage(img) {
@@ -306,6 +250,6 @@
 
     }
 
-    customElements.define(GridProfile.is, GridProfile);
+    customElements.define(GridUserProfile.is, GridUserProfile);
 	</script>
 </dom-module>

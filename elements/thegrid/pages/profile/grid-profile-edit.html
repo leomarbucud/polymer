@@ -54,15 +54,16 @@
     <div id="toolbar" class="toolbar dred-bg">
       <paper-icon-button icon="chevron-left" class="white pointer" on-click="redirectProfile"></paper-icon-button>
       <span class="flex"></span>
+      <paper-button on-click="upload" class="white" hidden$="[[!selectedAvatar]]">Submit</paper-button>
     </div>
 
     <main class="p-y-1">
       <div class="profile-image">
         <div class="image-container">
           <div class="relative">
-            <img src="[[_profileImage(user.profile.profile_image_url)]]" />
+            <img id="avatar" src="[[currentAvatar]]" />
             <span class="image-select">
-              <paper-icon-button icon="image:camera-alt"></paper-icon-button>
+              <paper-icon-button icon="image:camera-alt" on-click="selectFile"></paper-icon-button>
             </span>
           </div>
         </div>
@@ -71,14 +72,21 @@
       </div>
       <a id="export" data-download="awesome-avatar.png">
 				<img />
-			</a>
+      </a>
+      
+      <input type="file" id="file" on-change="previewAvatar" style="position: absolute; left: -99999px; top: -99999px;"/>
+
+
     </main>
 
   </template>
 
   <script>
 
-    class GridProfileEdit extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+    class GridProfileEdit extends 
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
 
       static get is() { return 'grid-profile-edit'; }
 
@@ -105,11 +113,13 @@
 
       constructor() {
         super();
-
+        this.selectedAvatar = null;
       }
 
       connectedCallback() {
         super.connectedCallback();
+
+        this.currentAvatar = this._profileImage(this.user.profile.profile_image_url);
 
         /*this.loadAvatarCrop('/node_modules/avatar-crop/dist/avatar-crop.js', () => {
           var avatar = new AvatarCrop( this.shadowRoot.querySelector('.img-edit') ),
@@ -125,6 +135,68 @@
           avatar.addEventListener('change', change);
         });*/
 
+      }
+
+      upload() {
+        if(!this.user) return;
+        if(!this.selectedAvatar) return;
+
+        let formData = new FormData();
+        formData.append('avatar', this.selectedAvatar);
+
+        gAxios.post(`/users/${this.user.id}/upload`, formData)
+        .then( res => {
+          console.log(res.data);
+          this.selectedAvatar = null;
+          this.dispatch('updateUser', res.data);
+        });
+
+      }
+
+      selectFile() {
+        this.shadowRoot.querySelector('#file').click();
+      }
+
+      previewAvatar() {
+        const file = this.shadowRoot.querySelector('#file').files[0];
+
+        let err = [];
+
+        let validTypes = false;
+
+        switch (file.type) {
+          case 'image/jpeg':
+          case 'image/png': {
+            validTypes = true;
+          }
+        }
+
+        if(validTypes) {
+          if(file.size <= 1000000) {
+            
+          } else {
+            err.push(`${file.name} is greater than 1mb.`);
+          }
+        } else {
+          err.push(`${file.name} is not valid to upload.`);
+        }
+
+
+				if(err.length) {
+          alert(err.join('\n'));
+          this.shadowRoot.querySelector('#avatar').src = this.currentAvatar;
+				} else {
+          let reader  = new FileReader();
+          reader.onloadend = () => {
+            this.shadowRoot.querySelector('#avatar').src = reader.result;
+            this.selectedAvatar = file;
+          }
+          if (file) {
+            reader.readAsDataURL(file);
+          } else {
+            this.shadowRoot.querySelector('#avatar').src = this.currentAvatar;
+          }
+        }
       }
 
       loadAvatarCrop(src, callback) {
@@ -143,7 +215,7 @@
           if(img.indexOf('data:image') != -1) {
             return img;
           }
-          return this.url.API_BASE_URL + '/storage/avatars/' + img;
+          return this.url.API_BASE_URL + '/uploads/' + img;
         }
         return LetterAvatar(this.user.name, '200');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
       }
