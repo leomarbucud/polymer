@@ -362,6 +362,25 @@
   			window.addEventListener('offline', () => {
 					this.$.offline.classList.add('active');
 				});
+
+				moment.updateLocale('en', {
+					relativeTime : {
+							future: "in %s",
+							past:   "%s ago",
+							s  : 'just now',
+							ss : '%ds',
+							m:  "a minute",
+							mm: "%dm",
+							h:  "an hour",
+							hh: "%dh",
+							d:  "a day",
+							dd: "%dd",
+							M:  "a month",
+							MM: "%dm",
+							y:  "a year",
+							yy: "%dy"
+					}
+				});
 			}
 
 			connectedCallback() {
@@ -653,7 +672,7 @@
 					}
 
 					this.getNotifications();
-					
+
 				};
 				
         // when user receive message
@@ -685,6 +704,42 @@
 					} else {
 						let href = '/bids/' + data.id;
 						let text = 'Your bidded job has been awarded to other bidder.';
+						openNotification(href, text);
+					}
+        });
+				
+				socket.on('user:job_in_progress', data => {
+					if(!this.auth) return;
+					
+					console.log('job_in_progress', data);
+
+					if(data.winner_user_id == this.user.id) {
+						let href = '/bids/' + data.bid_id;
+						let text = 'Your bid has been set to in progress.';
+						openNotification(href, text);
+					}
+				});
+				
+				socket.on('user:job_review', data => {
+					if(!this.auth) return;
+					
+					console.log('job_review', data);
+
+					if(data.winner_user_id == this.user.id) {
+						let href = '/bids/' + data.bid_id;
+						let text = 'Your bid has been reviewed.';
+						openNotification(href, text);
+					}
+				});
+				
+				socket.on('user:job_complete', data => {
+					if(!this.auth) return;
+					
+					console.log('job_complete', data);
+
+					if(data.winner_user_id == this.user.id) {
+						let href = '/bids/' + data.bid_id;
+						let text = 'Your bid has been completed.';
 						openNotification(href, text);
 					}
         });

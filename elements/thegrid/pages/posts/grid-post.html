@@ -191,11 +191,6 @@
                   <td>[[bidder.user.name]]</td>
                   <td>[[bidder.price_bid]]</td>
                   <td>
-                    <template is="dom-if" if="[[!bidder.files]]">
-                      <paper-button on-tap="awardJob">Award Job</paper-button>
-                    </template>
-                  </td>
-                  <td>
                     <template is="dom-if" if="[[!post.winner]]">
                       <paper-button on-tap="awardJob">Award Job</paper-button>
                     </template>
@@ -534,6 +529,14 @@
         }).then( res => {
           // console.log(res.data);
           this.dispatch('updatePost', res.data);
+
+          let detail = {
+            winner_user_id: res.data.winner.user_id,
+            bid_id: res.data.winner.bid_id
+          };
+          
+          window.dispatchEvent( new CustomEvent('user:job_in_progress', { detail: detail }));
+        
         }).catch( err => {
 
         }).then( () => {
@@ -551,6 +554,14 @@
         }).then( res => {
           // console.log(res.data);
           this.dispatch('updatePost', res.data);
+
+          let detail = {
+            winner_user_id: res.data.winner.user_id,
+            bid_id: res.data.winner.bid_id
+          };
+          
+          window.dispatchEvent( new CustomEvent('user:job_complete', { detail: detail }));
+        
         }).catch( err => {
 
         }).then( () => {
@@ -578,6 +589,14 @@
         }).then( res => {
           console.log(res.data);
           this.dispatch('updatePost', res.data);
+
+          let detail = {
+            winner_user_id: res.data.winner.user_id,
+            bid_id: res.data.winner.bid_id
+          };
+          
+          window.dispatchEvent( new CustomEvent('user:job_review', { detail: detail }));
+        
         }).catch( err => {
 
         }).then( () => {

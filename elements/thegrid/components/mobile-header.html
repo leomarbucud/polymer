@@ -660,11 +660,19 @@
 				}
 			}
 
+			getNotifications() {
+				gAxios.get(`/users/${this.user.id}/notifications`)
+				.then( res => {
+					this.dispatch('setNotifications', res.data);
+				});
+			}
+
 			readNotif(id) {
 				gAxios.post(`/users/${this.user.id}/notifications/read`, {
 					id: id
 				}).then( res => {
-					console.log(res.data);
+					//console.log(res.data);
+					this.getNotifications();
 				});
 			}
 			_notificationsChange(notifications) {
