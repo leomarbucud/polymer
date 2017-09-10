@@ -439,10 +439,10 @@
 
 			.top-search-bar {
         position: absolute;
-        top: 0;
+        top: -9999px;
         left: 0;
         right: 0;
-        display: none;
+        display: block;
         background: #424242;
         height: 64px;
         color: #A8A8A8 !important;
@@ -455,6 +455,12 @@
 
 				transform: scaleX(0.5);
 				transform-origin: right 0; */
+				transition: clip-path 1s cubic-bezier(0.19, 1, 0.22, 1);
+				-moz-transition: clip-path 1s cubic-bezier(0.19, 1, 0.22, 1);
+				-webkit-transition: clip-path 1s cubic-bezier(0.19, 1, 0.22, 1);
+				-o-transition: clip-path 1s cubic-bezier(0.19, 1, 0.22, 1);
+				-ms-transition: clip-path 1s cubic-bezier(0.19, 1, 0.22, 1);
+				clip-path: circle(28px at 80% 50%);
       }
 
       .top-search-bar .input, 
@@ -470,9 +476,11 @@
       }
 
       .top-search-bar.active {
-        display: block;
+        /* display: block; */
 				/* transform: scaleX(1); */
 				/* opacity: 1; */
+				top: 0;
+				clip-path: circle(150% at 80% 50%);
       }
 
       
