@@ -303,6 +303,11 @@
 					skills: {
 						type: Object,
 						statePath: 'skills'
+					},
+
+					allowNotifications: {
+						type: Boolean,
+						value: false
 					}
 
 				}
@@ -399,6 +404,15 @@
 				// s.style.clipPath = `circle(28px at ${left}px ${top}px)`;
 			}
 
+			requestNotificationPermission() {
+				Notification.requestPermission().then( result => {
+					console.log(result);
+					if( result == 'granted') {
+						this.allowNotifications = true;
+					}
+				});
+			}
+
 			_checkLogin() {
 				const self = this;
 
@@ -416,6 +430,8 @@
 						// });
 						// window.dispatchEvent( new CustomEvent('user:logged', { detail: JSON.parse(user)}));
 						timeout = 100;
+
+						this.requestNotificationPermission();
 					}
 
 					// IDEA: Update user after 3 sec
@@ -617,6 +633,20 @@
 					
 					$notificationToast.innerHTML = '<a href="' + href + '" class="white" >' + text + '</a>';
 					$notificationToast.open();
+
+					var icon = '/assets/images/grid-logo.svg';
+
+					if(this.allowNotifications) {
+						var options = {
+								body: text,
+								icon: icon
+						}
+						var n = new Notification(text,options);
+						n.onclick = function(event) {
+							event.preventDefault();
+							window.open(href, '_blank');
+						}
+					}
 				};
 				
         // when user receive message

@@ -628,9 +628,18 @@
 				switch (notif.type) {
 					case 'App\\Notifications\\BidToPost' : {
 						this.redirect(`/posts/${notif.data.job_id}`);
+						this.readNotif(notif.id);
 						break;
 					}
 				}
+			}
+
+			readNotif(id) {
+				gAxios.post(`/users/${this.user.id}/notifications/read`, {
+					id: id
+				}).then( res => {
+					console.log(res.data);
+				});
 			}
 
 			_gmap(gmap) {
