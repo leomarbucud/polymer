@@ -255,17 +255,25 @@
 
         LetterAvatar.transform();
 
-        const totalNumReviews = this.user.reviews.length;
-        var sumStar = 0;
-        this.user.reviews.forEach( review => {
-          sumStar += review.stars;
-        });
+        let sumStar = 0;
 
-        if(sumStar == 0) {
-          this.rate = 3;
+        if(this.user.reviews) {
+          const totalNumReviews = this.user.reviews.length;
+          
+          this.user.reviews.forEach( review => {
+            sumStar += review.stars;
+          });
+
+          if(sumStar == 0) {
+            this.rate = 0;
+          } else {
+            this.rate = Math.floor(sumStar/totalNumReviews);
+          }
+
         } else {
-          this.rate = Math.floor(sumStar/totalNumReviews);
+          this.rate = 0;
         }
+
 
       }
 
