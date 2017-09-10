@@ -462,15 +462,19 @@
 
 							});
 
-							gAxios.get(`/users/${this.user.id}/notifications`)
-							.then( res => {
-								this.dispatch('setNotifications', res.data);
-							});
+							this.getNotifications();
 
 					}, timeout);
 
 					// this.set('accountPage', null);
 				}
+			}
+
+			getNotifications() {
+				gAxios.get(`/users/${this.user.id}/notifications`)
+				.then( res => {
+					this.dispatch('setNotifications', res.data);
+				});
 			}
 
 			// _tokenChange(token) {
@@ -647,6 +651,9 @@
 							window.open(href, '_blank');
 						}
 					}
+
+					this.getNotifications();
+					
 				};
 				
         // when user receive message

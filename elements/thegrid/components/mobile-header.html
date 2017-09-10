@@ -116,7 +116,7 @@
 		</div>
 		<div class="flex notif-wrapper">
 			<div role="list" class="white p-x-1">
-				<template is="dom-repeat" items="[[notifications]]" as="notif">
+				<template is="dom-repeat" items="[[fNotifications]]" as="notif" sort="_sortByUpdatedAt">
 					<paper-item on-click="viewNotification">
 						<paper-item-body two-line>
 							<div>[[notif.data.title]]</div>
@@ -158,6 +158,11 @@
 					notifications: {
 						type: Array,
 						statePath: 'notifications'
+					},
+
+					fNotifications: {
+						type: Array,
+						value: []
 					},
 					
 					today: {
@@ -208,7 +213,8 @@
 					'_gmap(gmap)',
 					'_auth(auth)',
 					// '_visiblePinsChange(visiblePins)'
-					'_expandedChange(expanded)'
+					'_expandedChange(expanded)',
+					'_notificationsChange(notifications)'
 				];
 			}
 
@@ -641,6 +647,22 @@
 					console.log(res.data);
 				});
 			}
+			_notificationsChange(notifications) {
+				if(notifications) {
+					//fNotifications
+					let _notifs = []
+					for (var [key, value] of Object.entries(notifications)) {
+							console.log(key + ' ' + value); // "a 5", "b 7", "c 9"
+							
+							if(value[0]) {
+								_notifs.push(value[0]);
+							}
+					}
+					this.set('fNotifications', _notifs);
+				} else {
+					this.set('fNotifications', []);
+				}
+			}
 
 			_gmap(gmap) {
 				if(gmap) {
@@ -653,7 +675,13 @@
 
 			_fromNow(date) {
         return moment(date).fromNow();
-      }
+			}
+			
+			_sortByUpdatedAt(a, b) {
+				a = new Date(a.created_at);
+				b = new Date(b.created_at);
+				return b < a ? -1 : b > a ? 1 : 0;
+			}
 
 			_expandedChange(expanded) {
 				this.mainTitle = (expanded) ? 'Recent' : 'The Grid';
