@@ -123,6 +123,31 @@
 				display: block;
 			}
 
+			.animate {
+				transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+				-moz-transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+				-webkit-transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+				-o-transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+				-ms-transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+			}
+
+			.animate.circle.search {
+				/* -webkit-clip-path: circle(28px at 50% 42%);
+				clip-path: circle(28px at 50% 42%); */
+				clip-path: circle(28px at 408px 583px);
+				/* transition-delay: 0.12s; */
+			}
+
+			.animate.circle.add {
+				clip-path: circle(28px at 408px 653px);
+			}
+
+			.animate.circle.search.active,
+			.animate.circle.add.active {
+				/* -webkit-clip-path: circle(28px ) !important; */
+				clip-path: circle(100%) !important;
+			}
+
 		</style>
 
 		<!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
@@ -201,13 +226,13 @@
 
 			<section data-page="search" class="overlay">
 				<div class="center-page">
-					<grid-search id="search" map="{{map}}"></grid-search>
+					<grid-search id="search" class="animate circle search" map="{{map}}"></grid-search>
 				</div>
 			</section>
 
 			<section data-page="user-post" class="overlay">
 				<div class="center-page">
-					<grid-user-post post-id="[[userPost.id]]" map="{{map}}" gmap="[[gmap]]"></grid-user-post>
+					<grid-user-post id="user-post" post-id="[[userPost.id]]" map="{{map}}" gmap="[[gmap]]"></grid-user-post>
 				</div>
 			</section>
 
@@ -356,6 +381,24 @@
 				});
 			}
 
+			redirectSearch(e) {
+				super.redirectSearch();
+				const s = this.shadowRoot.querySelector('#search');
+				const b = e.target.getBoundingClientRect();
+				let top = b.top + 28;
+				let left = b.left + 28;
+				s.style.clipPath = `circle(28px at ${left}px ${top}px)`;
+			}
+
+			redirectPostsAdd(e) {
+				super.redirectPostsAdd();
+				// const s = this.shadowRoot.querySelector('#posts');
+				// const b = e.target.getBoundingClientRect();
+				// let top = b.top + 28;
+				// let left = b.left + 28;
+				// s.style.clipPath = `circle(28px at ${left}px ${top}px)`;
+			}
+
 			_checkLogin() {
 				const self = this;
 
@@ -490,10 +533,16 @@
 						return;
 					}
 
+					this.shadowRoot.querySelector('#' + routeData.page).classList.remove('active');
+
 					Polymer.Base.importHref(
 						this.resolveUrl('pages/grid-' + routeData.page + '.html'),
 						() => {
-							self.page = routeData.page
+							self.page = routeData.page;
+							setTimeout(() => {
+								this.shadowRoot.querySelector('#' + routeData.page).classList.add('active');
+							}, 1);
+							
 						},
 						self._showPage404.bind(self),
 						true
