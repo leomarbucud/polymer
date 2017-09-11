@@ -36,6 +36,8 @@
     "paper-item": "PolymerElements/paper-item#^2.0.0",
     "paper-badge": "PolymerElements/paper-badge#^2.0.0",
     "paper-dialog": "PolymerElements/paper-dialog#^2.0.0",
-    "app-datepicker": "^2.11.1"
+    "app-datepicker": "^2.11.1",
+    "range-datepicker": "^0.0.13",
+    "paper-slider": "PolymerElements/paper-slider#^2.0.2"
   }
 }

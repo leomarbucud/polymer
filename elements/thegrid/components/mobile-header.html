@@ -79,8 +79,9 @@
     <div class="toolbar">
       <paper-icon-button icon="menu" on-tap="openDrawer" class="red"></paper-icon-button>
       <span class="flex"></span>
-      <paper-icon-button id="location" icon="maps:my-location" on-tap="setCurrentLocation" class="red inactive"></paper-icon-button>
-			<paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
+			<paper-icon-button id="location" icon="maps:my-location" on-tap="setCurrentLocation" class="red inactive"></paper-icon-button>
+			<paper-icon-button icon="filter-list" class="red" on-tap="openFilter"></paper-icon-button>
+			<!--<paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
 				<paper-icon-button icon="filter-list" slot="dropdown-trigger" class="red"></paper-icon-button>
 				<div slot="dropdown-content" class="dropdown-menu">
 					<template is="dom-if" if="[[auth]]">
@@ -106,7 +107,7 @@
 					</div>
 
 				</div>
-			</paper-menu-button>
+			</paper-menu-button>-->
 		</div>
 		<div id="title" class="puller">
 			<app-toolbar>
@@ -432,7 +433,15 @@
 
       openDrawer() {
 				window.dispatchEvent(new CustomEvent('open-drawer'));
-      }
+			}
+			
+			openFilter(e) {
+				this.redirect('/filter');
+				// const b = e.target.getBoundingClientRect();
+				// let top = b.top + 28;
+				// let left = b.left + 28;
+				// this.style.clipPath = `circle(28px at ${left}px ${top}px)`;
+			}
 
 			setMarker(latLng, center) {
 
@@ -507,6 +516,10 @@
 						}
 					}, 500);
           navigator.geolocation.watchPosition( function(position) {
+						self.gmap.currentLocation = {
+							lat: position.latitude,
+							lng: position.longitude
+						};
 						self.currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
 						clearInterval(locationAvtivating);
 						self.setMarker(self.currentLocation, !self.marker);

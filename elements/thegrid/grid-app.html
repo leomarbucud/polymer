@@ -21,6 +21,7 @@
 <link rel="import" href="pages/grid-search.html">
 <link rel="import" href="pages/grid-user-post.html">
 <link rel="import" href="pages/grid-user-profile.html">
+<link rel="import" href="pages/grid-filter.html">
 <link rel="import" href="grid-icons.html">
 <link rel="import" href="grid-styles.html">
 
@@ -234,6 +235,12 @@
 			<section data-page="search" class="overlay">
 				<div class="center-page">
 					<grid-search id="search" class="animate circle search" map="{{map}}"></grid-search>
+				</div>
+			</section>
+
+			<section data-page="filter" class="overlay">
+				<div class="center-page">
+					<grid-filter id="filter" gmap="[[gmap]]"></grid-filter>
 				</div>
 			</section>
 
