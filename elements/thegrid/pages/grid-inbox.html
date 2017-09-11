@@ -418,11 +418,21 @@
       }
 
       _otherUserProfileImage(user1, user2) {
-        var name = user1.name;
+        let name = user1.name;
+        let img = null;
+        if(user1.profile) {
+          img = user1.profile.profile_image_url;
+        }
+        
         if(user1.id == this.user.id) {
           name = user2.name;
+          if(user2.profile) {
+            img = user2.profile.profile_image_url;
+          }
         }
-        return LetterAvatar(name, 40);
+
+        return this._profileImage(img, name);
+        
       }
 
       _lastMesage(messages) {
@@ -473,12 +483,10 @@
 				return b < a ? -1 : b > a ? 1 : 0;
 			}
 
-      _profileImage(name) {
-        // if( img ) {
-        //   return this.url.API_BASE_URL + '/storage/avatars/' + img;
-        // }
-        // if(this.user) return LetterAvatar(this.user.name, '64');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
-
+      _profileImage(img, name) {
+        if( img ) {
+          return this.url.API_BASE_URL + '/uploads/' + img;
+        }
         return LetterAvatar(name, 64);
 
       }
