@@ -202,7 +202,7 @@
 
       _usernameChange(username) {
         this.isLoading = true;
-        gAxios.get(`/users/${username}`)
+        axios.get(`${this.url.API_URL}/users/${username}`)
         .then( res => {
           this.set('user', res.data);
           

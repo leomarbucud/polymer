@@ -439,7 +439,7 @@
 
 			.top-search-bar {
         position: absolute;
-        top: -9999px;
+        top: 0;
         left: 0;
         right: 0;
         display: block;
@@ -461,6 +461,7 @@
 				-o-transition: clip-path 1s cubic-bezier(0.19, 1, 0.22, 1);
 				-ms-transition: clip-path 1s cubic-bezier(0.19, 1, 0.22, 1);
 				clip-path: circle(28px at 80% 50%);
+				transform: scale(0);
       }
 
       .top-search-bar .input, 
@@ -479,7 +480,8 @@
         /* display: block; */
 				/* transform: scaleX(1); */
 				/* opacity: 1; */
-				top: 0;
+				/* top: 0; */
+				transform: scale(1);
 				clip-path: circle(150% at 80% 50%);
       }
 

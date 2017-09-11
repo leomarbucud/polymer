@@ -10,8 +10,7 @@
 <dom-module id="grid-drawer">
   <template>
     <style include="grid iron-flex">
-
-      :host {
+       :host {
         display: block;
         position: relative;
         background: #212121;
@@ -32,7 +31,7 @@
 
       .user-view {
         position: relative;
-        padding: 16px;
+        /* padding: 16px; */
         background-image: url(/assets/images/background.png);
         background-position: center;
         background-size: cover;
@@ -47,11 +46,11 @@
         margin-right: 32px;
       }
 
-      li.divider {
+      .divider {
         padding: 16px 0;
       }
 
-      li.divider hr {
+      .divider hr {
         margin: 0;
         opacity: 0.12;
       }
@@ -63,7 +62,6 @@
         top: 0;
         left: 0;
         z-index: -1;
-
       }
 
       .user-view .background img {
@@ -77,135 +75,145 @@
         border-radius: 50%;
       }
 
-      .divider {
-
-      }
       a {
         display: block;
         text-decoration: none;
         color: #FFFFFF;
       }
 
-
+      paper-icon-item {
+        color: #FFFFFF;
+        cursor: pointer;
+      }
     </style>
-    <ul class="nav">
-      <template is="dom-if" if="[[isLoggedIn]]">
-        <li class="user-view">
-          <div>
-            <div class="background">
-              <img src="/assets/images/background.png">
-            </div>
-            <a on-click="redirectProfile"><img class="circle" src$="[[_profileImage(user.profile.profile_image_url)]]"></a>
-            <a href="#!name"><span class="white-text name">[[user.name]]</span></a>
-            <a href="#!email"><span class="white-text email">@[[user.username]]</span></a>
+
+    <template is="dom-if" if="[[isLoggedIn]]">
+      <div class="user-view">
+        
+        <div class="background">
+          <img src="/assets/images/background.png">
+        </div>
+        <div style="padding: 16px 0 8px 16px;">
+          <a on-click="redirectProfile"><img class="circle" src$="[[_profileImage(user.profile.profile_image_url)]]"></a>
+        </div>
+        <div class="layout horizontal">
+          <div class="flex" style="padding: 8px 0 8px 16px;">
+            <a href$="/@[[user.username]]"><span class="white-text name">[[user.name]]</span></a>
+            <a href$="/@[[user.username]]"><span class="white-text email">@[[user.username]]</span></a>
           </div>
-          <paper-ripple></paper-ripple>
-        </li>
-      </template>
-      <template is="dom-if" if="[[!isLoggedIn]]">
-        <li class="user-view">
-          <div>
-            <div class="background">
-              <img src="/assets/images/background.png">
-            </div>
-            <a on-click="redirectProfile"><img class="circle" src$="[[_profileImage()]]"></a>
-            <a href="#!name"><span class="white-text name">The Grid</span></a>
-            <a href="/login"><span class="white-text email">Sign in</span></a>
+          <paper-icon-button style="padding: 16px; height: 60px; width: 60px;" icon="arrow-drop-down" class="white" on-click="toggleMenu"></paper-icon-button>
+        </div>
+        
+        <!-- <paper-ripple></paper-ripple> -->
+      </div>
+    </template>
+    <template is="dom-if" if="[[!isLoggedIn]]">
+      <div class="user-view">
+        <div>
+          <div class="background">
+            <img src="/assets/images/background.png">
           </div>
+          <a on-click="redirectProfile"><img class="circle" src$="[[_profileImage()]]"></a>
+          <a href="#!name"><span class="white-text name">The Grid</span></a>
+          <a href="/login"><span class="white-text email">Sign in</span></a>
+        </div>
+        <paper-ripple></paper-ripple>
+      </div>
+    </template>
+
+    <div role="list" hidden$="[[showOptions]]">
+
+      <a href="/posts">
+        <paper-icon-item>
+          <iron-icon icon="grid:posts" class="white" slot="item-icon"></iron-icon>
+          <paper-item-body>
+            <div>Posts</div>
+          </paper-item-body>
           <paper-ripple></paper-ripple>
-        </li>
-      </template>
-      <li>
-        <a href="/posts">
+        </paper-icon-item>
+      </a>
+
+      <a href="/bids">
+        <paper-icon-item>
+          <iron-icon icon="grid:bids" class="white" slot="item-icon"></iron-icon>
+          <paper-item-body>
+            <div>Bids</div>
+          </paper-item-body>
+          <paper-ripple></paper-ripple>
+        </paper-icon-item>
+      </a>
+
+      <a href="/inbox">
+        <paper-icon-item>
+          <iron-icon icon="grid:inbox" class="white" slot="item-icon"></iron-icon>
+          <paper-item-body>
+            <div>Inbox</div>
+          </paper-item-body>
+          <paper-ripple></paper-ripple>
+        </paper-icon-item>
+      </a>
+
+      <a href="/transactions">
+        <paper-icon-item>
+          <iron-icon icon="grid:transactions" class="white" slot="item-icon"></iron-icon>
+          <paper-item-body>
+            <div>Transactions</div>
+          </paper-item-body>
+          <paper-ripple></paper-ripple>
+        </paper-icon-item>
+      </a>
+
+      <div class="divider">
+        <hr/>
+      </div>
+
+      <a href="/settings">
+        <paper-icon-item>
+          <iron-icon icon="grid:settings" class="white" slot="item-icon"></iron-icon>
+          <paper-item-body>
+            <div>Settings</div>
+          </paper-item-body>
+          <paper-ripple></paper-ripple>
+        </paper-icon-item>
+      </a>
+
+      <a href="/help">
+        <paper-icon-item>
+          <iron-icon icon="grid:help-feedback" class="white" slot="item-icon"></iron-icon>
+          <paper-item-body>
+            <div>Help &amp; Feedback</div>
+          </paper-item-body>
+          <paper-ripple></paper-ripple>
+        </paper-icon-item>
+      </a>
+
+    </div>
+
+    <template is="dom-if" if="[[isLoggedIn]]">
+      <div role="list" hidden$="[[!showOptions]]">
+        <paper-icon-item on-click="toggleNotifications">
+          <iron-icon icon="grid:notifications" class="white" slot="item-icon"></iron-icon>
+          <paper-item-body>
+            <div>[[mute]] Notifications</div>
+          </paper-item-body>
+          <paper-ripple></paper-ripple>
+        </paper-icon-item>
+        <a href="/logout">
           <paper-icon-item>
-            <iron-icon icon="grid:posts" class="white" slot="item-icon"></iron-icon>
+            <iron-icon icon="grid:share" class="white" slot="item-icon"></iron-icon>
             <paper-item-body>
-              <div>Posts</div>
+              <div>Logout</div>
             </paper-item-body>
             <paper-ripple></paper-ripple>
           </paper-icon-item>
         </a>
-      </li>
-      <li>
-        <a href="/bids">
-          <paper-icon-item>
-            <iron-icon icon="grid:bids" class="white" slot="item-icon"></iron-icon>
-            <paper-item-body>
-              <div>Bids</div>
-            </paper-item-body>
-            <paper-ripple></paper-ripple>
-          </paper-icon-item>
-        </a>
-      </li>
-      <li>
-        <a href="/inbox">
-          <paper-icon-item>
-            <iron-icon icon="grid:inbox" class="white" slot="item-icon"></iron-icon>
-            <paper-item-body>
-              <div>Inbox</div>
-            </paper-item-body>
-            <paper-ripple></paper-ripple>
-          </paper-icon-item>
-        </a>
-      </li>
-      <li>
-        <a href="/transactions">
-          <paper-icon-item>
-            <iron-icon icon="grid:transactions" class="white" slot="item-icon"></iron-icon>
-            <paper-item-body>
-              <div>Transactions</div>
-            </paper-item-body>
-            <paper-ripple></paper-ripple>
-          </paper-icon-item>
-        </a>
-      </li>
-      <li class="divider">
-        <hr />
-      </li>
-      <li>
-        <a href="/settings">
-          <paper-icon-item>
-            <iron-icon icon="grid:settings" class="white" slot="item-icon"></iron-icon>
-            <paper-item-body>
-              <div>Settings</div>
-            </paper-item-body>
-            <paper-ripple></paper-ripple>
-          </paper-icon-item>
-        </a>
-      </li>
-      <li>
-        <a href="/help">
-          <paper-icon-item>
-            <iron-icon icon="grid:help-feedback" class="white" slot="item-icon"></iron-icon>
-            <paper-item-body>
-              <div>Help &amp; Feedback</div>
-            </paper-item-body>
-            <paper-ripple></paper-ripple>
-          </paper-icon-item>
-        </a>
-      </li>
-      <template is="dom-if" if="[[isLoggedIn]]">
-        <li class="divider">
-          <hr />
-        </li>
-        <li>
-          <a href="/logout">
-            <paper-icon-item>
-              <div slot="item-icon"></div>
-              <paper-item-body>
-                <div>Logout</div>
-              </paper-item-body>
-              <paper-ripple></paper-ripple>
-            </paper-icon-item>
-          </a>
-        </li>
-      </template>
-    </ul>
+      </div>
+    </template>
+
 
   </template>
 
   <script>
-
     class GridDrawer extends GridNavigation(ReduxBehavior(Polymer.Element)) {
 
       static get is() { return 'grid-drawer'; }
@@ -215,8 +223,18 @@
           user: {
             type: Object,
             statePath: 'user'
+          },
+          notifications: {
+            type: Boolean,
+            notify: true
           }
         }
+      }
+
+      static get observers() {
+        return [
+
+        ]
       }
 
       static get actions() {
@@ -233,7 +251,9 @@
 
       constructor() {
         super();
-
+        this.showOptions = false;
+        this.notifications = true;
+        this.mute = 'Mute';
       }
 
       connectedCallback() {
@@ -241,11 +261,33 @@
 
       }
 
+      toggleMenu(e) {
+        const target = e.target;
+        this.showOptions = !this.showOptions;
+
+        if (this.showOptions) {
+          target.icon = 'arrow-drop-up';
+        } else {
+          target.icon = 'arrow-drop-down';
+        }
+
+      }
+
+      toggleNotifications() {
+        this.notifications = !this.notifications;
+        if(this.notifications) {
+          this.mute = 'Mute';
+        } else {
+          this.mute = 'Unmute';
+        }
+      }
+
+
       _profileImage(img) {
-        if( img ) {
+        if (img) {
           return this.url.API_BASE_URL + '/uploads/' + img;
         }
-        if(this.user) return LetterAvatar(this.user.name, '64');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
+        if (this.user) return LetterAvatar(this.user.name, '64');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
 
         return LetterAvatar('Grid', 64);
 
@@ -260,5 +302,5 @@
     }
 
     customElements.define(GridDrawer.is, GridDrawer);
-	</script>
+  </script>
 </dom-module>

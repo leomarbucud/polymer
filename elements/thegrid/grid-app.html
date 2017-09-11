@@ -256,7 +256,7 @@
 		</iron-pages>
 
 		<app-drawer id="drawer" align="start" swipe-open opened="{{drawerOpened}}">
-			<grid-drawer user="user" is-logged-in="[[isLoggedIn]]"></grid-drawer>
+			<grid-drawer user="user" is-logged-in="[[isLoggedIn]]" notifications="{{notifications}}"></grid-drawer>
 		</app-drawer>
 
 		<paper-toast id="notificationToast" vertical-align="top" horizontal-align="right" >
@@ -652,22 +652,25 @@
 			_initSocketEvents() {
 
 				const openNotification = (href, text) => {
-					let $notificationToast = this.$.notificationToast;
-					
-					$notificationToast.innerHTML = '<a href="' + href + '" class="white" >' + text + '</a>';
-					$notificationToast.open();
 
-					var icon = '/assets/images/grid-logo.svg';
+					if(this.notifications) {
+						let $notificationToast = this.$.notificationToast;
+						
+						$notificationToast.innerHTML = '<a href="' + href + '" class="white" >' + text + '</a>';
+						$notificationToast.open();
 
-					if(this.allowNotifications) {
-						var options = {
-								body: text,
-								icon: icon
-						}
-						var n = new Notification(text,options);
-						n.onclick = function(event) {
-							event.preventDefault();
-							window.open(href, '_blank');
+						var icon = '/assets/images/grid-logo.svg';
+
+						if(this.allowNotifications) {
+							var options = {
+									body: text,
+									icon: icon
+							}
+							var n = new Notification(text,options);
+							n.onclick = function(event) {
+								event.preventDefault();
+								window.open(href, '_blank');
+							}
 						}
 					}
 
