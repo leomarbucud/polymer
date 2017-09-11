@@ -61,6 +61,10 @@
       .slider paper-slider {
         margin-top: 25px;
       }
+
+      #calendar {
+        min-width: 314px;
+      }
       
 
     </style>
@@ -194,7 +198,7 @@
           if(!this.gmap) return;
  
           this.isLoading = true;
-          
+
           const fetch = () => {
             this.isLoading = true;
             axios.get(`${this.url.API_URL}/job/all?lat=${this.gmap.currentLocation.lat}&lng=${this.gmap.currentLocation.lng}&rad=${this.radius}`)
