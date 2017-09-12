@@ -560,24 +560,28 @@
       setCurrentPosition() {
         const self = this;
 
-        
+        const setCenter = pos => {
+          let center = new google.maps.LatLng(pos.lat, pos.lng);
+          self.gmap.map.setCenter(center);
+        }; 
 
         return new Promise(function (resolve, reject) {
           if(self.currentLocation) {
+            setCenter(self.currentLocation);
             resolve(self.currentLocation);
             return;
           }
           if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function (position) {
-              // self.map.center = {
-              //   lat: position.coords.latitude,
-              //   lng: position.coords.longitude
-              // };
+
+              let pos = position.coords;
 
               self.currentLocation = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
+                lat: pos.latitude,
+                lng: pos.longitude
               };
+
+              setCenter(self.currentLocation);
               
               resolve(self.currentLocation);
 
