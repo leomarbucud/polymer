@@ -159,6 +159,11 @@
           this.loadingJobMarkers = false;
         });
 
+        window.addEventListener('filter', e => {
+          console.log(e.detail);
+          // this.paintMarkers(e.detail);
+        });
+
       }
 
       connectedCallback() {
@@ -197,43 +202,50 @@
       }
 
       paintMarkers(data) {
+
         this.removeAllMarkers();
 
-        
-        let markerType = this.markerType.newJob;
+        // setTimeout(() => {
+          let markerType = this.markerType.newJob;
 
-        for(var i = 0; i < data.length; i++) {
-          markerType = this.markerType.newJob;
-          data[i].fillColor = markerType.color;
-          data[i].isMyPost = false;
-          data[i].isBidded = false;
-          var bids = data[i].bids;
+          for(var i = 0; i < data.length; i++) {
+            markerType = this.markerType.newJob;
+            data[i].fillColor = markerType.color;
+            data[i].isMyPost = false;
+            data[i].isBidded = false;
+            var bids = data[i].bids;
 
-          if(this.auth) {
-            if(this.user.id == data[i].user_id) {
-              markerType = this.markerType.myJob;
-              data[i].fillColor = markerType.color;
-              data[i].isMyPost = true;
-            }
-            for(var j = 0; j < bids.length; j++) {
-              // Check if user is already bidded
-              if(this.user.id == bids[j].user_id) {
-                markerType = this.markerType.biddedJob;
+            if(this.auth) {
+              if(this.user.id == data[i].user_id) {
+                markerType = this.markerType.myJob;
                 data[i].fillColor = markerType.color;
-                data[i].isBidded = true;
+                data[i].isMyPost = true;
+              }
+              for(var j = 0; j < bids.length; j++) {
+                // Check if user is already bidded
+                if(this.user.id == bids[j].user_id) {
+                  markerType = this.markerType.biddedJob;
+                  data[i].fillColor = markerType.color;
+                  data[i].isBidded = true;
+                }
               }
             }
+
+            // IDEA: remove existing marker before adding it
+            // this.removeBy( _marker => {
+            //   return _marker.id === data[i].id;
+            // });
+            setTimeout( y => {
+                // markersArray[y].setMap(MY_MAP);   
+                this._newMarker(data[y]);      
+            }, i*100, i); 
+            
           }
 
-          // IDEA: remove existing marker before adding it
-          // this.removeBy( _marker => {
-          //   return _marker.id === data[i].id;
-          // });
-
-          this._newMarker(data[i]);
-        }
-
-        this.gmap.markerClusterer.repaint();
+          // this.gmap.markerClusterer.repaint();
+          
+        // }, 1000);
+        
       }
 
       populateJobMarkers() {
@@ -261,9 +273,10 @@
 
       _markersChange(markers) {
         if(!markers) return;
-        for(var i = 0; i < markers.length; i++) {
-          this._newMarker(markers[i]);
-        }
+        // console.log(markers);
+        // for(var i = 0; i < markers.length; i++) {
+        //   this._newMarker(markers[i]);
+        // }
       }
 
       newMarker(data) {

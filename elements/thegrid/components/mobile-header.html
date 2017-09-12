@@ -517,8 +517,8 @@
 					}, 500);
           navigator.geolocation.watchPosition( function(position) {
 						self.gmap.currentLocation = {
-							lat: position.latitude,
-							lng: position.longitude
+							lat: position.coords.latitude,
+							lng: position.coords.longitude
 						};
 						self.currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
 						clearInterval(locationAvtivating);

@@ -240,7 +240,7 @@
 
 			<section data-page="filter" class="overlay">
 				<div class="center-page">
-					<grid-filter id="filter" gmap="[[gmap]]"></grid-filter>
+					<grid-filter id="filter" gmap="{{gmap}}"></grid-filter>
 				</div>
 			</section>
 
@@ -373,6 +373,7 @@
 					this.$.offline.classList.remove('active');
 					window.dispatchEvent(new CustomEvent('user:connected'));
 				});
+				
   			window.addEventListener('offline', () => {
 					this.$.offline.classList.add('active');
 				});

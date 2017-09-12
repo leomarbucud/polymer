@@ -72,18 +72,19 @@
     <div class="toolbar">
       <paper-icon-button icon="close" class="white pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
-      <paper-button on-click="filter">Done</paper-button>
+      <paper-button on-click="filter" class="white">Done</paper-button>
     </div>
     
     <main class="flex">
-      <section class="p-y-1 title">
-        <h1 class="white m-0">Filters</h1>
+      <section class="p-y-1 title layout horizontal">
+        <h1 class="white m-0 flex">Filters</h1>
+        <span class="red pointer" on-click="initValue">Reset</span>
       </section>
 
       <section class="p-y-1">
 
         <div class="fil layout horizontal">
-          <paper-input label="Date" value="From [[_stripYear(dateFromText)]] to [[_stripYear(dateToText)]]" on-click="openCalendar" readonly class="flex grid" style="margin-right: 16px;">
+          <paper-input label="Date" value="[[dateText]]" on-click="openCalendar" readonly class="flex grid" style="margin-right: 16px;">
             <div slot="suffix">
               <iron-icon class="white" icon="arrow-drop-down"></iron-icon>
             </div>
@@ -96,6 +97,7 @@
                 </div>
               </paper-input>
               <div slot="dropdown-content" class="dropdown-menu">
+                <paper-item on-click="updateShow" data-show="0">Any</paper-item>
                 <paper-item on-click="updateShow" data-show="m_p">My Posts</paper-item>
                 <paper-item on-click="updateShow" data-show="m_b" >My Bids</paper-item>
               </div>
@@ -111,7 +113,7 @@
 
         <div class="fil slider">
           <div class="label">Set Radius (KMS) <span>[[radius]]</span></div>
-          <paper-slider id="radius" pin max="10" step="1" value="{{radius}}" class="red w-100"></paper-slider>
+          <paper-slider id="radius" pin max="100" step="1" value="{{radius}}" class="red w-100"></paper-slider>
         </div>
 
       </section>
@@ -121,8 +123,8 @@
     <paper-dialog id="calendar">
       <range-datepicker date-format="MM/DD/YYYY" force-narrow date-from="{{dateFrom}}" date-to="{{dateTo}}"></range-datepicker>
       <div class="buttons">
-        <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button dialog-confirm autofocus on-click="updateDate">Ok</paper-button>
+        <paper-button dialog-dismiss class="white">Cancel</paper-button>
+        <paper-button dialog-confirm autofocus on-click="updateDate" class="white">Ok</paper-button>
       </div>
     </paper-dialog>
 
@@ -147,6 +149,11 @@
             auth: {
               type: Boolean,
               statePath: 'auth'
+            },
+            
+            user: {
+              type: Object,
+              statePath: 'user'
             }
             
           }
@@ -154,12 +161,21 @@
 
         constructor() {
           super();
-          this.showText = 'My Posts';
-          this.show = 'm_p';
+
+          this.initValue();
+          
+        }
+
+        initValue() {
+          this.showText = 'Any';
+          this.show = '0';
           this.price = 0;
           this.radius = 0;
-          this.dateFromText = moment(new Date()).format('MM/DD/YYYY');
-          this.dateToText = moment(new Date()).format('MM/DD/YYYY');
+          this.dateFrom = moment().unix();
+          this.dateTo = 0;
+          this.dateFromText = moment(new Date()).format('MM/DD');
+          this.dateToText = moment(new Date()).format('MM/DD');
+          this.dateText = `From today`;
         }
 
         openCalendar() {
@@ -168,11 +184,13 @@
 
         updateDate() {
           if(this.dateFrom) {
-            this.dateFromText = moment.unix(this.dateFrom).format('MM/DD/YYYY');
+            this.dateFromText = moment.unix(this.dateFrom).format('MM/DD');
+            this.dateText = `From ${this.dateFromText}`;
             if(this.dateTo) {
-              this.dateToText = moment.unix(this.dateTo).format('MM/DD/YYYY');
+              this.dateToText = moment.unix(this.dateTo).format('MM/DD');
+              this.dateText += ` to ${this.dateToText}`;
             } else {
-              this.dateToText = this.dateFromText;
+              // this.dateTo = this.dateFrom;
             }
           }
           
@@ -186,6 +204,8 @@
             this.showText = 'My Posts';
           } else if(show == 'm_b') {
             this.showText = 'My Bids';
+          } else {
+            this.showText = 'Any';
           }
 
           this.show = show;
@@ -201,13 +221,40 @@
 
           const fetch = () => {
             this.isLoading = true;
-            axios.get(`${this.url.API_URL}/job/all?lat=${this.gmap.currentLocation.lat}&lng=${this.gmap.currentLocation.lng}&rad=${this.radius}`)
+            let url = `${this.url.API_URL}/job/all?lat=${this.gmap.currentLocation.lat}&lng=${this.gmap.currentLocation.lng}`;
+            url += `&from=${moment.unix(this.dateFrom).format('MM/DD/YYYY')}`;
+
+            if(this.dateTo != 0) {
+              url += `&to=${moment.unix(this.dateTo).format('MM/DD/YYYY')}`;
+            }
+
+            if( this.user ) {
+              url += `&status=${this.show}`;
+              url += `&user_id=${this.user.id}`;
+            }
+
+            if(this.radius > 0) {
+              url += `&rad=${this.radius}`;
+            }
+
+            if(this.price > 0) {
+              url += `&price=${this.price}`;
+            }
+
+            axios.get(url)
             .then( res => {
               this.gmap.paintMarkers(res.data);
+              // this.gmap.removeAllMarkers();
+
+              // window.dispatchEvent( new CustomEvent('filter', {
+              //   detail: res.data
+              // }))
+
               this.isLoading = false;
               this.redirectHome();
             });
           };
+          
 
           if(!this.gmap.currentLocation) {
             this.gmap.setCurrentPosition()

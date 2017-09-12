@@ -429,7 +429,8 @@
       }
 
       _addMarker(marker) {
-        this.markers.push(marker);
+        // this.markers.push(marker);
+        this.push('markers', marker);
       }
 
       _remove(marker) {
@@ -456,7 +457,7 @@
           this.count++;
 
           
-          // this.markers.splice(indexOf, 1);
+          this.markers.splice(indexOf, 1);
           
         }
       }
@@ -502,10 +503,45 @@
 
       removeAllMarkers() {
         // console.log('total markers', this.markers.length);
-        this.markers.forEach( marker => {
-          this._remove(marker);
-        });
-        this.markers = [];
+
+        for(let i = 0; i < this.markers.length; i++) {
+
+          if(this.markerClusterer) {
+            this.markerClusterer.removeMarker(this.markers[i]);
+          } else {
+            this.markers[i].setMap(null);
+          }
+
+          if (this.oms) {
+            this.oms.forgetMarker(this.markers[i]);
+          }
+
+        }
+
+        // this.markers.forEach( marker => {
+        //   // this._remove(marker);
+        //   if (this.markerClusterer) {
+        //     this.markerClusterer.removeMarker(marker);
+        //   } else {
+        //     marker.setMap(null);
+        //   }
+
+        //   if (this.oms) {
+        //     this.oms.forgetMarker(marker);
+        //   }
+
+          
+
+        //   // const indexOf = this.markers.indexOf(marker);
+
+        //   // if (indexOf !== -1) {
+        //   //   this.markers.splice(indexOf, 1);
+        //   // }
+
+        // });
+
+
+        this.set('markers', []);
       }
 
       _createMarker(opts) {
@@ -524,13 +560,19 @@
       setCurrentPosition() {
         const self = this;
 
+        
+
         return new Promise(function (resolve, reject) {
+          if(self.currentLocation) {
+            resolve(self.currentLocation);
+            return;
+          }
           if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function (position) {
-              self.map.center = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-              };
+              // self.map.center = {
+              //   lat: position.coords.latitude,
+              //   lng: position.coords.longitude
+              // };
 
               self.currentLocation = {
                 lat: position.coords.latitude,
