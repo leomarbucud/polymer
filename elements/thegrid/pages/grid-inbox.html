@@ -420,14 +420,15 @@
       _otherUserProfileImage(user1, user2) {
         let name = user1.name;
         let img = null;
-        if(user1.profile) {
-          img = user1.profile.profile_image_url;
-        }
         
         if(user1.id == this.user.id) {
           name = user2.name;
           if(user2.profile) {
             img = user2.profile.profile_image_url;
+          }
+        } else {
+          if(user1.profile) {
+            img = user1.profile.profile_image_url;
           }
         }
 
