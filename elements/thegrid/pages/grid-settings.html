@@ -3,6 +3,8 @@
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../grid-styles.html">
+<link rel="import" href="settings/grid-settings-username.html">
+<link rel="import" href="settings/grid-settings-name.html">
 <link rel="import" href="settings/grid-settings-general.html">
 <link rel="import" href="settings/grid-settings-account.html">
 <link rel="import" href="settings/grid-settings-locations.html">
@@ -22,54 +24,158 @@
         -webkit-flex-direction: column;
         flex-direction: column;
       }
+      .title h1 {
+        font-weight: 400;
+        font-size: 32px;
+      }
+
+      .main-settings {
+        font-size: 14px;
+      }
+
+      .divider {
+        padding: 8px 0;
+      }
+
+      .divider hr {
+        margin: 0;
+        opacity: 0.12;
+      }
+
+      a {
+        display: block;
+        text-decoration: none;
+        color: #FFFFFF;
+      }
+
     </style>
 
     <app-route route="{{route}}" pattern="/settings/:id" data="{{settings}}"></app-route>
 
     <div id="toolbar" class="toolbar dgrey-bg">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
-      <span class="flex"></span>
+      <div class="flex" style="overflow: hidden;">
+        <span id="toolbar-title">Settings</span>
+      </div>
     </div>
 
     <main class="flex">
       <section class="p-y-1 title">
-        <h1 class="white m-0">Settings</h1>
+        <h1 id="main-title" class="white m-0">Settings</h1>
       </section>
       <div class="white" role="listbox">
+        <paper-item class="main-settings">
+          <span class="red">YOU</span>
+        </paper-item>
+
+        <a href="/settings/username">
+          <paper-item>
+            <paper-item-body two-line>
+              <div>Username</div>
+              <div secondary>@[[user.username]]</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
+
+        <a href="/settings/name">
+          <paper-item>
+            <paper-item-body two-line>
+              <div>Name</div>
+              <div secondary>[[user.name]]</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
+
+        <a href="/settings/locations">
+          <paper-item>
+            <paper-item-body two-line>
+              <div>Locations</div>
+              <div secondary>Home, Work</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
+
         <paper-item on-click="generalSettings">
           <paper-item-body two-line>
-            <div>General</div>
-            <div secondary>Change your username and name</div>
+            <div>Identity Verification</div>
+            <div secondary>Not set</div>
           </paper-item-body>
         </paper-item>
-        <paper-item on-click="accountSettings">
+
+        <div class="divider">
+          <hr/>
+        </div>
+
+        <paper-item class="main-settings">
+          <span class="red">ACCOUNT</span>
+        </paper-item>
+
+        <paper-item on-click="generalSettings">
           <paper-item-body two-line>
-            <div>Account</div>
-            <div secondary>Change your email, password</div>
+            <div>Email ID</div>
+            <div secondary>[[user.email]]</div>
           </paper-item-body>
         </paper-item>
-        <paper-item on-click="locationsSettings">
+
+        <paper-item on-click="generalSettings">
+          <paper-item-body>
+            <div>Password</div>
+          </paper-item-body>
+        </paper-item>
+
+        <paper-item on-click="generalSettings">
           <paper-item-body two-line>
-            <div>Locations</div>
-            <div secondary>Change your locations such as home and work</div>
+            <div>Mobile Number</div>
+            <div secondary>[[user.phone_number]]</div>
           </paper-item-body>
         </paper-item>
-        <paper-item>
+
+        <paper-item on-click="generalSettings">
+          <paper-item-body>
+            <div>More</div>
+          </paper-item-body>
+        </paper-item>
+
+        <div class="divider">
+          <hr/>
+        </div>
+
+        <paper-item class="main-settings">
+          <span class="red">PRIVACY</span>
+        </paper-item>
+
+        <paper-item on-click="generalSettings">
           <paper-item-body two-line>
-            <div>Connected Accounts</div>
-            <div secondary>Facebook, Google</div>
+            <div>Account Visibility</div>
+            <div secondary>Public</div>
           </paper-item-body>
         </paper-item>
-        <paper-item>
+        
+        <paper-item on-click="generalSettings">
           <paper-item-body two-line>
-            <div>Privacy</div>
-            <div secondary>Change your privacy settings</div>
+            <div>Contact Information</div>
+            <div secondary>Public</div>
           </paper-item-body>
         </paper-item>
+
+        <paper-item on-click="generalSettings">
+          <paper-item-body>
+            <div>Activity Log</div>
+          </paper-item-body>
+        </paper-item>
+
       </div>
     </main>
 
     <iron-pages id="subPages" attr-for-selected="data-page" selected="[[settings.id]]">
+
+      <section data-page="username" class="sub-page">
+        <grid-settings-username></grid-settings-username>
+      </section>
+      
+      <section data-page="name" class="sub-page">
+        <grid-settings-name></grid-settings-name>
+      </section>
 
       <section data-page="general" class="sub-page">
         <grid-settings-general></grid-settings-general>
@@ -106,7 +212,17 @@
       static get properties() {
         return {
           gmap: Object,
-          route: Object
+          route: Object,
+
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
+          },
+
+          user: {
+            type: Object,
+            statePath: 'user'
+          }
         }
       }
 
@@ -135,6 +251,61 @@
 
       connectedCallback() {
         super.connectedCallback();
+
+        this.headerAnimate();
+      }
+
+      headerAnimate() {
+        const toolbar = this.shadowRoot.querySelector('#toolbar');
+        const main = this.shadowRoot.querySelector('main');
+        const t_title = this.shadowRoot.querySelector('#toolbar-title');
+        const m_title = this.shadowRoot.querySelector('#main-title');
+
+        const m_title_p = 16;
+
+        let s = 0;
+        let st = 0;
+
+        const update = () => {
+
+          const t_title_h = t_title.offsetHeight;
+          const m_title_h = m_title.offsetHeight;
+
+          if(st >= m_title_p && st <= m_title_p + m_title_h) {
+            s = st - m_title_p;
+            let y = t_title_h - (s * (t_title_h/m_title_h));
+            t_title.style.cssText = `transform: translateY(${y}px); transition-duration: 0ms`;
+          }
+
+          if(st >= m_title_p + m_title_h) {
+            t_title.style.transform = `translateY(0)`;
+            t_title.style.transitionDuration = `100ms`;
+          }
+
+          if( st <= m_title_p) {
+            t_title.style.transform = `translateY(${t_title_h}px)`;
+            t_title.style.transitionDuration = `100ms`;
+          }
+
+          requestAnimationFrame(update);
+        }
+        
+        requestAnimationFrame(update);
+
+        const scroll = () => {
+          let _st = main.scrollTop;
+          
+          if( _st > 0 ) {
+            toolbar.classList.add('shadow');
+          } else {
+            toolbar.classList.remove('shadow');
+          }
+
+          st = _st;
+
+        };
+
+        main.addEventListener('scroll', scroll);
       }
 
       _routeChange(route) {

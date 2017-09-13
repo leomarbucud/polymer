@@ -1,0 +1,152 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-settings-username">
+  <template>
+    <style include="grid iron-flex">
+       :host {
+        position: relative;
+        background: var(--dark-grey);
+        height: 100%;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+      }
+
+      main {
+        background-color: #424242;
+      }
+
+      .desc {
+        color: #FFFFFF;
+        font-size: 14px;
+        line-height: 24px;
+        padding: 16px 0;
+      }
+    </style>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
+      <span id="toolbar-title" class="flex active">Username</span>
+    </div>
+
+    <main class="flex">
+
+      <section class="p-y-1">
+        
+        <paper-input class="red" value="@[[user.username]]" readonly></paper-input>
+
+        <div class="desc">
+          <div>Share your profile with others</div> 
+          <div>[[url.APP_URL]]/@[[user.username]]</div> 
+        </div>
+
+      </section>
+
+    </main>
+
+    <paper-toast id="toast" class="fit-bottom"></paper-toast>
+
+  </template>
+
+  <script>
+    class GridSettingsUsername extends
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'grid-settings-username'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+          gmap: Object,
+          route: Object
+        }
+      }
+
+      constructor() {
+        super();
+
+        
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        
+        this.email = this.user.email;
+        this.old_password = '';
+        this.new_password = '';
+        this.password = '';
+
+        this.$.toast.fitInto = this;
+      }
+
+      openToast(html = '') {
+        this.$.toast.close();
+        this.$.toast.innerHTML = html;
+        this.$.toast.open();
+      }
+
+      updateEmail() {
+        this.isLoading = true;
+        this.openToast('Updating email, please wait...');
+        gAxios.post('/users/' + this.user.id + '/settings/account/email', {
+          email: this.email
+        }).then( res => {
+          console.log(res.data);
+          this.dispatch('updateUser', res.data);
+          this.openToast('Successfully updated');
+        }).catch( err => {
+          if(err.response) {
+            console.log(err.response.data);
+          }
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      updatePassword() {
+        this.isLoading = true;
+        this.openToast('Updating password, please wait...');
+        gAxios.post('/users/' + this.user.id + '/settings/account/password', {
+          old_password: this.old_password,
+          password: this.new_password,
+          password_confirmation: this.confirm_password
+        }).then( res => {
+          console.log(res.data);
+          // this.dispatch('updateUser', res.data);
+          this.openToast('Successfully updated');
+        }).catch( err => {
+          if(err.response) {
+            console.log(err.response.data);
+            const data = err.response.data;
+            if(data.message) {
+              console.log('data.message', data.message);
+              this.openToast(data.message);
+              return;
+            }
+
+            if(data.password) {
+              this.openToast(data.password[0]);
+              return;
+            }
+          }
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+    }
+
+    customElements.define(GridSettingsUsername.is, GridSettingsUsername);
+  </script>
+</dom-module>

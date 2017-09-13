@@ -1,4 +1,8 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../grid-styles.html">
 
 <dom-module id="grid-settings-locations">
@@ -50,19 +54,48 @@
         color: #FFFFFF;
         border-radius: 0;
       }
+
+      #addFab {
+				position: absolute;
+				right: 16px;
+				bottom: 22px;
+      }
+
+      #location-dialog, #action-dialog {
+        background: #424242;
+        color: #FFFFFF;
+        min-width: 314px;
+      }
+      
     </style>
 
     <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
-      <span class="flex"></span>
+      <span id="toolbar-title" class="flex active">Locations</span>
     </div>
 
-    <main class="flex">
-      <section class="p-y-1 title">
-        <h1 class="white m-0">My Locations</h1>
-      </section>
+    <paper-fab id="addFab" icon="add" class="grid-main-fab" on-tap="showMap"></paper-fab>
 
-      <section class="p-y-1">
+    <main class="flex">
+
+      <div role="list" class="white">
+        <template is="dom-repeat" items="[[user.locations]]" as="loc">
+          <paper-item on-click="openActionDialog">
+            <paper-item-body two-line>
+              <div>[[loc.alias]]</div>
+              <div secondary>[[loc.location]]</div>
+            </paper-item-body>
+          </paper-item>
+        </template>
+      </div>
+      <!-- <section class="p-y-1">
+
+        
+
+        
+
+        <paper-input class="red input-location" label="Home" value="{{_home::input}}" ></paper-input>
         
         <div class="input-group prefix suffix">
           <div class="addon-prefix">
@@ -87,7 +120,7 @@
         </div>
         <button on-click="saveLocations">Save</button>
 
-      </section>
+      </section> -->
 
     </main>
 
@@ -112,6 +145,36 @@
     <paper-button class="map-control map-control-button" on-tap="hideMap">Done</paper-button>
 
     <paper-toast id="toast" class="fit-bottom"></paper-toast>
+
+
+    <paper-dialog id="location-dialog">
+      <div>
+
+        <paper-input label="Name" class="red" value="{{name::input}}"></paper-input>
+        <paper-input label="Address" class="red" value="{{address::input}}"></paper-input>
+
+        <small class="block">
+          Latitude: [[lat]]
+        </small>
+
+        <small class="block">
+          Longitude: [[lng]]
+        </small>
+
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss class="white">Cancel</paper-button>
+        <paper-button dialog-confirm autofocus on-click="saveLocation" class="white">Save</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="action-dialog">
+      <h2>Action</h2>
+      <div class="buttons">
+        <paper-button dialog-dismiss autofocus on-click="openEditLocation" class="white">Edit</paper-button>
+        <paper-button dialog-confirm on-click="deleteLocation" class="white">Delete</paper-button>
+      </div>
+    </paper-dialog>
 
   </template>
 
@@ -148,6 +211,10 @@
           this.lat = detail.lat;
           this.lng = detail.lng;
         });
+
+        this.locations = [];
+
+        this.editLocation = false;
         
       }
 
@@ -156,12 +223,6 @@
 
         this.$.toast.fitInto = this;
 
-        if(this.user.keyedLocations) {
-          this.home = this.user.keyedLocations.home;
-          this._home = this.home.location;
-          this.work = this.user.keyedLocations.work;
-          this._work = this.work.location;
-        }
       }
 
       saveLocations() {
@@ -187,7 +248,7 @@
         const gmap = this.gmap;
         if(!gmap) return;
 
-        this.targetLocation = e.target.getAttribute('data-location');
+        // this.targetLocation = e.target.getAttribute('data-location');
 
         this._setMarkerVisibility(false);
 
@@ -279,16 +340,101 @@
         }
       }
 
-      setLocation(location) {
-        if( this.targetLocation == 'home') {
-          this.home = location;
-          this._home = location.location;
-        } else if( this.targetLocation == 'work') {
-          this.work = location;
-          this._work = location.location;
+      saveLocation() {
+        this.openToast('Saving your locations...');
+
+        let locations = [];
+
+        let _locations = [];
+        
+        if(this.user.locations) {
+          locations = _locations = this.user.locations.slice(0);
         }
-        console.log('aaa', location);
-        this.targetLocation = null;
+
+        if(this.editLocation) {
+
+          locations = _locations.map(item => {
+            if(item.id == this.location_id){
+              return {
+                  id: item.id,
+                  user_id: this.user.id,
+                  lat: this.lat,
+                  lng: this.lng,
+                  location: this.address,
+                  alias: this.name
+                };
+            }
+            return item;
+          });
+
+        } else {
+          locations.push({
+            id: 0,
+            user_id: this.user.id,
+            lat: this.lat,
+            lng: this.lng,
+            location: this.address,
+            alias: this.name
+          });
+        }
+
+        gAxios.post(`/users/${this.user.id}/settings/locations`, {
+          locations: locations
+        }).then( res => {          
+          this.dispatch('updateUser', res.data);
+          this.openToast('Successfully saved!');
+          this.editLocation = false;
+        });
+      }
+
+      openAddLocationDialog(location) {
+        const addDialog = this.shadowRoot.querySelector('#location-dialog');
+
+        this.address = location.location;
+        this.lat = location.lat;
+        this.lng = location.lng;
+
+        addDialog.open();
+
+      }
+
+      openActionDialog(e) {
+
+        const location = e.model.loc;
+        const dialog = this.shadowRoot.querySelector('#action-dialog');
+
+        this.address = location.location;
+        this.lat = location.lat;
+        this.lng = location.lng;
+        this.location_id = location.id;
+        this.name = location.alias;
+
+        dialog.open();
+      }
+
+      openEditLocation() {
+        const gmap = this.gmap;
+        if(!gmap) return;
+
+        let center = new google.maps.LatLng(this.lat, this.lng);
+        gmap.map.setCenter(center);
+
+        this.editLocation = true;
+
+        this.showMap();
+      }
+
+      setLocation(location) {
+        // if( this.targetLocation == 'home') {
+        //   this.home = location;
+        //   this._home = location.location;
+        // } else if( this.targetLocation == 'work') {
+        //   this.work = location;
+        //   this._work = location.location;
+        // }
+        // console.log('aaa', location);
+        // this.targetLocation = null;
+        this.openAddLocationDialog(location);
       }
 
       _setMarkerVisibility(visible) {
@@ -313,6 +459,7 @@
 
         for(let input of this.shadowRoot.querySelectorAll('.input-location')) {
           if(input) {
+
             const s = new google.maps.places.SearchBox(input);
 
             s.addListener('places_changed', () => {
