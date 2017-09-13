@@ -5,9 +5,11 @@
 <link rel="import" href="../grid-styles.html">
 <link rel="import" href="settings/grid-settings-username.html">
 <link rel="import" href="settings/grid-settings-name.html">
+<link rel="import" href="settings/grid-settings-locations.html">
+<link rel="import" href="settings/grid-settings-password.html">
 <link rel="import" href="settings/grid-settings-general.html">
 <link rel="import" href="settings/grid-settings-account.html">
-<link rel="import" href="settings/grid-settings-locations.html">
+
 
 <dom-module id="grid-settings">
   <template>
@@ -92,7 +94,7 @@
               <div>Locations</div>
               <div secondary>
                 <template is="dom-repeat" items="[[user.locations]]" as ="loc">
-                  [[loc.alias]] | 
+                  [[loc.alias]] [[_locationDivider(index)]]
                 </template>
               </div>
             </paper-item-body>
@@ -121,11 +123,13 @@
           </paper-item-body>
         </paper-item>
 
-        <paper-item on-click="generalSettings">
-          <paper-item-body>
-            <div>Password</div>
-          </paper-item-body>
-        </paper-item>
+        <a href="/settings/password">
+          <paper-item>
+            <paper-item-body>
+              <div>Password</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
 
         <paper-item on-click="generalSettings">
           <paper-item-body two-line>
@@ -191,6 +195,10 @@
 
       <section data-page="locations" class="sub-page">
         <grid-settings-locations gmap="[[gmap]]"></grid-settings-locations>
+      </section>
+
+      <section data-page="password" class="sub-page">
+        <grid-settings-password></grid-settings-password>
       </section>
 
     </iron-pages>
@@ -316,6 +324,12 @@
         if(route.path == '/settings') {
           this.set('settings.id', null);
         }
+      }
+
+      _locationDivider(index) {
+        if(index < this.user.locations.length - 1) {
+          return '|';
+        } 
       }
 
     }
