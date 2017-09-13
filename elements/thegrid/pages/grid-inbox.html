@@ -115,9 +115,11 @@
         pattern="/inbox/:id"
         data="{{conversation}}"></app-route>
 
-    <div id="toolbar" class="toolbar shadow dgrey-bg">
+    <div id="toolbar" class="toolbar dgrey-bg">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
-      <span class="flex"></span>
+      <div class="flex" style="overflow: hidden;">
+        <span id="toolbar-title">Inbox</span>
+      </div>
       <paper-icon-button icon="search" class="red pointer" on-click="openSearchBar"></paper-icon-button>
       <paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
         <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
@@ -161,7 +163,7 @@
 
     <main class="flex">
       <section class="p-y-1 title">
-        <h1 class="white m-0">Inbox</h1>
+        <h1 id="main-title" class="white m-0">Inbox</h1>
       </section>
       <div class="white" role="listbox">
         <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt" filter="{{_filterInbox(query)}}">
@@ -269,7 +271,63 @@
       connectedCallback() {
         super.connectedCallback();
         this.populateInbox();
+
+        this.headerAnimate();
       }
+
+      headerAnimate() {
+        const toolbar = this.shadowRoot.querySelector('#toolbar');
+        const main = this.shadowRoot.querySelector('main');
+        const t_title = this.shadowRoot.querySelector('#toolbar-title');
+        const m_title = this.shadowRoot.querySelector('#main-title');
+
+        const m_title_p = 16;
+
+        let s = 0;
+        let st = 0;
+
+        const update = () => {
+
+          const t_title_h = t_title.offsetHeight;
+          const m_title_h = m_title.offsetHeight;
+
+          if(st >= m_title_p && st <= m_title_p + m_title_h) {
+            s = st - m_title_p;
+            let y = t_title_h - (s * (t_title_h/m_title_h));
+            t_title.style.cssText = `transform: translateY(${y}px); transition-duration: 0ms`;
+          }
+
+          if(st >= m_title_p + m_title_h) {
+            t_title.style.transform = `translateY(0)`;
+            t_title.style.transitionDuration = `100ms`;
+          }
+
+          if( st <= m_title_p) {
+            t_title.style.transform = `translateY(${t_title_h}px)`;
+            t_title.style.transitionDuration = `100ms`;
+          }
+
+          requestAnimationFrame(update);
+        }
+        
+        requestAnimationFrame(update);
+
+        const scroll = () => {
+          let _st = main.scrollTop;
+          
+          if( _st > 0 ) {
+            toolbar.classList.add('shadow');
+          } else {
+            toolbar.classList.remove('shadow');
+          }
+
+          st = _st;
+
+        };
+
+        main.addEventListener('scroll', scroll);
+      }
+
 
       populateInbox() {
         if(!this.user) return;
