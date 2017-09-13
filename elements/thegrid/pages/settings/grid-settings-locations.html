@@ -424,6 +424,17 @@
         this.showMap();
       }
 
+      deleteLocation() {
+
+        this.openToast(`Deleting ${this.name}...`);
+
+        gAxios.delete(`/users/${this.user.id}/settings/locations/${this.location_id}`)
+        .then( res => {          
+          this.dispatch('updateUser', res.data);
+          this.openToast('Successfully deleted!');
+        });
+      }
+
       setLocation(location) {
         // if( this.targetLocation == 'home') {
         //   this.home = location;
