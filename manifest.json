@@ -4,7 +4,7 @@
   "start_url": "./?homescreen=1",
   "display": "standalone",
   "theme_color": "#303030",
-  "background_color": "#FF3B30",
+  "background_color": "#FFFFFF",
   "icons": [
     {
       "src": "assets/images/manifest/icon-192x192.png",

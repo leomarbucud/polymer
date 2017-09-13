@@ -90,7 +90,11 @@
           <paper-item>
             <paper-item-body two-line>
               <div>Locations</div>
-              <div secondary>Home, Work</div>
+              <div secondary>
+                <template is="dom-repeat" items="[[user.locations]]" as ="loc">
+                  [[loc.alias]] | 
+                </template>
+              </div>
             </paper-item-body>
           </paper-item>
         </a>
