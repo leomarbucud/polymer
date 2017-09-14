@@ -214,6 +214,7 @@
             data[i].fillColor = markerType.color;
             data[i].isMyPost = false;
             data[i].isBidded = false;
+            data[i].isAwarded = false;
             var bids = data[i].bids;
 
             if(this.auth) {
@@ -221,6 +222,11 @@
                 markerType = this.markerType.myJob;
                 data[i].fillColor = markerType.color;
                 data[i].isMyPost = true;
+              }
+              if(data[i].winner) {
+                if(this.user.id == data[i].winner.user_id) {
+                  data[i].isAwarded = true;
+                }
               }
               for(var j = 0; j < bids.length; j++) {
                 // Check if user is already bidded
@@ -258,7 +264,16 @@
 
         self.loadingJobMarkers = true;
 
-        axios.get(API_BASE_URL + '/job/all?lat='+self.mapOptions.center.lat+'&lng='+self.mapOptions.center.lng)
+        let _axios = axios;
+        let url = `${this.url.API_BASE_URL}/job/all?lat=${self.mapOptions.center.lat}&lng=${self.mapOptions.center.lng}`
+
+        if(this.auth) {
+
+          _axios = gAxios;
+          url = `/users/job/all?lat=${self.mapOptions.center.lat}&lng=${self.mapOptions.center.lng}`
+        }
+
+        _axios.get(url)
   				.then(response => {
 
             self.loadingJobMarkers = false;
@@ -309,6 +324,10 @@
 
         if( data.isBidded || data.isMyPost ) {
           icon = '/assets/images/icons/related-marker.svg';
+        }
+
+        if(data.isAwarded) {
+          icon = '/assets/images/icons/awarded-marker.svg';
         }
 
 				// var dups = self.findBy( marker => {
