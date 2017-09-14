@@ -109,7 +109,7 @@
 
       _logTitle(log) {
 
-        // let title = `You `;
+        let title = `You `;
 
         // if(log.subject_type == 'App\\Job') {
         //   switch (log.description) {
@@ -131,8 +131,57 @@
         // }
 
         let subject_type = log.subject_type.slice(4);
+        let desc = log.description;
 
-        let title = `${this.ucFrist(log.description)} ${subject_type}`;
+
+        switch (subject_type) {
+          case 'Job': {
+            if(desc == 'created') {
+              title += `posted a job`;
+            }
+            break;
+          }
+          case 'Bid': {
+            if(desc == 'created') {
+              title += `bid on a job`;
+            }
+            break;
+          }
+          case 'Profile': {
+            if(desc == 'created') {
+              title += `setup your profile`;
+            } else if(desc == 'updated') {
+              title += `updated your profile`;
+            }
+            break;
+          }
+          case 'Skill': {
+            if(desc == 'created') {
+              title += `added a skill`;
+            } else if(desc == 'updated') {
+              title += `updated your skills`;
+            }
+            break;
+          }
+          case 'Location': {
+            if(desc == 'created') {
+              title += `added a location`;
+            } else if(desc == 'updated') {
+              title += `updated a location`;
+            }
+            break;
+          }
+          case 'User': {
+            if(desc == 'created') {
+              title += `create your account`;
+            } else if(desc == 'updated') {
+              title += `updated your account`;
+            }
+            break;
+          }
+        }
+
+        // let title = `${this.ucFrist(log.description)} ${subject_type}`;
 
         return title;
 
@@ -140,6 +189,61 @@
       }
 
       _logDetails(log) {
+
+        let detail = ``;
+
+        let subject_type = log.subject_type.slice(4);
+        let desc = log.description;
+
+
+        switch (subject_type) {
+          case 'Job': {
+            if(desc == 'created') {
+              detail += log.properties.attributes.name;
+            }
+            break;
+          }
+          case 'Bid': {
+            if(desc == 'created') {
+              detail += `Bidded AED ${log.properties.attributes.price_bid}. <a href='/bids/${log.subject_id}'>Details</a>`;
+            }
+            break;
+          }
+          case 'Profile': {
+            if(desc == 'created') {
+              //detail += `setup your profile`;
+            } else if(desc == 'updated') {
+              //detail += `updated your profile`;
+            }
+            break;
+          }
+          case 'Skill': {
+            if(desc == 'created') {
+              //detail += `added a skill`;
+            } else if(desc == 'updated') {
+              //detail += `updated your skills`;
+            }
+            break;
+          }
+          case 'Location': {
+            if(desc == 'created') {
+              //detail += `added a location`;
+            } else if(desc == 'updated') {
+              //detail += `updated a location`;
+            }
+            break;
+          }
+          case 'User': {
+            if(desc == 'created') {
+              //detail += `create your account`;
+            } else if(desc == 'updated') {
+              //detail += `updated your account`;
+            }
+            break;
+          }
+        }
+
+        return moment(log.created_at).fromNow();;
 
       }
 
