@@ -494,6 +494,8 @@
 									console.log('error', err.response);
 								}
 
+								this.redirectLogout();
+
 							});
 
 							this.getNotifications();
@@ -632,7 +634,7 @@
 			_hasConfirmationToken(confirmation_token) {
 				const self = this;
 				if (confirmation_token.token) {
-
+					self.page = 'login';
 					axios.post(API_URL + '/users/confirmation/' + confirmation_token.token)
 						.then(res => {
 
@@ -644,7 +646,7 @@
 							if (err.response) {
 								alert(err.response.data.message)
 							}
-
+							self.redirectLogin();
 						});
 				}
 			}

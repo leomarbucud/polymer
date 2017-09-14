@@ -190,7 +190,7 @@
         super();
         const self = this;
         this.isAddingSkill = false;
-        gAxios.get('/users/skills')
+        axios.get(`${this.url.API_URL}/users/skills`)
         .then( res => {
           // console.log(res);
           self.set('_skills', res.data);

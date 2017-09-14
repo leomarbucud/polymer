@@ -2,7 +2,7 @@
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../grid-styles.html">
 
-<dom-module id="grid-settings-password">
+<dom-module id="grid-settings-verification">
   <template>
     <style include="grid iron-flex">
        :host {
@@ -32,19 +32,27 @@
     <div id="toolbar" class="toolbar dgrey-bg">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
-      <span id="toolbar-title" class="flex active">Password</span>
-      <paper-button on-click="updatePassword" class="white">Update</paper-button>
+      <span id="toolbar-title" class="flex active">Identity Verification</span>
     </div>
 
     <main class="flex">
 
-      <section class="p-y-1">
-        
-        <paper-input class="red" type="password" label="Old Password" value="{{old_password::input}}"></paper-input>
-        
-        <paper-input class="red" type="password" label="New Password" value="{{new_password::input}}"></paper-input>
+      <section class="p-y-1 white">
 
-        <paper-input class="red" type="password" label="Confim Password" value="{{confirm_password::input}}"></paper-input>
+        <template is="dom-if" if="[[!user.confirmed]]">
+          <p>Your Email ID is not yet verified. Please check your email and click the verification link</p>
+          <p>No email? Click <span class="red pointer" on-click="resendLink">resend</span>.
+        </template>
+
+        <template is="dom-if" if="[[  user.confirmed]]">
+          <p>Your email is verified.</p>
+        </template>
+        
+        <paper-input class="red" value="[[user.email]]" readonly></paper-input>
+
+        <template is="dom-if" if="[[sent]]">
+          <p>Please check your email and click the link.</p>
+        </template>
 
       </section>
 
@@ -55,12 +63,12 @@
   </template>
 
   <script>
-    class GridSettingsPassword extends
+    class GridSettingsVerification extends
       GridNavigation(
         ReduxAsyncActionBehavior(
           ReduxBehavior(Polymer.Element))) {
 
-      static get is() { return 'grid-settings-password'; }
+      static get is() { return 'grid-settings-verification'; }
 
       static get properties() {
         return {
@@ -75,15 +83,12 @@
 
       constructor() {
         super();
+
         
       }
 
       connectedCallback() {
         super.connectedCallback();
-        
-        this.old_password = '';
-        this.new_password = '';
-        this.confirm_password = '';
 
         this.$.toast.fitInto = this;
       }
@@ -94,40 +99,36 @@
         this.$.toast.open();
       }
 
-      updatePassword() {
+      resendLink() {
         this.isLoading = true;
-        this.openToast('Updating password, please wait...');
-        gAxios.post(`/users/${this.user.id}/settings/account/password`, {
-          old_password: this.old_password,
-          password: this.new_password,
-          password_confirmation: this.confirm_password
-        }).then( res => {
+        this.openToast('Sending email, please wait...');
+        gAxios.post(`/users/${this.user.id}/email/verification/resend`)
+        .then( res => {
+          console.log(res.data);
           // this.dispatch('updateUser', res.data);
-          this.openToast('Successfully updated');
+          if(res.data.status == 'ok') {
+            this.openToast('Successfully send');
+            this.sent = true;
+          } else {
+            this.openToast('Oops something went wrong...');
+            this.sent = false;
+          }
+          
         }).catch( err => {
           if(err.response) {
-            const data = err.response.data;
-            if(data.message) {
-              this.openToast(data.message);
-              return;
-            }
-
-            if(data.password) {
-              this.openToast(data.password[0]);
-              return;
-            }
+            console.log(err.response.data);
+            this.openToast('Oops something went wrong...');
           }
+          this.sent = false;
         }).then( () => {
           this.isLoading = false;
-          this.old_password = '';  
-          this.new_password = '';
-          this.confirm_password = '';
-        
+          
         });
       }
 
+
     }
 
-    customElements.define(GridSettingsPassword.is, GridSettingsPassword);
+    customElements.define(GridSettingsVerification.is, GridSettingsVerification);
   </script>
 </dom-module>

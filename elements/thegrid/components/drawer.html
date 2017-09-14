@@ -113,9 +113,15 @@
           <div class="background">
             <img src="/assets/images/background.png">
           </div>
-          <a on-click="redirectProfile"><img class="circle" src$="[[_profileImage()]]"></a>
-          <a href="#!name"><span class="white-text name">The Grid</span></a>
-          <a href="/login"><span class="white-text email">Sign in</span></a>
+          <div style="padding: 16px 0 8px 16px;">
+            <a on-click="redirectProfile"><img class="circle" src$="[[_profileImage()]]"></a>
+          </div>
+          <div class="layout horizontal">
+            <div class="flex" style="padding: 8px 0 8px 16px;">
+              <a href="#!name"><span class="white-text name">The Grid</span></a>
+              <a href="/login"><span class="white-text email">Sign in</span></a>
+            </div>
+          </div>
         </div>
         <paper-ripple></paper-ripple>
       </div>

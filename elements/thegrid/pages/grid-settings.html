@@ -7,8 +7,11 @@
 <link rel="import" href="settings/grid-settings-name.html">
 <link rel="import" href="settings/grid-settings-locations.html">
 <link rel="import" href="settings/grid-settings-password.html">
+<link rel="import" href="settings/grid-settings-verification.html">
+<link rel="import" href="settings/grid-settings-mobile.html">
 <link rel="import" href="settings/grid-settings-general.html">
 <link rel="import" href="settings/grid-settings-account.html">
+<link rel="import" href="settings/grid-settings-account-visibility.html">
 
 
 <dom-module id="grid-settings">
@@ -96,18 +99,22 @@
                 <template is="dom-repeat" items="[[user.locations]]" as ="loc">
                   [[loc.alias]] [[_locationDivider(index)]]
                 </template>
+                <template is="dom-if" if="[[!user.locations.length]]">
+                  Add your locations now
+                </template>
               </div>
             </paper-item-body>
           </paper-item>
         </a>
 
-        <paper-item on-click="generalSettings">
-          <paper-item-body two-line>
-            <div>Identity Verification</div>
-            <div secondary>Not set</div>
-          </paper-item-body>
-        </paper-item>
-
+        <a href="/settings/verification">
+          <paper-item>
+            <paper-item-body two-line>
+              <div>Identity Verification</div>
+              <div secondary>[[_verification(user.confirmed)]]</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
         <div class="divider">
           <hr/>
         </div>
@@ -116,7 +123,7 @@
           <span class="red">ACCOUNT</span>
         </paper-item>
 
-        <paper-item on-click="generalSettings">
+        <paper-item>
           <paper-item-body two-line>
             <div>Email ID</div>
             <div secondary>[[user.email]]</div>
@@ -131,18 +138,14 @@
           </paper-item>
         </a>
 
-        <paper-item on-click="generalSettings">
-          <paper-item-body two-line>
-            <div>Mobile Number</div>
-            <div secondary>[[user.phone_number]]</div>
-          </paper-item-body>
-        </paper-item>
-
-        <paper-item on-click="generalSettings">
-          <paper-item-body>
-            <div>More</div>
-          </paper-item-body>
-        </paper-item>
+        <a href="/settings/mobile">
+          <paper-item>
+            <paper-item-body two-line>
+              <div>Mobile Number</div>
+              <div secondary>[[user.phone_number]]</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
 
         <div class="divider">
           <hr/>
@@ -152,12 +155,14 @@
           <span class="red">PRIVACY</span>
         </paper-item>
 
-        <paper-item on-click="generalSettings">
-          <paper-item-body two-line>
-            <div>Account Visibility</div>
-            <div secondary>Public</div>
-          </paper-item-body>
-        </paper-item>
+        <a href="/settings/account-visibility">
+          <paper-item>
+            <paper-item-body two-line>
+              <div>Account Visibility</div>
+              <div secondary>Public</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
         
         <paper-item on-click="generalSettings">
           <paper-item-body two-line>
@@ -199,6 +204,18 @@
 
       <section data-page="password" class="sub-page">
         <grid-settings-password></grid-settings-password>
+      </section>
+
+      <section data-page="verification" class="sub-page">
+        <grid-settings-verification></grid-settings-verification>
+      </section>
+
+      <section data-page="mobile" class="sub-page">
+        <grid-settings-mobile></grid-settings-mobile>
+      </section>
+      
+      <section data-page="account-visibility" class="sub-page">
+        <grid-settings-account-visibility></grid-settings-account-visibility>
       </section>
 
     </iron-pages>
@@ -330,6 +347,14 @@
         if(index < this.user.locations.length - 1) {
           return '|';
         } 
+      }
+
+      _verification(confirmed) {
+        if(confirmed) {
+          return 'Verified';
+        }
+
+        return 'Not Verified';
       }
 
     }

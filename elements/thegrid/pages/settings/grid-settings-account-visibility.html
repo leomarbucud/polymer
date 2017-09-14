@@ -1,0 +1,188 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-settings-account-visibility">
+  <template>
+    <style include="grid iron-flex">
+       :host {
+        position: relative;
+        background: var(--dark-grey);
+        height: 100%;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+      }
+
+      main {
+        background-color: #424242;
+      }
+
+      .desc {
+        color: #FFFFFF;
+        font-size: 14px;
+        line-height: 24px;
+        padding: 16px 0;
+      }
+    </style>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
+      <span id="toolbar-title" class="flex active">Acount Visibility</span>
+      <!-- <paper-button class="white" on-click="updateVisibility">Update</paper-button> -->
+    </div>
+
+    <main class="flex">
+
+      <div role="item" class="white">
+        <template is="dom-repeat" items="[[visibilities]]" as="v">
+          <paper-item on-click="setVisibility">
+            <div class="layout horizontal flex">
+              <div class="flex">[[v.name]]</div>
+                <paper-radio-button checked="[[v.selected]]" on-change="_setVisible"></paper-radio-button>
+            </div>
+          </paper-item>
+        </template>
+      </div>
+
+    </main>
+
+    <paper-toast id="toast" class="fit-bottom"></paper-toast>
+
+  </template>
+
+  <script>
+    class GridSettingsAccountVisibility extends
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'grid-settings-account-visibility'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+          gmap: Object,
+          route: Object,
+          visibilities: {
+            type: Array,
+            value: [
+              {
+                name: 'Public',
+                value: 'public',
+                selected: false
+              },
+              {
+                name: 'Users',
+                value: 'users',
+                selected: false
+              },
+              {
+                name: 'Only Me',
+                value: 'onlyme',
+                selected: false
+              }
+            ]
+          }
+        }
+      }
+
+      constructor() {
+        super();
+
+        
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.$.toast.fitInto = this;
+
+        if(this.user.keyedSettings) {
+          if(this.user.keyedSettings.visibility)
+            this.updateSelection(this.user.keyedSettings.visibility);
+        }
+        
+      }
+
+      openToast(html = '') {
+        this.$.toast.close();
+        this.$.toast.innerHTML = html;
+        this.$.toast.open();
+      }
+
+      updateSelection(v) {
+        let visibilities = this.visibilities.slice(0);
+        visibilities.map(item => {
+          if(item.value == v.value) {
+            item.selected = true;
+          } else {
+            item.selected = false;
+          }
+          return item;
+        });
+
+        this.set('visibilities', visibilities);
+        for(let i = 0; i < this.visibilities.length; i++) {
+          this.notifyPath(`visibilities.${i}.selected`, this.visibilities[i].selected);
+        }
+
+        this.updateVisibility();
+      }
+
+      setVisibility(e) {
+
+        const v = e.model.v;
+
+        this.visible = v.value;
+
+        this.updateSelection(v);
+      }
+
+      updateVisibility() {
+        this.isLoading = true;
+        this.openToast('Updating your account visibility, please wait...');
+        gAxios.post(`/users/${this.user.id}/settings/privacy`, {
+          id: 0,
+          name: 'visibility',
+          value: this.visible
+        })
+        .then( res => {
+
+          this.dispatch('updateUser', res.data);
+          
+          this.openToast('Successfully updated');
+          
+        }).catch( err => {
+          if(err.response) {
+            console.log(err.response.data);
+            this.openToast('Oops something went wrong...');
+          }
+          this.sent = false;
+        }).then( () => {
+          this.isLoading = false;
+          
+        });
+      }
+
+      _setVisible(e) {
+        const v = e.model.v;
+
+        this.visible = v.value;
+      }
+
+
+    }
+
+    customElements.define(GridSettingsAccountVisibility.is, GridSettingsAccountVisibility);
+  </script>
+</dom-module>

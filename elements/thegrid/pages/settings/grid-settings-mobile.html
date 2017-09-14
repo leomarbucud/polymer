@@ -2,7 +2,7 @@
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../grid-styles.html">
 
-<dom-module id="grid-settings-password">
+<dom-module id="grid-settings-mobile">
   <template>
     <style include="grid iron-flex">
        :host {
@@ -32,19 +32,15 @@
     <div id="toolbar" class="toolbar dgrey-bg">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
-      <span id="toolbar-title" class="flex active">Password</span>
-      <paper-button on-click="updatePassword" class="white">Update</paper-button>
+      <span id="toolbar-title" class="flex active">Mobile Number</span>
+      <paper-button class="white" on-click="updateMobileNumber">Update</paper-button>
     </div>
 
     <main class="flex">
 
-      <section class="p-y-1">
+      <section class="p-y-1 white">
         
-        <paper-input class="red" type="password" label="Old Password" value="{{old_password::input}}"></paper-input>
-        
-        <paper-input class="red" type="password" label="New Password" value="{{new_password::input}}"></paper-input>
-
-        <paper-input class="red" type="password" label="Confim Password" value="{{confirm_password::input}}"></paper-input>
+        <paper-input label="Mobile Number" class="red" value="{{phone_number}}"></paper-input>
 
       </section>
 
@@ -55,12 +51,12 @@
   </template>
 
   <script>
-    class GridSettingsPassword extends
+    class GridSettingsMobile extends
       GridNavigation(
         ReduxAsyncActionBehavior(
           ReduxBehavior(Polymer.Element))) {
 
-      static get is() { return 'grid-settings-password'; }
+      static get is() { return 'grid-settings-mobile'; }
 
       static get properties() {
         return {
@@ -75,17 +71,15 @@
 
       constructor() {
         super();
+
         
       }
 
       connectedCallback() {
         super.connectedCallback();
-        
-        this.old_password = '';
-        this.new_password = '';
-        this.confirm_password = '';
 
         this.$.toast.fitInto = this;
+        this.phone_number = this.user.phone_number
       }
 
       openToast(html = '') {
@@ -94,40 +88,33 @@
         this.$.toast.open();
       }
 
-      updatePassword() {
+      updateMobileNumber() {
         this.isLoading = true;
-        this.openToast('Updating password, please wait...');
-        gAxios.post(`/users/${this.user.id}/settings/account/password`, {
-          old_password: this.old_password,
-          password: this.new_password,
-          password_confirmation: this.confirm_password
-        }).then( res => {
-          // this.dispatch('updateUser', res.data);
+        this.openToast('Updating your mobile number, please wait...');
+        gAxios.post(`/users/${this.user.id}/settings/mobile`, {
+          phone_number: this.phone_number
+        })
+        .then( res => {
+
+          this.dispatch('updateUser', res.data);
+          
           this.openToast('Successfully updated');
+          
         }).catch( err => {
           if(err.response) {
-            const data = err.response.data;
-            if(data.message) {
-              this.openToast(data.message);
-              return;
-            }
-
-            if(data.password) {
-              this.openToast(data.password[0]);
-              return;
-            }
+            console.log(err.response.data);
+            this.openToast('Oops something went wrong...');
           }
+          this.sent = false;
         }).then( () => {
           this.isLoading = false;
-          this.old_password = '';  
-          this.new_password = '';
-          this.confirm_password = '';
-        
+          
         });
       }
 
+
     }
 
-    customElements.define(GridSettingsPassword.is, GridSettingsPassword);
+    customElements.define(GridSettingsMobile.is, GridSettingsMobile);
   </script>
 </dom-module>

@@ -1,5 +1,6 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../grid-icons.html">
 <link rel="import" href="../grid-styles.html">
 <link rel="import" href="../components/ratings.html">
 
@@ -97,7 +98,12 @@
         <div class="layout horizontal avatar-name">
           <div class="flex">
             <span class="flex m-0 white name">[[user.name]]</span>
-            <span class="block white">@[[user.username]]</span>
+            <span class="block white">
+              @[[user.username]] 
+              <template is="dom-if" if="[[user.confirmed]]">
+                <iron-icon class="white" icon="grid:verified"></iron-icon>
+              </template>
+            </span>
           </div>
           <img class="circle" src$="[[_profileImage(user.profile.profile_image_url)]]" avatar$="[[user.name]]">
         </div>

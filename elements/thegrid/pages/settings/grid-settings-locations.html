@@ -169,7 +169,17 @@
     </paper-dialog>
 
     <paper-dialog id="action-dialog">
-      <h2>Action</h2>
+      <h2>[[name]]</h2>
+      <div>
+        <p>[[address]]</p>
+        <small class="block">
+          Latitude: [[lat]]
+        </small>
+
+        <small class="block">
+          Longitude: [[lng]]
+        </small>
+      </div>
       <div class="buttons">
         <paper-button dialog-dismiss autofocus on-click="openEditLocation" class="white">Edit</paper-button>
         <paper-button dialog-confirm on-click="deleteLocation" class="white">Delete</paper-button>
