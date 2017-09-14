@@ -1,0 +1,150 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../../../../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-settings-activity-log">
+  <template>
+    <style include="grid iron-flex">
+       :host {
+        position: relative;
+        background: var(--dark-grey);
+        height: 100%;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+      }
+
+      main {
+        background-color: #424242;
+      }
+
+      .desc {
+        color: #FFFFFF;
+        font-size: 14px;
+        line-height: 24px;
+        padding: 16px 0;
+      }
+    </style>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
+      <span id="toolbar-title" class="flex active">Activity Logs</span>
+    </div>
+
+    <main class="flex">
+
+      <div role="item" class="white">
+        <template is="dom-repeat" items="[[activityLogs]]" as="log">
+          <paper-item>
+            <paper-item-body two-line>
+              <div>[[_logTitle(log)]]</div>
+              <div secondary>[[_logDetails(log)]]</div>
+            </paper-item-body>
+          </paper-item>
+        </template>
+      </div>
+
+    </main>
+
+    <paper-toast id="toast" class="fit-bottom"></paper-toast>
+
+  </template>
+
+  <script>
+    class GridSettingsActivityLog extends
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'grid-settings-activity-log'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+          gmap: Object,
+          route: Object,
+        
+        }
+      }
+
+      constructor() {
+        super();
+
+        this.activityLogs = [];
+        
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.$.toast.fitInto = this;
+
+        gAxios.get(`/users/${this.user.id}/activity/logs`)
+        .then( res => {
+          console.log(res.data);
+          this.activityLogs = res.data;
+        });
+        
+      }
+
+      openToast(html = '') {
+        this.$.toast.close();
+        this.$.toast.innerHTML = html;
+        this.$.toast.open();
+      }
+
+      ucFrist(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+      }
+
+      _logTitle(log) {
+
+        // let title = `You `;
+
+        // if(log.subject_type == 'App\\Job') {
+        //   switch (log.description) {
+        //     case 'created' : {
+        //       title += `posted a job`;
+        //       break;
+        //     }
+        //     case 'updated' : {
+        //       title += `updated a post`;
+        //     }
+        //   }
+        // } else if( log.subject_type == 'App\\Bid') {
+        //   switch (log.description) {
+        //     case 'created' : {
+        //       title += `bid to a post`;
+        //       break;
+        //     }
+        //   }
+        // }
+
+        let subject_type = log.subject_type.slice(4);
+
+        let title = `${this.ucFrist(log.description)} ${subject_type}`;
+
+        return title;
+
+
+      }
+
+      _logDetails(log) {
+
+      }
+
+    }
+
+    customElements.define(GridSettingsActivityLog.is, GridSettingsActivityLog);
+  </script>
+</dom-module>

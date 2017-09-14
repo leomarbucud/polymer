@@ -4,7 +4,7 @@
 <link rel="import" href="../../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../grid-styles.html">
 
-<dom-module id="grid-settings-account-visibility">
+<dom-module id="grid-settings-contact-information">
   <template>
     <style include="grid iron-flex">
        :host {
@@ -34,7 +34,7 @@
     <div id="toolbar" class="toolbar dgrey-bg">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
-      <span id="toolbar-title" class="flex active">Acount Visibility</span>
+      <span id="toolbar-title" class="flex active">Contact Information</span>
       <!-- <paper-button class="white" on-click="updateVisibility">Update</paper-button> -->
     </div>
 
@@ -58,12 +58,12 @@
   </template>
 
   <script>
-    class GridSettingsAccountVisibility extends
+    class GridSettingsContactInformation extends
       GridNavigation(
         ReduxAsyncActionBehavior(
           ReduxBehavior(Polymer.Element))) {
 
-      static get is() { return 'grid-settings-account-visibility'; }
+      static get is() { return 'grid-settings-contact-information'; }
 
       static get properties() {
         return {
@@ -108,8 +108,8 @@
         this.$.toast.fitInto = this;
 
         if(this.user.keyedSettings) {
-          if(this.user.keyedSettings.visibility)
-            this.updateSelection(this.user.keyedSettings.visibility);
+          if(this.user.keyedSettings.contact)
+            this.updateSelection(this.user.keyedSettings.contact);
         }
         
       }
@@ -150,10 +150,10 @@
 
       updateVisibility() {
         this.isLoading = true;
-        this.openToast('Updating your account visibility, please wait...');
+        this.openToast('Updating your contact information, please wait...');
         gAxios.post(`/users/${this.user.id}/settings/privacy`, {
           id: 0,
-          name: 'visibility',
+          name: 'contact',
           value: this.visible
         })
         .then( res => {
@@ -183,6 +183,6 @@
 
     }
 
-    customElements.define(GridSettingsAccountVisibility.is, GridSettingsAccountVisibility);
+    customElements.define(GridSettingsContactInformation.is, GridSettingsContactInformation);
   </script>
 </dom-module>

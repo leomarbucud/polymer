@@ -12,6 +12,8 @@
 <link rel="import" href="settings/grid-settings-general.html">
 <link rel="import" href="settings/grid-settings-account.html">
 <link rel="import" href="settings/grid-settings-account-visibility.html">
+<link rel="import" href="settings/grid-settings-contact-information.html">
+<link rel="import" href="settings/grid-settings-activity-log.html">
 
 
 <dom-module id="grid-settings">
@@ -159,23 +161,27 @@
           <paper-item>
             <paper-item-body two-line>
               <div>Account Visibility</div>
-              <div secondary>Public</div>
+              <div secondary>[[_visibility(user.keyedSettings.visibility.value)]]</div>
             </paper-item-body>
           </paper-item>
         </a>
         
-        <paper-item on-click="generalSettings">
-          <paper-item-body two-line>
-            <div>Contact Information</div>
-            <div secondary>Public</div>
-          </paper-item-body>
-        </paper-item>
+        <a href="/settings/contact-information">
+          <paper-item>
+            <paper-item-body two-line>
+              <div>Contact Information</div>
+              <div secondary>[[_visibility(user.keyedSettings.contact.value)]]</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
 
-        <paper-item on-click="generalSettings">
-          <paper-item-body>
-            <div>Activity Log</div>
-          </paper-item-body>
-        </paper-item>
+        <a href="/settings/activity-log">
+          <paper-item>
+            <paper-item-body>
+              <div>Activity Log</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
 
       </div>
     </main>
@@ -216,6 +222,14 @@
       
       <section data-page="account-visibility" class="sub-page">
         <grid-settings-account-visibility></grid-settings-account-visibility>
+      </section>
+      
+      <section data-page="contact-information" class="sub-page">
+        <grid-settings-contact-information></grid-settings-contact-information>
+      </section>
+      
+      <section data-page="activity-log" class="sub-page">
+        <grid-settings-activity-log></grid-settings-activity-log>
       </section>
 
     </iron-pages>
@@ -355,6 +369,19 @@
         }
 
         return 'Not Verified';
+      }
+
+      _visibility(v) {
+        let vs = {
+          public: 'Public',
+          users: 'Users',
+          onlyme: 'Only Me'
+        };
+
+        if(vs[v]) {
+          return vs[v];
+        }
+        return 'Public';
       }
 
     }
