@@ -2,6 +2,7 @@
 <link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../../behaviors/form-slider-behavior.html">
+<link rel="import" href="../../components/datepicker.html">
 <link rel="import" href="../../grid-styles.html">
 
 <dom-module id="grid-register-2">
@@ -35,7 +36,7 @@
       <!-- <span class="flex"></span> -->
       <div id="indicator"></div>
       <div class="flex align-right">
-        <span id="next" class="white pointer" on-click="signUp" hidden$="[[!readyNext]]">SIGN UP</span>
+        <paper-button id="next" class="white pointer" on-click="signUp" hidden$="[[!readyNext]]">SIGN UP</paper-button>
       </div>
     </div>
 
@@ -61,13 +62,15 @@
           </div>
 
           <div class="input-group" data-step="2" data-question="When is your birthday?">
-            <input id="birth_date" type="date" class="input"
+            <input id="birth_date" type="text" class="input"
                 max="[[_today()]]"
                 autocomplete="off"
                 placeholder="MM//DD/YYYY"
                 value="{{birth_date::input}}"
                 data-validate="required"
-                data-message-required="Birthdate is required." />
+                data-message-required="Birthdate is required." 
+                date-picker="#date-picker"
+                readonly/>
           </div>
 
           <div class="input-group" data-step="3" data-question="Pick your Username.">
@@ -82,6 +85,9 @@
         </form>
       </div>
     </div>
+
+    <grid-date-picker id="date-picker" date-from="{{birth_date}}" no-range="true" enable-year-change="true" birth-date="true"></grid-date-picker>
+
   </template>
 
   <script>
@@ -165,6 +171,14 @@
 
         // if no data passed redirect to step 1
         this.goStep1();
+
+        const datePicker = this.shadowRoot.querySelector('[date-picker]');
+        datePicker.addEventListener('click', () => {
+          let _dp = datePicker.getAttribute('date-picker');
+          const dp = this.shadowRoot.querySelector(_dp); 
+          dp.max = moment(today()).unix();
+          dp.open();
+        });
       }
 
       signUp() {

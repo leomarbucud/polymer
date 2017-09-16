@@ -5,6 +5,7 @@
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../../../../behaviors/form-slider-behavior.html">
 <link rel="import" href="../../../../../behaviors/map-behavior.html">
+<link rel="import" href="../../components/datepicker.html">
 <link rel="import" href="../../grid-styles.html">
 
 <dom-module id="grid-posts-add-1">
@@ -90,12 +91,14 @@
           <div class="form-group relative"
               data-step="2"
               data-question="By when?">
-            <input id="when" type="date" class="form-input"
+            <input id="when" type="text" class="form-input"
                 autocomplete="off"
                 placeholder="When?"
                 value="{{when::input}}"
                 data-validate="required"
-                data-message-required="Please tell us when." />
+                data-message-required="Please tell us when."
+                date-picker="#date-picker"
+                readonly />
           </div>
 
           <div class="input-group suffix"
@@ -147,6 +150,9 @@
     <iron-icon class="map-control map-control-marker" src="/assets/images/icons/related-marker.svg"></iron-icon>
 
     <paper-button class="map-control map-control-button" on-tap="hideMap">Done</paper-button>
+
+
+    <grid-date-picker id="date-picker" date-from="{{when}}" no-range="true"></grid-date-picker>
 
   </template>
 
@@ -258,6 +264,15 @@
           let detail = e.detail;
           this.lat = detail.lat;
           this.lng = detail.lng;
+        });
+
+
+        const datePicker = this.shadowRoot.querySelector('[date-picker]');
+        datePicker.addEventListener('click', () => {
+          let _dp = datePicker.getAttribute('date-picker');
+          const dp = this.shadowRoot.querySelector(_dp); 
+          dp.min = moment(today()).unix();
+          dp.open();
         });
 
       }

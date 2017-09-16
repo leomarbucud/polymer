@@ -1,0 +1,143 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/range-datepicker/range-datepicker.html">
+
+<dom-module id="grid-date-picker">
+  <template>
+
+    <style include="iron-flex">
+       :host {
+        display: block;
+      }
+
+      #calendar {
+        background: #424242;
+        color: #FFFFFF;
+        min-width: 315px;
+      }
+
+      #calendar paper-button.white {
+        color: #FFFFFF;
+      }
+      
+    </style>
+
+
+    <paper-dialog id="calendar">
+      <range-datepicker id="rd" force-narrow
+      disabled-days="[[disabledDays]]" min="[[min]]" max="[[max]]" on-new-year-is-manually-selected="_handleNewYearSelected" enable-year-change="[[enableYearChange]]" prev no-range="[[noRange]]" date-to="{{_dateTo}}"
+      date-from="{{_dateFrom}}" locale="[[locale]]" month="[[month]]" year="[[year]]" hovered-date="false"></range-datepicker>
+      <div class="buttons">
+        <paper-button dialog-dismiss class="white">Cancel</paper-button>
+        <paper-button dialog-confirm autofocus on-click="updateDate" class="white">Ok</paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+    class GridDatePicker extends Polymer.Element {
+
+      static get is() { return 'grid-date-picker'; }
+
+      static get properties() {
+        return {
+
+          dateFrom: {
+            type: String,
+            notify: true
+          },
+
+          dateTo: {
+            type: String,
+            notify: true
+          },
+
+          noRange: {
+            type: Boolean,
+            reflectToAttribute: true
+          },
+
+          min: {
+            type: String,
+            reflectToAttribute: true
+          },
+
+          max: {
+            type: String,
+            reflectToAttribute: true
+          },
+
+          enableYearChange: {
+            type: Boolean,
+            reflectToAttribute: true
+          },
+
+          birthDate: {
+            type: Boolean,
+            reflectToAttribute: true
+          }
+          
+        }
+      }
+
+      static get observers() {
+        return [
+          '_birthDateChange(birthDate)'
+        ]
+      }
+
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      updateDate() {
+        this.dateFrom = this._dateFrom;
+        this.dateTo = this._dateTo;
+        if(moment) {
+          this.dateFrom = moment.unix(this._dateFrom).format('MM/DD/YYYY');
+          this.dateTo = moment.unix(this._dateTo).format('MM/DD/YYYY');
+        }
+      }
+
+      open() {
+        this.shadowRoot.querySelector('#calendar').open();
+      }
+
+      close() {
+        this.shadowRoot.querySelector('#calendar').close();
+      }
+      _birthDateChange(birthDate) {
+        const today = () => {
+          let today = new Date();
+          let dd = today.getDate();
+          let mm = today.getMonth()+1; //January is 0!
+          let yyyy = today.getFullYear() - 18;
+           if(dd<10){
+                  dd='0'+dd
+              }
+              if(mm<10){
+                  mm='0'+mm
+              }
+
+          today = yyyy+'-'+mm+'-'+dd;
+          return today;
+        }
+        if(birthDate) {
+          this.max = moment(today()).unix();
+          this.year = new Date().getFullYear() - 18;
+        }
+      }
+
+
+    }
+
+    customElements.define(GridDatePicker.is, GridDatePicker);
+  </script>
+</dom-module>
