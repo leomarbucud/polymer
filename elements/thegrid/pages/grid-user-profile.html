@@ -144,13 +144,16 @@
 
       <section class="p-y-1 lower-section flex">
 
-        <div>
+        <div class="white">
           <div class="layout horizontal white section-title">
             <span class="flex title">About</span>
           </div>
           <p class="white">
             [[user.profile.bio]]
           </p>
+          <template is="dom-if" if="[[!user.profile.bio]]" >
+            Nothing to show...
+          </template>
         </div>
 
         <!-- <div class="divider"><hr/></div>
