@@ -315,6 +315,15 @@
 				this.setNotificationEvents();
 
 				this.setCurrentLocation();
+
+				window.addEventListener('map:current_location_in_bounds', () => {
+					this.shadowRoot.querySelector('#location').classList.remove('inactive');
+				});
+
+				window.addEventListener('map:current_location_out_bounds', () => {
+					this.shadowRoot.querySelector('#location').classList.add('inactive');
+				});
+      
 			}
 
 			setNotificationEvents() {
@@ -520,7 +529,8 @@
           navigator.geolocation.watchPosition( function(position) {
 						self.gmap.currentLocation = {
 							lat: position.coords.latitude,
-							lng: position.coords.longitude
+							lng: position.coords.longitude,
+							latlng: new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
 						};
 						self.currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
 						clearInterval(locationAvtivating);
