@@ -78,6 +78,15 @@
         padding-bottom: 0;
       }
 
+      a {
+        text-decoration: none;
+        color: #FFFFFF;
+      }
+
+      .center {
+        text-align: center;
+      }
+
     </style>
 
     <!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
@@ -144,7 +153,7 @@
           </p>
         </div>
 
-        <div class="divider"><hr/></div>
+        <!-- <div class="divider"><hr/></div>
 
         <div>
           <div class="white section-title">
@@ -153,7 +162,7 @@
           <p class="white">
             Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
           </p>
-        </div>
+        </div> -->
 
         <div class="divider"><hr/></div>
 
@@ -162,11 +171,45 @@
             <span class="flex title">Skills</span>
           </div>
           <div class="skills-container">
-            <div hidden$="[[user.skills]]" class="white">Loading your awesome skills...</div>
+            <template is="dom-if" if="[[isSkillsLoading]]">
+              <div class="center">
+                <paper-spinner class="white" active></paper-spinner>
+              </div> 
+            </template>
             <template is="dom-repeat" items="[[user.skills]]" as="skill">
               <div class="chip">
                 <span>[[skill.skill]]</span>
               </div>
+            </template>
+          </div>
+        </div>
+
+        <div class="divider"><hr/></div>
+        
+        <div>
+          <div class="layout horizontal white section-title">
+            <span class="flex title">Recent Posts</span>
+          </div>
+          <div class="white" role="listbox" style="margin: 0 -16px;">
+            <template is="dom-if" if="[[isRecentPostsLoading]]">
+              <div class="center">
+                <paper-spinner class="white" active></paper-spinner>
+              </div> 
+            </template>
+            <template is="dom-repeat" items="[[recentPosts]]" as="job" >
+              <a href$="/@[[user.username]]/posts/[[job.id]]">
+                <paper-item>
+                  <paper-item-body two-line>
+                    <div>[[job.name]]</div>
+                    <div secondary>Date needed: [[_fromNow(job.date)]]</div>
+                    <paper-ripple></paper-ripple>
+                  </paper-item-body>
+                  <div class="time" data-time$="[[job.created_at]]">[[_fromNow(job.created_at)]]</div>
+                </paper-item>
+              </a>
+            </template>
+            <template is="dom-if" if="[[!recentPosts]]">
+              <p>No recent posts</p>
             </template>
           </div>
         </div>
@@ -208,6 +251,11 @@
       constructor() {
         super();
         this.isLoading = true;
+
+        this.user_id = null;
+
+        this.isSkillsLoading = true;
+        this.isRecentPostsLoading = true;
       }
 
       _usernameChange(username) {
@@ -215,18 +263,12 @@
         axios.get(`${this.url.API_URL}/users/${username}`)
         .then( res => {
           this.set('user', res.data);
-          
-          const main = this.shadowRoot.querySelector('main');
 
-          const scroll = () => {
-            if( main.scrollTop > 0 ) {
-              this.shadowRoot.querySelector('#toolbar').classList.add('shadow');
-            } else {
-              this.shadowRoot.querySelector('#toolbar').classList.remove('shadow');
-            }
-          };
+          this.user_id = res.data.id;
+          this.isSkillsLoading = false;
 
-          main.addEventListener('scroll', scroll);
+          this.setRecentPosts(this.user_id);
+        
 
           let sumStar = 0;
           
@@ -251,8 +293,32 @@
         });
       }
 
+      setRecentPosts(id) {
+        this.isRecentPostsLoading = true;
+        this.recentPosts = [];
+        // axios.get(`${this.url.API_URL}/users/${username}`)
+        axios.get(`${this.url.API_URL}/recent/jobs/${id}`)
+        .then( res => {
+          // this.dispatch('setSkills', res.data);
+          this.recentPosts = res.data;
+          this.isRecentPostsLoading = false;
+        });
+      }
+
       connectedCallback() {
         super.connectedCallback();
+
+        const main = this.shadowRoot.querySelector('main');
+
+        const scroll = () => {
+          if( main.scrollTop > 0 ) {
+            this.shadowRoot.querySelector('#toolbar').classList.add('shadow');
+          } else {
+            this.shadowRoot.querySelector('#toolbar').classList.remove('shadow');
+          }
+        };
+
+        main.addEventListener('scroll', scroll);
       }
 
       _profileImage(img) {
@@ -263,6 +329,10 @@
 
         return LetterAvatar('Grid', 64);
 
+      }
+
+      _fromNow(date) {
+        return moment(date).fromNow();
       }
 
     }

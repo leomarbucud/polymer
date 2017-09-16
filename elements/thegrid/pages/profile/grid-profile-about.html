@@ -1,0 +1,129 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-profile-about">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        background: var(--dark-red);
+        height: 100%;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+      }
+
+      paper-textarea.white {
+				--paper-input-container-input-color: #FFFFFF;
+				--paper-input-container-label: #FFFFFF;
+				--paper-input-container-label-floating: #FFFFFF;
+				--paper-input-container-label-focus: #FFFFFF;
+        --paper-input-container-focus-color: #FFFFFF;
+			}
+
+    </style>
+
+    <div id="toolbar" class="toolbar dred-bg">
+      <paper-icon-button icon="chevron-left" class="white pointer" on-click="redirectProfile"></paper-icon-button>
+      <span class="flex"></span>
+      <paper-button on-click="save" class="white">Save</paper-button>
+    </div>
+
+    <main class="flex">
+      
+      <section class="p-y-1">
+
+        <paper-textarea label="About" value="{{about::input}}" class="white" autofocus></paper-textarea>
+      
+      </section>
+
+
+    </main>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay dred-bg">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+
+    class GridProfileAbout extends 
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'grid-profile-about'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+
+        ]
+      }
+
+      static get actions() {
+  			return {
+
+  			};
+  		}
+
+      constructor() {
+        super();
+
+        this.about = '';
+       
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        if(this.user.profile) {
+          this.about = this.user.profile.bio;
+        }
+      }
+
+      save() {
+        this.isLoading = true;
+        gAxios.post(`/users/${this.user.id}/profile/about`, {
+         bio: this.about
+        }).then(res => {
+
+          this.isLoading = false;
+          this.dispatch('updateUser', res.data);
+
+        }).catch(err => {
+          if (err.response) {
+
+          }
+        });
+      }
+
+      redirectProfile() {
+        this.redirect('/profile');
+      }
+
+    }
+
+    customElements.define(GridProfileAbout.is, GridProfileAbout);
+	</script>
+</dom-module>   
