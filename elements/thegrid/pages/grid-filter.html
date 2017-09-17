@@ -215,7 +215,18 @@
 
           const fetch = () => {
             this.isLoading = true;
-            let url = `${this.url.API_URL}/job/all?lat=${this.gmap.currentLocation.lat}&lng=${this.gmap.currentLocation.lng}`;
+            let url = `${this.url.API_URL}`;
+
+            let _axios = axios;
+            
+            if(this.auth) {
+
+              _axios = gAxios;
+              url = `/users`
+            }
+            
+            
+            url += `/job/all?lat=${this.gmap.currentLocation.lat}&lng=${this.gmap.currentLocation.lng}`;
             url += `&from=${moment.unix(this.dateFrom).format('MM/DD/YYYY')}`;
 
             if(this.dateTo != 0) {
@@ -235,7 +246,9 @@
               url += `&price=${this.price}`;
             }
 
-            axios.get(url)
+            
+
+            _axios.get(url)
             .then( res => {
               this.gmap.paintMarkers(res.data);
               // this.gmap.removeAllMarkers();
