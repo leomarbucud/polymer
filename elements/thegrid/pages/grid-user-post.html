@@ -247,79 +247,96 @@
 		<div id="bid-box">
 			<template is="dom-if" if="[[biddingEnded]]">
 				<section class="p-y-1 w-100 white">
-					Bidding has ended
+					<div>Bidding has ended</div>
+					<template is="dom-if" if="[[bidded]]">
+						<section class="white layout horizontal">
+							<div class="flex">
+								<span>You bidded:</span>
+								<h2 class="title m-0">AED [[bidded_details.price_bid]]</h2>
+							</div>
+							<!-- <div class="layout vertical"> -->
+								<a href$="/bids/[[bidded_details.id]]" class="red">View details</a>
+							<!-- </div> -->
+						</section>
+					</template>
 				</section>
+				
 			</template>
-			<template is="dom-if" if="[[user]]">
+
+			<template is="dom-if" if="[[!biddingEnded]]">
+			
+				<template is="dom-if" if="[[user]]">
 				<!-- <div class="divider p-y-1"><hr/></div> -->
 
-				<template is="dom-if" if="[[bidded]]">
-					<section class="p-y-1 w-100 white layout horizontal">
-						<div class="flex">
-							<span>You bidded:</span>
-							<h2 class="title m-0">AED [[bidded_details.price_bid]]</h2>
-						</div>
-						<div class="layout vertical">
-							<a href$="/bids/[[bidded_details.id]]" class="red">View details</a>
-						</div>
-					</section>
-				</template>
+					<template is="dom-if" if="[[bidded]]">
+						<section class="p-y-1 w-100 white layout horizontal">
+							<div class="flex">
+								<span>You bidded:</span>
+								<h2 class="title m-0">AED [[bidded_details.price_bid]]</h2>
+							</div>
+							<div class="layout vertical">
+								<a href$="/bids/[[bidded_details.id]]" class="red">View details</a>
+							</div>
+						</section>
+					</template>
 
-				<!-- <section class="p-y-1 white">
-					[[message]]
-				</section> -->
-				<template is="dom-if" if="[[canBid]]">
-					<section class="p-y-1 w-100">
-						<!--:start Bidding section -->
-						<!-- <h2 class="title">Bid</h2> -->
-						<span class="white">Bid</span>
-						<span class="white">[[message]]</span>
-						
-						<form class="form" hidden$="[[checking]]">
-							<div id="previews">
-								<template is="dom-repeat" items="[[files]]" as="file">
-									<div class="wrap">
-										<div class="file">
-											<img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
-											<span>[[file.name]]</span>
-											<iron-icon icon="close" on-click="removeFile"></iron-icon>
+					<!-- <section class="p-y-1 white">
+						[[message]]
+					</section> -->
+					<template is="dom-if" if="[[canBid]]">
+						<section class="p-y-1 w-100">
+							<!--:start Bidding section -->
+							<!-- <h2 class="title">Bid</h2> -->
+							<span class="white">Bid</span>
+							<span class="white">[[message]]</span>
+							
+							<form class="form" hidden$="[[checking]]">
+								<div id="previews">
+									<template is="dom-repeat" items="[[files]]" as="file">
+										<div class="wrap">
+											<div class="file">
+												<img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
+												<span>[[file.name]]</span>
+												<iron-icon icon="close" on-click="removeFile"></iron-icon>
+											</div>
 										</div>
-									</div>
-								</template>
-							</div>
-							<div class="input-group prefix suffix">
-								<div class="addon-prefix">
-									<span>AED </span>
+									</template>
 								</div>
-								<input id="price" id="priceBid" type="number" class="input" autofocus autocomplete="off" placeholder="Amount to Bid" value="{{price::input}}"
-								 max$="[[post.price]]" on-keydown="priceBidEvent"/>
+								<div class="input-group prefix suffix">
+									<div class="addon-prefix">
+										<span>AED </span>
+									</div>
+									<input id="price" id="priceBid" type="number" class="input" autofocus autocomplete="off" placeholder="Amount to Bid" value="{{price::input}}"
+									max$="[[post.price]]" on-keydown="priceBidEvent"/>
 
-								 <div class="addon-suffix has-button">
-										<paper-icon-button class="red" icon="grid:attachment" on-click="selectFile"></paper-icon-button>
-										<paper-button class="red" on-tap="bid">Bid</paper-button>
-								 </div>
-							</div>
-							<input type="file" id="files" on-change="previewFiles" multiple style="position: absolute; left: -99999px; top: -99999px;"/>
-						</form>
-						<!--:end Bidding section -->
+									<div class="addon-suffix has-button">
+											<paper-icon-button class="red" icon="grid:attachment" on-click="selectFile"></paper-icon-button>
+											<paper-button class="red" on-tap="bid">Bid</paper-button>
+									</div>
+								</div>
+								<input type="file" id="files" on-change="previewFiles" multiple style="position: absolute; left: -99999px; top: -99999px;"/>
+							</form>
+							<!--:end Bidding section -->
 
+						</section>
+					</template>
+
+				</template>
+
+				<template is="dom-if" if="[[checking]]">
+					<section class="p-y-1 relative">
+						<div class="align-center">
+							<paper-spinner active></paper-spinner>
+						</div>
 					</section>
 				</template>
 
-			</template>
+				<template is="dom-if" if="[[!user]]">
+					<section class="p-y-1 white">
+						<span class="pointer" on-click="redirectLogin">Login to bid on this job</span>
+					</section>
+				</template>
 
-			<template is="dom-if" if="[[checking]]">
-				<section class="p-y-1 relative">
-					<div class="align-center">
-						<paper-spinner active></paper-spinner>
-					</div>
-				</section>
-			</template>
-
-			<template is="dom-if" if="[[!user]]">
-				<section class="p-y-1 white">
-					<span class="pointer" on-click="redirectLogin">Login to bid on this job</span>
-				</section>
 			</template>
 		</div>
 
@@ -516,52 +533,7 @@
 
 					this.countDown(this.post.date);
 
-					const carousel = this.shadowRoot.querySelector('#carousel');
-					const docs = this.shadowRoot.querySelector('#docs');
-
-					if(this.post.files.length) {	
-						
-						let my_carousel = document.createElement('my-carousel');
-						let pdf = document.createElement('div');
-
-						this.post.files.forEach( file => {
-							let allowFile = false;
-							switch (file.type) {
-								case 'jpeg':
-								case 'png': {
-									allowFile = true;
-									break;
-								}
-								case 'pdf': {
-									let a = document.createElement('a');
-									a.href = this._getFilePath(file.path);
-									a.setAttribute('download', true);
-									a.textContent = file.original_name;
-									pdf.appendChild(a);
-									this.hasPDF = true;
-								}
-							}
-							if( !allowFile ) return;
-					
-							let img = document.createElement('img');
-							let div = document.createElement('div');
-							img.setAttribute('data-src', this._getFilePath(file.path));
-
-							div.style.backgroundImage = `url(${this._getFilePath(file.path)})`;
-							div.style.backgroundSize = 'cover';
-							div.style.backgroundPosition = 'center';
-
-							my_carousel.appendChild(div);
-						});
-
-						carousel.innerHTML = '';
-						carousel.appendChild(my_carousel);
-
-						docs.innerHTML = '';
-						docs.appendChild(pdf);
-					} else {
-						carousel.innerHTML = '';
-					}
+					this.carousel();
 
 				}).then(() => {
 					this.isLoading = false;
@@ -573,6 +545,55 @@
 				this._initValue();
 				this.isLoading = true;
 				this.populatePost(postId);
+			}
+
+			carousel() {
+				const carousel = this.shadowRoot.querySelector('#carousel');
+				const docs = this.shadowRoot.querySelector('#docs');
+
+				if(this.post.files.length) {	
+					
+					let my_carousel = document.createElement('my-carousel');
+					let pdf = document.createElement('div');
+
+					this.post.files.forEach( file => {
+						let allowFile = false;
+						switch (file.type) {
+							case 'jpeg':
+							case 'png': {
+								allowFile = true;
+								break;
+							}
+							case 'pdf': {
+								let a = document.createElement('a');
+								a.href = this._getFilePath(file.path);
+								a.setAttribute('download', true);
+								a.textContent = file.original_name;
+								pdf.appendChild(a);
+								this.hasPDF = true;
+							}
+						}
+						if( !allowFile ) return;
+				
+						let img = document.createElement('img');
+						let div = document.createElement('div');
+						img.setAttribute('data-src', this._getFilePath(file.path));
+
+						div.style.backgroundImage = `url(${this._getFilePath(file.path)})`;
+						div.style.backgroundSize = 'cover';
+						div.style.backgroundPosition = 'center';
+
+						my_carousel.appendChild(div);
+					});
+
+					carousel.innerHTML = '';
+					carousel.appendChild(my_carousel);
+
+					docs.innerHTML = '';
+					docs.appendChild(pdf);
+				} else {
+					carousel.innerHTML = '';
+				}
 			}
 
 			countDown(date) {

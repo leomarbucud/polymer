@@ -210,7 +210,7 @@
           <div class="flex">
             <span class="title">Job needed</span>
           </div>
-          <span>[[_fromNow(bid.job.date)]]</span>
+          <span data-countdown$="[[bid.job.date]]">[[_fromNow(bid.job.date)]]</span>
         </div>
         <div class="section-details">
           <div class="flex">
@@ -346,6 +346,8 @@
         this._awarded = false;
         this._awardedToMe = false;
 
+        this.countDown(bid.job.date);
+
         if(bid.job.awarded) {
           this._awarded = true;
           if(bid.job.awarded.user_id == this.user.id) {
@@ -368,6 +370,38 @@
             }, 0);
           }
         }
+      }
+
+      countDown(date) {
+				const cd = this.shadowRoot.querySelector('[data-countdown]');
+
+				let eventTime = moment(date, 'YYYY-MM-DD HH:mm:ss').unix(),
+					currentTime = moment().unix(),
+					diffTime = eventTime - currentTime,
+					duration = moment.duration(diffTime * 1000, 'milliseconds'),
+					interval = 1000;
+				
+				if(diffTime > 0) {
+					if(this._countDown) clearInterval(this._countDown);
+					this._countDown = setInterval( () => {
+							
+            duration = moment.duration(duration.asMilliseconds() - interval, 'milliseconds');
+            let	s = moment.duration(duration).seconds();
+            let	m = moment.duration(duration).minutes();
+            
+            if(m == 0) {
+              cd.textContent = `${s} sec`;
+              if(s <= 0) {
+                cd.textContent = this._fromNow(date);
+                this.biddingEnded = true;
+                this.canBid = false;
+              }
+            } else {
+              cd.textContent = this._fromNow(date);
+            }
+
+					}, interval);
+				}
       }
 
       viewOnMap() {

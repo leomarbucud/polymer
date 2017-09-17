@@ -224,6 +224,7 @@
             data[i].isMyPost = false;
             data[i].isBidded = false;
             data[i].isAwarded = false;
+            data[i].hasWinner = false;
             var bids = data[i].bids;
 
             if(this.auth) {
@@ -233,6 +234,7 @@
                 data[i].isMyPost = true;
               }
               if(data[i].winner) {
+                data[i].hasWinner = true;
                 if(this.user.id == data[i].winner.user_id) {
                   data[i].isAwarded = true;
                 }
@@ -245,6 +247,10 @@
                   data[i].isBidded = true;
                 }
               }
+            }
+
+            if(data[i].hasWinner && !data[i].isAwarded) {
+              continue;
             }
 
             // IDEA: remove existing marker before adding it

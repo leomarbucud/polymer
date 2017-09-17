@@ -307,7 +307,7 @@
       populateBids() {
         if(!this.user) return;
 
-        gAxios.get('/users/'+ this.user.id + '/bids')
+        gAxios.get(`/users/${this.user.id}/bids`)
 				.then( res => {
 					var data = res.data;
 					this.dispatch('setBids', data.data);
@@ -471,7 +471,7 @@
           
           const bid_id = data;
 
-          gAxios.get('/users/' + this.user.id + '/bids/' + bid_id)
+          gAxios.get(`/users/${this.user.id}/bids/${bid_id}`)
           .then(res => {
             const existingBid = this.bids.find(bid => {
               return bid.id == res.data.id;
