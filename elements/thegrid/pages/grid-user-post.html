@@ -506,7 +506,7 @@
 			}
 
 			populatePost(postId) {
-				this._initValue();
+				
 				axios.get(`${this.url.API_URL}/jobs/${postId}`)
 				.then(res => {
 					this.post = res.data;
@@ -570,7 +570,7 @@
 
 			_postIdChange(postId) {
 				if (!postId) return;
-				
+				this._initValue();
 				this.isLoading = true;
 				this.populatePost(postId);
 			}

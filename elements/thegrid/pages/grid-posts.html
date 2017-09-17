@@ -144,6 +144,13 @@
             <div class="time" data-time$="[[job.created_at]]">[[_fromNow(job.created_at)]]</div>
           </paper-item>
         </template>
+        <template is="dom-if" if="[[!posts.length]]">
+          <paper-item>
+            <paper-item-body>
+              <div>You don't have any posts</div>
+            </paper-item-body>
+          </paper-item>
+        </template>
       </div>
       <!-- <section class="list" id="post-list">
         <template is="dom-repeat" items="[[posts]]" as="job" filter="{{_filterPost(query)}}">

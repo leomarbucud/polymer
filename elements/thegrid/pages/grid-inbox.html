@@ -183,6 +183,13 @@
             </div>
           </paper-icon-item>
         </template>
+        <template is="dom-if" if="[[!conversations.length]]">
+          <paper-item>
+            <paper-item-body>
+              <div>You don't have any conversations</div>
+            </paper-item-body>
+          </paper-item>
+        </template>
       </div>
     </main>
 
