@@ -315,6 +315,25 @@
       connectedCallback() {
         super.connectedCallback();
 
+        this.headerAnimate();
+      }
+
+      headerAnimate() {
+				const toolbar = this.shadowRoot.querySelector('#toolbar');
+        const main = this.shadowRoot.querySelector('main');
+
+        const scroll = () => {
+          let _st = main.scrollTop;
+          
+          if( _st > 0 ) {
+            toolbar.classList.add('shadow');
+          } else {
+            toolbar.classList.remove('shadow');
+          }
+          st = _st;
+        };
+
+        main.addEventListener('scroll', scroll);
       }
 
       renderBid(bid) {
