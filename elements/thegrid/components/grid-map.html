@@ -192,15 +192,13 @@
 
         this.mapListener('center_changed', function() {
 
-          if(self.gmap.currentLocation) {
-            if(self.map.getBounds().contains(self.gmap.currentLocation.latlng)) {
+          if(self.gmap.currentLocation && self.gmap.map.getBounds()) {
+            if(this.map.getBounds().contains(self.gmap.currentLocation.latlng)) {
               window.dispatchEvent(new CustomEvent('map:current_location_in_bounds'));
             } else {
               window.dispatchEvent(new CustomEvent('map:current_location_out_bounds'));
             }
           }
-
-          
 
           if(!self.classList.contains('selecting')) return;
 

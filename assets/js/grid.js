@@ -33,6 +33,7 @@ socket.on('user:posted', data => {
 });
 
 window.addEventListener('user:bidded', e => {
+  console.log('bidded....');
   const data = e.detail;
   socket.emit('user:bidded', data);
 });

@@ -199,7 +199,7 @@
 						<span class="title">Job needed</span>
 						<!-- <iron-icon icon="grid:clock" class="white"></iron-icon> -->
 					</div>
-					<span>[[_fromNow(post.date)]]</span>
+					<span data-countdown$="[[post.date]]">[[_fromNow(post.date)]]</span>
 				</div>
 				
 				<div class="section-details">
@@ -245,6 +245,11 @@
 
 		</main>
 		<div id="bid-box">
+			<template is="dom-if" if="[[biddingEnded]]">
+				<section class="p-y-1 w-100 white">
+					Bidding has ended
+				</section>
+			</template>
 			<template is="dom-if" if="[[user]]">
 				<!-- <div class="divider p-y-1"><hr/></div> -->
 
@@ -380,8 +385,28 @@
 					}
 				);
 
-				
+				this.headerAnimate();
+
+				this._initSocketEvents();
 			}
+
+			headerAnimate() {
+				const toolbar = this.shadowRoot.querySelector('#toolbar');
+        const main = this.shadowRoot.querySelector('main');
+
+        const scroll = () => {
+          let _st = main.scrollTop;
+          
+          if( _st > 0 ) {
+            toolbar.classList.add('shadow');
+          } else {
+            toolbar.classList.remove('shadow');
+          }
+          st = _st;
+        };
+
+        main.addEventListener('scroll', scroll);
+      }
 
 			priceBidEvent(e) {
 				if( e.keyCode == 13 ) {
@@ -397,6 +422,7 @@
 				this.checking = false;
 				this.isService = false;
 				this.hasPDF = false;
+				this.biddingEnded = false;
 				this.files = [];
 			}
 
@@ -438,18 +464,20 @@
 						});
 					}
 
-					gAxios.post('/users/' + this.user.id + '/bids', formData)
+					gAxios.post(`/users/${this.user.id}/bids`, formData)
 					.then(res => {
 						this.bidded_details = res.data;
+						// dispatch event
+						window.dispatchEvent(new CustomEvent('user:bidded', { detail: res.data }) );
+
+						this.countDown(res.data.job.date);
+						
 						this._userBidded(true);
 
 						// update the marker
 						this.updateMarker(this.post.id)
 
 						this.dispatch('addBid', res.data);
-
-						// dispatch event
-						window.dispatchEvent(new CustomEvent('user:bidded', { detail: res.data }) );
 					}).catch(err => {
 
 					}).then(() => {
@@ -477,67 +505,109 @@
 				}
 			}
 
+			populatePost(postId) {
+				this._initValue();
+				axios.get(`${this.url.API_URL}/jobs/${postId}`)
+				.then(res => {
+					this.post = res.data;
+					if(this.post.category_id == 1) {
+						this.isService = true;
+					}
+
+					this.countDown(this.post.date);
+
+					const carousel = this.shadowRoot.querySelector('#carousel');
+					const docs = this.shadowRoot.querySelector('#docs');
+
+					if(this.post.files.length) {	
+						
+						let my_carousel = document.createElement('my-carousel');
+						let pdf = document.createElement('div');
+
+						this.post.files.forEach( file => {
+							let allowFile = false;
+							switch (file.type) {
+								case 'jpeg':
+								case 'png': {
+									allowFile = true;
+									break;
+								}
+								case 'pdf': {
+									let a = document.createElement('a');
+									a.href = this._getFilePath(file.path);
+									a.setAttribute('download', true);
+									a.textContent = file.original_name;
+									pdf.appendChild(a);
+									this.hasPDF = true;
+								}
+							}
+							if( !allowFile ) return;
+					
+							let img = document.createElement('img');
+							let div = document.createElement('div');
+							img.setAttribute('data-src', this._getFilePath(file.path));
+
+							div.style.backgroundImage = `url(${this._getFilePath(file.path)})`;
+							div.style.backgroundSize = 'cover';
+							div.style.backgroundPosition = 'center';
+
+							my_carousel.appendChild(div);
+						});
+
+						carousel.innerHTML = '';
+						carousel.appendChild(my_carousel);
+
+						docs.innerHTML = '';
+						docs.appendChild(pdf);
+					} else {
+						carousel.innerHTML = '';
+					}
+
+				}).then(() => {
+					this.isLoading = false;
+				});
+			}
+
 			_postIdChange(postId) {
 				if (!postId) return;
-				this._initValue();
+				
 				this.isLoading = true;
-				axios.get(this.url.API_URL + '/jobs/' + postId)
-					.then(res => {
-						this.post = res.data;
-						if(this.post.category_id == 1) {
-							this.isService = true;
-						}
+				this.populatePost(postId);
+			}
 
-						const carousel = this.shadowRoot.querySelector('#carousel');
-						const docs = this.shadowRoot.querySelector('#docs');
+			countDown(date) {
+				const cd = this.shadowRoot.querySelector('[data-countdown]');
 
-						if(this.post.files.length) {	
+				let eventTime = moment(date, 'YYYY-MM-DD HH:mm:ss').unix(),
+					currentTime = moment().unix(),
+					diffTime = eventTime - currentTime,
+					duration = moment.duration(diffTime * 1000, 'milliseconds'),
+					interval = 1000;
+				
+				if(diffTime > 0) {
+					if(this._countDown) clearInterval(this._countDown);
+					this._countDown = setInterval( () => {
 							
-							let my_carousel = document.createElement('my-carousel');
-							let pdf = document.createElement('div');
-
-							this.post.files.forEach( file => {
-								let allowFile = false;
-								switch (file.type) {
-									case 'jpeg':
-									case 'png': {
-										allowFile = true;
-										break;
-									}
-									case 'pdf': {
-										let a = document.createElement('a');
-										a.href = this._getFilePath(file.path);
-										a.setAttribute('download', true);
-										a.textContent = file.original_name;
-										pdf.appendChild(a);
-										this.hasPDF = true;
-									}
+							duration = moment.duration(duration.asMilliseconds() - interval, 'milliseconds');
+							let	s = moment.duration(duration).seconds();
+							let	m = moment.duration(duration).minutes();
+							
+							if(m == 0) {
+								cd.textContent = `${s} sec`;
+								if(s <= 0) {
+									cd.textContent = this._fromNow(date);
+									this.biddingEnded = true;
+									this.canBid = false;
 								}
-								if( !allowFile ) return;
-						
-								let img = document.createElement('img');
-								let div = document.createElement('div');
-								img.setAttribute('data-src', this._getFilePath(file.path));
+							} else {
+								cd.textContent = this._fromNow(date);
+							}
 
-								div.style.backgroundImage = `url(${this._getFilePath(file.path)})`;
-								div.style.backgroundSize = 'cover';
-								div.style.backgroundPosition = 'center';
-
-								my_carousel.appendChild(div);
-							});
-
-							carousel.innerHTML = '';
-							carousel.appendChild(my_carousel);
-
-							docs.innerHTML = '';
-          		docs.appendChild(pdf);
-						} else {
-							carousel.innerHTML = '';
-						}
-
-					}).then(() => {
-						this.isLoading = false;
-					});
+					}, interval);
+				} else {
+					this.biddingEnded = true;
+					this.canBid = false;
+				}
 			}
 
 			selectFile() {
@@ -696,7 +766,18 @@
 
 			_getFilePath(path) {
         return `${this.url.API_BASE_URL}/uploads/${path}`;
-      }
+			}
+			
+			_initSocketEvents() {
+
+				socket.on('post:bidded', data => {
+					// console.log('biddedddddddd', data);
+					if(data.id == this.post.id) {
+						this.countDown(data.date);
+						this.populatePost(this.post.id);
+					}
+        });
+			}
 
 		}
 

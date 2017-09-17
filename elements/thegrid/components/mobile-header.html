@@ -211,7 +211,7 @@
 
 			static get observers() {
 				return [
-					'_gmap(gmap)',
+					'_gmap(map)',
 					'_auth(auth)',
 					// '_visiblePinsChange(visiblePins)'
 					'_expandedChange(expanded)',
@@ -314,7 +314,6 @@
 
 				this.setNotificationEvents();
 
-				this.setCurrentLocation();
 
 				window.addEventListener('map:current_location_in_bounds', () => {
 					this.shadowRoot.querySelector('#location').classList.remove('inactive');
@@ -717,9 +716,10 @@
 				}
 			}
 
-			_gmap(gmap) {
-				if(gmap) {
-					this.markers = gmap.markers;
+			_gmap(map) {
+				if(map) {
+					// this.markers = gmap.markers;
+					this.setCurrentLocation();
 				}
 			}
 			_auth(auth) {

@@ -19,6 +19,18 @@
       #calendar paper-button.white {
         color: #FFFFFF;
       }
+
+      .input {
+        height: 44px;
+				padding: 0 16px;
+				border-radius: 2px;
+				outline: none;
+				border: none;
+				width: 100%;
+				line-height: 20px;
+				font-size: 14px;
+        box-sizing: border-box;
+      }
       
     </style>
 
@@ -27,6 +39,12 @@
       <range-datepicker id="rd" force-narrow
       disabled-days="[[disabledDays]]" min="[[min]]" max="[[max]]" on-new-year-is-manually-selected="_handleNewYearSelected" enable-year-change="[[enableYearChange]]" prev no-range="[[noRange]]" date-to="{{_dateTo}}"
       date-from="{{_dateFrom}}" locale="[[locale]]" month="[[month]]" year="[[year]]" hovered-date="false"></range-datepicker>
+      <template is="dom-if" if="[[hasTime]]">
+        <div>
+          <label>Time:</label>
+          <input type="time" value="{{time::input}}" class="input"/>
+        </div>
+      </template>
       <div class="buttons">
         <paper-button dialog-dismiss class="white">Cancel</paper-button>
         <paper-button dialog-confirm autofocus on-click="updateDate" class="white">Ok</paper-button>
@@ -76,6 +94,22 @@
           birthDate: {
             type: Boolean,
             reflectToAttribute: true
+          },
+
+          time: {
+            type: Boolean,
+            value: '00:00',
+            notify: true
+          },
+
+          dateTime: {
+            type: String,
+            notify: true
+          },
+
+          hasTime: {
+            type: Boolean,
+            value: false
           }
           
         }
@@ -103,6 +137,9 @@
         if(moment) {
           this.dateFrom = moment.unix(this._dateFrom).format('MM/DD/YYYY');
           this.dateTo = moment.unix(this._dateTo).format('MM/DD/YYYY');
+        }
+        if(this.hasTime) {
+          this.dateTime = `${this.dateFrom} ${this.time}`;
         }
       }
 
