@@ -505,41 +505,41 @@
         socket.on('user:job_in_progress', data => {
 					if(!this.auth) return;
 
-					if(data.winner_user_id == this.user.id) {
+					// if(data.winner_user_id == this.user.id) {
 						gAxios.get(`/users/${this.user.id}/bids/${data.bid_id}`)
             .then(res => {
               this.dispatch('updateBid', res.data);
             }).then(() => {
               this.isLoading = false;
             });
-          }
+          // }
           
 				});
 				
 				socket.on('user:job_review', data => {
 					if(!this.auth) return;
 					
-					if(data.winner_user_id == this.user.id) {
+					// if(data.winner_user_id == this.user.id) {
 						gAxios.get(`/users/${this.user.id}/bids/${data.bid_id}`)
             .then(res => {
               this.dispatch('updateBid', res.data);
             }).then(() => {
               this.isLoading = false;
             });
-          }
+          // }
 				});
 				
 				socket.on('user:job_complete', data => {
 					if(!this.auth) return;
 					
-					if(data.winner_user_id == this.user.id) {
+					// if(data.winner_user_id == this.user.id) {
 						gAxios.get(`/users/${this.user.id}/bids/${data.bid_id}`)
             .then(res => {
               this.dispatch('updateBid', res.data);
             }).then(() => {
               this.isLoading = false;
             });
-          }
+          // }
         });
 
       }
