@@ -39,11 +39,12 @@
 				display: inline-block;
 				position: relative;
 				color: #FFFFFF;
-				height: 33px;
-				line-height: 33px;
+				/* height: 33px; */
+				/* line-height: 33px; */
 				background: rgba(33, 33, 33, 0.87);
 				border-radius: 2px;
-				padding: 0 4px;
+				padding: 4px 4px;
+
 			}
 
 			.file img {
@@ -56,6 +57,9 @@
 				line-height: 25px;
 				margin: 0 5px;
 				font-size: 14px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 
 			.file iron-icon {
@@ -101,9 +105,9 @@
 				<div id="previews">
 					<template is="dom-repeat" items="[[files]]" as="file">
 						<div class="wrap">
-							<div class="file">
+							<div class="file layout horizontal">
 								<img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
-								<span>[[file.name]]</span>
+								<span class="flex">[[file.name]]</span>
 								<iron-icon icon="close" on-click="removeFile"></iron-icon>
 							</div>
 						</div>
