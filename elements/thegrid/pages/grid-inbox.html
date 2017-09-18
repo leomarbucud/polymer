@@ -462,7 +462,10 @@
           this.notifyPath('conversations.' + i + '.unread_count', _inbox[i].unread_count);
           this.notifyPath('conversations.' + i + '.updated_at', _inbox[i].updated_at);
           this.notifyPath('conversations.' + i + '.messages', _inbox[i].messages);
-          this.totalUnread += Number(_inbox[i].unread_count);
+
+          if(this._lastRecipient(_inbox[i].last_updated_by, _inbox[i].unread_count)) {
+            this.totalUnread += Number(_inbox[i].unread_count);
+          }
         }
 
         console.log('totalUnread', this.totalUnread);
@@ -527,6 +530,7 @@
 				if( subroute.path == '' ) {
 					this.set('subrouteData.id', null);
           this.subPage = null;
+          this.set('conversation.id', 0);
 				}
 			}
 
