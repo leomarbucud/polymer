@@ -38,6 +38,10 @@
         super();
       }
 
+      updateTitle(title) {
+        window.dispatchEvent(new CustomEvent('app:title_change', { detail: { title: title } }) );
+      }
+
       redirect(url) {
         if( ! url ) return;
         window.history.pushState({}, null, url);
@@ -46,30 +50,37 @@
 
       redirectHome() {
         this.redirect(this.url.HOME_URL);
+        this.updateTitle('The Grid');
       }
 
       redirectLogin() {
         this.redirect(this.url.LOGIN_URL);
+        this.updateTitle('Login - The Grid');
       }
 
       redirectRegister() {
         this.redirect(this.url.REGISTER_URL);
+        this.updateTitle('Register - The Grid');
       }
 
       redirectForgot() {
         this.redirect(this.url.FORGOT_URL);
+        this.updateTitle('Forgot Password - The Grid');
       }
 
       redirectProfile() {
         this.redirect(this.url.PROFILE_URL);
+        this.updateTitle('Profile - The Grid');
       }
 
       redirectProfileSkills() {
         this.redirect(this.url.PROFILE_SKILLS_URL);
+        this.updateTitle('Skills - The Grid');
       }
 
       redirectVerify() {
         this.redirect(this.url.VERIFY_URL);
+        this.updateTitle('Verify - The Grid');
       }
 
       redirectSetup() {
@@ -83,26 +94,32 @@
 
       redirectPosts() {
         this.redirect(this.url.POSTS_URL);
+        this.updateTitle('Posts - The Grid');
       }
 
       redirectPostsAdd() {
         this.redirect(this.url.POSTS_ADD_URL);
+        this.updateTitle('Add Post - The Grid');
       }
 
       redirectSearch() {
         this.redirect(this.url.SEARCH_URL);
+        this.updateTitle('Search - The Grid');
       }
 
       redirectBids() {
         this.redirect(this.url.BIDS_URL);
+        this.updateTitle('Bids - The Grid');
       }
 
       redirectInbox() {
         this.redirect(this.url.INBOX_URL);
+        this.updateTitle('Inbox - The Grid');
       }
       
       redirectSettings() {
         this.redirect(this.url.SETTINGS_URL);
+        this.updateTitle('Settings - The Grid');
       }
 
     }

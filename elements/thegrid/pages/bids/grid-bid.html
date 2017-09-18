@@ -97,7 +97,13 @@
             <small class="category block">Category: [[bid.job.category.category]]</small>
             <small class="location block">Location: [[bid.job.location]]</small>
           </div>
-          <paper-icon-button icon="maps:pin-drop" class="red pointer" on-tap="viewOnMap"></paper-icon-button>
+          <!-- <paper-icon-button icon="maps:pin-drop" class="red pointer" on-tap="viewOnMap"></paper-icon-button> -->
+          <div class="center layout vertical">
+            <paper-icon-button icon="grid:location" class="white" on-tap="viewOnMap"></paper-icon-button>
+            <template is="dom-if" if="[[_getDistance(bid.job.lat, bid.job.lng)]]">
+              <small>[[_getDistance(bid.job.lat, bid.job.lng)]]</small>
+            </template>
+            </div>
         </div>
 
         <div class="divider">
@@ -330,7 +336,7 @@
           } else {
             toolbar.classList.remove('shadow');
           }
-          st = _st;
+
         };
 
         main.addEventListener('scroll', scroll);
@@ -379,7 +385,9 @@
 					currentTime = moment().unix(),
 					diffTime = eventTime - currentTime,
 					duration = moment.duration(diffTime * 1000, 'milliseconds'),
-					interval = 1000;
+          interval = 1000;
+          
+          // console.log('dddddd', duration);
 				
 				if(diffTime > 0) {
 					if(this._countDown) clearInterval(this._countDown);
@@ -388,8 +396,10 @@
             duration = moment.duration(duration.asMilliseconds() - interval, 'milliseconds');
             let	s = moment.duration(duration).seconds();
             let	m = moment.duration(duration).minutes();
+            let	h = moment.duration(duration).hours();
+            let	d = moment.duration(duration).days();
             
-            if(m == 0) {
+            if(m == 0 && h == 0 && d == 0) {
               cd.textContent = `${s} sec`;
               if(s <= 0) {
                 cd.textContent = this._fromNow(date);
@@ -405,13 +415,13 @@
       }
 
       viewOnMap() {
-        if (!this.bid && this.map) return;
+        if (!this.bid && this.gmap) return;
 
         const job = this.bid.job;
         const position = new google.maps.LatLng(job.lat, job.lng);
 
-        this.map.setCenter(position);
-        this.map.setZoom(20);
+        this.gmap.map.setCenter(position);
+        this.gmap.map.setZoom(20);
         this.redirectHome();
       }
 
@@ -514,6 +524,25 @@
         console.log(id, '===', this.user.id);
         return id == this.user.id;
       }
+
+      _getDistance(lat, lng) {
+        if(! this.gmap ) return 0;
+				if (!this.gmap.currentLocation) return 0;
+				
+
+				const p1 = this.gmap.currentLocation.latlng;
+
+				const R = 6371; // Radius of the Earth in km
+				const dLat = (lat - p1.lat()) * Math.PI / 180;
+				const dLon = (lng - p1.lng()) * Math.PI / 180;
+				const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+					Math.cos(p1.lat() * Math.PI / 180) * Math.cos(lat * Math.PI / 180) *
+					Math.sin(dLon / 2) * Math.sin(dLon / 2);
+				const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+				const d = R * c;
+				const df = d.toFixed(2)
+				return `${df}km`;
+			}
 
 
     }

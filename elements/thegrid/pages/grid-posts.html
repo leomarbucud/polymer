@@ -323,10 +323,9 @@
             t_title.style.transitionDuration = `100ms`;
           }
 
-          requestAnimationFrame(update);
+          // requestAnimationFrame(update);
         }
         
-        requestAnimationFrame(update);
 
         const scroll = () => {
           let _st = main.scrollTop;
@@ -338,7 +337,8 @@
           }
 
           st = _st;
-
+          
+          requestAnimationFrame(update);
         };
 
         main.addEventListener('scroll', scroll);

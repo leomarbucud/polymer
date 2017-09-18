@@ -149,7 +149,9 @@
 
 		<div id="toolbar" class="toolbar">
 			<paper-icon-button icon="close" class="red pointer" on-click="redirectHome"></paper-icon-button>
-			<span class="flex"></span>
+			<div class="flex" style="overflow: hidden;">
+				<span id="toolbar-title">[[post.user.name]]</span>
+			</div>
 		</div>
 
 		<main class="scroll-area flex">
@@ -159,7 +161,7 @@
 						<a href$="/@[[post.user.username]]"><img class="circle" src$="[[_profileImage(post.user.profile.profile_image_url)]]"></a>
 					</div>
 					<div class="name">
-						<span>[[post.user.name]]</span>
+						<span id="main-title">[[post.user.name]]</span>
 						<small>[[_fromNow(post.created_at)]]</small>
 					</div>
 				</div>
@@ -173,7 +175,12 @@
 						<small class="category block">Category: [[post.category.category]]</small>
 						<small class="block">Location: [[post.location]]</small>
 					</div>
-					<paper-icon-button icon="grid:location" class="white" on-tap="viewOnMap"></paper-icon-button>
+					<div class="center layout vertical">
+						<paper-icon-button icon="grid:location" class="white" on-tap="viewOnMap"></paper-icon-button>
+						<template is="dom-if" if="[[_getDistance(post.lat, post.lng)]]">
+							<small>[[_getDistance(post.lat, post.lng)]]</small>
+						</template>
+					</div>
 				</div>
 
 				<div id="carousel"></div>
@@ -408,8 +415,42 @@
 			}
 
 			headerAnimate() {
-				const toolbar = this.shadowRoot.querySelector('#toolbar');
+        const toolbar = this.shadowRoot.querySelector('#toolbar');
         const main = this.shadowRoot.querySelector('main');
+        const t_title = this.shadowRoot.querySelector('#toolbar-title');
+        const m_title = this.shadowRoot.querySelector('#main-title');
+
+        const m_title_p = 16;
+
+        let s = 0;
+        let st = 0;
+
+        const update = () => {
+
+          const t_title_h = t_title.offsetHeight;
+          const m_title_h = m_title.offsetHeight;
+
+          if(st >= m_title_p && st <= m_title_p + m_title_h) {
+            s = st - m_title_p;
+            let y = t_title_h - (s * (t_title_h/m_title_h));
+            t_title.style.cssText = `transform: translateY(${y}px); transition-duration: 0ms`;
+          }
+
+          if(st >= m_title_p + m_title_h) {
+            t_title.style.transform = `translateY(0)`;
+            t_title.style.transitionDuration = `100ms`;
+          }
+
+          if( st <= m_title_p) {
+            t_title.style.transform = `translateY(${t_title_h}px)`;
+            t_title.style.transitionDuration = `100ms`;
+          }
+
+          // requestAnimationFrame(update);
+				}
+				
+				// requestAnimationFrame(update);
+        
 
         const scroll = () => {
           let _st = main.scrollTop;
@@ -419,7 +460,9 @@
           } else {
             toolbar.classList.remove('shadow');
           }
+
           st = _st;
+					requestAnimationFrame(update);
         };
 
         main.addEventListener('scroll', scroll);
@@ -535,6 +578,9 @@
 
 					this.carousel();
 
+					window.dispatchEvent(new CustomEvent('app:title_change', { detail: { title: `${this.post.name} - The Grid` } }) );
+
+
 				}).then(() => {
 					this.isLoading = false;
 				});
@@ -544,6 +590,7 @@
 				if (!postId) return;
 				this._initValue();
 				this.isLoading = true;
+				// this.headerAnimate();
 				this.populatePost(postId);
 			}
 
@@ -612,8 +659,10 @@
 							duration = moment.duration(duration.asMilliseconds() - interval, 'milliseconds');
 							let	s = moment.duration(duration).seconds();
 							let	m = moment.duration(duration).minutes();
+							let	h = moment.duration(duration).hours();
+							let	d = moment.duration(duration).days();
 							
-							if(m == 0) {
+							if(m == 0 && h == 0 && d == 0) {
 								cd.textContent = `${s} sec`;
 								if(s <= 0) {
 									cd.textContent = this._fromNow(date);
@@ -629,6 +678,11 @@
 					this.biddingEnded = true;
 					this.canBid = false;
 				}
+			}
+			redirectHome() {
+				super.redirectHome();
+				const t_title = this.shadowRoot.querySelector('#toolbar-title');
+				t_title.style.transform = `translateY(28px)`;
 			}
 
 			selectFile() {
@@ -769,20 +823,23 @@
 				return '';
 			}
 
-			_getDistance(p1, p2) {
-				if (!p1 || !p2) {
+			_getDistance(lat, lng) {
+				if (!this.gmap.currentLocation) {
 					return 0;
 				}
 
-				var R = 6371; // Radius of the Earth in km
-				var dLat = (p2.lat() - p1.lat()) * Math.PI / 180;
-				var dLon = (p2.lng() - p1.lng()) * Math.PI / 180;
-				var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-					Math.cos(p1.lat() * Math.PI / 180) * Math.cos(p2.lat() * Math.PI / 180) *
+				const p1 = this.gmap.currentLocation.latlng;
+
+				const R = 6371; // Radius of the Earth in km
+				const dLat = (lat - p1.lat()) * Math.PI / 180;
+				const dLon = (lng - p1.lng()) * Math.PI / 180;
+				const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+					Math.cos(p1.lat() * Math.PI / 180) * Math.cos(lat * Math.PI / 180) *
 					Math.sin(dLon / 2) * Math.sin(dLon / 2);
-				var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-				var d = R * c;
-				return d;
+				const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+				const d = R * c;
+				const df = d.toFixed(2)
+				return `${df}km`;
 			}
 
 			_getFilePath(path) {

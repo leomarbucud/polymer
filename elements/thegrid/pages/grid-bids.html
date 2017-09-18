@@ -148,7 +148,7 @@
     <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
 
       <section data-page="bid" class="sub-page">
-        <grid-bid map="{{map}}" bid-id="[[bid.id]]"></grid-bid>
+        <grid-bid gmap="[[gmap]]" map="{{map}}" bid-id="[[bid.id]]"></grid-bid>
       </section>
 
     </iron-pages>
@@ -283,10 +283,9 @@
             t_title.style.transitionDuration = `100ms`;
           }
 
-          requestAnimationFrame(update);
+          // requestAnimationFrame(update);
         }
         
-        requestAnimationFrame(update);
 
         const scroll = () => {
           let _st = main.scrollTop;
@@ -298,6 +297,8 @@
           }
 
           st = _st;
+
+          requestAnimationFrame(update);
 
         };
 

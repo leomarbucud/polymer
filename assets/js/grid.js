@@ -93,6 +93,12 @@ window.addEventListener('user:other_bidded', e => {
   socket.emit('user:other_bidded', data);
 });
 
+window.addEventListener('app:title_change', e => {
+  const data = e.detail;
+  // socket.emit('user:other_bidded', data);
+  document.title = data.title;
+});
+
 
 // push notification
 
