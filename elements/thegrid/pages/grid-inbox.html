@@ -172,8 +172,7 @@
         <h1 id="main-title" class="white m-0">Inbox</h1>
       </section>
       <div class="white" role="listbox">
-        <iron-selector attr-for-selected="id"
-          fallback-selection="default">
+        <iron-selector attr-for-selected="id" selected="[[conversation.id]]" >
         <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt" filter="{{_filterInbox(query)}}">
           <paper-icon-item id$="[[convo.id]]" on-click="viewConversation">
             <div class="avatar" slot="item-icon">
