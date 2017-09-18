@@ -251,6 +251,7 @@
             _axios.get(url)
             .then( res => {
               this.gmap.paintMarkers(res.data);
+              this.gmap.map.setCenter(this.gmap.currentLocation.latlng);
               // this.gmap.removeAllMarkers();
 
               // window.dispatchEvent( new CustomEvent('filter', {
