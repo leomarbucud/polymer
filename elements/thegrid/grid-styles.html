@@ -511,6 +511,30 @@
         --paper-input-container-focus-color: #FF3B30;
 			}
 
+			@media (min-width: 601px) {
+				.overlay.page {
+					align-items: left;
+					justify-content: left;
+				}
+				.overlay.page-right {
+					align-items: flex-end;
+					justify-content: flex-end;
+				}
+				section .center-page {
+					height: 100%;
+				}
+
+				.sub-page {
+					left: 100%;
+					width: 100%;
+					right: auto;
+					border-left: 1px solid #212121;
+				}
+				.sub-page > * {
+					/* box-shadow: inset 4px 0px 4px 0px rgba(0, 0, 0, 0.24); */
+				}
+			}
+
 
 		</style>
 	</template>
