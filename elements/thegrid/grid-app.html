@@ -490,6 +490,8 @@
 
 								window.dispatchEvent( new CustomEvent('user:logged', { detail: res.data}));
 
+								this.dispatch('setUnreadMessages', res.data.unread_messages_count);
+
 								if (!res.data.is_account_setup) {
 									// redirect(SETUP_URL);
 								}
@@ -697,6 +699,10 @@
         // when user receive message
         socket.on('user:receive_message', data => {
 					if(!this.auth) return;
+
+					const unread_messages_count = this.user.unread_messages_count + 1;
+
+					this.dispatch('setUnreadMessages', unread_messages_count);
 
 					if(this.routeData.page == 'inbox' && this.conversation.id == data.conversation_id) return;
 					

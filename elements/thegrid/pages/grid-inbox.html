@@ -456,11 +456,18 @@
 
         this.conversations = _inbox;
 
+        this.totalUnread = 0;
+
         for(var i = 0; i < _inbox.length; i++) {
           this.notifyPath('conversations.' + i + '.unread_count', _inbox[i].unread_count);
           this.notifyPath('conversations.' + i + '.updated_at', _inbox[i].updated_at);
           this.notifyPath('conversations.' + i + '.messages', _inbox[i].messages);
+          this.totalUnread += Number(_inbox[i].unread_count);
         }
+
+        console.log('totalUnread', this.totalUnread);
+
+        this.dispatch('setUnreadMessages', this.totalUnread);
         // this.set('conversations', []);
         setTimeout( () => {
           // this.set('conversations', _inbox);

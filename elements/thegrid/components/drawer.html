@@ -81,6 +81,18 @@
         color: #FFFFFF;
       }
 
+      .badge.unread {
+        background: var(--red);
+        font-size: 9px;
+        min-width: 16px;
+        height: 16px;
+        display: block;
+        text-align: center;
+        line-height: 16px;
+        border-radius: 50%;
+        color: #FFFFFF;
+      }
+
       paper-icon-item {
         color: #FFFFFF;
         cursor: pointer;
@@ -153,8 +165,11 @@
         <paper-icon-item>
           <iron-icon icon="grid:inbox" class="white" slot="item-icon"></iron-icon>
           <paper-item-body>
-            <div>Inbox</div>
+            <div>Inbox </div>
           </paper-item-body>
+          <template is="dom-if" if="[[user.unread_messages_count]]">
+            <span class="badge unread">[[user.unread_messages_count]]</span>
+          </template>
           <paper-ripple></paper-ripple>
         </paper-icon-item>
       </a>
@@ -233,6 +248,10 @@
           notifications: {
             type: Boolean,
             notify: true
+          },
+          unreadMessages: {
+            type: Number,
+            statePath: 'unreadMessages'
           }
         }
       }

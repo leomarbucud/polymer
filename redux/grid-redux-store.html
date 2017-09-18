@@ -25,6 +25,7 @@
     posts: [],
     bids: [],
     inbox: [],
+    unreadMessages: 0,
     r_markers: null,
     notifications: []
   };
@@ -238,6 +239,13 @@
         });
         break;
       }
+      case 'SET_UNREAD_MESSAGES': {
+        let user = JSON.parse(JSON.stringify(state.user));
+        
+        user.unread_messages_count = action.unreadMessages;
+        return Object.assign({}, state, { user: user });
+        break;
+      } 
       case 'SET_MARKERS': {
         return Object.assign({}, state, { r_markers: action.markers });
         break;
@@ -376,6 +384,13 @@
           return {
             type: 'UPDATE_CONVERSATION',
             conversation: conversation
+          }
+        },
+
+        setUnreadMessages(unreadMessages) {
+          return {
+            type: 'SET_UNREAD_MESSAGES',
+            unreadMessages: unreadMessages
           }
         },
 
