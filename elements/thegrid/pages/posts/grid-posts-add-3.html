@@ -59,16 +59,18 @@
 			.selected {
 				background: rgba(142, 142, 142, 0.13);
 			}
+			
 		</style>
 
 		<div id="toolbar" class="toolbar dgrey-bg">
-			<div class="flex">
+			<!-- <div class="flex"> -->
 				<paper-icon-button icon="chevron-left" class="white pointer" on-click="goBack"></paper-icon-button>
-			</div>
-			<div id="indicator"></div>
-			<div class="flex align-right" style="padding-right: 8px;">
-				<span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span>
-			</div>
+			<!-- </div> -->
+			<div class="flex"></div>
+			<!-- <div class="flex align-right"> -->
+				<!-- <span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span> -->
+				<paper-button id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</paper-button>
+			<!-- </div> -->
 		</div>
 
 		<div class="p-y-1">
@@ -79,8 +81,8 @@
 					<span hidden$="[[!step.message]]">[[step.message]]</span>
 				</h1>
 			</div>
-			<form class="form" id="formCarousel" form-carousel>
-				<div class="input-group suffix" data-step="1" data-question="What skills would you require?">
+			<form class="form" form-carousel>
+				<div class="input-group suffix" data-step="1" data-question="What skills would you require?" style="z-index: 1;">
 					<input id="skill" type="text" class="input" autocomplete="off" autofocus value="{{query::input}}" placeholder="Enter Skill.."	/>
 
 					<div class="addon-suffix">
@@ -100,18 +102,19 @@
 					</div>
 				</div>
 
-				<div class="skills-container">
-					<div hidden$="[[skills]]" class="white">Loading your awesome skills...</div>
-					<template is="dom-repeat" items="[[skills]]" as="skill">
-						<div class="chip">
-							<span>[[skill.skill]]</span>
-							<span class="close">
-								<iron-icon icon="close" class="small" on-click="removeSkill"></iron-icon>
-							</span>
-						</div>
-					</template>
-				</div>
 			</form>
+
+			<div class="skills-container">
+				<div hidden$="[[skills]]" class="white">Loading your awesome skills...</div>
+				<template is="dom-repeat" items="[[skills]]" as="skill">
+					<div class="chip">
+						<span>[[skill.skill]]</span>
+						<span class="close">
+							<iron-icon icon="close" class="small" on-click="removeSkill"></iron-icon>
+						</span>
+					</div>
+				</template>
+			</div>
 		</div>
 
 	</template>
