@@ -629,6 +629,12 @@
 			_drawerState(drawerOpened) {
 				const d = this.$.drawer;
 				d.opened = drawerOpened;
+
+				if(drawerOpened) {
+					window.dispatchEvent( new CustomEvent('app:drawer_open') );
+				} else {
+					window.dispatchEvent( new CustomEvent('app:drawer_close') );
+				}
 				// if(drawerOpened) {
 				// 	Polymer.Base.importHref(
 				// 		'/elements/thegrid/components/drawer.html',

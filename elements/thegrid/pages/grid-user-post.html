@@ -578,9 +578,6 @@
 
 					this.carousel();
 
-					window.dispatchEvent(new CustomEvent('app:title_change', { detail: { title: `${this.post.name} - The Grid` } }) );
-
-
 				}).then(() => {
 					this.isLoading = false;
 				});

@@ -245,6 +245,10 @@
 				super();
 
 				this._hasNotif = false;
+
+				window.addEventListener('app:drawer_open', () => {
+					this._hasNotif = false;
+				});
 			}
 
 			filterCheck(e) {
@@ -479,7 +483,7 @@
 			}
 
       openDrawer() {
-				this._hasNotif = false;
+				// this._hasNotif = false;
 				window.dispatchEvent(new CustomEvent('open-drawer'));
 			}
 			

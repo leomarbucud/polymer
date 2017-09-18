@@ -375,6 +375,7 @@
 						{
 							name: 'spider_click',
 							callback: function(e, obj) {
+                window.dispatchEvent(new CustomEvent('app:title_change', { detail: { title: `${data.name} - The Grid` } }) );
                 this.redirect(post_url(data.user.username, data.id));
 							}
 						}
