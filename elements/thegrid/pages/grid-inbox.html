@@ -1,4 +1,5 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
@@ -98,6 +99,11 @@
         --paper-badge-background: var(--red);
       }
 
+      paper-icon-item.iron-selected {
+        background-color: #484848;
+      }
+
+
     </style>
 
     <app-location route="{{route}}" ></app-location>
@@ -166,8 +172,10 @@
         <h1 id="main-title" class="white m-0">Inbox</h1>
       </section>
       <div class="white" role="listbox">
+        <iron-selector attr-for-selected="id"
+          fallback-selection="default">
         <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt" filter="{{_filterInbox(query)}}">
-          <paper-icon-item on-click="viewConversation">
+          <paper-icon-item id$="[[convo.id]]" on-click="viewConversation">
             <div class="avatar" slot="item-icon">
               <img class="circle" src$="[[_otherUserProfileImage(convo.user1, convo.user2)]]">
             </div>
@@ -183,6 +191,7 @@
             </div>
           </paper-icon-item>
         </template>
+        </iron-selector> 
         <template is="dom-if" if="[[!conversations.length]]">
           <paper-item>
             <paper-item-body>
