@@ -86,6 +86,9 @@
       <template is="dom-if" if="[[!post.winner]]">
         <paper-icon-button icon="create" class="red pointer"></paper-icon-button>
       </template>
+      <template is="dom-if" if="[[post.winner]]">
+        <paper-icon-button icon="grid:inbox" class="red" on-tap="messageBidder"></paper-icon-button>
+      </template>
     </div>
 
     <main class="scroll-area flex">
@@ -169,7 +172,7 @@
             </div>
             <span>[[_fromNow(post.winner.created_at)]]</span>
           </div>
-          <paper-icon-button src="/assets/images/icons/inbox.svg" on-tap="messageBidder"></paper-icon-button>
+          
         </template>
 
         <div class="divider">
