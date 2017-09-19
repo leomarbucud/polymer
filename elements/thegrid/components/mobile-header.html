@@ -738,7 +738,7 @@
 					id: id
 				}).then( res => {
 					//console.log(res.data);
-					this.getNotifications();
+					this.dispatch('setNotifications', res.data);
 				});
 			}
 			_notificationsChange(notifications) {

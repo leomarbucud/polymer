@@ -204,20 +204,86 @@
                 <paper-spinner class="white" active></paper-spinner>
               </div> 
             </template>
-            <template is="dom-repeat" items="[[recentPosts]]" as="job" >
-              <a href$="/@[[user.username]]/posts/[[job.id]]">
-                <paper-item>
-                  <paper-item-body two-line>
-                    <div>[[job.name]]</div>
-                    <div secondary>Date needed: [[_fromNow(job.date)]]</div>
-                    <paper-ripple></paper-ripple>
-                  </paper-item-body>
-                  <div class="time" data-time$="[[job.created_at]]">[[_fromNow(job.created_at)]]</div>
-                </paper-item>
-              </a>
+            <template is="dom-if" if="[[!isRecentPostsLoading]]">
+              <template is="dom-repeat" items="[[recentPosts]]" as="job" >
+                <a href$="/@[[user.username]]/posts/[[job.id]]">
+                  <paper-item>
+                    <paper-item-body two-line>
+                      <div>[[job.name]]</div>
+                      <div secondary>Date needed: [[_fromNow(job.date)]]</div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                    <div class="time" data-time$="[[job.created_at]]">[[_fromNow(job.created_at)]]</div>
+                  </paper-item>
+                </a>
+              </template>
+              <template is="dom-if" if="[[!recentPosts.length]]">
+                <paper-item>No recent posts</paper-item>
+              </template>
             </template>
-            <template is="dom-if" if="[[!recentPosts]]">
-              <p>No recent posts</p>
+          </div>
+        </div>
+        
+        <div class="divider"><hr/></div>
+        
+        <div>
+          <div class="layout horizontal white section-title">
+            <span class="flex title">Completed Jobs</span>
+          </div>
+          <div class="white" role="listbox" style="margin: 0 -16px;">
+            <template is="dom-if" if="[[isCompletedJobsLoading]]">
+              <div class="center">
+                <paper-spinner class="white" active></paper-spinner>
+              </div> 
+            </template>
+            <template is="dom-if" if="[[!isCompletedJobsLoading]]">
+              <template is="dom-repeat" items="[[completedJobs]]" as="job" >
+                <a href$="/@[[user.username]]/posts/[[job.job.id]]">
+                  <paper-item>
+                    <paper-item-body two-line>
+                      <div>[[job.job.name]]</div>
+                      <div secondary>Date needed: [[_fromNow(job.job.date)]]</div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                    <div class="time" data-time$="[[job.job.created_at]]">[[_fromNow(job.job.created_at)]]</div>
+                  </paper-item>
+                </a>
+              </template>
+              <template is="dom-if" if="[[!completedJobs.length]]">
+                <paper-item>No completed jobs</paper-item>
+              </template>
+            </template>
+          </div>
+        </div>
+
+        <div class="divider"><hr/></div>
+
+        <div>
+          <div class="layout horizontal white section-title">
+            <span class="flex title">Reviews</span>
+          </div>
+          <div class="white" role="listbox" style="margin: 0 -16px;">
+            <template is="dom-if" if="[[isReviewsLoading]]">
+              <div class="center">
+                <paper-spinner class="white" active></paper-spinner>
+              </div> 
+            </template>
+            <template is="dom-if" if="[[!isReviewsLoading]]">
+              <template is="dom-repeat" items="[[reviews]]" as="review" >
+                <a href$="/@[[user.username]]/posts/[[review.job.id]]">
+                  <paper-item>
+                    <paper-item-body two-line>
+                      <div><grid-ratings rate="[[review.stars]]"></grid-ratings></div>
+                      <div secondary>[[review.review]]</div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                    <div class="time" data-time$="[[review.created_at]]">[[_fromNow(review.created_at)]]</div>
+                  </paper-item>
+                </a>
+              </template>
+              <template is="dom-if" if="[[!reviews.length]]">
+                <paper-item>No completed jobs</paper-item>
+              </template>
             </template>
           </div>
         </div>
@@ -264,6 +330,7 @@
 
         this.isSkillsLoading = true;
         this.isRecentPostsLoading = true;
+        this.isCompletedJobsLoading = true;
       }
 
       _usernameChange(username) {
@@ -276,7 +343,8 @@
           this.isSkillsLoading = false;
 
           this.setRecentPosts(this.user_id);
-        
+          this.setCompletedJobs(this.user_id);
+          this.setReviews(this.user_id);
 
           let sumStar = 0;
           
@@ -310,6 +378,31 @@
           // this.dispatch('setSkills', res.data);
           this.recentPosts = res.data;
           this.isRecentPostsLoading = false;
+        });
+      }
+
+      setCompletedJobs(id) {
+        this.isCompletedJobsLoading = true;
+        this.completedJobs = [];
+
+        axios.get(`${this.url.API_URL}/completed/jobs/${id}`)
+        .then( res => {
+          // this.dispatch('setSkills', res.data);
+          // console.log(res.data.completed_jobs);
+          this.completedJobs = res.data.completed_jobs;
+          this.isCompletedJobsLoading = false;
+        });
+      }
+
+      setReviews(id) {
+        this.reviews = [];
+        this.isReviewsLoading = true;
+        
+        axios.get(`${this.url.API_URL}/users/reviews/${id}`)
+        .then( res => {
+          // console.log(res.data);
+          this.reviews = res.data;
+          this.isReviewsLoading = false;
         });
       }
 
