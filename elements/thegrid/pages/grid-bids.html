@@ -130,7 +130,7 @@
           <paper-item on-click="viewBid">
             <paper-item-body two-line>
               <div>[[bid.job.name]]</div>
-              <div secondary>Date needed: [[_fromNow(bid.created_at)]]</div>
+              <div secondary>Date needed: <span data-time$="[[bid.created_at]]">[[_fromNow(bid.created_at)]]</span></div>
               <paper-ripple></paper-ripple>
             </paper-item-body>
           </paper-item>
@@ -237,15 +237,19 @@
         this.populateBids();
 
         // update time automatically every 1 minute
-        const plist = this.shadowRoot.querySelector('#post-list');
-
         setInterval( () => {
-          var times = plist.querySelectorAll('[data-time]');
-          times.forEach( item => {
-            let time = item.getAttribute('data-time');
-            item.innerHTML = this._fromNow(time);
-          });
-        }, 30000);
+          const conversations_time = this.shadowRoot.querySelectorAll('[data-time]');
+          // console.log(conversations_time);
+          if(conversations_time) {
+
+            conversations_time.forEach( item => {
+              let time = item.dataset['time'];
+              // console.log(time);
+              item.textContent = this._fromNow(time);
+            });
+
+          }
+        }, 1000);
 
         this.headerAnimate();
 

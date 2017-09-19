@@ -187,7 +187,7 @@
         const _conversation = action.message.conversation;
 
         if(_conversation && conversation) {
-          console.log('is conversation', _conversation);
+          // console.log('is conversation', _conversation);
           conversation.last_updated_by = Number(_conversation.last_updated_by);
           conversation.unread_count = Number(_conversation.unread_count);
           conversation.updated_at = _conversation.updated_at;

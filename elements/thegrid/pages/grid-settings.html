@@ -109,14 +109,14 @@
           </paper-item>
         </a>
 
-        <a href="/settings/verification">
+        <!-- <a href="/settings/verification">
           <paper-item>
             <paper-item-body two-line>
               <div>Identity Verification</div>
               <div secondary>[[_verification(user.confirmed)]]</div>
             </paper-item-body>
           </paper-item>
-        </a>
+        </a> -->
         <div class="divider">
           <hr/>
         </div>
@@ -125,12 +125,14 @@
           <span class="red">ACCOUNT</span>
         </paper-item>
 
-        <paper-item>
-          <paper-item-body two-line>
-            <div>Email ID</div>
-            <div secondary>[[user.email]]</div>
-          </paper-item-body>
-        </paper-item>
+        <a href="/settings/verification">
+          <paper-item>
+            <paper-item-body two-line>
+              <div>Email ID</div>
+              <div secondary>[[user.email]]</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
 
         <a href="/settings/password">
           <paper-item>

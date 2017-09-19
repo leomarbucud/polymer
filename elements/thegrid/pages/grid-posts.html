@@ -1,4 +1,5 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
@@ -61,6 +62,10 @@
       .time {
         font-size: 12px;
         opacity: 0.7;
+      }
+
+      paper-item.iron-selected {
+        background-color: #484848;
       }
 
     </style>
@@ -134,16 +139,18 @@
         <h1 id="main-title" class="white m-0">Posts</h1>
       </section>
       <div id="post-list" class="white" role="listbox">
-        <template is="dom-repeat" items="[[posts]]" as="job" filter="{{_filterPosts(query)}}">
-          <paper-item on-click="viewPost">
-            <paper-item-body two-line>
-              <div>[[job.name]]</div>
-              <div secondary>Date needed: [[_fromNow(job.date)]]</div>
-              <paper-ripple></paper-ripple>
-            </paper-item-body>
-            <div class="time" data-time$="[[job.created_at]]">[[_fromNow(job.created_at)]]</div>
-          </paper-item>
-        </template>
+        <iron-selector attr-for-selected="id" selected="[[post.id]]" >
+          <template is="dom-repeat" items="[[posts]]" as="job" filter="{{_filterPosts(query)}}">
+            <paper-item id$="[[job.id]]" on-click="viewPost">
+              <paper-item-body two-line>
+                <div>[[job.name]]</div>
+                <div secondary>Date needed: <span data-time$="[[job.date]]">[[_fromNow(job.date)]]</span></div>
+                <paper-ripple></paper-ripple>
+              </paper-item-body>
+              <div class="time" data-time$="[[job.created_at]]">[[_fromNow(job.created_at)]]</div>
+            </paper-item>
+          </template>
+        </iron-selector>
         <template is="dom-if" if="[[!posts.length]]">
           <paper-item>
             <paper-item-body>
@@ -289,6 +296,20 @@
         this.populateJobs();
 
         this.headerAnimate();
+
+        setInterval( () => {
+          const conversations_time = this.shadowRoot.querySelectorAll('[data-time]');
+          // console.log(conversations_time);
+          if(conversations_time) {
+
+            conversations_time.forEach( item => {
+              let time = item.dataset['time'];
+              // console.log(time);
+              item.textContent = this._fromNow(time);
+            });
+
+          }
+        }, 1000);
       }
 
       headerAnimate() {

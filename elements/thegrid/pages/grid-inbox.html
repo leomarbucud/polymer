@@ -173,23 +173,23 @@
       </section>
       <div class="white" role="listbox">
         <iron-selector attr-for-selected="id" selected="[[conversation.id]]" >
-        <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt" filter="{{_filterInbox(query)}}">
-          <paper-icon-item id$="[[convo.id]]" on-click="viewConversation">
-            <div class="avatar" slot="item-icon">
-              <img class="circle" src$="[[_otherUserProfileImage(convo.user1, convo.user2)]]">
-            </div>
-            <paper-item-body two-line>
-              <div>[[convo.job.name]]</div>
-              <div secondary>[[_lastMesage(convo.messages)]]</div>
-            </paper-item-body>
-            <div class="layout vertical-reverse">
-              <div class="time" data-time$="[[convo.updated_at]]">[[_fromNow(convo.updated_at)]]</div>
-              <template is="dom-if" if="[[_lastRecipient(convo.last_updated_by, convo.unread_count)]]">
-                <span class="badge unread">[[convo.unread_count]]</span>
-              </template>
-            </div>
-          </paper-icon-item>
-        </template>
+          <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt" filter="{{_filterInbox(query)}}">
+            <paper-icon-item id$="[[convo.id]]" on-click="viewConversation">
+              <div class="avatar" slot="item-icon">
+                <img class="circle" src$="[[_otherUserProfileImage(convo.user1, convo.user2)]]">
+              </div>
+              <paper-item-body two-line>
+                <div>[[convo.job.name]]</div>
+                <div secondary>[[_lastMesage(convo.messages)]]</div>
+              </paper-item-body>
+              <div class="layout vertical-reverse">
+                <div class="time" data-time$="[[convo.updated_at]]">[[_fromNow(convo.updated_at)]]</div>
+                <template is="dom-if" if="[[_lastRecipient(convo.last_updated_by, convo.unread_count)]]">
+                  <span class="badge unread">[[convo.unread_count]]</span>
+                </template>
+              </div>
+            </paper-icon-item>
+          </template>
         </iron-selector> 
         <template is="dom-if" if="[[!conversations.length]]">
           <paper-item>
@@ -288,6 +288,20 @@
         this.populateInbox();
 
         this.headerAnimate();
+
+        setInterval( () => {
+          const conversations_time = this.shadowRoot.querySelectorAll('[data-time]');
+          // console.log(conversations_time);
+          if(conversations_time) {
+
+            conversations_time.forEach( item => {
+              let time = item.dataset['time'];
+              // console.log(time);
+              item.textContent = this._fromNow(time);
+            });
+
+          }
+        }, 1000);
       }
 
       headerAnimate() {
@@ -458,7 +472,7 @@
       renderInbox(inbox) {
         if(!inbox) return;
 
-        console.log('rendering inbox');
+        // console.log('rendering inbox');
 
         const _inbox = inbox.slice(0);
 
@@ -476,7 +490,7 @@
           }
         }
 
-        console.log('totalUnread', this.totalUnread);
+        // console.log('totalUnread', this.totalUnread);
 
         this.dispatch('setUnreadMessages', this.totalUnread);
         // this.set('conversations', []);
@@ -487,6 +501,7 @@
         //this.notifyPath('conversations', inbox);
         
         //this.shadowRoot.querySelector('#inboxList').render();
+        
       }
 
       _inboxChange(inbox) {
@@ -590,7 +605,7 @@
         socket.on('user:sent_message', data => {
           if(!this.auth) return;
           
-          console.log('user sent', data);
+          // console.log('user sent', data);
           this.dispatch('addMessage', data.conversation_id, data);
           
         });

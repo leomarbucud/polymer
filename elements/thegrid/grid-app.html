@@ -456,7 +456,7 @@
 
 			requestNotificationPermission() {
 				Notification.requestPermission().then( result => {
-					console.log(result);
+					// console.log(result);
 					if( result == 'granted') {
 						this.allowNotifications = true;
 					}

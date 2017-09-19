@@ -752,6 +752,9 @@
 								_notifs.push(value[0]);
 							}
 					}
+					if(_notifs.length) {
+						this._hasNotif = true;
+					}
 					this.set('fNotifications', _notifs);
 				} else {
 					this.set('fNotifications', []);

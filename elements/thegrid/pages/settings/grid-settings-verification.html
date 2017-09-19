@@ -32,7 +32,7 @@
     <div id="toolbar" class="toolbar dgrey-bg">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
-      <span id="toolbar-title" class="flex active">Identity Verification</span>
+      <span id="toolbar-title" class="flex active">Email ID</span>
     </div>
 
     <main class="flex">
@@ -45,7 +45,7 @@
         </template>
 
         <template is="dom-if" if="[[  user.confirmed]]">
-          <p>Your email is verified.</p>
+          <p>Your Email ID is verified.</p>
         </template>
         
         <paper-input class="red" value="[[user.email]]" readonly></paper-input>
