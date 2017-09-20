@@ -271,6 +271,12 @@
 					<grid-settings id="settings" gmap="[[gmap]]" route="[[route]]"></grid-settings>
 				</div>
 			</section>
+			
+			<section data-page="help-feedback" class="overlay page">
+				<div class="center-page">
+					<grid-help-feedback id="help-feedback"></grid-help-feedback>
+				</div>
+			</section>
 
 			<section data-page="404">
 				<grid-404></grid-404>
@@ -512,7 +518,7 @@
 									console.log('error', err.response);
 								}
 
-								this.redirectLogout();
+								//this.redirectLogout();
 
 							});
 

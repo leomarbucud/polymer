@@ -172,9 +172,9 @@
         <h1 id="main-title" class="white m-0">Inbox</h1>
       </section>
       <div class="white" role="listbox">
-        <iron-selector attr-for-selected="id" selected="[[conversation.id]]" >
+        <iron-selector id="inbox-selector" attr-for-selected="id" selected="{{conversation.id}}" >
           <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt" filter="{{_filterInbox(query)}}">
-            <paper-icon-item id$="[[convo.id]]" on-click="viewConversation">
+            <paper-icon-item id$="{{convo.id}}" on-click="viewConversation">
               <div class="avatar" slot="item-icon">
                 <img class="circle" src$="[[_otherUserProfileImage(convo.user1, convo.user2)]]">
               </div>
@@ -481,9 +481,10 @@
         this.totalUnread = 0;
 
         for(var i = 0; i < _inbox.length; i++) {
-          this.notifyPath('conversations.' + i + '.unread_count', _inbox[i].unread_count);
-          this.notifyPath('conversations.' + i + '.updated_at', _inbox[i].updated_at);
-          this.notifyPath('conversations.' + i + '.messages', _inbox[i].messages);
+          this.notifyPath(`conversations.${i}.unread_count`, _inbox[i].unread_count);
+          this.notifyPath(`conversations.${i}.updated_at`, _inbox[i].updated_at);
+          this.notifyPath(`conversations.${i}.messages`, _inbox[i].messages);
+          this.notifyPath(`conversations.${i}.id`, _inbox[i].id);
 
           if(this._lastRecipient(_inbox[i].last_updated_by, _inbox[i].unread_count)) {
             this.totalUnread += Number(_inbox[i].unread_count);
@@ -494,9 +495,27 @@
 
         this.dispatch('setUnreadMessages', this.totalUnread);
         // this.set('conversations', []);
-        setTimeout( () => {
-          // this.set('conversations', _inbox);
-        }, 10);
+        // setTimeout( () => {
+        //   // console.log('ci', this.conversation.id);
+        //   // this.set('conversation.id', this.conversation.id);
+        //   // this.set('conversations', _inbox);
+        //   const is = this.shadowRoot.querySelector('#inbox-selector');
+
+        //   is.querySelectorAll('paper-icon-item').forEach(item => {
+        //     // item.classList.remove('iron-selected');
+        //     if(item.getAttribute('id') == this.conversation.id) {
+        //       item.click();
+        //       console.log('item', item);
+        //     }
+        //     // console.log(item);
+        //   });
+        //   // if(is) {
+        //   //   is.selected = `inbox-${this.conversation.id}`;
+        //   //   console.log(is.selected);
+        //   // }
+        // }, 1000);
+
+        
 
         //this.notifyPath('conversations', inbox);
         

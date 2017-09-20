@@ -1,0 +1,245 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../grid-styles.html">
+
+<dom-module id="grid-help-feedback">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        position: relative;
+        height: 100%;
+        background: var(--dark-grey);
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+      }
+
+      .title h1 {
+        font-weight: 400;
+        font-size: 32px;
+      }
+
+      .row {
+        color: #FFFFFF;
+        padding: 8px 16px;
+        position: relative;
+        cursor: pointer;
+      }
+
+      .row .job-title {
+        line-height: 24px;
+        font-size: 18px;
+      }
+
+      .row [secondary] {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        opacity: 0.7;
+      }
+
+      .divider {
+        padding: 0 16px;
+      }
+
+      .divider hr {
+        margin: 0;
+        opacity: 0.12;
+      }
+
+      .time {
+        font-size: 12px;
+        opacity: 0.7;
+      }
+
+    </style>
+
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <div class="flex" style="overflow: hidden;">
+        <span id="toolbar-title">Transactions</span>
+      </div>
+      <paper-icon-button icon="check" class="red pointer" on-click="sendFeedBack"></paper-icon-button>
+    </div>
+
+    <main class="flex">
+      <section class="p-y-1 title">
+        <h1 id="main-title" class="white m-0">Help &amp; Feedback</h1>
+      </section>
+
+      <section class="p-y-1">
+        <form id="feedback" class="form">
+          <div class="input-group">
+            <input type="text" class="input" value="{{name::input}}"  placeholder="Name"/>
+          </div>
+          <div class="input-group">
+            <input type="email" class="input" value="{{email::input}}" placeholder="Email" />
+          </div>
+          <div class="input-group">
+            <textarea class="input" value="{{feedback::input}}" style="resize: none; height: 150px; padding: 16px;" placeholder="Feedback"></textarea>
+          </div>
+        </form>
+      </section>
+
+    </main>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay dgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+
+    class GridTransactions extends 
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'grid-help-feedback'; }
+
+      static get properties() {
+        return {
+
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
+          },
+
+          isLoading: {
+            type: Boolean,
+            value: false
+          },
+
+        }
+      }
+
+      static get observers() {
+        return [
+
+        ]
+      }
+
+      constructor() {
+        super();
+        // this._initSocketEvents();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        if(this.user) {
+          this.name = this.user.name;
+          this.email = this.user.email;
+        }
+
+        this.headerAnimate();
+      }
+
+      headerAnimate() {
+        const toolbar = this.shadowRoot.querySelector('#toolbar');
+        const main = this.shadowRoot.querySelector('main');
+        const t_title = this.shadowRoot.querySelector('#toolbar-title');
+        const m_title = this.shadowRoot.querySelector('#main-title');
+
+        const m_title_p = 16;
+
+        let s = 0;
+        let st = 0;
+
+        const update = () => {
+
+          const t_title_h = t_title.offsetHeight;
+          const m_title_h = m_title.offsetHeight;
+
+          if(st >= m_title_p && st <= m_title_p + m_title_h) {
+            s = st - m_title_p;
+            let y = t_title_h - (s * (t_title_h/m_title_h));
+            t_title.style.cssText = `transform: translateY(${y}px); transition-duration: 0ms`;
+          }
+
+          if(st >= m_title_p + m_title_h) {
+            t_title.style.transform = `translateY(0)`;
+            t_title.style.transitionDuration = `100ms`;
+          }
+
+          if( st <= m_title_p) {
+            t_title.style.transform = `translateY(${t_title_h}px)`;
+            t_title.style.transitionDuration = `100ms`;
+          }
+
+          requestAnimationFrame(update);
+        }
+        
+        requestAnimationFrame(update);
+
+        const scroll = () => {
+          let _st = main.scrollTop;
+          
+          if( _st > 0 ) {
+            toolbar.classList.add('shadow');
+          } else {
+            toolbar.classList.remove('shadow');
+          }
+
+          st = _st;
+
+        };
+
+        main.addEventListener('scroll', scroll);
+      }
+
+      sendFeedBack() {
+        let _axios = axios;
+        let url = `${this.url.API_URL}/users/feedback`;
+
+        if(this.user) {
+          _axios = gAxios;
+          url = `/users/${this.user.id}/feedback`;
+        }
+
+        this.isLoading = true;
+
+        _axios.post(url, {
+          name: this.name,
+          email: this.email,
+          feedback: this.feedback
+        }).then( res => {
+          this.isLoading = false;
+          this.name = '';
+          this.email = '';
+          this.feedback = '';
+          alert('Feedback sent.');
+        }).catch( err => {
+          if( err.response ) {
+            console.log(err.response);
+          }
+        })
+      }
+
+    }
+
+    customElements.define(GridTransactions.is, GridTransactions);
+	</script>
+</dom-module>

@@ -30,6 +30,10 @@
     notifications: []
   };
 
+  const updateLocalStorage = (name, value) => {
+    window.localStorage.setItem( name, value);
+  };
+
   const reducer = (state, action) => {
     if( !state ) return intialState;
     switch (action.type) {
@@ -41,7 +45,8 @@
       }
       case 'UPDATE_USER': {
         const user = action.user;
-        window.localStorage.setItem('user', JSON.stringify(user));
+        // window.localStorage.setItem('user', JSON.stringify(user));
+        updateLocalStorage('user', JSON.stringify(user));
         return Object.assign({}, state, { user: user } );
         break;
       }
@@ -243,6 +248,7 @@
         let user = JSON.parse(JSON.stringify(state.user));
         
         user.unread_messages_count = action.unreadMessages;
+        updateLocalStorage('user', JSON.stringify(user));
         return Object.assign({}, state, { user: user });
         break;
       } 
