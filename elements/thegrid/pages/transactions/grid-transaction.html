@@ -1,0 +1,304 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../grid-styles.html">
+<link rel="import" href="../../grid-icons.html">
+
+<dom-module id="grid-transaction">
+  <template>
+    <style include="grid grid-progress iron-flex">
+       :host {
+        display: block;
+        background: var(--dark-grey);
+        height: 100%;
+      }
+
+      .chip {
+        padding-right: 16px;
+      }
+
+      .bidder-list {
+        width: 100%;
+        text-align: left;
+      }
+
+      .section-title,
+      .section-details {
+        display: flex;
+        justify-content: left;
+        align-items: center;
+      }
+
+      .section-title .title {
+        font-size: 24px;
+        color: #FFFFFF;
+        font-weight: 400;
+        line-height: 34px;
+        margin-bottom: 8px;
+      }
+
+      div.divider {
+        padding: 8px 0;
+      }
+
+      div.divider hr {
+        margin: 0;
+        opacity: 0.12;
+      }
+
+      a {
+        color: #FFFFFF;
+        text-decoration: none;
+      }
+
+    </style>
+
+    <div id="toolbar" class="toolbar">
+      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectTransactions"></paper-icon-button>
+      <span class="flex"></span>
+    </div>
+
+    <main class="scroll-area flex">
+
+      <section class="p-y-1 white">
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">[[_transactionType(transaction.customer, transaction.supplier)]]</span>
+          </div>
+          
+        </div>
+
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Amount</span>
+          </div>
+          <span>AED [[transaction.amount]]</span>
+        </div>
+        
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Status</span>
+          </div>
+          <span>[[_getStatus(transaction.status)]]</span>
+        </div>
+
+        <div class="divider"><hr/></div>
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">Job Details</span>
+          </div>
+        </div>
+
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Title</span>
+          </div>
+          <span>[[transaction.job.name]]</span>
+        </div>
+        
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Category</span>
+          </div>
+          <span>[[transaction.job.category.category]]</span>
+        </div>
+        
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Amount</span>
+          </div>
+          <span>AED [[transaction.job.price]]</span>
+        </div>
+        
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Needed</span>
+          </div>
+          <span>[[_fromNow(transaction.job.date)]]</span>
+        </div>
+
+        <div class="divider"><hr/></div>
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">Supplier Details</span>
+          </div>
+        </div>
+        
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Name</span>
+          </div>
+          <span>[[transaction.supplier.name]]</span>
+        </div>
+        
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Email</span>
+          </div>
+          <span>[[transaction.supplier.email]]</span>
+        </div>
+
+
+      </section>
+
+
+    </main>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay dgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+    class GridTransaction extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+
+      static get is() { return 'grid-transaction'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
+          },
+
+          transactions: {
+            type: Array,
+            statePath: 'transactions'
+          },
+
+          isLoading: {
+            type: Boolean,
+            value: false
+          }
+
+        }
+      }
+
+      static get observers() {
+        return [
+          '_transactionsChange(transactions)',
+          '_transactionChange(transaction)',
+          '_transactionIdChange(transactionId)',
+        ]
+      }
+
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.headerAnimate();
+
+      }
+
+      headerAnimate() {
+				const toolbar = this.shadowRoot.querySelector('#toolbar');
+        const main = this.shadowRoot.querySelector('main');
+
+        const scroll = () => {
+          let _st = main.scrollTop;
+          
+          if( _st > 0 ) {
+            toolbar.classList.add('shadow');
+          } else {
+            toolbar.classList.remove('shadow');
+          }
+          
+        };
+
+        main.addEventListener('scroll', scroll);
+      }
+
+      renderTransaction(transaction) {
+        if(!this.user) return;
+
+        this.payable = false;
+        this.receivable = false;
+        
+        this.transaction = transaction;
+        this.isLoading = false;
+      }
+
+      _transactionChange(transaction) {
+        if (!transaction) return;
+        this.renderTransaction(transaction);
+      }
+
+      _transactionIdChange(transactionId) {
+        if (!transactionId) return;
+        if (!this.auth) return;
+        
+        this.isLoading = true;
+
+        this.transactions.map(transaction => {
+          if (parseInt(transaction.id) === parseInt(transactionId)) {
+            this.renderTransaction(transaction);
+            this.isLoading = false;
+          }
+        });
+
+      }
+
+      _transactionsChange(transactions) {
+        transactions.map(transaction => {
+          if (parseInt(transaction.id) === parseInt(this.transactionId)) {
+            this.renderTransaction(transaction);
+          }
+        });
+      }
+
+      _fromNow(date) {
+        return moment(date).fromNow();
+      }
+
+      _transactionType(customer, supplier) {
+        if(!this.user) return;
+
+        if(this.user.id == customer.id) {
+          this.payable = true;
+          return 'Payable';
+        }
+
+        if(this.user.id == supplier.id) {
+          this.receivable = false;
+          return 'Receivable';
+        }
+      }
+
+      _getStatus(status) {
+        switch (status) {
+          case 0: {
+            return 'Pending';
+          }
+          case 1: {
+            return 'Paid';
+          }
+        }
+      }
+
+
+    }
+
+    customElements.define(GridTransaction.is, GridTransaction);
+  </script>
+</dom-module>

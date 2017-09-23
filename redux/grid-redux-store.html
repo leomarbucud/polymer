@@ -27,7 +27,8 @@
     inbox: [],
     unreadMessages: 0,
     r_markers: null,
-    notifications: []
+    notifications: [],
+    transactions: []
   };
 
   const updateLocalStorage = (name, value) => {
@@ -269,6 +270,13 @@
         });
         break;
       }
+
+      case 'SET_TRANSACTIONS': {
+        return Object.assign({}, state, {
+          transactions: action.transactions
+        });
+        break;
+      }
     }
   };
 
@@ -413,7 +421,14 @@
             type: 'SET_NOTIFCATIONS',
             notifications: notifications
           }
-        }
+        },
+
+        setTransactions(transactions) {
+          return {
+            type: 'SET_TRANSACTIONS',
+            transactions: transactions
+          }
+        },
 
       }
     }

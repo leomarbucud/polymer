@@ -28,7 +28,8 @@
                 SEARCH_URL : '/search',
                 BIDS_URL: '/bids',
                 INBOX_URL: '/inbox',
-                SETTINGS_URL: '/settings'
+                SETTINGS_URL: '/settings',
+                TRANSACTIONS_UR: '/transactions'
               }
             }
           }
@@ -120,6 +121,11 @@
       redirectSettings() {
         this.redirect(this.url.SETTINGS_URL);
         this.updateTitle('Settings - The Grid');
+      }
+
+      redirectTransactions() {
+        this.redirect(this.url.TRANSACTIONS_UR);
+        this.updateTitle('Transactions - The Grid');
       }
 
     }

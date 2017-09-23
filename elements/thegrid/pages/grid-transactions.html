@@ -6,6 +6,7 @@
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../grid-styles.html">
+<link rel="import" href="transactions/grid-transaction.html">
 
 <dom-module id="grid-transactions">
   <template>
@@ -71,6 +72,24 @@
         <span id="toolbar-title">Transactions</span>
       </div>
       <paper-icon-button icon="search" class="red pointer" on-click="openSearchBar"></paper-icon-button>
+      <paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
+        <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
+        <div slot="dropdown-content" class="dropdown-menu">
+          <div class="item" on-click="refreshTransactions">
+            <span>Refresh</span>
+            <paper-ripple></paper-ripple>
+          </div>
+          <div class="item-title">
+            <span>Show only</span>
+          </div>
+          <div class="item">
+            <paper-checkbox value="p" on-change="filterCheck">Payables</paper-checkbox>
+          </div>
+          <div class="item">
+            <paper-checkbox value="r" on-change="filterCheck">Receivables</paper-checkbox>
+          </div>
+        </div>
+      </paper-menu-button>
     </div>
 
     <div class="top-search-bar">
@@ -91,8 +110,52 @@
       <section class="p-y-1 title">
         <h1 id="main-title" class="white m-0">Transactions</h1>
       </section>
-
+      <div class="white" role="listbox">
+        <!-- <iron-selector attr-for-selected="id" selected="[[post.id]]" > -->
+          <template is="dom-repeat" items="[[transactions]]" as="trans" filter="{{_filterTransactions(query)}}">
+            <paper-item id$="[[trans.id]]" on-click="viewTransaction">
+              <paper-item-body two-line>
+                <div>[[trans.job.name]]</div>
+                <div secondary>
+                  AED [[trans.amount]]
+                  [[_transactionType(trans.customer, trans.supplier)]]
+                </div>
+                <paper-ripple></paper-ripple>
+              </paper-item-body>
+              <div class="time" data-time$="[[trans.created_at]]">[[_fromNow(trans.created_at)]]</div>
+            </paper-item>
+          </template>
+        <!-- </iron-selector> -->
+        <template is="dom-if" if="[[!transactions.length]]">
+          <paper-item>
+            <paper-item-body>
+              <div>You don't have any transactions</div>
+            </paper-item-body>
+          </paper-item>
+        </template>
+      </div>
     </main>
+
+    <app-route route="{{route}}"
+      pattern="/transactions"
+      data="{{routeData}}"
+      tail="{{subroute}}"></app-route>
+
+    <app-route route="{{subroute}}"
+      pattern="/:id"
+      data="{{subrouteData}}"></app-route>
+
+    <app-route route="{{route}}"
+      pattern="/transactions/:id"
+      data="{{transaction}}"></app-route>
+
+    <iron-pages attr-for-selected="data-page" selected="[[subPage]]">
+      
+      <section data-page="transaction" class="sub-page">
+        <grid-transaction transaction-id="[[transaction.id]]" gmap="[[gmap]]"></grid-transaction>
+      </section>
+
+    </iron-pages>
 
     <template is="dom-if" if="[[isLoading]]">
       <div class="overlay dgrey-bg" style="margin-top: 64px;">
@@ -126,17 +189,31 @@
             statePath: 'auth'
           },
 
+          transactions: {
+            type: Array,
+            statePath: 'transactions'
+          },
+
           isLoading: {
             type: Boolean,
             value: true
           },
+
+          query: {
+            type: Array,
+            value: []
+          },
+
+          search: String
 
         }
       }
 
       static get observers() {
         return [
-
+        '_subrouteChange(subroute)',
+        '_subrouteDataChange(subrouteData)',
+        '_search(search)'
         ]
       }
 
@@ -148,6 +225,8 @@
 
       connectedCallback() {
         super.connectedCallback();
+
+        this.populateTransactions();
 
         this.headerAnimate();
       }
@@ -184,10 +263,9 @@
             t_title.style.transitionDuration = `100ms`;
           }
 
-          requestAnimationFrame(update);
+          // requestAnimationFrame(update);
         }
         
-        requestAnimationFrame(update);
 
         const scroll = () => {
           let _st = main.scrollTop;
@@ -199,19 +277,20 @@
           }
 
           st = _st;
+          requestAnimationFrame(update);
 
         };
 
         main.addEventListener('scroll', scroll);
       }
 
-      populateJobs() {
+      populateTransactions() {
         if(!this.user) return;
 
-        gAxios.get('/users/'+ this.user.id + '/jobs')
+        gAxios.get(`/users/${this.user.id}/transactions`)
 				.then( res => {
 					var data = res.data;
-					this.dispatch('setPosts', data.data);
+					this.dispatch('setTransactions', data.data);
 					this.pagination = {
 						total: data.total,
 						per_page: data.per_page,
@@ -225,6 +304,12 @@
 				}).then( () => {
           this.isLoading = false;
         });
+      }
+
+      viewTransaction(e) {
+        const trans = e.model.trans;
+        this.redirect(`/transactions/${trans.id}`);
+        this._trans = trans
       }
 
       openSearchBar() {
@@ -243,6 +328,75 @@
         sb.querySelector('input').focus();
       }
 
+      refreshTransactions() {
+        this.populateTransactions();
+      }
+
+      filterCheck(e) {
+        const target = e.target;
+
+        if( target.checked ) {
+					this.push('query', target.value);
+				} else {
+					const index = this.query.indexOf(target.value);
+					if(index != -1) {
+						this.query.splice(index, 1);
+					}
+        }
+        
+        const q = this.query.slice(0);
+        this.set('query', q);
+
+      }
+
+      _search(search) {
+        let a = this.query.slice(0);
+        if(!search) {
+          a.search = null;
+        }
+        if(search) {
+          a.search = search;
+        }
+
+        this.set('query', a);
+      }
+
+      _filterTransactions(query) {
+        const self = this;
+
+        if (!query.length && !query.search) {
+          return null;
+        } else {
+          return function(item) {
+
+            if(query.search) {
+              let s = query.search.toLowerCase();
+              let n = item.job.name.toLowerCase();
+              if(n.indexOf(s) == -1) {
+                return false;
+              }
+            }
+
+            if(!query.length) {
+              return true;
+            }
+
+            const type = self._transactionType(item.customer, item.supplier).toLowerCase();
+
+            if(query.indexOf('p') != -1 ) {
+              return type == 'payable';
+            }
+            
+            if(query.indexOf('r') != -1 ) {
+              return type == 'receivable';
+            }
+            
+            // return (query.indexOf(item.status.toString()) != -1);
+            
+          };
+        }
+      }
+
       _fromNow(date) {
         return moment(date).fromNow();
         // return moment(date, "YYYY-MM-DD").endOf('minute').fromNow();
@@ -258,19 +412,31 @@
       _subrouteDataChange(subrouteData) {
         const self = this;
         if( subrouteData.id ) {
-          if( this.shadowRoot.querySelector('#posts-' + subrouteData.id) ) {
+          if( this.shadowRoot.querySelector('#transactions-' + subrouteData.id) ) {
             Polymer.Base.importHref(
-  						'/elements/thegrid/pages/posts/grid-posts-' + subrouteData.id + '.html',
+  						'/elements/thegrid/pages/transactions/grid-transactions-' + subrouteData.id + '.html',
   						() => {
                 self.subPage = subrouteData.id;
   						}
   					);
           } else {
             // go to post page by default
-            self.subPage = 'post';
+            self.subPage = 'transaction';
           }
         } else {
           self.subPage = null;
+        }
+      }
+
+      _transactionType(customer, supplier) {
+        if(!this.user) return;
+
+        if(this.user.id == customer.id) {
+          return 'Payable';
+        }
+
+        if(this.user.id == supplier.id) {
+          return 'Receivable';
         }
       }
 
