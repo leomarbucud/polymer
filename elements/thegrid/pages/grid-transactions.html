@@ -383,6 +383,10 @@
 
             const type = self._transactionType(item.customer, item.supplier).toLowerCase();
 
+            if(query.indexOf('p') != -1 && query.indexOf('r') != -1) {
+              return type == 'payable' || type == 'receivable';
+            }
+
             if(query.indexOf('p') != -1 ) {
               return type == 'payable';
             }

@@ -55,6 +55,14 @@
 
     <paper-toast id="toast" class="fit-bottom"></paper-toast>
 
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay dgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
   </template>
 
   <script>
@@ -81,7 +89,7 @@
         super();
 
         this.activityLogs = [];
-        
+        this.isLoading = true;
       }
 
       connectedCallback() {
@@ -91,8 +99,9 @@
 
         gAxios.get(`/users/${this.user.id}/activity/logs`)
         .then( res => {
-          console.log(res.data);
+          // console.log(res.data);
           this.activityLogs = res.data;
+          this.isLoading = false;
         });
         
       }
@@ -138,6 +147,8 @@
           case 'Job': {
             if(desc == 'created') {
               title += `posted a job`;
+            } else if(desc == 'updated') {
+              title += `updated the status of ${log.properties.attributes.name}`;
             }
             break;
           }
@@ -200,6 +211,8 @@
           case 'Job': {
             if(desc == 'created') {
               detail += log.properties.attributes.name;
+            } else if(desc == 'updated') {
+              detail += `updated the status of ${log.properties.attributes.name}`;
             }
             break;
           }
