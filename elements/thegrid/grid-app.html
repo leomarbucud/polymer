@@ -186,103 +186,107 @@
 		
 		<grid-introduction is-logged-in="[[isLoggedIn]]"></grid-introduction>
 
-		<iron-pages attr-for-selected="data-page" selected="[[page]]" class="-overlay">
+		<div class="page-cont">
 
-			<section data-page="login" class="overlay page">
-				<div class="center-page">
-					<grid-login id="login" setup-account="{{setupAccount}}"></grid-login>
-				</div>
-			</section>
+			<iron-pages attr-for-selected="data-page" selected="[[page]]" class="-overlay">
 
-			<section data-page="register" class="overlay page">
-				<div class="center-page">
-					<grid-register id="register"></grid-register>
-				</div>
-			</section>
+				<section data-page="login" class="overlay">
+					<div class="center-page">
+						<grid-login id="login" setup-account="{{setupAccount}}"></grid-login>
+					</div>
+				</section>
 
-			<section data-page="forgot" class="overlay page">
-				<div class="center-page">
-					<grid-forgot id="forgot"></grid-forgot>
-				</div>
-			</section>
+				<section data-page="register" class="overlay">
+					<div class="center-page">
+						<grid-register id="register"></grid-register>
+					</div>
+				</section>
 
-			<section data-page="reset-password" class="overlay page">
-				<div class="center-page">
-					<grid-reset-password id="reset-password"></grid-reset-password>
-				</div>
-			</section>
+				<section data-page="forgot" class="overlay">
+					<div class="center-page">
+						<grid-forgot id="forgot"></grid-forgot>
+					</div>
+				</section>
 
-			<section data-page="profile" class="overlay page">
-				<div class="center-page">
-					<grid-profile id="profile"></grid-profile>
-				</div>
-			</section>
+				<section data-page="reset-password" class="overlay">
+					<div class="center-page">
+						<grid-reset-password id="reset-password"></grid-reset-password>
+					</div>
+				</section>
 
-			<section data-page="user-profile" class="overlay">
-				<div class="center-page">
-					<grid-user-profile id="user-profile" username="[[username]]"></grid-user-profile>
-				</div>
-			</section>
+				<section data-page="profile" class="overlay page">
+					<div class="center-page">
+						<grid-profile id="profile"></grid-profile>
+					</div>
+				</section>
 
-			<section data-page="posts" class="overlay page">
-				<div class="center-page">
-					<grid-posts id="posts" map="{{map}}" gmap="[[gmap]]"></grid-posts>
-				</div>
-			</section>
+				<section data-page="user-profile" class="overlay">
+					<div class="center-page">
+						<grid-user-profile id="user-profile" username="[[username]]"></grid-user-profile>
+					</div>
+				</section>
 
-			<section data-page="bids" class="overlay page">
-				<div class="center-page">
-					<grid-bids id="bids" map="{{map}}" gmap="[[gmap]]"></grid-bids>
-				</div>
-			</section>
+				<section data-page="posts" class="overlay page">
+					<div class="center-page">
+						<grid-posts id="posts" map="{{map}}" gmap="[[gmap]]"></grid-posts>
+					</div>
+				</section>
 
-			<section data-page="inbox" class="overlay page">
-				<div class="center-page">
-					<grid-inbox id="inbox" gmap="[[gmap]]"></grid-inbox>
-				</div>
-			</section>
-			
-			<section data-page="transactions" class="overlay page">
-				<div class="center-page">
-					<grid-transactions id="transactions" route="[[route]]" gmap="[[gmap]]"></grid-transactions>
-				</div>
-			</section>
+				<section data-page="bids" class="overlay page">
+					<div class="center-page">
+						<grid-bids id="bids" map="{{map}}" gmap="[[gmap]]"></grid-bids>
+					</div>
+				</section>
 
-			<section data-page="search" class="overlay page-right">
-				<div class="center-page">
-					<grid-search id="search" class="animate circle search" map="{{map}}"></grid-search>
-				</div>
-			</section>
+				<section data-page="inbox" class="overlay page">
+					<div class="center-page">
+						<grid-inbox id="inbox" gmap="[[gmap]]"></grid-inbox>
+					</div>
+				</section>
+				
+				<section data-page="transactions" class="overlay page">
+					<div class="center-page">
+						<grid-transactions id="transactions" route="[[route]]" gmap="[[gmap]]"></grid-transactions>
+					</div>
+				</section>
 
-			<section data-page="filter" class="overlay">
-				<div class="center-page">
-					<grid-filter id="filter" gmap="{{gmap}}"></grid-filter>
-				</div>
-			</section>
+				<section data-page="search" class="overlay page-right">
+					<div class="center-page">
+						<grid-search id="search" class="animate circle search" map="{{map}}"></grid-search>
+					</div>
+				</section>
 
-			<section data-page="user-post" class="overlay">
-				<div class="center-page">
-					<grid-user-post id="user-post" post-id="[[userPost.id]]" map="{{map}}" gmap="[[gmap]]"></grid-user-post>
-				</div>
-			</section>
+				<section data-page="filter" class="overlay">
+					<div class="center-page">
+						<grid-filter id="filter" gmap="{{gmap}}"></grid-filter>
+					</div>
+				</section>
 
-			<section data-page="settings" class="overlay page">
-				<div class="center-page">
-					<grid-settings id="settings" gmap="[[gmap]]" route="[[route]]"></grid-settings>
-				</div>
-			</section>
-			
-			<section data-page="help-feedback" class="overlay page">
-				<div class="center-page">
-					<grid-help-feedback id="help-feedback"></grid-help-feedback>
-				</div>
-			</section>
+				<section data-page="user-post" class="overlay">
+					<div class="center-page">
+						<grid-user-post id="user-post" post-id="[[userPost.id]]" map="{{map}}" gmap="[[gmap]]"></grid-user-post>
+					</div>
+				</section>
 
-			<section data-page="404">
-				<grid-404></grid-404>
-			</section>
+				<section data-page="settings" class="overlay page">
+					<div class="center-page">
+						<grid-settings id="settings" gmap="[[gmap]]" route="[[route]]"></grid-settings>
+					</div>
+				</section>
+				
+				<section data-page="help-feedback" class="overlay page">
+					<div class="center-page">
+						<grid-help-feedback id="help-feedback"></grid-help-feedback>
+					</div>
+				</section>
 
-		</iron-pages>
+				<section data-page="404">
+					<grid-404></grid-404>
+				</section>
+
+			</iron-pages>
+
+		</div>
 
 		<app-drawer id="drawer" align="start" swipe-open opened="{{drawerOpened}}">
 			<grid-drawer user="user" is-logged-in="[[isLoggedIn]]" notifications="{{notifications}}"></grid-drawer>

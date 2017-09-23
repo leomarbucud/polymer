@@ -416,6 +416,7 @@
         }).then(res => {
           var data = res.data;
           // this.dispatch('addMessage', this.conversationId, data);
+          this.dispatch('addMessage', data.conversation_id, data);
           window.dispatchEvent(new CustomEvent('user:send_message', { detail: data }));
         }).catch(err => {
 

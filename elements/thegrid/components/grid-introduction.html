@@ -54,6 +54,14 @@
         margin-left: 32px;
       }
 
+      @media (min-width: 601px) {
+        :host {
+          max-width: 450px;
+          margin: 0 auto;
+          left: calc(50% - 225px);
+        }
+      }
+
     </style>
     <div class="layout flex vertical">
       <div class="red-line"></div>
@@ -64,8 +72,7 @@
         </div>
         <div class="content flex">
           <p>
-            One place for whatever,<br>
-            wherever, whenever you need.
+            One place for whatever, wherever, whenever you need.
           </p>
         </div>
         <div class="button-holder">
