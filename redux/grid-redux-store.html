@@ -28,7 +28,8 @@
     unreadMessages: 0,
     r_markers: null,
     notifications: [],
-    transactions: []
+    transactions: [],
+    feedback: []
   };
 
   const updateLocalStorage = (name, value) => {
@@ -277,6 +278,20 @@
         });
         break;
       }
+      case 'SET_FEEDBACK': {
+        return Object.assign({}, state, {
+          feedback: action.feedback
+        });
+        break;
+      }
+      case 'ADD_FEEDBACK': {
+        let feedback = state.feedback.slice(0);
+        feedback.unshift(action.feedback);
+        return Object.assign({}, state, {
+          feedback: feedback,
+        });
+        break;
+      }
     }
   };
 
@@ -427,6 +442,20 @@
           return {
             type: 'SET_TRANSACTIONS',
             transactions: transactions
+          }
+        },
+        
+        setFeedback(feedback) {
+          return {
+            type: 'SET_FEEDBACK',
+            feedback: feedback
+          }
+        },
+        
+        addFeedback(feedback) {
+          return {
+            type: 'ADD_FEEDBACK',
+            feedback: feedback
           }
         },
 

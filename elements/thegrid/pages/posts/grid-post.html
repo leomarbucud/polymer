@@ -15,7 +15,7 @@
     <style include="grid grid-progress iron-flex">
        :host {
         display: block;
-        background: var(--dark-grey);
+        background: var(--light-grey);
         height: 100%;
       }
 
@@ -289,7 +289,7 @@
     </main>
 
     <template is="dom-if" if="[[isLoading]]">
-      <div class="overlay dgrey-bg" style="margin-top: 64px;">
+      <div class="overlay lgrey-bg" style="margin-top: 64px;">
         <div class="align-center">
           <paper-spinner active$="[[isLoading]]"></paper-spinner>
         </div>

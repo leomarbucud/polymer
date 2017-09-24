@@ -22,7 +22,7 @@
        :host {
         display: block;
         position: relative;
-        background: var(--dark-grey);
+        background: var(--light-grey);
         height: 100%;
         display: -ms-flexbox;
         display: -webkit-flex;
@@ -59,7 +59,7 @@
 
     <app-route route="{{route}}" pattern="/settings/:id" data="{{settings}}"></app-route>
 
-    <div id="toolbar" class="toolbar dgrey-bg">
+    <div id="toolbar" class="toolbar">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <div class="flex" style="overflow: hidden;">
         <span id="toolbar-title">Settings</span>
@@ -237,7 +237,7 @@
     </iron-pages>
 
     <template is="dom-if" if="[[isLoading]]">
-      <div class="overlay dgrey-bg" style="margin-top: 64px;">
+      <div class="overlay lgrey-bg" style="margin-top: 64px;">
         <div class="align-center">
           <paper-spinner active$="[[isLoading]]"></paper-spinner>
         </div>

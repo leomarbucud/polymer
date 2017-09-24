@@ -6,7 +6,8 @@
     html {
 			--red: #FF3B30;
 			--dark-red: #D62D33;
-			--dark-grey: #303030;
+			--dark-grey: #212121;
+			--light-grey: #303030;
       --gradient-red: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
 		}
 
@@ -174,6 +175,12 @@
 				padding-left: 0;
 			}
 
+			.input-group .helper {
+				font-size: 12px;
+				/* display: block; */
+				opacity: 0.3;
+			}
+
 			.divider-text {
 				width: 100%;
 				height: 20px;
@@ -265,6 +272,7 @@
 
 			.toolbar paper-button {
 				min-width: auto;
+				font-weight: bold
 			}
 
 			.loading-bg, .red-bg {
@@ -277,6 +285,10 @@
 
       .dgrey-bg {
         background: var(--dark-grey);
+      }
+      
+			.lgrey-bg {
+        background: var(--light-grey);
       }
 
 			.grid-main-fab {
@@ -301,6 +313,7 @@
 
 			a {
 				cursor: pointer;
+				text-decoration: none;
 			}
 
 			img.circle {
@@ -406,9 +419,11 @@
         border-radius: 50%;
         opacity: 0.2;
       }
+
       #indicator span.active {
         opacity: 1;
       }
+
       .inactive {
         opacity: 0.5;
       }
@@ -503,7 +518,10 @@
 				--paper-slider-pin-color: #FF3B30;
 			}
 			
-			paper-input.red {
+			paper-input.red, 
+			paper-dropdown-menu.red,
+			paper-textarea.red {
+				color: #FFFFFF;
 				--paper-input-container-input-color: #FFFFFF;
 				--paper-input-container-label: #FFFFFF;
 				--paper-input-container-label-floating: #FFFFFF;

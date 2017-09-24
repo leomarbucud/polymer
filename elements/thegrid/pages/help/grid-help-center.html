@@ -1,22 +1,17 @@
-<link rel="import" href="../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../../bower_components/app-route/app-route.html">
-<link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
-<link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
-<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
-<link rel="import" href="../../../bower_components/iron-list/iron-list.html">
-<link rel="import" href="../grid-styles.html">
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../../grid-styles.html">
 
-<dom-module id="grid-help-feedback">
+<dom-module id="grid-help-center">
   <template>
     <style include="grid iron-flex">
-
-      :host {
+       :host {
         display: block;
         position: relative;
+        background: var(--dark-grey);
         height: 100%;
-        background: var(--light-grey);
         display: -ms-flexbox;
         display: -webkit-flex;
         display: flex;
@@ -24,33 +19,17 @@
         -webkit-flex-direction: column;
         flex-direction: column;
       }
-
       .title h1 {
         font-weight: 400;
         font-size: 32px;
       }
 
-      .row {
-        color: #FFFFFF;
-        padding: 8px 16px;
-        position: relative;
-        cursor: pointer;
-      }
-
-      .row .job-title {
-        line-height: 24px;
-        font-size: 18px;
-      }
-
-      .row [secondary] {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        opacity: 0.7;
+      .main-settings {
+        font-size: 14px;
       }
 
       .divider {
-        padding: 0 16px;
+        padding: 8px 0;
       }
 
       .divider hr {
@@ -58,21 +37,20 @@
         opacity: 0.12;
       }
 
-      .time {
-        font-size: 12px;
-        opacity: 0.7;
-      }
-
       a {
         display: block;
-        color: #FFFFFF;
         text-decoration: none;
+        color: #FFFFFF;
+      }
+
+      main {
+        background-color: var(--light-grey);
       }
 
     </style>
 
     <app-route route="{{route}}"
-      pattern="/help-feedback"
+      pattern="/help-feedback/help-center"
       data="{{routeData}}"
       tail="{{subroute}}"></app-route>
 
@@ -81,74 +59,129 @@
       data="{{subrouteData}}"></app-route>
 
     <app-route route="{{route}}"
-      pattern="/help-feedback/:id"
+      pattern="/help-feedback/help-center/:id"
       data="{{help}}"></app-route>
 
-
-    <div id="toolbar" class="toolbar">
+    <div id="toolbar" class="toolbar dgrey-bg">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectHelp"></paper-icon-button>
       <div class="flex" style="overflow: hidden;">
-        <span id="toolbar-title">Support</span>
+        <span id="toolbar-title">Help Center</span>
       </div>
-      <!-- <paper-icon-button icon="check" class="red pointer" on-click="sendFeedBack"></paper-icon-button> -->
     </div>
 
     <main class="flex">
       <section class="p-y-1 title">
-        <h1 id="main-title" class="white m-0">Support</h1>
+        <h1 id="main-title" class="white m-0">Help Center</h1>
       </section>
+      <div class="white" role="listbox">
+        <paper-item class="main-settings">
+          <span class="red">SUGGESTED</span>
+        </paper-item>
 
-      <div role="list">
-
-        <a href="/help-feedback/help-center">
+        <a href="/help-feedback/help-center/getting-started">
           <paper-item>
-            Help Center
-          </paper-item>
-        </a>
-
-        <a href="/help-feedback/feedback">
-          <paper-item>
-            Give Feedback
+            <paper-item-body>
+              <div>Getting Started</div>
+            </paper-item-body>
           </paper-item>
         </a>
         
-        <a href="">
+        <a href="/help-feedback/help-center/tips-tricks">
           <paper-item>
-            Report a Problem
+            <paper-item-body>
+              <div>Tips &amp; Tricks</div>
+            </paper-item-body>
           </paper-item>
         </a>
         
-        <a href="">
+        <a href="/help-feedback/help-center/ethics">
           <paper-item>
-            About
+            <paper-item-body>
+              <div>Ethics</div>
+            </paper-item-body>
           </paper-item>
         </a>
+
+        <div class="divider">
+          <hr/>
+        </div>
+
+        <paper-item class="main-settings">
+          <span class="red">BROWSE BY SECTION</span>
+        </paper-item>
+
+        <a href="/help-feedback/help-center/account">
+          <paper-item>
+            <paper-item-body>
+              <div>Account</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
+        
+        <a href="/help-feedback/help-center/posting">
+          <paper-item>
+            <paper-item-body>
+              <div>Posting</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
+        
+        <a href="/help-feedback/help-center/bidding">
+          <paper-item>
+            <paper-item-body>
+              <div>Bidding</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
+        
+        <a href="/help-feedback/help-center/messaging">
+          <paper-item>
+            <paper-item-body>
+              <div>Messaging</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
+        
+        <a href="/help-feedback/help-center/transacting">
+          <paper-item>
+            <paper-item-body>
+              <div>Transacting</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
+        
+        <a href="/help-feedback/help-center/safety">
+          <paper-item>
+            <paper-item-body>
+              <div>Safety</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
+        
+        <a href="/help-feedback/help-center/ethics">
+          <paper-item>
+            <paper-item-body>
+              <div>Ethics</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
+        
+        <a href="/help-feedback/help-center/policies">
+          <paper-item>
+            <paper-item-body>
+              <div>Policies</div>
+            </paper-item-body>
+          </paper-item>
+        </a>
+
       </div>
-
-      <!-- <section class="p-y-1">
-        <form id="feedback" class="form">
-          <div class="input-group">
-            <input type="text" class="input" value="{{name::input}}"  placeholder="Name"/>
-          </div>
-          <div class="input-group">
-            <input type="email" class="input" value="{{email::input}}" placeholder="Email" />
-          </div>
-          <div class="input-group">
-            <textarea class="input" value="{{feedback::input}}" style="resize: none; height: 150px; padding: 16px;" placeholder="Feedback"></textarea>
-          </div>
-        </form>
-      </section> -->
-
     </main>
-    
+
     <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
 
-      <section data-page="help-center" class="sub-page">
-        <grid-help-center id="help-help-center" route="[[route]]"></grid-help-center>
-      </section>
-      
-      <section data-page="feedback" class="sub-page">
-        <grid-feedback id="help-feedback" route="[[route]]"></grid-feedback>
+      <section data-page="getting-started" class="sub-page">
+        <grid-getting-started id="help-getting-started" ></grid-getting-started>
       </section>
 
     </iron-pages>
@@ -164,32 +197,27 @@
   </template>
 
   <script>
-
-    class GridFeedback extends 
+    class GridHelpCenter extends
       GridNavigation(
         ReduxAsyncActionBehavior(
           ReduxBehavior(Polymer.Element))) {
 
-      static get is() { return 'grid-help-feedback'; }
+      static get is() { return 'grid-help-center'; }
 
       static get properties() {
         return {
-
-          user: {
-            type: Object,
-            statePath: 'user'
-          },
+          gmap: Object,
+          route: Object,
 
           auth: {
             type: Boolean,
             statePath: 'auth'
           },
 
-          isLoading: {
-            type: Boolean,
-            value: false
-          },
-
+          user: {
+            type: Object,
+            statePath: 'user'
+          }
         }
       }
 
@@ -202,17 +230,11 @@
 
       constructor() {
         super();
-        // this._initSocketEvents();
 
       }
 
       connectedCallback() {
         super.connectedCallback();
-
-        if(this.user) {
-          this.name = this.user.name;
-          this.email = this.user.email;
-        }
 
         this.headerAnimate();
       }
@@ -249,7 +271,6 @@
             t_title.style.transitionDuration = `100ms`;
           }
 
-          // requestAnimationFrame(update);
         }
         
 
@@ -263,38 +284,11 @@
           }
 
           st = _st;
+
           requestAnimationFrame(update);
         };
 
         main.addEventListener('scroll', scroll);
-      }
-
-      sendFeedBack() {
-        let _axios = axios;
-        let url = `${this.url.API_URL}/users/feedback`;
-
-        if(this.user) {
-          _axios = gAxios;
-          url = `/users/${this.user.id}/feedback`;
-        }
-
-        this.isLoading = true;
-
-        _axios.post(url, {
-          name: this.name,
-          email: this.email,
-          feedback: this.feedback
-        }).then( res => {
-          this.isLoading = false;
-          this.name = '';
-          this.email = '';
-          this.feedback = '';
-          alert('Feedback sent.');
-        }).catch( err => {
-          if( err.response ) {
-            console.log(err.response);
-          }
-        })
       }
 
       _subrouteChange(subroute) {
@@ -325,6 +319,6 @@
 
     }
 
-    customElements.define(GridFeedback.is, GridFeedback);
-	</script>
+    customElements.define(GridHelpCenter.is, GridHelpCenter);
+  </script>
 </dom-module>

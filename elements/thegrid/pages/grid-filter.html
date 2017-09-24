@@ -20,7 +20,7 @@
       :host {
         position: relative;
         height: 100%;
-        background: var(--dark-grey);
+        background: var(--light-grey);
         display: -ms-flexbox;
         display: -webkit-flex;
         display: flex;
@@ -123,7 +123,7 @@
     </paper-dialog>
 
     <template is="dom-if" if="[[isLoading]]">
-      <div class="overlay dgrey-bg">
+      <div class="overlay lgrey-bg">
         <div class="align-center">
           <paper-spinner active$="[[isLoading]]"></paper-spinner>
         </div>

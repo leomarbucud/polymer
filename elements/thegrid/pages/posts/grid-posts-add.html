@@ -17,15 +17,15 @@
       :host {
         display: block;
         height: 100%;
-        background: var(--dark-grey);
+        background: var(--light-grey);
       }
 
       @media (min-width: 601px) {
-				.sub-page {
+				/* .sub-page {
 					left: 0;
 					width: 100%;
 					right: 0;
-				}
+				} */
 			}
 
     </style>
@@ -57,7 +57,7 @@
     </iron-pages>
 
     <template is="dom-if" if="[[isPosting]]">
-      <div class="overlay dgrey-bg">
+      <div class="overlay lgrey-bg">
         <div class="align-center">
           <h3 class="white">Your job is posting...</h3>
           <br/>

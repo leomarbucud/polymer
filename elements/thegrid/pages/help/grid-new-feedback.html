@@ -1,0 +1,253 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-new-feedback">
+  <template>
+    <style include="grid iron-flex">
+      :host {
+        position: relative;
+        background: var(--dark-grey);
+        height: 100%;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+      }
+
+      main {
+        background-color: var(--light-grey);
+      }
+
+    </style>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <a href="/help-feedback/feedback"><paper-icon-button icon="chevron-left" class="red pointer" ></paper-icon-button></a>
+      <span id="toolbar-title" class="flex active">Give Feedback</span>
+      <paper-button class="red" on-tap="submitFeedback">Submit</paper-button>
+    </div>
+
+    <main class="flex">
+
+      <section class="p-y-1 white">
+
+        <div class="input-group">
+          <paper-input id="title" class="red" label="Title*" value="{{title::input}}"></paper-input>
+          <span class="helper" hidden$="[[hasTitleError]]">Please provide a descriptive title of the issue</span>
+        </div>
+        
+        <paper-dropdown-menu id="feedback-type" label="Choose" class="red w-100" value="{{feedbackType}}">
+          <paper-listbox slot="dropdown-content" selected="1">
+            <paper-item data-feedback-type="bug">Bug/Error</paper-item>
+            <paper-item data-feedback-type="feature">Feature Request</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+
+        <iron-pages attr-for-selected="data-feedback-type" selected="[[feedbackType]]">
+
+          <div data-feedback-type="Bug/Error">
+            <paper-dropdown-menu label="Which tab does this issue occur in?" class="red w-100" value="{{tabE}}">
+              <paper-listbox slot="dropdown-content" selected="1">
+                <paper-item>Maps</paper-item>
+                <paper-item>Posts</paper-item>
+                <paper-item>Bids</paper-item>
+                <paper-item>Messages</paper-item>
+                <paper-item>Posts</paper-item>
+                <paper-item>Search</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
+            
+            <paper-dropdown-menu label="What type of error are you reporting?" class="red w-100" value="{{errorType}}">
+              <paper-listbox slot="dropdown-content" selected="1">
+                <paper-item>Application Unresponsive</paper-item>
+                <paper-item>Application Crash</paper-item>
+                <paper-item>Unexpected Behaviour</paper-item>
+                <paper-item>Unexpected Appearance</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
+            
+            <paper-dropdown-menu label="How often does this problem occur?" class="red w-100" value="{{occurence}}">
+              <paper-listbox slot="dropdown-content" selected="1">
+                <paper-item>Always</paper-item>
+                <paper-item>Often</paper-item>
+                <paper-item>Sometimes</paper-item>
+                <paper-item>Rarely</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
+
+            <div class="input-group">
+              <paper-textarea id="description-e" always-float-label label="Description" class="red" value="{{descriptionE::input}}"></paper-textarea>
+              <span class="helper" hidden$="[[hasDescEError]]">Please give us a clear description of the error and steps to reproduce the same</span>
+            </div>
+
+          </div>
+
+          <div data-feedback-type="Feature Request">
+
+            <paper-dropdown-menu label="Where would you like to see this feature?" class="red w-100" value="{{tabF}}">
+              <paper-listbox slot="dropdown-content" selected="1">
+                <paper-item>Maps</paper-item>
+                <paper-item>Posting</paper-item>
+                <paper-item>Bidding</paper-item>
+                <paper-item>Messaging</paper-item>
+                <paper-item>Transacting</paper-item>
+                <paper-item>Searching</paper-item>
+                <paper-item>Other</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
+
+            <div class="input-group">
+              <paper-textarea id="description-f" always-float-label label="Description" class="red" value="{{descriptionF::input}}"></paper-textarea>
+              <span class="helper" hidden$="[[hasDescFError]]">Please give us a clear description of the feature you want in the app</span>
+            </div>
+
+          </div>
+
+      </iron-pages>
+
+      </section>
+
+    </main>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay lgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+
+  class GridNewFeedback extends
+        GridNavigation(
+          ReduxAsyncActionBehavior(
+            ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'grid-new-feedback'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+
+        ]
+      }
+
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      submitFeedback() {
+        this.hasTitleError = false;
+        this.hasDescEError = false;
+        this.hasDescFError = false;
+
+        let hasError = false;
+        // validation
+        const $title = this.shadowRoot.querySelector('#title');
+        const $descriptionE = this.shadowRoot.querySelector('#description-e');
+        const $descriptionF = this.shadowRoot.querySelector('#description-f');
+        if(!this.title) {
+          $title.invalid = true;
+          $title.errorMessage = `Error: Add a descriptive title to submit feedback`;
+          this.hasTitleError = true;
+          hasError = true;
+        } else {
+          $title.invalid = false;
+          $title.errorMessage = null;
+        }
+
+        if(this.feedbackType == 'Bug/Error') {
+
+          if(!this.descriptionE) {
+            $descriptionE.invalid = true;
+            $descriptionE.errorMessage = `Error: Describe your error step by step`;
+            this.hasDescEError = true;
+            hasError = true;
+          } else {
+            $descriptionE.invalid = false;
+            $descriptionE.errorMessage = null;
+          }
+
+        } else if(this.feedbackType == 'Feature Request') {
+          if(!this.descriptionF) {
+            $descriptionF.invalid = true;
+            $descriptionF.errorMessage = `Error: Please describe the feature you want to add`;
+            this.hasDescFError = true;
+            hasError = true;
+          } else {
+            $descriptionF.invalid = false;
+            $descriptionF.errorMessage = null;
+          }
+        }
+
+        if(hasError) return;
+
+        let data = {
+          title: this.title,
+          type: this.feedbackType,
+          tab: this.tabE,
+          error_type: this.errorType,
+          occurence: this.occurence,
+          description: this.descriptionE
+        }
+
+        if(this.feedbackType == 'Feature Request') {
+          data = {
+            title: this.title,
+            type: this.feedbackType,
+            tab: this.tabF,
+            description: this.descriptionF
+          }
+        }
+        
+        this.isLoading = true;
+
+        gAxios.post(`/users/${this.user.id}/feedback`, data)
+        .then( res => {
+          this.isLoading = false;
+          this.title = '';
+          this.descriptionE = '';
+          this.descriptionF = '';
+          this.redirect('/help-feedback/feedback');
+
+          window.dispatchEvent( new CustomEvent('user:add_feedback') );
+          
+          this.dispatch('addFeedback', res.data);
+        }).catch( err => {
+          if( err.response ) {
+            console.log(err.response);
+          }
+        })
+
+        console.log(data);
+      }
+
+    }
+
+    customElements.define(GridNewFeedback.is, GridNewFeedback);
+	</script>
+</dom-module>

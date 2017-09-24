@@ -11,7 +11,7 @@
     <style include="grid iron-flex">
        :host {
         display: block;
-        background: var(--dark-grey);
+        background: var(--light-grey);
         height: 100%;
       }
 
@@ -201,7 +201,7 @@
       }
     </style>
 
-    <div id="toolbar" class="toolbar shadow">
+    <div id="toolbar" class="toolbar dgrey-bg shadow">
       <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectInbox"></paper-icon-button>
       <div class="flex">
         <div class="conversation-header">
@@ -273,7 +273,7 @@
     </div>
 
     <template is="dom-if" if="[[isLoading]]">
-      <div class="overlay dgrey-bg" style="margin-top: 64px;">
+      <div class="overlay lgrey-bg" style="margin-top: 64px;">
         <div class="align-center">
           <paper-spinner active$="[[isLoading]]"></paper-spinner>
         </div>

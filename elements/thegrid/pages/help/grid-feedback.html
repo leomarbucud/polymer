@@ -1,0 +1,180 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-feedback">
+  <template>
+    <style include="grid iron-flex">
+      :host {
+        position: relative;
+        background: var(--dark-grey);
+        height: 100%;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+      }
+
+      main {
+        background-color: var(--light-grey);
+      }
+
+    </style>
+
+    <app-route route="{{route}}"
+      pattern="/help-feedback/feedback"
+      data="{{routeData}}"
+      tail="{{subroute}}"></app-route>
+
+    <app-route route="{{subroute}}"
+      pattern="/:id"
+      data="{{subrouteData}}"></app-route>
+
+    <app-route route="{{route}}"
+      pattern="/help-feedback/feedback/:id"
+      data="{{help}}"></app-route>
+
+    <div id="toolbar" class="toolbar dgrey-bg">
+      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <a href="/help-feedback"><paper-icon-button icon="chevron-left" class="red pointer" ></paper-icon-button></a>
+      <span id="toolbar-title" class="flex active">Give Feedback</span>
+      <a href="/help-feedback/feedback/new-feedback"><paper-button class="red">New</paper-button></a>
+    </div>
+
+    <main class="flex">
+
+      <div class="white" role="listbox">
+        <template is="dom-repeat" items="[[feedback]]" as="fb" >
+          <paper-item>
+            <paper-item-body two-line>
+              <div>[[fb.title]]</div>
+              <div secondary>Submited <span data-time$="[[fb.created_at]]">[[_fromNow(fb.created_at)]]</span></div>
+              <paper-ripple></paper-ripple>
+            </paper-item-body>
+          </paper-item>
+        </template>
+        <template is="dom-if" if="[[!isLoading]]">
+          <template is="dom-if" if="[[!feedback.length]]">
+            <paper-item>
+              <paper-item-body>
+                <div>You don't have any feedback</div>
+              </paper-item-body>
+            </paper-item>
+          </template>
+        </template>
+      </div>
+
+      <template is="dom-if" if="[[isLoading]]">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </template>
+
+      <section class="p-y-1">
+        <p class="inactive white">
+          Whether it is fixing a bug or feature request, giving us feedback makes The Grid even better.
+        </p>
+      </section>
+
+    </main>
+
+    <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
+        
+      <section data-page="new-feedback" class="sub-page">
+        <grid-new-feedback id="help-new-feedback" ></grid-new-feedback>
+      </section>
+      
+      <section data-page="feedback-detail" class="sub-page">
+        <grid-feedback-detail id="help-feedback-detail" ></grid-feedback-detail>
+      </section>
+
+    </iron-pages>
+
+  </template>
+
+  <script>
+
+  class GridFeedBack extends
+        GridNavigation(
+          ReduxAsyncActionBehavior(
+            ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'grid-feedback'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+          feedback: {
+            type: Array,
+            statePath: 'feedback'
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_subrouteChange(subroute)',
+          '_subrouteDataChange(subrouteData)',
+        ]
+      }
+
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.populateFeedbacks();
+      }
+
+      populateFeedbacks() {
+        this.isLoading = true;
+        gAxios.get(`/users/${this.user.id}/feedback`)
+        .then(res => {
+          this.isLoading = false;
+          this.dispatch('setFeedback', res.data);
+        })
+      }
+
+      _subrouteChange(subroute) {
+				if( subroute.path == '' ) {
+					this.set('subrouteData.id', null);
+          this.subPage = null;
+				}
+			}
+
+      _subrouteDataChange(subrouteData) {
+
+        if( subrouteData.id ) {
+          if( this.shadowRoot.querySelector('#help-' + subrouteData.id) ) {
+            Polymer.Base.importHref(
+  						'/elements/thegrid/pages/help/grid-' + subrouteData.id + '.html',
+  						() => {
+                this.subPage = subrouteData.id;
+  						}
+  					);
+          } else {
+            // go to post page by default
+            self.subPage = 'feedback-detail';
+          }
+        } else {
+          this.subPage = null;
+        }
+      }
+
+      _fromNow(date) {
+        return moment(date).fromNow();
+      }
+
+    }
+
+    customElements.define(GridFeedBack.is, GridFeedBack);
+	</script>
+</dom-module>

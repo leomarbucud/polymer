@@ -272,7 +272,7 @@
 				
 				<section data-page="help-feedback" class="overlay page">
 					<div class="center-page">
-						<grid-help-feedback id="help-feedback"></grid-help-feedback>
+						<grid-help-feedback id="help-feedback" route="[[route]]"></grid-help-feedback>
 					</div>
 				</section>
 
@@ -285,7 +285,7 @@
 		</div>
 
 		<app-drawer id="drawer" align="start" swipe-open opened="{{drawerOpened}}">
-			<grid-drawer user="user" is-logged-in="[[isLoggedIn]]" notifications="{{notifications}}"></grid-drawer>
+			<grid-drawer user="user" is-logged-in="[[isLoggedIn]]" notifications="{{notifications}}" page="[[page]]"></grid-drawer>
 		</app-drawer>
 
 		<paper-toast id="notificationToast" vertical-align="top" horizontal-align="right" >
