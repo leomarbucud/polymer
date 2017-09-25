@@ -36,6 +36,9 @@ var cacheFiles = [
   // "./redux/grid-redux-store.html",
   "./node_modules/redux/dist/redux.js",
   "./node_modules/axios/dist/axios.js",
+  "./assets/js/grid.js",
+  "./assets/js/markerclusterer.js",
+  "./assets/js/letter-avatar.js",
 	'https://fonts.googleapis.com/css?family=Roboto'
 ]
 
@@ -83,8 +86,26 @@ self.addEventListener('activate', function(e) {
 self.addEventListener('fetch', function(e) {
 	// console.log('[ServiceWorker] Fetch', e.request.url);
 
-  var requestURL = new URL(e.request.url);
+	if (e.request.url.startsWith(self.location.origin)) {
+    e.respondWith(
+      caches.match(e.request).then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
 
+        return caches.open(cacheName).then(cache => {
+          return fetch(e.request).then(response => {
+            // Put a copy of the response in the runtime cache.
+            return cache.put(e.request, response.clone()).then(() => {
+              return response;
+            });
+          });
+        });
+      })
+    );
+  }
+  // var requestURL = new URL(e.request.url);
+/*
   if(requestURL.hostname != 'api.thegrid.com') {
     // console.log('Request is to grid api');
   } else if(/\.googleapis\.com$/.test(requestURL.hostname) ||
@@ -123,12 +144,14 @@ self.addEventListener('fetch', function(e) {
   						var responseClone = response.clone();
 
   						//  Open the cache
-  						caches.open(cacheName).then(function(cache) {
+  						return caches.open(cacheName).then(function(cache) {
 
   							// Put the fetched response in the cache
   							cache.put(e.request, responseClone);
+  							// console.log('aaaaaaaaa', e.request, responseClone);
   							console.log('[ServiceWorker] New Data Cached', e.request.url);
 
+								console.log('response', response);
   							// Return the response
   							return response;
 
@@ -143,5 +166,6 @@ self.addEventListener('fetch', function(e) {
   			}) // end caches.match(e.request)
   	); // end e.respondWith
 
-  }
+	}
+*/
 });

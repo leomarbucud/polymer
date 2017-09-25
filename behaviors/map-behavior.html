@@ -378,7 +378,7 @@
 
         marker = this._createMarker(opts);
 
-        if (this.cluster) {
+        if (this.cluster && this.markerClusterer) {
           this.markerClusterer.addMarker(marker);
         }
 
