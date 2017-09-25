@@ -309,6 +309,7 @@
 
       toggleNotifications() {
         this.notifications = !this.notifications;
+        OneSignal.setSubscription(this.notifications);
         if(this.notifications) {
           this.mute = 'Mute';
         } else {

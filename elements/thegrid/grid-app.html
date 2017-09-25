@@ -426,12 +426,22 @@
 			}
 
 			logout() {
-				console.log('logging out');
-				this.dispatch('logout');
+				
+				this.dispatch('logout');				
+
 				this.drawerOpened = false;
 				localStorage.removeItem('token');
 				localStorage.removeItem('user');
-				window.location.href = HOME_URL;
+
+				if(OneSignal) {
+					OneSignal.setSubscription(false).then( () => {
+						window.location.href = HOME_URL;
+					});
+				} else {
+					window.location.href = HOME_URL;
+				}
+				
+				
 				// this.redirectHome();
 			}
 
@@ -465,6 +475,7 @@
 					// console.log(result);
 					if( result == 'granted') {
 						this.allowNotifications = true;
+						OneSignal.push(["registerForPushNotifications"]);
 					}
 				});
 			}
@@ -486,6 +497,8 @@
 						// });
 						// window.dispatchEvent( new CustomEvent('user:logged', { detail: JSON.parse(user)}));
 						timeout = 100;
+
+						window.dispatchEvent( new CustomEvent('user:logged', { detail: JSON.parse(user)}));
 
 						this.requestNotificationPermission();
 					}
@@ -543,6 +556,8 @@
 					window.localStorage.setItem('token', token);
 					window.localStorage.setItem('user', JSON.stringify(user));
 					if (checkLogin()) {
+						this.requestNotificationPermission();
+						window.dispatchEvent( new CustomEvent('user:logged', { detail: user }));
 						this.isLoggedIn = true;
 					}
 				}
@@ -694,24 +709,24 @@
 				const openNotification = (href, text) => {
 
 					if(this.notifications) {
-						let $notificationToast = this.$.notificationToast;
+						// let $notificationToast = this.$.notificationToast;
 						
-						$notificationToast.innerHTML = '<a href="' + href + '" class="white" >' + text + '</a>';
-						$notificationToast.open();
+						// $notificationToast.innerHTML = '<a href="' + href + '" class="white" >' + text + '</a>';
+						// $notificationToast.open();
 
-						var icon = '/assets/images/grid-logo.svg';
+						// var icon = '/assets/images/grid-logo.svg';
 
-						if(this.allowNotifications) {
-							var options = {
-									body: text,
-									icon: icon
-							}
-							var n = new Notification(text,options);
-							n.onclick = function(event) {
-								event.preventDefault();
-								window.open(href, '_blank');
-							}
-						}
+						// if(this.allowNotifications) {
+						// 	var options = {
+						// 			body: text,
+						// 			icon: icon
+						// 	}
+						// 	var n = new Notification(text,options);
+						// 	n.onclick = function(event) {
+						// 		event.preventDefault();
+						// 		window.open(href, '_blank');
+						// 	}
+						// }
 					}
 
 					this.getNotifications();
