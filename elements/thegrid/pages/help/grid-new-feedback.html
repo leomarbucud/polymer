@@ -203,8 +203,6 @@
             $descriptionF.errorMessage = null;
           }
         }
-          
-        return;
 
         if(hasError) return;
 
@@ -244,9 +242,8 @@
           if( err.response ) {
             console.log(err.response);
           }
-        })
-
-        console.log(data);
+        });
+        
       }
 
     }

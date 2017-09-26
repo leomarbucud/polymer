@@ -213,8 +213,9 @@ window.mobilecheck = function() {
 // }, 1000);
 
 var OneSignal = window.OneSignal || [];
+var appId = (location.hostname == 'dev.thegrid.com') ? '4ab53490-5824-4613-8c96-9484221bf6db' : '11b612e8-0513-4e9f-9ed4-2c7debfbec0a';
 OneSignal.push(["init", {
-    appId: "4ab53490-5824-4613-8c96-9484221bf6db",
+    appId: appId,
     // subdomainName: 'thegrid',
     autoRegister: false,
     notifyButton: {
