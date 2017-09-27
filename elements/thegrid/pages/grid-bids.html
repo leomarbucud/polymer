@@ -312,10 +312,16 @@
       populateBids() {
         if(!this.user) return;
 
-        gAxios.get(`/users/${this.user.id}/bids`)
-				.then( res => {
-					var data = res.data;
-					this.dispatch('setBids', data.data);
+        // gAxios.get(`/users/${this.user.id}/bids`)
+				// .then( res => {
+				// 	var data = res.data;
+					
+				// }).then( () => {
+        //   this.isLoading = false;
+        // });
+
+        const setBids = (data) => {
+          this.dispatch('setBids', data.data);
 					this.pagination = {
 						total: data.total,
 						per_page: data.per_page,
@@ -325,10 +331,48 @@
 						prev_page_url: data.prev_page_url,
 						from: data.from,
 						to: data.to
-					};
-				}).then( () => {
+          };
           this.isLoading = false;
+        };
+
+        const getLiveData = (url) => {
+          return gAxios.get(url, {
+            headers: {}
+          }).catch(function(){
+            return null;
+          });
+        };
+
+        const getChachedData = (url) => {
+          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            return gAxios.get(url, {
+              headers: { 'Cached': 'yes'}
+            }).catch(function(){
+              return null;
+            });
+          } else {
+            return Promise.resolve(null);
+          }
+        };
+
+        getLiveData(`/users/${this.user.id}/bids`).then(res => {
+          if(!res) return false;
+          if(res.data) {
+            setBids(res.data);
+            return true;
+          }
+          return false;   
         });
+
+        getChachedData(`/users/${this.user.id}/bids`).then(res => {
+          if(!res) return false;
+          if(res.data) {
+            setBids(res.data);
+            return true;
+          }
+          return false;
+        });
+
       }
 
       refreshBids() {

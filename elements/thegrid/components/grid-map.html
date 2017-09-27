@@ -297,52 +297,44 @@
         };
 
         const getChachedData = () => {
-          return _axios.get(url, {
-            headers: { 'Cached': 'yes'}
-          }).catch(function(){
-            return null;
-          });
+          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            return _axios.get(url, {
+              headers: { 'Cached': 'yes'}
+            }).catch(function(){
+              return null;
+            });
+          } else {
+            return Promise.resolve(null);
+          }
         }
 
         const liveData = getLiveData().then(res => {
+          if(!res) return false;
           if(res.data) {
-
-            // self.loadingJobMarkers = false;;
-            
-            this.paintMarkers(res.data);
-
+            setTimeout( () => {
+              this.paintMarkers(res.data);
+            }, 200);
             return true;
           }
-
           return false;
-            
-        }).catch( () => { return false; });
+        });
 
         const cacheData = getChachedData().then(res => {
-
+          if(!res) return false;
           if(res.data) {
-            
-            // self.loadingJobMarkers = false;;
-            
             this.paintMarkers(res.data);
-
             return true;
           }
-
           return false;
         });
 
         liveData.then( fetched => {
           return fetched || cacheData;
         }).then( dataFetched => {
-          // console.log('dataFetched', dataFetched);
           if(!dataFetched) {
-            // console.log('No internet connection!....');
+            // 
           }
-          // console.log('Internet connection established!....');
           this.loadingJobMarkers = false;
-        }).catch(()=> {
-          // console.log('error live data');
         });
 
       }

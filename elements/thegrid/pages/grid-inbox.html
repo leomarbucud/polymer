@@ -381,8 +381,7 @@
 
         const url = `/users/${this.user.id}/inbox`;
 
-        function getLiveData() {
-          console.log('get livedata fetch');
+        const getLiveData = () => {
           return gAxios.get(url, {
             headers: {}
           }).catch(function(){
@@ -390,13 +389,16 @@
           });
         };
 
-        function getChachedData() {
-          console.log('cget acheData fetch');
-          return gAxios.get(url, {
-            headers: { 'Cached': 'yes'}
-          }).catch(function(){
-            return null;
-          });
+        const getChachedData = () => {
+          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            return gAxios.get(url, {
+              headers: { 'Cached': 'yes'}
+            }).catch(function(){
+              return null;
+            });
+          } else {
+            return Promise.resolve(null);
+          }
         };
 
         const liveData = getLiveData().then(res => {

@@ -376,31 +376,132 @@
 
       connectedCallback() {
         super.connectedCallback();
-        gAxios.get(`/users/${this.user.id}/recent/jobs`)
-        .then( res => {
-          // this.dispatch('setSkills', res.data);
-          this.recentPosts = res.data;
-          this.isRecentPostsLoading = false;
-        });
-        
-        gAxios.get(`/users/${this.user.id}/skills`)
-        .then( res => {
-          this.isSkillsLoading = false;
-          this.dispatch('setSkills', res.data);
+
+        const getLiveData = (url) => {
+          return gAxios.get(url, {
+            headers: {}
+          }).catch(function(){
+            return null;
+          });
+        };
+
+        const getChachedData = (url) => {
+          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            return gAxios.get(url, {
+              headers: { 'Cached': 'yes'}
+            }).catch(function(){
+              return null;
+            });
+          } else {
+            return Promise.resolve(null);
+          }
+        };
+
+        getLiveData(`/users/${this.user.id}/recent/jobs`).then(res => {
+          if(!res) return false;
+          if(res.data) {
+            this.recentPosts = res.data;
+            this.isRecentPostsLoading = false;
+            return true;
+          }
+          return false;   
         });
 
-        gAxios.get(`/users/${this.user.id}/completed/jobs`)
-        .then( res => {
-          this.completedJobs = res.data.completed_jobs;
-          this.isCompletedJobsLoading = false;
+        getChachedData(`/users/${this.user.id}/recent/jobs`).then(res => {
+          if(!res) return false;
+          if(res.data) {
+            this.recentPosts = res.data;
+            this.isRecentPostsLoading = false;
+            return true;
+          }
+          return false;
         });
         
-        gAxios.get(`/users/${this.user.id}/reviews`)
-        .then( res => {
-          // console.log(res.data);
-          this.reviews = res.data;
-          this.isReviewsLoading = false;
+        getLiveData(`/users/${this.user.id}/skills`).then(res => {
+          if(!res) return false;
+          if(res.data) {
+            this.isSkillsLoading = false;
+            this.dispatch('setSkills', res.data);
+            return true;
+          }
+          return false;   
         });
+
+        getChachedData(`/users/${this.user.id}/skills`).then(res => {
+          if(!res) return false;
+          if(res.data) {
+            this.isSkillsLoading = false;
+            this.dispatch('setSkills', res.data);
+            return true;
+          }
+          return false;
+        });
+        
+        getLiveData(`/users/${this.user.id}/completed/jobs`).then(res => {
+          if(!res) return false;
+          if(res.data) {
+            this.completedJobs = res.data.completed_jobs;
+            this.isCompletedJobsLoading = false;
+            return true;
+          }
+          return false;   
+        });
+
+        getChachedData(`/users/${this.user.id}/completed/jobs`).then(res => {
+          if(!res) return false;
+          if(res.data) {
+            this.completedJobs = res.data.completed_jobs;
+            this.isCompletedJobsLoading = false;
+            return true;
+          }
+          return false;
+        });
+        
+        getLiveData(`/users/${this.user.id}/reviews`).then(res => {
+          if(!res) return false;
+          if(res.data) {
+            this.reviews = res.data;
+            this.isReviewsLoading = false;
+            return true;
+          }
+          return false;   
+        });
+
+        getChachedData(`/users/${this.user.id}/reviews`).then(res => {
+          if(!res) return false;
+          if(res.data) {
+            this.reviews = res.data;
+            this.isReviewsLoading = false;
+            return true;
+          }
+          return false;
+        });
+
+        // gAxios.get(`/users/${this.user.id}/recent/jobs`)
+        // .then( res => {
+        //   // this.dispatch('setSkills', res.data);
+        //   this.recentPosts = res.data;
+        //   this.isRecentPostsLoading = false;
+        // });
+        
+        // gAxios.get(`/users/${this.user.id}/skills`)
+        // .then( res => {
+        //   this.isSkillsLoading = false;
+        //   this.dispatch('setSkills', res.data);
+        // });
+
+        // gAxios.get(`/users/${this.user.id}/completed/jobs`)
+        // .then( res => {
+        //   this.completedJobs = res.data.completed_jobs;
+        //   this.isCompletedJobsLoading = false;
+        // });
+        
+        // gAxios.get(`/users/${this.user.id}/reviews`)
+        // .then( res => {
+        //   // console.log(res.data);
+        //   this.reviews = res.data;
+        //   this.isReviewsLoading = false;
+        // });
 
         const main = this.shadowRoot.querySelector('main');
         
