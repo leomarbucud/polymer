@@ -571,20 +571,64 @@
 
 			populatePost(postId) {
 				
-				axios.get(`${this.url.API_URL}/jobs/${postId}`)
-				.then(res => {
-					this.post = res.data;
-					if(this.post.category_id == 1) {
-						this.isService = true;
+				// axios.get(`${this.url.API_URL}/jobs/${postId}`)
+				// .then(res => {
+					
+
+				// }).then(() => {
+				// 	this.isLoading = false;
+				// });
+
+				const getLiveData = (url) => {
+					return axios.get(url, {
+						headers: {}
+					}).catch(function(){
+						return null;
+					});
+				};
+
+				const getChachedData = (url) => {
+					if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+						return axios.get(url, {
+							headers: { 'Cached': 'yes'}
+						}).catch(function(){
+							return null;
+						});
+					} else {
+						return Promise.resolve(null);
 					}
+				};
 
-					this.countDown(this.post.date);
-
-					this.carousel();
-
-				}).then(() => {
-					this.isLoading = false;
+				getLiveData(`${this.url.API_URL}/jobs/${postId}`).then(res => {
+					if(!res) return false;
+					if(res.data) {
+						this.post = res.data;
+						if(this.post.category_id == 1) {
+							this.isService = true;
+						}
+						this.countDown(this.post.date);
+						this.carousel();
+						this.isLoading = false;
+						return true;
+					}
+					return false;   
 				});
+
+				getChachedData(`${this.url.API_URL}/jobs/${postId}`).then(res => {
+					if(!res) return false;
+					if(res.data) {
+						this.post = res.data;
+						if(this.post.category_id == 1) {
+							this.isService = true;
+						}
+						this.countDown(this.post.date);
+						this.carousel();
+						this.isLoading = false;
+						return true;
+					}
+					return false;
+				});
+
 			}
 
 			_postIdChange(postId) {
@@ -825,9 +869,8 @@
 			}
 
 			_getDistance(lat, lng) {
-				if (!this.gmap.currentLocation) {
-					return 0;
-				}
+				if(!this.gmap) return 0;
+				if (!this.gmap.currentLocation) return 0;
 
 				const p1 = this.gmap.currentLocation.latlng;
 

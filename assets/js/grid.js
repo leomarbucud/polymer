@@ -242,7 +242,9 @@ let isSubscriptionChange = false;
 window.addEventListener('user:logged', e => {
   // console.log('e', e.detail);
   if(isSubscriptionChange) return;
+  if(!window.OneSignal) return;
   isSubscriptionChange = true;
+  OneSignal.sendTag("user_id", e.detail.id);
   OneSignal.push( () => {
     OneSignal.on('subscriptionChange', function(isSubscribed) {
       if (isSubscribed) {

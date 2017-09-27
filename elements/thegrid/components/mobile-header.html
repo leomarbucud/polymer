@@ -577,6 +577,10 @@
 						clearInterval(locationAvtivating);
 						self.setMarker(self.currentLocation, !self.marker);
 						
+						if(window.OneSignal) {
+							OneSignal.sendTag("lat", position.coords.latitude);
+							OneSignal.sendTag("lng", position.coords.longitude);
+						}
           });
         }
 			}

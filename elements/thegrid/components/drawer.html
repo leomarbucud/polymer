@@ -14,8 +14,14 @@
        :host {
         display: block;
         position: relative;
-        background: #212121;
         height: 100%;
+        background: var(--dark-grey);
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
         overflow-y: auto;
       }
 
@@ -220,24 +226,34 @@
     </div>
 
     <template is="dom-if" if="[[isLoggedIn]]">
-      <div role="list" hidden$="[[!showOptions]]">
-        <paper-icon-item on-click="toggleNotifications">
-          <iron-icon icon="grid:notifications" class="white" slot="item-icon"></iron-icon>
-          <paper-item-body>
-            <div>[[mute]] Notifications</div>
-          </paper-item-body>
-          <paper-ripple></paper-ripple>
-        </paper-icon-item>
-        <a href="/logout">
-          <paper-icon-item>
-            <iron-icon icon="grid:share" class="white" slot="item-icon"></iron-icon>
+      <template is="dom-if" if="[[showOptions]]">
+        <div role="list" class="layout vertical flex">
+          <paper-icon-item on-click="toggleNotifications">
+            <iron-icon icon="grid:notifications" class="white" slot="item-icon"></iron-icon>
             <paper-item-body>
-              <div>Logout</div>
+              <div>[[mute]] Notifications</div>
             </paper-item-body>
             <paper-ripple></paper-ripple>
           </paper-icon-item>
-        </a>
-      </div>
+          <a href="/logout">
+            <paper-icon-item>
+              <iron-icon icon="grid:share" class="white" slot="item-icon"></iron-icon>
+              <paper-item-body>
+                <div>Logout</div>
+              </paper-item-body>
+              <paper-ripple></paper-ripple>
+            </paper-icon-item>
+          </a>
+          <div class="flex"></div>
+          <paper-icon-item on-click="updateApp">
+            <iron-icon icon="grid:system-update-alt" class="white" slot="item-icon"></iron-icon>
+            <paper-item-body>
+              <div>Update</div>
+            </paper-item-body>
+            <paper-ripple></paper-ripple>
+          </paper-icon-item>
+        </div>
+      </template>
     </template>
 
 
@@ -314,6 +330,17 @@
           this.mute = 'Mute';
         } else {
           this.mute = 'Unmute';
+        }
+      }
+
+      updateApp() {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+              registration.unregister()
+            }
+            window.location.href = HOME_URL;
+          });
         }
       }
 
