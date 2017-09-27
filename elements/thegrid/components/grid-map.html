@@ -257,10 +257,10 @@
             // this.removeBy( _marker => {
             //   return _marker.id === data[i].id;
             // });
-            // setTimeout( y => {
+            setTimeout( y => {
                 // markersArray[y].setMap(MY_MAP);   
                 this._newMarker(data[y]);      
-            // }, i*100, i); 
+            }, i*100, i); 
             
           }
 
@@ -288,18 +288,63 @@
           url = `/users/job/all?lat=${self.mapOptions.center.lat}&lng=${self.mapOptions.center.lng}`
         }
 
-        _axios.get(url)
-  				.then(response => {
+        const getLiveData = () => {
+          return _axios.get(url, {
+            headers: {}
+          }).catch(function(){
+            return null;
+          });
+        };
 
-            self.loadingJobMarkers = false;
+        const getChachedData = () => {
+          return _axios.get(url, {
+            headers: { 'Cached': 'yes'}
+          }).catch(function(){
+            return null;
+          });
+        }
 
-            var data = response.data;
+        const liveData = getLiveData().then(res => {
+          if(res.data) {
+
+            // self.loadingJobMarkers = false;;
             
-            this.paintMarkers(data);
+            this.paintMarkers(res.data);
+
+            return true;
+          }
+
+          return false;
             
-        }).catch( err => {
-          self.loadingJobMarkers = false;
+        }).catch( () => { return false; });
+
+        const cacheData = getChachedData().then(res => {
+
+          if(res.data) {
+            
+            // self.loadingJobMarkers = false;;
+            
+            this.paintMarkers(res.data);
+
+            return true;
+          }
+
+          return false;
         });
+
+        liveData.then( fetched => {
+          return fetched || cacheData;
+        }).then( dataFetched => {
+          // console.log('dataFetched', dataFetched);
+          if(!dataFetched) {
+            // console.log('No internet connection!....');
+          }
+          // console.log('Internet connection established!....');
+          this.loadingJobMarkers = false;
+        }).catch(()=> {
+          // console.log('error live data');
+        });
+
       }
 
       _markersChange(markers) {
@@ -355,7 +400,7 @@
 
         var _icon = {
           url: icon,
-          labelOrigin: new google.maps.Point(10, 40)
+          //labelOrigin: new google.maps.Point(10, 40)
         }
 
 				self.addMarker({
@@ -390,6 +435,7 @@
 			}
 
       _authChange(auth) {
+        if(!window.google) return;
         this.populateJobMarkers();
       }
 

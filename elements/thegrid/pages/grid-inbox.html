@@ -248,7 +248,7 @@
 
           isLoading: {
             type: Boolean,
-            value: true
+            value: false
           },
 
           query: {
@@ -360,10 +360,11 @@
       populateInbox() {
         if(!this.user) return;
 
-        gAxios.get('/users/'+ this.user.id + '/inbox')
-				.then( res => {
-          var data = res.data;
-					this.dispatch('setInbox', data.data);
+        console.log('populating jobs');
+
+        this.isLoading = true;
+
+        const setInbox = (data) => {
 					this.pagination = {
 						total: data.total,
 						per_page: data.per_page,
@@ -373,10 +374,67 @@
 						prev_page_url: data.prev_page_url,
 						from: data.from,
 						to: data.to
-					};
-				}).then( () => {
+          };
+          this.isLoading = false;
+          this.dispatch('setInbox', data.data);
+        };
+
+        const url = `/users/${this.user.id}/inbox`;
+
+        function getLiveData() {
+          console.log('get livedata fetch');
+          return gAxios.get(url, {
+            headers: {}
+          }).catch(function(){
+            return null;
+          });
+        };
+
+        function getChachedData() {
+          console.log('cget acheData fetch');
+          return gAxios.get(url, {
+            headers: { 'Cached': 'yes'}
+          }).catch(function(){
+            return null;
+          });
+        };
+
+        const liveData = getLiveData().then(res => {
+
+          if(!res) return false;
+
+          if(res.data) {
+            
+            setInbox(res.data);
+
+            return true;
+          }
+
+          return false;
+            
+        });
+
+        const cacheData = getChachedData().then(res => {
+          
+          if(res.data) {
+            
+            setInbox(res.data);
+
+            return true;
+          }
+
+          return false;
+        });
+
+        liveData.then( fetched => {
+          return fetched || cacheData;
+        }).then( dataFetched => {
+          if(!dataFetched) {
+            // Show error: Both cache and internet failed
+          }
           this.isLoading = false;
         });
+
       }
 
       refreshInbox() {

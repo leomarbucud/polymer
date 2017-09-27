@@ -369,6 +369,8 @@
       }
 
       addMarker(opts) {
+
+        if(!window.google) return;
         var marker, self = this;
 
         opts.position = {
@@ -424,6 +426,8 @@
 
       _on(opts) {
         const self = this;
+        if(!window.google) return;
+        
         google.maps.event.addListener(opts.obj, opts.event, function (e) {
           opts.callback.call(self, e, opts.obj);
         });
@@ -547,7 +551,12 @@
 
       _createMarker(opts) {
         opts.map = this.map;
-        return new google.maps.Marker(opts);
+        let google = window.google || null;
+        if(google) {
+          return new google.maps.Marker(opts);
+        }
+
+        return null;
       }
 
       mapListener(event, callback) {

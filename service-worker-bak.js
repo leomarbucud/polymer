@@ -142,6 +142,7 @@ self.addEventListener('fetch', function (e) {
 		if (e.request.method == 'GET') {
 
 			if (e.request.headers.get('Cached') == 'yes') {
+
 				e.respondWith(
 					caches.match(e.request)
 				);
@@ -209,6 +210,29 @@ self.addEventListener('fetch', function (e) {
 				return caches.open(cacheName).then(cache => {
 					return fetch(e.request).then(response => {
 						// Put a copy of the response in the runtime cache.
+						return cache.put(e.request, response.clone()).then(() => {
+							return response;
+						});
+					});
+				});
+			})
+		);
+		return;
+	}
+
+	if (/\.googleapis\.com$/.test(requestURL.hostname) ||
+			/\.gstatic\.com$/.test(requestURL.hostname)) {
+		e.respondWith(
+			caches.match(e.request).then(cachedResponse => {
+				if (cachedResponse) {
+					// console.log('[ServiceWorker] GOOGLE API', e.request.url);
+					return cachedResponse;
+				}
+
+				return caches.open(cacheName).then(cache => {
+					return fetch(e.request).then(response => {
+						// Put a copy of the response in the runtime cache.
+						// console.log('[ServiceWorker] GOOGLE API', e.request.url);
 						return cache.put(e.request, response.clone()).then(() => {
 							return response;
 						});
@@ -289,4 +313,23 @@ self.addEventListener('fetch', function (e) {
 	
 		}
 	*/
+});
+
+self.addEventListener('push', function(e) {
+	console.log('event push', e.data.text());
+  // if (event.data.text() == 'new-email') {
+  //   event.waitUntil(
+  //     caches.open('mysite-dynamic').then(function(cache) {
+  //       return fetch('/inbox.json').then(function(response) {
+  //         cache.put('/inbox.json', response.clone());
+  //         return response.json();
+  //       });
+  //     }).then(function(emails) {
+  //       registration.showNotification("New email", {
+  //         body: "From " + emails[0].from.name
+  //         tag: "new-email"
+  //       });
+  //     })
+  //   );
+  // }
 });
