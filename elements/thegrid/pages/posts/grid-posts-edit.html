@@ -1,0 +1,168 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../../../behaviors/form-slider-behavior.html">
+<link rel="import" href="grid-posts-edit-1.html">
+<link rel="import" href="grid-posts-edit-2.html">
+<link rel="import" href="grid-posts-edit-3.html">
+<link rel="import" href="grid-posts-edit-4.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-posts-edit">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        height: 100%;
+        background: var(--light-grey);
+      }
+
+      @media (min-width: 601px) {
+				/* .sub-page {
+					left: 0;
+					width: 100%;
+					right: 0;
+				} */
+			}
+
+    </style>
+
+    <app-location route="{{route}}" use-hash-as-path></app-location>
+
+		<app-route route="{{route}}"
+		    pattern=":id"
+		    data="{{step}}"></app-route>
+
+    <iron-pages attr-for-selected="data-page" selected="[[step.id]]">
+
+      <section data-page="1" class="sub-page">
+        <grid-posts-edit-1 data="{{data}}" gmap="[[gmap]]"></grid-posts-edit-1>
+      </section>
+
+      <section data-page="2" class="sub-page">
+        <grid-posts-edit-2 data="{{data}}" gmap="[[gmap]]"></grid-posts-edit-2>
+      </section>
+
+      <section data-page="3" class="sub-page">
+        <grid-posts-edit-3 data="{{data}}" gmap="[[gmap]]"></grid-posts-edit-3>
+      </section>
+
+      <section data-page="4" class="sub-page">
+        <grid-posts-edit-4 data="{{data}}" gmap="[[gmap]]"></grid-posts-edit-4>
+      </section>
+
+    </iron-pages>
+
+    <template is="dom-if" if="[[isPosting]]">
+      <div class="overlay lgrey-bg">
+        <div class="align-center">
+          <h3 class="white">Your job is updating...</h3>
+          <br/>
+          <paper-spinner active$="[[isPosting]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+
+    class GrdiPostsEdit extends
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'grid-posts-edit'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
+          },
+          posts: {
+            type: Object,
+            statePath: 'posts'
+          },
+          map: {
+            type: Object,
+            notify: true
+          },
+          
+          isPosting: {
+            type: Boolean,
+            value: false
+          },
+          data: {
+            type: Object,
+            value: null
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_dataNull(data)',
+          '_postIdChange(postId)',
+          '_postsChange(posts)'
+        ]
+      }
+
+      _dataNull(data) {
+        // redirect to step 1
+        if(!data && this.postId) this.redirect(`/posts/edit/${this.postId}#1`);
+      }
+
+      constructor() {
+        super();
+        this.readyPost = false;
+        this.map = null;
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        // go to step 1 after posting
+        window.addEventListener('done-posting', () => {
+          this.set('step.id', 1);
+          this.isPosting = false;
+        });
+
+        // show laoding while posting
+        window.addEventListener('posting', () => {
+          this.isPosting = true;
+        });
+      }
+
+      _postIdChange(postId) {
+        console.log('postId', postId);
+        if (!postId) return;
+        if (!this.auth) return;
+        if (!this.posts) return;
+        this.posts.map(post => {
+          if (parseInt(post.id) === parseInt(postId)) {
+            this.data = post;
+          }
+        });
+      }
+
+      _postsChange(posts) {
+        posts.map(post => {
+          if (parseInt(post.id) === parseInt(this.postId)) {
+            this.data = post;
+          }
+        });
+      }
+
+    }
+
+    customElements.define(GrdiPostsEdit.is, GrdiPostsEdit);
+	</script>
+</dom-module>

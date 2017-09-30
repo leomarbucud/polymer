@@ -1,0 +1,200 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../../../behaviors/form-slider-behavior.html">
+<link rel="import" href="../../../../../behaviors/map-behavior.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-posts-edit-2">
+	<template>
+		<style include="grid iron-flex">
+			:host {
+				display: block;
+				height: 100%;
+				background: var(--light-grey);
+			}
+		</style>
+
+		<div id="toolbar" class="toolbar lgrey-bg">
+			<!-- <div class="flex"> -->
+				<paper-icon-button icon="chevron-left" class="red pointer" on-click="goBack"></paper-icon-button>
+			<!-- </div> -->
+			<div class="flex"></div>
+			<!-- <div class="flex align-right" style="padding-right: 8px;">
+				<span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span>
+			</div> -->
+			<paper-button id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</paper-button>
+		</div>
+
+		<div class="p-y-1">
+
+			<div class="header-text-container">
+				<h1 class="header-text m-0">
+					<span hidden$="[[step.message]]">[[step.question]]</span>
+					<span hidden$="[[!step.message]]">[[step.message]]</span>
+				</h1>
+			</div>
+			<div id="wr" class="wr">
+				<form class="form" id="formCarousel" form-carousel>
+
+					<div class="input-group prefix" data-step="1" data-question="How much is your budget?">
+						<div class="addon-prefix flex layout horizontal">
+							<span>AED </span>
+						</div>
+						<input id="price" type="number" class="input" autocomplete="off" placeholder="Price" value="{{price::input}}" data-validate="required"
+						 data-message-required="Please tell us our budget." />
+					</div>
+
+				</form>
+			</div>
+		</div>
+
+	</template>
+
+	<script>
+		class GrdiPostsEdit2 extends
+			FormSliderBehavior(GridNavigation(ReduxBehavior(Polymer.Element))) {
+
+			static get is() { return 'grid-posts-edit-2'; }
+
+			static get properties() {
+				return {
+					user: {
+						type: Object,
+						statePath: 'user'
+					},
+					auth: {
+						type: Object,
+						statePath: 'auth'
+					},
+					posts: {
+						type: Object,
+						statePath: 'posts'
+					},
+					data: {
+						type: Object,
+						notify: true
+					},
+				}
+			}
+
+			static get observers() {
+				return [
+					'_formDone(price)',
+					'_dataChange(data)'
+				]
+			}
+
+			static get actions() {
+				return {
+					addPost(post) {
+						return {
+							type: 'ADD_POST',
+							post: post
+						}
+					}
+				};
+			}
+
+			constructor() {
+				super();
+				this.readyPost = false;
+				this.map = null;
+			}
+
+			connectedCallback() {
+				const self = this;
+				super.connectedCallback();
+
+				// IDEA: This came from FormSliderBahavior
+				this.initForm();
+				// IDEA: Initialize some properties
+				this.set('step.message', 'How much is your budget?');
+
+				// clear form after adding and rearrange steps
+				window.addEventListener('done-posting', () => {
+					// this.shadowRoot.querySelector('[form-carousel]').reset();
+					this.arrangeSteps(1);
+					// this.readyPost = false;
+				});
+
+			}
+
+			goBack() {
+				if(!this.data) return;
+				this.redirect(`/posts/edit/${this.data.id}#1`);
+			}
+
+			submit() {
+				// const data = {
+				// 	user_id: this.user.id,
+				// 	name: this.data.what,
+				// 	price: this.price,
+				// 	lat: this.data.lat,
+				// 	lng: this.data.lng,
+				// 	location: this.data.where,
+				// 	date: this.data.when,
+				// 	category_id: this.data.category,
+				// 	skills: this.data.skills
+				// };
+				if(!this.data) return;
+
+				this.data.price = this.price;
+
+				if( this.data.category == 1) {
+					this.redirect(`/posts/edit/${this.data.id}#3`);
+					return;
+				} else {
+					this.redirect(`/posts/edit/${this.data.id}#4`);
+					return;
+				}
+
+				
+
+				// dispatch posting event
+				// window.dispatchEvent(new CustomEvent('posting'));
+
+				// gAxios.post('/users/' + this.user.id + '/jobs', data)
+				// 	.then(res => {
+				// 		var data = res.data;
+				// 		this.dispatch('addPost', data);
+				// 		this.redirectHome();
+
+				// 		// set marker options
+				// 		data.isMyPost = true;
+				// 		data.isBidded = false;
+
+				// 		// add new marker to the map
+				// 		this.gmap.newMarker(data);
+
+				// 	}).catch(err => {
+				// 		if (err.response) {
+				// 			alert('Oops something went wrong.. \n Please reload the page.');
+				// 			window.location.href = '/';
+				// 		}
+				// 	}).then(() => {
+				// 		// dispatch event to clear the form
+				// 		window.dispatchEvent(new CustomEvent('done-posting'));
+				// 	});
+			}
+
+			_formDone(price) {
+				this.readyPost = false;
+				if (price) {
+					this.readyPost = true;
+				}
+			}
+
+			_dataChange(data) {
+        if(!data) return;
+
+        this.price = data.price;
+      }
+
+		}
+
+		customElements.define(GrdiPostsEdit2.is, GrdiPostsEdit2);
+	</script>
+</dom-module>

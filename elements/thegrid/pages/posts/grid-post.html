@@ -84,7 +84,7 @@
       <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectPosts"></paper-icon-button>
       <span class="flex"></span>
       <template is="dom-if" if="[[!post.winner]]">
-        <!-- <paper-icon-button icon="create" class="red pointer"></paper-icon-button> -->
+        <paper-icon-button icon="create" class="red pointer" on-click="editPost"></paper-icon-button>
       </template>
       <template is="dom-if" if="[[post.winner]]">
         <paper-icon-button icon="grid:inbox" class="red" on-tap="messageBidder"></paper-icon-button>
@@ -720,6 +720,12 @@
         }
       }
 
+      editPost() {
+        if(!this.post) return;
+
+        this.redirect(`/posts/edit/${this.post.id}`);
+      }
+
       _nextStatus(status) {
         if(!this.post) return false;
 
@@ -758,8 +764,8 @@
       }
 
       _postsChange(posts) {
-        posts.map(post => {
-          if (parseInt(post.id) === parseInt(this.postId)) {
+        posts.forEach(post => {
+          if (parseInt(post.id) == parseInt(this.postId)) {
             this.renderPost(post);
           }
         });

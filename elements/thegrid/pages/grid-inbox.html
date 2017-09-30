@@ -360,8 +360,6 @@
       populateInbox() {
         if(!this.user) return;
 
-        console.log('populating jobs');
-
         this.isLoading = true;
 
         const setInbox = (data) => {
@@ -417,6 +415,8 @@
         });
 
         const cacheData = getChachedData().then(res => {
+
+          if(!res) return false;
           
           if(res.data) {
             

@@ -15,7 +15,7 @@
 // );
 
 // Set a name for the current cache
-var cacheName = 'v1.1.1';
+var cacheName = 'v1.1.2';
 
 // Default files to always cache
 var cacheFiles = [
@@ -222,6 +222,8 @@ self.addEventListener('fetch', function (e) {
 
 	if (/\.googleapis\.com$/.test(requestURL.hostname) ||
 			/\.gstatic\.com$/.test(requestURL.hostname)) {
+
+				// console.log('requestUrl', requestURL);
 		e.respondWith(
 			caches.match(e.request).then(cachedResponse => {
 				if (cachedResponse) {
@@ -233,6 +235,10 @@ self.addEventListener('fetch', function (e) {
 					return fetch(e.request).then(response => {
 						// Put a copy of the response in the runtime cache.
 						// console.log('[ServiceWorker] GOOGLE API', e.request.url);
+							
+						if(requestURL.pathname == '/maps/vt') {
+							return response;
+						}
 						return cache.put(e.request, response.clone()).then(() => {
 							return response;
 						});

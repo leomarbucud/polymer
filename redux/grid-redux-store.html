@@ -104,7 +104,7 @@
       case 'UPDATE_POST': {
         let posts = state.posts.slice(0);
         const updatedPosts = posts.map(item => {
-          if(item.id === action.post.id){
+          if(item.id == action.post.id){
             return action.post;
           }
           return item

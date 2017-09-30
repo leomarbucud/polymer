@@ -351,6 +351,22 @@
         this._newMarker(data);
       }
 
+      updateMarker(data) {
+        if(!window.google || !data) return;
+
+        var new_marker_position = new google.maps.LatLng(data.lat, data.lng);
+
+        const markers = this.findBy( marker => {
+          return marker.id == data.id;
+        });
+
+        if(markers.length) {
+          console.log('setting marker position');
+          markers[0].setPosition(new_marker_position);
+        }
+        
+      }
+
       _newMarker(data) {
 				var self = this;
 				var customPin = {

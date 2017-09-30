@@ -84,6 +84,10 @@
     <app-route route="{{route}}"
         pattern="/posts/:id"
         data="{{post}}"></app-route>
+    
+    <app-route route="{{route}}"
+        pattern="/posts/edit/:id"
+        data="{{postEdit}}"></app-route>
 
     <div id="toolbar" class="toolbar">
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
@@ -185,7 +189,7 @@
       </section>
 
       <section data-page="edit" class="sub-page">
-        <grid-posts-edit map="{{map}}" post="[[_post]]" post-id="[[post.id]]"></grid-posts-editt>
+        <grid-posts-edit id="posts-edit" post-id="[[postEdit.id]]" gmap="[[gmap]]"></grid-posts-editt>
       </section>
 
       <section data-page="post" class="sub-page">
@@ -599,10 +603,12 @@
 
       _subrouteDataChange(subrouteData) {
         const self = this;
+        console.log(subrouteData.id);
         if( subrouteData.id ) {
-          if( this.shadowRoot.querySelector('#posts-' + subrouteData.id) ) {
+          if( this.shadowRoot.querySelector(`#posts-${subrouteData.id}`) ) {
+            console.log('edit page');
             Polymer.Base.importHref(
-  						'/elements/thegrid/pages/posts/grid-posts-' + subrouteData.id + '.html',
+  						`/elements/thegrid/pages/posts/grid-posts-${subrouteData.id}.html`,
   						() => {
                 self.subPage = subrouteData.id;
   						}

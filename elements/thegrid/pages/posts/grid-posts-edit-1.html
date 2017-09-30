@@ -1,0 +1,525 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../../../behaviors/form-slider-behavior.html">
+<link rel="import" href="../../../../../behaviors/map-behavior.html">
+<link rel="import" href="../../components/datepicker.html">
+<link rel="import" href="../../grid-styles.html">
+
+<dom-module id="grid-posts-edit-1">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        height: 100%;
+        background: var(--light-grey);
+      }
+
+      .map-control {
+        position: absolute !important;
+        z-index: 99;
+        width: 100%;
+        display: none;
+      }
+
+      .map-control.active {
+        display: block !important;
+      }
+
+      .map-control.map-control-input {
+        top: 0;
+      }
+
+      .map-control .input-group {
+        padding: 0;
+      }
+
+      .map-control.map-control-marker {
+        width: 27px;
+        height: 33px;
+        top: calc(50% - 33px);
+        left: calc(50% - 13px);
+        pointer-events: none;
+      }
+
+      .map-control.map-control-button {
+        bottom: 0;
+        margin: 0;
+        text-align: center;
+        background: var(--red);
+        color: #FFFFFF;
+        border-radius: 0;
+      }
+
+    </style>
+
+    <div id="toolbar" class="toolbar lgrey-bg">
+      <div class="flex">
+        <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectPost"></paper-icon-button>
+      </div>
+      <div id="indicator"></div>
+      <div class="flex align-right">
+        <!-- <span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span> -->
+        <paper-button id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</paper-button>
+      </div>
+    </div>
+
+    <div class="p-y-1">
+
+      <div class="header-text-container">
+        <h1 class="header-text m-0">
+          <span hidden$="[[step.message]]">[[step.question]]</span>
+          <span hidden$="[[!step.message]]">[[step.message]]</span>
+        </h1>
+      </div>
+      <div id="wr" class="wr">
+        <form class="form" id="formCarousel" form-carousel>
+
+          <div class="form-group relative"
+              data-step="1"
+              data-question="What do you need?">
+            <input id="name" type="text" class="form-input" autofocus
+                autocomplete="off"
+                placeholder="Start typing"
+                value="{{what::input}}"
+                data-validate="required"
+                data-message-required="Please tell us what you need." />
+          </div>
+
+          <div class="form-group relative"
+              data-step="2"
+              data-question="By when?">
+            <input id="when" type="text" class="form-input"
+                autocomplete="off"
+                placeholder="When?"
+                value="{{when::input}}"
+                data-validate="required"
+                data-message-required="Please tell us when."
+                date-picker="#date-picker"
+                readonly />
+          </div>
+
+          <div class="input-group suffix"
+              data-step="3"
+              data-question="Where?">
+            <input id="where" type="text" class="input"
+                autocomplete="off"
+                placeholder="Where?"
+                value="{{where::input}}"
+                data-validate="required"
+                data-message-required="Please tell us where." />
+            <div class="addon-suffix has-icon">
+              <paper-icon-button icon="maps:pin-drop" class="red" hidden$="[[!gmap.map]]" on-tap="showMap"></paper-icon-button>
+              <paper-icon-button id="locationButton" class="red" icon="maps:my-location" hidden$="[[!gmap.map]]" on-tap="myLocation"></paper-icon-button>
+              <!-- <span id="locationButton" on-click="myLocation" class="pointer inactive" hidden$="[[!map]]">
+                <iron-icon icon="maps:my-location" class="red" title="Press for current location"></iron-icon>
+              </span> -->
+            </div>
+          </div>
+
+          <div class="input-group" data-step="4" data-question="Set Category">
+            <select id="category" class="input" data-validate="required" data-message-required="Category is required.">
+            <option value="">--Please select category--</option>
+            <template is="dom-repeat" items="[[jobCategories]]" as="cat">
+              <option value$="[[cat.id]]" selected$="[[cat.selected]]">[[cat.category]]</option>
+            </template>
+            </select>
+          </div>
+
+        </form>
+      </div>
+    </div>
+    <div class="map-control map-control-input">
+      <div class="top-search-bar active">
+        <div class="toolbar shadow">
+          <div class="input-group suffix prefix">
+            <div class="addon-prefix has-button">
+              <paper-icon-button icon="chevron-left" class="pointer" on-click="closeSearchBar"></paper-icon-button>
+            </div>
+            <input id="search-location" type="text" class="input" value="{{search::input}}" placeholder="Search..."/>
+            <div class="addon-suffix has-button">
+              <paper-icon-button icon="close" class="pointer" on-click="clearSearchBar"></paper-icon-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <iron-icon class="map-control map-control-marker" src="/assets/images/icons/related-marker.svg"></iron-icon>
+
+    <paper-button class="map-control map-control-button" on-tap="hideMap">Done</paper-button>
+
+
+    <grid-date-picker id="date-picker" date-time="{{when}}" time="{{time}}" no-range="true" has-time="true"></grid-date-picker>
+
+  </template>
+
+  <script>
+
+    class GrdiPostsEdit1 extends
+      MapBehaviorMixin(
+        FormSliderBehavior(
+          GridNavigation(
+            ReduxBehavior(Polymer.Element)))
+      ) {
+
+      static get is() { return 'grid-posts-edit-1'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+          posts: {
+            type: Object,
+            statePath: 'posts'
+          },
+          step1: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          data: {
+            type: Object,
+            notify: true
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_formDone(what, when, where, category)',
+          '_isMapInit(gmap)',
+          '_dataChange(data)'
+
+        ]
+      }
+
+      constructor() {
+        super();
+        this.readyPost = false;
+        this.map = null;
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        const self = this;
+
+        // IDEA: This came from FormSliderBahavior
+        this.initForm();
+        // IDEA: Initialize some properties
+        this.set('step.message', 'Edit Post');
+
+        const today = () => {
+          let today = new Date();
+          let dd = today.getDate();
+          let mm = today.getMonth()+1; //January is 0!
+          let yyyy = today.getFullYear();
+           if(dd<10){
+                  dd='0'+dd
+              }
+              if(mm<10){
+                  mm='0'+mm
+              }
+
+          today = yyyy+'-'+mm+'-'+dd;
+          return today;
+        }
+
+        const when = this.shadowRoot.querySelector('#when');
+        when.setAttribute("min", today());
+
+        // clear form after adding and rearrange steps
+        window.addEventListener('done-posting', () => {
+          // this.shadowRoot.querySelector('[form-carousel]').reset();
+          this.arrangeSteps(1);
+          // this.readyPost = false;
+        });
+
+        const cat = this.$.category;
+				const change = function (e) {
+					self.category = this.value;
+				};
+				cat.addEventListener('change', change);
+
+        this._getCategories();
+        
+        window.addEventListener('map:center_changed', e => {
+          let detail = e.detail;
+          this.lat = detail.lat;
+          this.lng = detail.lng;
+        });
+
+
+        const datePicker = this.shadowRoot.querySelector('[date-picker]');
+        datePicker.addEventListener('click', () => {
+          let _dp = datePicker.getAttribute('date-picker');
+          const dp = this.shadowRoot.querySelector(_dp); 
+          dp.min = moment(today()).unix();
+          dp.open();
+        });
+
+      }
+
+      _setMarkerVisibility(visible) {
+        const gmap = this.gmap;
+        if(!gmap) return;
+
+        if(visible){
+          gmap.classList.remove('selecting');
+        } else {
+          gmap.classList.add('selecting');
+        }
+
+        gmap.markers.forEach( marker => {
+          marker.setVisible(visible);
+        });
+        gmap.markerClusterer.repaint();
+      }
+
+      showMap() {
+        const gmap = this.gmap;
+        if(!gmap) return;
+
+        this._setMarkerVisibility(false);
+
+        const mapControls = this.shadowRoot.querySelectorAll('.map-control');
+        mapControls.forEach( control => {
+          control.classList.add('active');
+        });
+
+        const sb = this.shadowRoot.querySelector('.top-search-bar')
+        sb.querySelector('input').focus();
+
+      }
+
+      closeSearchBar() {
+        this.hideMap(false);
+
+      }
+
+      clearSearchBar() {
+        this.search = '';
+        const sb = this.shadowRoot.querySelector('.top-search-bar')
+        sb.querySelector('input').focus();
+      }
+
+      hideMap(geocode = true) {
+        const gmap = this.gmap;
+        if(!gmap) return;
+
+        this._setMarkerVisibility(true);
+
+        var mapControls = this.shadowRoot.querySelectorAll('.map-control');
+
+        mapControls.forEach( control => {
+          control.classList.remove('active');
+        });
+
+        if(!geocode) return;
+
+        const pos = {
+          lat: this.lat,
+          lng: this.lng
+        };
+        
+        gmap.geocodeLatLng(pos)
+        .then( res => {
+          this.where = res[0].formatted_address;
+        }).catch( err => {
+          console.log(err);
+        });
+      }
+
+      myLocation() {
+        const self = this;
+        const gmap = this.gmap;
+        if(gmap.currentLocation) {
+
+          this.gmap.map.setCenter(gmap.currentLocation.latlng);
+          this.gmap.geocodeLatLng(gmap.currentLocation)
+          .then( res => {
+            this.where = res[0].formatted_address;
+            this.$.locationButton.classList.remove('inactive');
+          }).catch( err => {
+            console.log(err);
+          });
+
+          return;
+        }
+        if (navigator.geolocation) {
+          self.$.locationButton.classList.add('inactive');
+          navigator.geolocation.getCurrentPosition(function(position) {
+
+            let pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+
+            self.lat = pos.lat;
+            self.lng = pos.lng;
+
+            self.gmap.map.setCenter(pos);
+
+  					// self.geocodeLatLng(pos)
+    				// 	.then( res => {
+    				// 		self.where = res[0].formatted_address;
+            //     self.$.locationButton.classList.remove('inactive');
+    				// 	}).catch( err => {
+    				// 		console.log(err);
+            // 	});
+            self.gmap.geocodeLatLng(pos)
+            .then( res => {
+              self.where = res[0].formatted_address;
+              self.$.locationButton.classList.remove('inactive');
+            }).catch( err => {
+              console.log(err);
+            });
+          });
+        }
+      }
+
+      submit() {
+        this.step1 = true;
+        this.data.what = this.what;
+        this.data.where = this.where;
+        this.data.when = this.when;
+        this.data.lat = this.lat;
+        this.data.lng = this.lng;
+        this.data.category = this.category;
+
+        this.redirect(`/posts/edit/${this.data.id}#2`);
+      }
+
+      redirectPost() {
+        if(!this.data) return;
+        this.redirect(`/posts/${this.data.id}`);
+      }
+
+      _formDone(what, when, where, category) {
+        this.readyPost = false;
+        if(what && when && where && category) {
+          this.readyPost = true;
+        }
+      }
+
+      _isMapInit(gmap) {
+        if(!gmap) return;
+
+        const self = this;
+        const searchBox = self.shadowRoot.querySelector('#where');
+
+				if(searchBox) {
+					var _searchBox = new google.maps.places.SearchBox(searchBox);
+
+					_searchBox.addListener('places_changed', function() {
+
+						self.where = searchBox.value;
+						var places = _searchBox.getPlaces();
+						if (places.length == 0) {
+							return;
+						}
+						const bounds = new google.maps.LatLngBounds();
+            
+						for (var i = 0, place; place = places[i]; i++) {
+							bounds.extend(place.geometry.location);
+						}
+						self.map.fitBounds(bounds);
+            self.lat = gmap.map.getCenter().lat();
+            self.lng = gmap.map.getCenter().lng();
+					});
+
+					google.maps.event.addListener(gmap.map, 'bounds_changed', () => {
+						var bounds = gmap.map.getBounds();
+						_searchBox.setBounds(bounds);
+					});
+        }
+
+        const searchLoc = self.shadowRoot.querySelector('#search-location');
+
+        if(searchLoc) {
+          var _searchLoc = new google.maps.places.SearchBox(searchLoc);
+
+					_searchLoc.addListener('places_changed', function() {
+
+						// self.where = searchLoc.value;
+						var places = _searchLoc.getPlaces();
+						if (places.length == 0) {
+							return;
+						}
+						const bounds = new google.maps.LatLngBounds();
+            
+						for (var i = 0, place; place = places[i]; i++) {
+							bounds.extend(place.geometry.location);
+						}
+						gmap.map.fitBounds(bounds);
+            // self.lat = self.map.getCenter().lat();
+            // self.lng = self.map.getCenter().lng();
+					});
+
+					google.maps.event.addListener(gmap.map, 'bounds_changed', () => {
+						var bounds = gmap.map.getBounds();
+						_searchLoc.setBounds(bounds);
+					});
+        }
+      }
+
+      _getCategories() {
+				gAxios.get('/jobs/categories')
+				.then(res => {
+          var data = res.data;
+          if(this.data) {
+            data.map( d => {
+              console.log(d.id, '==', this.data.category_id);
+              if(d.id == this.data.category_id) {
+                d.selected = true;
+              }
+              return d;
+            });
+          }
+					this.jobCategories = data;
+				}).catch(err => {
+					if (err.response) {
+
+					}
+				});
+      }
+      
+      _dataChange(data) {
+        if(!data) return;
+
+        this.what = data.name;
+        this.where = data.location;
+        this.when = data.date;
+        this.lat = data.lat;
+        this.lng = data.lng;
+        this.category = data.category_id;
+
+        this.shadowRoot.querySelector('#category').selectedIndex = data.category_id;
+
+        // if(this.jobCategories) {
+        //   let jc = this.jobCategories.slice(0);
+        //   jc.map( d => {
+        //     console.log(d.id, '==', this.data.category_id);
+        //     if(d.id == this.data.category_id) {
+        //       d.selected = true;
+        //     }
+        //     return d;
+        //   });
+        //   this.set('jobCategories', jc);
+        // }
+        
+      }
+
+
+
+    }
+
+    customElements.define(GrdiPostsEdit1.is, GrdiPostsEdit1);
+	</script>
+</dom-module>
