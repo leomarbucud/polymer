@@ -162,7 +162,7 @@
 				this.map = null;
 
 				this.files = [];//new FormData();
-				this.formData = new FormData();
+				
 			}
 
 			connectedCallback() {
@@ -175,7 +175,7 @@
 				window.addEventListener('done-posting', () => {
                     // this.readyPost = false;
                     // this.details = '';
-										// this.files = [];
+										this.files = this.data.files;
 				});
 
 			}
@@ -207,55 +207,48 @@
 				// 	skills: this.data.skills,
 				// 	details: this.details
 				// };
+
+				let formData = new FormData();
 				
-				this.formData.append('id', this.data.id);
-				this.formData.append('user_id', this.user.id);
-				this.formData.append('name', this.data.what);
-				this.formData.append('price', this.data.price);
-				this.formData.append('lat', this.data.lat);
-				this.formData.append('lng', this.data.lng);
-				this.formData.append('location', this.data.where);
-				this.formData.append('date', this.data.when);
-				this.formData.append('category_id', this.data.category);
+				formData.append('id', this.data.id);
+				formData.append('user_id', this.user.id);
+				formData.append('name', this.data.what);
+				formData.append('price', this.data.price);
+				formData.append('lat', this.data.lat);
+				formData.append('lng', this.data.lng);
+				formData.append('location', this.data.where);
+				formData.append('date', this.data.when);
+				formData.append('category_id', this.data.category);
 				if(this.data.skills) {
 					// if(this.data.skills.length) {
-						this.formData.append('skills', JSON.stringify(this.data.skills));
+						formData.append('skills', JSON.stringify(this.data.skills));
 					// }
 				}
-				this.formData.append('details', this.details);
+				formData.append('details', this.details);
 
 				if(this.files.length) {
 					this.files.forEach( file => {
 						if(file.id) {
-							this.formData.append('files[]', JSON.stringify(file));
+							formData.append('files[]', JSON.stringify(file));
 						} else {
-							this.formData.append('files[]', file);
+							formData.append('files[]', file);
 						}
 					});
 				}
-				// this.formData.append('files', files);
+				// formData.append('files', files);
 
 				// dispatch posting event
 				window.dispatchEvent(new CustomEvent('posting'));
 
-				gAxios.post(`/users/${this.user.id}/jobs/edit`, this.formData)
+				gAxios.post(`/users/${this.user.id}/jobs/edit`, formData)
 					.then(res => {
 						var data = res.data;
 
-						// this.redirectHome();
 						this.redirect(`/posts/${data.id}`);
 
 						this.dispatch('updatePost', data);
 
-						// set marker options
-						data.isMyPost = true;
-						data.isBidded = false;
-
-						// add new marker to the map
 						this.gmap.updateMarker(data);
-
-						// dispatch event
-						// window.dispatchEvent(new CustomEvent('user:posted', { detail: data }) );
 
 					}).catch(err => {
 						if (err.response) {
