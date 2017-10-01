@@ -33,16 +33,21 @@
       }
 
       .chat-bubble {
-        margin-bottom: 3px;
+        /* margin-bottom: 3px; */
+        margin-bottom: 8px;
         padding: 5px 10px;
         clear: both;
-        border-radius: 10px 10px 2px 2px;
+        /* border-radius: 10px 10px 2px 2px; */
+        border-radius: 10px;
         max-width: 90%;
         font-size: 14px;
       }
 
       .chat-date {
         clear: both;
+        text-align: center;
+        display: block;
+        padding: 8px 0;
       }
 
       .chat-bubble-rcvd {
@@ -53,7 +58,6 @@
       }
 
       .chat-bubble-sent {
-        /* background: #0066ff; */
         background: var(--red);
         color: white;
         float: right;
@@ -61,11 +65,13 @@
       }
 
       .chat-bubble-sent + .chat-bubble-sent {
-        border-top-right-radius: 2px;
+        /* border-top-right-radius: 2px; */
+        border-top-right-radius: 10px;
       }
 
       .chat-bubble-rcvd + .chat-bubble-rcvd {
-        border-top-left-radius: 2px;
+        /* border-top-left-radius: 2px; */
+        border-top-left-radius: 10px;
       }
 
       .chat-bubble-stop {
@@ -220,17 +226,18 @@
         <div class="flex"></div>
         <ul id="chat" class="chat">
           <template id="messagesTemplate" is="dom-repeat" items="[[conversation.messages]]" as="message" sort="_sort">
+            
+            <template is="dom-if" if="[[!_sameAsDateBefore(message.created_at, index)]]">
+              <li class="block center chat-date">
+                <small class="white inactive">[[_formatDateTime(message.created_at)]]</small>
+              </li>
+            </template>
+           
             <li id$="[[message.id]]" class$="chat-bubble [[_getClass(message.author_id, index)]]" title="[[message.created_at]]" data-index$="[[index]]" data-author$="[[message.author_id]]">
               <span>[[message.message]]</span>
               <!-- <span class="status">[[_getMessageStatus(message.status)]]</span> -->
             </li>
-            <!-- <template is="dom-if" if="[[!_sameAsDateBefore(message.created_at, index)]]">
-              <li class="chat-date">
-                <divider-text line-width="1px" line-color="#FFFFFF">
-                  <span class="white">[[_fromNow(message.created_at)]]</span>
-                </divider-text>
-              </li>
-            </template> -->
+            
           </template>
           <template is="dom-if" if="[[_hasTmpMessage]]">
             <template is="dom-repeat" items="[[_tmpMessage]]" as="message">
@@ -565,6 +572,8 @@
       }
 
       _sameAsDateBefore(date, index) {
+        if(index == 0) return false;
+
         var endDate = moment(date, "YYYY-MM-DD");
         var diff = 0;
         var li = this.$.chat.querySelector('li[data-index="' + (index - 1) + '"]');
@@ -572,14 +581,32 @@
           var startDate = moment(li.getAttribute('title'), "YYYY-MM-DD");
 
           diff = Math.abs(startDate.diff(endDate, 'days'));
-          console.log(index, diff);
+          // console.log(index, diff);
         }
 
         return (diff === 0) ? true : false;
       }
 
-      _fromNow(date) {
-        return moment(date).fromNow();
+      _formatDateTime(date) {
+        const today = moment(new Date());
+        const d = moment(date);
+
+        const diff = today.diff(d, 'days');
+
+        if(diff == 0) {
+          return `Today at ${moment(date).format('HH:mm')}`;
+        }
+
+        if(diff == 1) {
+          return `Yesterday at ${moment(date).format('HH:mm')}`;
+        }
+
+        if(diff >= 7) {
+          return moment(date).format('MMM D [at] HH:mm');
+        }
+
+        return moment(date).format('ddd [at] HH:mm');
+        // return moment(date).fromNow();
       }
 
       _profileImage(img, name) {
