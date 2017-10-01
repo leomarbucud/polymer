@@ -188,10 +188,6 @@
 		<paper-fab id="addFab" icon="add" class="grid-main-fab" on-tap="redirectPostsAdd"></paper-fab>
 
 		<mobile-header map="{{map}}" gmap="[[gmap]]"></mobile-header>
-
-		<template is="dom-if" if="[[isPageLoading]]">
-			<paper-progress indeterminate class="w-100 top-progress"></paper-progress>
-		</template>
 		
 		<grid-introduction is-logged-in="[[isLoggedIn]]"></grid-introduction>
 
@@ -294,6 +290,10 @@
 				</section>
 
 			</iron-pages>
+
+			<template is="dom-if" if="[[isPageLoading]]">
+				<paper-progress indeterminate class="w-100 top-progress"></paper-progress>
+			</template>
 
 		</div>
 
