@@ -603,10 +603,8 @@
 
       _subrouteDataChange(subrouteData) {
         const self = this;
-        console.log(subrouteData.id);
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector(`#posts-${subrouteData.id}`) ) {
-            console.log('edit page');
             Polymer.Base.importHref(
   						`/elements/thegrid/pages/posts/grid-posts-${subrouteData.id}.html`,
   						() => {

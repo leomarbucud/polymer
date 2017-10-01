@@ -475,7 +475,6 @@
           var data = res.data;
           if(this.data) {
             data.map( d => {
-              console.log(d.id, '==', this.data.category_id);
               if(d.id == this.data.category_id) {
                 d.selected = true;
               }

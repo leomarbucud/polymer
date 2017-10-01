@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../../bower_components/neon-animation/web-animations.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
@@ -156,6 +157,14 @@
 				clip-path: circle(100%) !important;
 			}
 
+			.top-progress {
+				position: absolute; 
+				top: 0; 
+				left: 0;
+				--paper-progress-active-color: var(--red);
+				--paper-progress-container-color: var(--dark-grey);
+			}
+
 		</style>
 
 		<!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
@@ -179,6 +188,10 @@
 		<paper-fab id="addFab" icon="add" class="grid-main-fab" on-tap="redirectPostsAdd"></paper-fab>
 
 		<mobile-header map="{{map}}" gmap="[[gmap]]"></mobile-header>
+
+		<template is="dom-if" if="[[isPageLoading]]">
+			<paper-progress indeterminate class="w-100 top-progress"></paper-progress>
+		</template>
 		
 		<grid-introduction is-logged-in="[[isLoggedIn]]"></grid-introduction>
 
@@ -367,6 +380,7 @@
 			_userPostChange(userPost) {
 				if( !userPost.user || !userPost.id ) return;
 					this.page = 'user-post';
+					this.isPageLoading = false;
 			}
 
 			_pageChange(routeData) {
@@ -418,6 +432,8 @@
 							yy: "%d year"
 					}
 				});
+
+				this.isPageLoading = false;
 			}
 
 			connectedCallback() {
@@ -602,6 +618,8 @@
 				}
 				if (routeData.page) {
 
+					this.isPageLoading = true;
+
 					// IDEA: if profile page
 					if (routeData.page.charAt(0) == '@') {
 						//console.log('loding user', routeData.page )
@@ -630,7 +648,7 @@
 							setTimeout(() => {
 								this.shadowRoot.querySelector('#' + routeData.page).classList.add('active');
 							}, 1);
-							
+							this.isPageLoading = false;
 						},
 						self._showPage404.bind(self),
 						true
@@ -648,6 +666,7 @@
 			}
 
 			_showPage404() {
+				this.isPageLoading = false;
 				this.page = '404';
 				Polymer.Base.importHref(
 					this.resolveUrl('pages/grid-404.html'),
