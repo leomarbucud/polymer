@@ -180,7 +180,7 @@
               </div>
               <paper-item-body two-line>
                 <div>[[convo.job.name]]</div>
-                <div secondary>[[_lastMesage(convo.messages)]]</div>
+                <div secondary>[[_lastMesage(convo.messages, convo.user1, convo.user2)]]</div>
               </paper-item-body>
               <div class="layout vertical-reverse">
                 <div class="time" data-time$="[[convo.updated_at]]">[[_fromNow(convo.updated_at)]]</div>
@@ -612,13 +612,17 @@
         
       }
 
-      _lastMesage(messages) {
+      _lastMesage(messages, user1, user2) {
         if(!messages.length) return 'Start a conversation...';
 
         var y = 'You: ';
         var m = messages[messages.length - 1].message;
         if(messages[messages.length - 1].author_id != this.user.id) {
-          var y = '';
+          if(this.user.id == user1.id) {
+            y = `${user2.name}: `;
+          } else {
+            y = `${user1.name}: `;
+          }
         }
         return y + m;
       }
