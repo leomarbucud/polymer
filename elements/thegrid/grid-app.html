@@ -405,15 +405,6 @@
 					}
 				});
 
-				window.addEventListener('online',  () => {
-					this.$.offline.classList.remove('active');
-					window.dispatchEvent(new CustomEvent('user:connected'));
-				});
-				
-  			window.addEventListener('offline', () => {
-					this.$.offline.classList.add('active');
-				});
-
 				moment.updateLocale('en', {
 					relativeTime : {
 							future: "in %s",
@@ -439,6 +430,21 @@
 			connectedCallback() {
 				super.connectedCallback();
 				this.loaded = true;
+
+				if(navigator.onLine) {
+					this.$.offline.classList.remove('active');
+				} else {
+					this.$.offline.classList.add('active');
+				}
+
+				window.addEventListener('online',  () => {
+					this.$.offline.classList.remove('active');
+					window.dispatchEvent(new CustomEvent('user:connected'));
+				});
+				
+  			window.addEventListener('offline', () => {
+					this.$.offline.classList.add('active');
+				});	
 			}
 
 			logout() {

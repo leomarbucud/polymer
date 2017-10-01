@@ -110,7 +110,7 @@
     <div id="toolbar" class="toolbar dred-bg">
       <paper-icon-button icon="first-page" class="white pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
-      <paper-icon-button icon="create" class="white pointer" on-click="editProfile"></paper-icon-button>
+      <!-- <paper-icon-button icon="create" class="white pointer" on-click="editProfile"></paper-icon-button> -->
       <!-- <paper-icon-button icon="more-vert" class="white pointer"></paper-icon-button> -->
     </div>
 
@@ -127,7 +127,7 @@
               </template>
             </span>
           </div>
-          <img class="circle" src$="[[_profileImage(user.profile.profile_image_url)]]" avatar$="[[user.name]]">
+          <img on-click="editProfile" class="circle" src$="[[_profileImage(user.profile.profile_image_url)]]" avatar$="[[user.name]]">
         </div>
 
         <div class="layout horizontal white">
