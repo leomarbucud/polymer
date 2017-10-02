@@ -574,24 +574,25 @@
       _sameAsDateBefore(date, index) {
         if(index == 0) return false;
 
-        var endDate = moment(date, "YYYY-MM-DD");
-        var diff = 0;
-        var li = this.$.chat.querySelector('li[data-index="' + (index - 1) + '"]');
+        const endDate = moment(date, "YYYY-MM-DD");
+        let diff = 0;
+        const li = this.$.chat.querySelector('li[data-index="' + (index - 1) + '"]');
+        
         if(li) {
-          var startDate = moment(li.getAttribute('title'), "YYYY-MM-DD");
-
+          const startDate = moment(li.getAttribute('title'), "YYYY-MM-DD");
           diff = Math.abs(startDate.diff(endDate, 'days'));
-          // console.log(index, diff);
         }
 
         return (diff === 0) ? true : false;
       }
 
       _formatDateTime(date) {
-        const today = moment(new Date());
-        const d = moment(date);
+        const today = moment(new Date()).startOf('day');
+        const d = moment(date).startOf('day');
 
         const diff = today.diff(d, 'days');
+
+        console.log('diff', diff);
 
         if(diff == 0) {
           return `Today at ${moment(date).format('HH:mm')}`;
