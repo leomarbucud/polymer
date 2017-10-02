@@ -360,23 +360,23 @@
         this._recipientProfileImage = this._getRecipientProfileImage();
         this._getRecipientName = this._getRecipient().name;
 
-        const chats = this.$.chat.querySelectorAll('li[data-index]');
+        // const chats = this.$.chat.querySelectorAll('li[data-index]');
         
-        chats.forEach( (chat, i) => {
+        // chats.forEach( (chat, i) => {
 
-          chat.classList.remove('chat-bubble-stop');
+        //   chat.classList.remove('chat-bubble-stop');
 
-          if(chats[i+1]) {
-            if(chat.getAttribute('data-author') != chats[i+1].getAttribute('data-author')) {
-              chat.classList.add('chat-bubble-stop');
-            }
-          }
+        //   if(chats[i+1]) {
+        //     if(chat.getAttribute('data-author') != chats[i+1].getAttribute('data-author')) {
+        //       chat.classList.add('chat-bubble-stop');
+        //     }
+        //   }
 
-          if(i == chats.length-1) {
-            chat.classList.add('chat-bubble-stop');
-          }
+        //   if(i == chats.length-1) {
+        //     chat.classList.add('chat-bubble-stop');
+        //   }
           
-        });
+        // });
       }
 
       scrollToBottom(smooth) {

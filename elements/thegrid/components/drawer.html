@@ -309,6 +309,20 @@
       connectedCallback() {
         super.connectedCallback();
 
+        this.checkIfPushNotificationEnabled();
+      }
+
+      checkIfPushNotificationEnabled() {
+        if(!window.OneSignal) return;
+        OneSignal.isPushNotificationsEnabled( isEnabled => {
+          if(isEnabled) {
+            this.notifications = true;
+            this.mute = 'Mute';
+          } else {
+            this.notifications = false;
+            this.mute = 'Unmute';
+          }
+        });
       }
 
       toggleMenu(e) {
@@ -328,6 +342,7 @@
         OneSignal.setSubscription(this.notifications);
         if(this.notifications) {
           this.mute = 'Mute';
+          OneSignal.push(["registerForPushNotifications"]);
         } else {
           this.mute = 'Unmute';
         }
