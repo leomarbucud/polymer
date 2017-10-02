@@ -227,7 +227,7 @@
         <ul id="chat" class="chat">
           <template id="messagesTemplate" is="dom-repeat" items="[[conversation.messages]]" as="message" sort="_sort">
             
-            <template is="dom-if" if="[[!_sameAsDateBefore(message.created_at, index)]]">
+            <template is="dom-if" if="[[message.includeDate]]">
               <li class="block center chat-date">
                 <small class="white inactive">[[_formatDateTime(message.created_at)]]</small>
               </li>
@@ -351,7 +351,52 @@
         if (!this.auth) return;
 
         // this.set('conversation', conversation);
+        // this.conversation = conversation;
+
+        conversation.messages.map( (c, i) => {
+
+          if(i == 0) {
+            c.includeDate = true;
+            return c;
+          }
+
+          let diffDay = 0;
+          const currentTime = moment(c.created_at).startOf('day');
+          const startDate = moment(conversation.messages[i-1].created_at).startOf('day');
+         
+          diffDay = Math.abs(startDate.diff(currentTime, 'days'));
+
+
+          const now = moment(new Date()).startOf('day');
+
+          if(Math.abs(now.diff(currentTime, 'days')) == 0) {
+            const diffMin = Math.abs(moment(conversation.messages[i-1].created_at).diff(moment(c.created_at), 'minutes'));
+            const diffHr = Math.abs(moment(conversation.messages[i-1].created_at).startOf('hour').diff(moment(c.created_at).startOf('hour'), 'hours'));
+
+            if(diffHr >= 1) {
+              c.includeDate = true;
+              return c;
+            }
+
+            if(diffMin >= 30) {
+              c.includeDate = true;
+              return c;
+            }
+            
+            return c;
+          }
+
+          if(diffDay != 0) {
+            c.includeDate = true;
+          }
+
+          return c;
+        });
+
+        // console.log(conversation.messages);
+        
         this.conversation = conversation;
+
         // console.log('new conversation', this.conversation);
         this._removeTmpMessage();
         this.shadowRoot.querySelector('#messagesTemplate').render();
@@ -592,10 +637,8 @@
 
         const diff = today.diff(d, 'days');
 
-        console.log('diff', diff);
-
         if(diff == 0) {
-          return `Today at ${moment(date).format('HH:mm')}`;
+          return `${moment(date).format('HH:mm')}`;
         }
 
         if(diff == 1) {
