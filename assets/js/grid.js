@@ -217,7 +217,7 @@ var appId = (location.hostname == 'dev.thegrid.com') ? '4ab53490-5824-4613-8c96-
 OneSignal.push(["init", {
     appId: appId,
     // subdomainName: 'thegrid',
-    autoRegister: false,
+    autoRegister: true,
     notifyButton: {
       enable: false /* Set to false to hide */
     },
@@ -243,7 +243,7 @@ window.addEventListener('user:logged', e => {
   // console.log('e', e.detail);
   if(isSubscriptionChange) return;
   if(!window.OneSignal) return;
-  OneSignal.push(["registerForPushNotifications"]);
+  // OneSignal.push(["registerForPushNotifications"]);
   isSubscriptionChange = true;
   OneSignal.sendTag("user_id", e.detail.id);
   OneSignal.push( () => {
