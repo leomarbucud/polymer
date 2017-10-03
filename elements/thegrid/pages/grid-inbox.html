@@ -628,7 +628,25 @@
       }
 
       _fromNow(date) {
-        return moment(date).fromNow();
+        const today = moment(new Date()).startOf('day');
+        const d = moment(date).startOf('day');
+
+        const diff = today.diff(d, 'days');
+
+        if(diff == 0) {
+          return `${moment(date).format('HH:mm')}`;
+        }
+
+        if(diff == 1) {
+          return `Yesterday`;
+        }
+
+        if(diff >= 7) {
+          return moment(date).format('MMM D');
+        }
+
+        return moment(date).format('ddd');
+        // return moment(date).fromNow();
         // return moment(date, "YYYY-MM-DD").endOf('minute').fromNow();
       }
 

@@ -408,6 +408,7 @@
         // this.set('conversation', conversation);
         // this.conversation = conversation;
 
+        let index = null;
         conversation.messages.map( (c, i) => {
 
           if(c.author_id == this.user.id) {
@@ -418,12 +419,13 @@
 
           if(i == 0) {
             c.includeDate = true;
+            index = i;
             return c;
           }
 
           let diffDay = 0;
           const currentTime = moment(c.created_at).startOf('day');
-          const startDate = moment(conversation.messages[i-1].created_at).startOf('day');
+          const startDate = moment(conversation.messages[index].created_at).startOf('day');
          
           diffDay = Math.abs(startDate.diff(currentTime, 'days'));
 
@@ -431,16 +433,18 @@
           const now = moment(new Date()).startOf('day');
 
           if(Math.abs(now.diff(currentTime, 'days')) == 0) {
-            const diffMin = Math.abs(moment(conversation.messages[i-1].created_at).diff(moment(c.created_at), 'minutes'));
-            const diffHr = Math.abs(moment(conversation.messages[i-1].created_at).startOf('hour').diff(moment(c.created_at).startOf('hour'), 'hours'));
+            const diffMin = Math.abs(moment(conversation.messages[index].created_at).diff(moment(c.created_at), 'minutes'));
+            const diffHr = Math.abs(moment(conversation.messages[index].created_at).startOf('hour').diff(moment(c.created_at).startOf('hour'), 'hours'));
 
             if(diffHr >= 1) {
               c.includeDate = true;
+              index = i;
               return c;
             }
 
-            if(diffMin >= 30) {
+            if(diffMin >= 15) {
               c.includeDate = true;
+              index = i;
               return c;
             }
             
@@ -449,6 +453,8 @@
 
           if(diffDay != 0) {
             c.includeDate = true;
+            index = i;
+            return c;
           }
 
           return c;
