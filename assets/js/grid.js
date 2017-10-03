@@ -243,6 +243,7 @@ window.addEventListener('user:logged', e => {
   // console.log('e', e.detail);
   if(isSubscriptionChange) return;
   if(!window.OneSignal) return;
+  OneSignal.push(["registerForPushNotifications"]);
   isSubscriptionChange = true;
   OneSignal.sendTag("user_id", e.detail.id);
   OneSignal.push( () => {
