@@ -13,7 +13,6 @@
 // console.info(
 //   'Service worker disabled for development, will be generated at build time.'
 // );
-
 // Set a name for the current cache
 var cacheName = 'v1.1.2';
 
@@ -88,6 +87,7 @@ var cacheFiles = [
 	"./assets/js/grid.js",
 	"./assets/js/markerclusterer.js",
 	"./assets/js/letter-avatar.js",
+	"./assets/images/grid-logo.svg",
 	'https://fonts.googleapis.com/css?family=Roboto'
 ]
 
@@ -131,6 +131,7 @@ self.addEventListener('activate', function (e) {
 
 });
 
+const api_url = location.origin == 'https://dev.thegrid.com' ? 'api.thegrid.com' : 'dev-thegrid.azurewebsites.net';
 
 self.addEventListener('fetch', function (e) {
 	// console.log('[ServiceWorker] Fetch', e.request.url);
@@ -138,8 +139,18 @@ self.addEventListener('fetch', function (e) {
 	var requestURL = new URL(e.request.url);
 
 	// Handle requests to a particular host specifically
-	if (requestURL.hostname == 'api.thegrid.com') {
+	if (requestURL.hostname == api_url) {
 		if (e.request.method == 'GET') {
+
+			if(e.request.headers.get('Accept').indexOf('image') != -1) {
+				e.respondWith(
+					caches.match(e.request).then(function (response) {
+						return response || fetch(e.request);
+					})
+				);
+
+				return;
+			}
 
 			if (e.request.headers.get('Cached') == 'yes') {
 
@@ -322,6 +333,8 @@ self.addEventListener('fetch', function (e) {
 });
 
 self.addEventListener('push', function(e) {
+
+	
 	console.log('event push', e.data.text());
   // if (event.data.text() == 'new-email') {
   //   event.waitUntil(
