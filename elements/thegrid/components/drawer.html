@@ -283,7 +283,7 @@
 
       static get observers() {
         return [
-
+          '_userChange(user)'
         ]
       }
 
@@ -313,16 +313,36 @@
       }
 
       checkIfPushNotificationEnabled() {
-        if(!window.OneSignal) return;
-        OneSignal.isPushNotificationsEnabled( isEnabled => {
-          if(isEnabled) {
+        if(!this.user) return;
+
+        const settings = this.user.keyedSettings;
+        if(!settings) {
+          this.notifications = true;
+          this.mute = 'Mute';
+
+          return;
+        }
+        if(settings.notifications) { 
+
+          if(settings.notifications.value == 1) {
             this.notifications = true;
             this.mute = 'Mute';
           } else {
             this.notifications = false;
             this.mute = 'Unmute';
           }
-        });
+
+        }
+        // if(!window.OneSignal) return;
+        // OneSignal.isPushNotificationsEnabled( isEnabled => {
+        //   if(isEnabled) {
+        //     this.notifications = true;
+        //     this.mute = 'Mute';
+        //   } else {
+        //     this.notifications = false;
+        //     this.mute = 'Unmute';
+        //   }
+        // });
       }
 
       toggleMenu(e) {
@@ -337,14 +357,33 @@
 
       }
 
+      updateNotificationsSettings(value) {
+        gAxios.post(`/users/${this.user.id}/settings/notifications`, {
+          id: 0,
+          name: 'notifications',
+          value: value
+        })
+        .then( res => {
+
+          this.dispatch('updateUser', res.data);
+          
+        }).catch( err => {
+          if(err.response) {
+            console.log(err.response.data);
+          }
+        });
+      }
+
       toggleNotifications() {
         this.notifications = !this.notifications;
-        OneSignal.setSubscription(this.notifications);
+        // OneSignal.setSubscription(this.notifications);
         if(this.notifications) {
           this.mute = 'Mute';
-          OneSignal.push(["registerForPushNotifications"]);
+          // OneSignal.push(["registerForPushNotifications"]);
+          this.updateNotificationsSettings(1);
         } else {
           this.mute = 'Unmute';
+          this.updateNotificationsSettings(0);
         }
       }
 
@@ -375,7 +414,11 @@
       //   this.dispatch('logout');
       // }
 
-
+      _userChange(user) {
+        if(user) {
+          this.checkIfPushNotificationEnabled();
+        }
+      }
     }
 
     customElements.define(GridDrawer.is, GridDrawer);
