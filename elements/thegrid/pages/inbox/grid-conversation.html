@@ -138,8 +138,8 @@
         bottom: 0;
         left: 0;
         right: 0;
-        background: #424141;
-        padding: 8px 16px;
+        background: var(--dark-grey);
+        padding: 0 16px;
       }
 
       img.circle {
@@ -247,6 +247,10 @@
           transform: scale(1.05);
         }
       }
+
+      .input-group.suffix .addon-suffix {
+        background-color: var(--dark-grey);
+      }
     </style>
 
     <div id="toolbar" class="toolbar dgrey-bg shadow">
@@ -317,11 +321,11 @@
     <div id="message-box">
       <section class="w-100">
         <form class="form">
-          <div class="input-group suffix">
-            <input id="message" type="text" class="input" autocomplete="off" placeholder="Type a message..." value="{{message::input}}"
+          <div class="input-group suffix dgrey-bg">
+            <input id="message" type="text" class="input dgrey-bg white" autocomplete="off" placeholder="Type a message..." value="{{message::input}}"
               on-keydown="messageEvent" on-click="readMessage" />
 
-            <div class="addon-suffix has-button">
+            <div class="addon-suffix has-button dgrey-bg">
               <paper-icon-button icon="grid:send" class="red" on-tap="send"></paper-icon-button>
             </div>
           </div>
