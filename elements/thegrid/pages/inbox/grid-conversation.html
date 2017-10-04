@@ -773,6 +773,7 @@
       }
 
       _onlineUsersChange(users) {
+        if(!users) return;
         if(!users.length || !this.conversation) return;
 
         if(users.indexOf(this._getRecipientId()) != -1) {
