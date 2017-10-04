@@ -29,7 +29,8 @@
     r_markers: null,
     notifications: [],
     transactions: [],
-    feedback: []
+    feedback: [],
+    online_users: []
   };
 
   const updateLocalStorage = (name, value) => {
@@ -292,6 +293,12 @@
         });
         break;
       }
+      case 'SET_ONLINE_USERS': {
+        return Object.assign({}, state, {
+          online_users: action.users
+        });
+        break;
+      }
     }
   };
 
@@ -458,6 +465,13 @@
             feedback: feedback
           }
         },
+
+        setOnlineUsers(users) {
+          return {
+            type: 'SET_ONLINE_USERS',
+            users: users
+          }
+        }
 
       }
     }

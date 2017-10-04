@@ -832,7 +832,18 @@
 						let text = 'Your bid has been completed.';
 						openNotification(href, text);
 					}
-        });
+				});
+				
+				socket.on('user:online', data => {
+					if(!this.auth) return;
+					let onlineUsers = [];
+					for (const key of Object.keys(data)) {
+						if(onlineUsers.indexOf(data[key]) == -1) {
+							onlineUsers.push(data[key]);
+						}
+					}
+					this.dispatch('setOnlineUsers', onlineUsers);
+				});
 
       }
 

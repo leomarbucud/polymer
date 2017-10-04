@@ -154,6 +154,7 @@
       }
 
       .conversation-header .avatar {
+        position: relative;
         margin-right: 16px;
       }
 
@@ -251,6 +252,15 @@
       .input-group.suffix .addon-suffix {
         background-color: var(--dark-grey);
       }
+
+      .online-indicator {
+        position: absolute;
+        height: 4px;
+        width: 4px;
+        background-color: #80ff13;
+        bottom: 0;
+        right: 0;
+      }
     </style>
 
     <div id="toolbar" class="toolbar dgrey-bg shadow">
@@ -261,8 +271,13 @@
             <div class="avatar">
               <img class="circle" src$="[[_recipientProfileImage]]">
             </div>
-            <span class="name white">[[_getRecipientName]]</span>
-          </template>
+            <div>
+              <span class="name white">[[_getRecipientName]]</span>
+              <template is="dom-if" if="[[isUserOnline]]">
+                <small class="white online-indicator-text block">Active</small>
+              </template>
+            </template>
+          </div>
         </div>
       </div>
     </div>
@@ -368,6 +383,11 @@
             type: Object,
             statePath: 'inbox'
           },
+          
+          online_users: {
+            type: Array,
+            statePath: 'online_users'
+          }
 
         }
       }
@@ -376,6 +396,7 @@
         return [
           '_conversationIdChange(conversationId)',
           '_inboxChange(inbox)',
+          '_onlineUsersChange(online_users)'
         ]
       }
 
@@ -471,6 +492,8 @@
         this.isLoading = false;
         this._recipientProfileImage = this._getRecipientProfileImage();
         this._getRecipientName = this._getRecipient().name;
+
+        this._onlineUsersChange(this.online_users);
 
         // const chats = this.$.chat.querySelectorAll('li[data-index]');
         
@@ -747,6 +770,16 @@
         if (details) return details;
 
         return 'No details provided.';
+      }
+
+      _onlineUsersChange(users) {
+        if(!users.length || !this.conversation) return;
+
+        if(users.indexOf(this._getRecipientId()) != -1) {
+          this.isUserOnline = true;
+        } else {
+          this.isUserOnline = false;
+        }
       }
 
       _initSocketEvents() {
