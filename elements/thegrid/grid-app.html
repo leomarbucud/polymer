@@ -445,6 +445,19 @@
   			window.addEventListener('offline', () => {
 					this.$.offline.classList.add('active');
 				});	
+
+				
+				const self = this;
+
+				const sections = this.shadowRoot.querySelectorAll('section[data-page]');
+				sections.forEach(section => {
+					section.addEventListener('click', function(e) {
+						if(e.target == this) {
+							self.redirectHome();
+						}
+					});
+				});
+				
 			}
 
 			logout() {

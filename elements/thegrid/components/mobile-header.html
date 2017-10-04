@@ -545,8 +545,10 @@
 				this.marker = new MapLocationIcon(latLng);
 				this.marker.setMap(this.map);
 				
-				if(center)
+				if(center) {
 					this.gmap.map.setCenter(latLng);
+					this.gmap.map.setZoom(14);
+				}
 
 				this.shadowRoot.querySelector('#location').classList.remove('inactive');
 			}
