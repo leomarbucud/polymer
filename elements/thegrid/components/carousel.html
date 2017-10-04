@@ -16,14 +16,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- Styles MUST be inside template -->
     <style>
-      :host {
+       :host {
         display: block;
         position: relative;
         overflow: hidden;
       }
-      div > ::slotted(:not([selected])) {
+
+      div> ::slotted(:not([selected])) {
         display: none;
       }
+
       button {
         position: absolute;
         top: calc(50% - 20px);
@@ -36,16 +38,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         font-weight: bold;
         opacity: 0.7;
       }
+
       button:hover,
       button:focus {
         opacity: 1;
       }
+
       #prevBtn {
         left: 12px;
       }
+
       #nextBtn {
         right: 12px;
       }
+
       button[disabled] {
         opacity: 0.4;
       }
@@ -61,31 +67,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 
   <script>
-
     const MyMixinCarousel = superclass => class extends superclass {
-    static get properties() {
-      return {
-        selected: {
-          type: Object,
-          observer: '_selectedChanged'
-        }
-      };
-    }
-    connectedCallback() {
-      super.connectedCallback();
-      this.shadowRoot.addEventListener('slotchange', this._resetSelected.bind(this));
-      this._resetSelected();
-    }
-    _selectedChanged(selected, oldSelected) {
-      if (oldSelected) oldSelected.removeAttribute('selected');
-      if (selected) selected.setAttribute('selected', '');
-    }
-    _resetSelected() {
-      if (!this.selected || this.selected.parentElement !== this) {
-        this.selected = this.firstElementChild;
+      static get properties() {
+        return {
+          selected: {
+            type: Object,
+            observer: '_selectedChanged'
+          }
+        };
       }
-    }
-  };
+      connectedCallback() {
+        super.connectedCallback();
+        this.shadowRoot.addEventListener('slotchange', this._resetSelected.bind(this));
+        this._resetSelected();
+      }
+      _selectedChanged(selected, oldSelected) {
+        if (oldSelected) oldSelected.removeAttribute('selected');
+        if (selected) selected.setAttribute('selected', '');
+      }
+      _resetSelected() {
+        if (!this.selected || this.selected.parentElement !== this) {
+          this.selected = this.firstElementChild;
+        }
+      }
+    };
     // Extend Polymer.Element with MyMixinCarousel
     class MyCarousel extends MyMixinCarousel(Polymer.Element) {
       static get is() { return 'my-carousel' }

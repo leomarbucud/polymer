@@ -200,7 +200,7 @@
                   <td>[[bidder.price_bid]]</td>
                   <td>
                     <template is="dom-if" if="[[!post.winner]]">
-                      <paper-button on-tap="awardJob">Award Job</paper-button>
+                      <paper-button on-tap="openAwardJobDialog">Award Job</paper-button>
                     </template>
                     <template is="dom-if" if="[[bidder.files.length]]">
                       <paper-button on-tap="viewFiles">View Files</paper-button>
@@ -296,7 +296,7 @@
       </div>
     </template>
 
-    <paper-dialog id="filesPreviewDialog" style="min-width: 300px;">
+    <paper-dialog id="filesPreviewDialog" style="min-width: 300px;" class="dialog-dark">
       <h2>Files</h2>
       <paper-dialog-scrollable>
         <div id="docs-dialog"></div>
@@ -304,6 +304,17 @@
       </paper-dialog-scrollable>
       <div class="buttons">
         <paper-button dialog-dismiss>Close</paper-button>
+      </div>
+    </paper-dialog>
+    
+    <paper-dialog id="awardDialog" class="dialog-dark">
+      <h2>Award this job</h2>
+      <div>
+        <p>Are you sure you want to award this job to [[awardee.user.name]]?</p>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss>No</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="awardJob">Yes</paper-button>
       </div>
     </paper-dialog>
 
@@ -521,13 +532,25 @@
         this.redirectHome();
       }
 
-      awardJob(e) {
+      openAwardJobDialog(e) {
+        const bidder = e.model.bidder;
+
+        const awardDialog = this.shadowRoot.querySelector('#awardDialog');
+
+        this.awardee = bidder;
+
+        awardDialog.open();
+      }
+
+      awardJob() {
         if(!this.auth) return;
 
+        if(!this.awardee) return;
+
+        const bidder = this.awardee;
         this.isLoading = true;
-        const bidder = e.model.bidder;
-        
-        gAxios.post('/users/' + this.user.id + '/bids/' + bidder.id + '/approve', {
+
+        gAxios.post(`/users/${this.user.id}/bids/${bidder.id}/approve`, {
           job_id: this.post.id,
           user_id: bidder.user.id
         }).then( res => {
@@ -552,7 +575,7 @@
         if(this.post.status != 1) return;
         
         this.isLoading = true;
-        gAxios.post('/users/' + this.user.id + '/jobs/' + this.post.id + '/status', {
+        gAxios.post(`/users/${this.user.id}/jobs/${this.post.id}/status`, {
           status: 2
         }).then( res => {
           // console.log(res.data);

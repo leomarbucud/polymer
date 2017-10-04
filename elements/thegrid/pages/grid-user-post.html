@@ -882,7 +882,11 @@
 					Math.sin(dLon / 2) * Math.sin(dLon / 2);
 				const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 				const d = R * c;
-				const df = d.toFixed(2)
+				const df = d.toFixed(2);
+				if(df < 1) {
+					const m = df * 1000;
+					return `${m}m`;
+				}
 				return `${df}km`;
 			}
 

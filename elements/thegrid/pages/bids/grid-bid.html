@@ -129,12 +129,18 @@
               </li>
               <li data-progress="2">
                 <span class="bubble">2</span> In-progress
+                <template is="dom-if" if="[[_awardedStatus]]">
+                  <button type="button" class="mark-job" on-click="markInProgress">Mark</button>
+                </template>
               </li>
               <li data-progress="3">
                 <span class="bubble">3</span> Review
               </li>
               <li data-progress="4">
                 <span class="bubble">4</span> Completed
+                <template is="dom-if" if="[[_review]]">
+                  <button type="button" class="mark-job" on-click="markCompleted">Mark</button>
+                </template>
               </li>
             </ul>
 
@@ -262,7 +268,10 @@
   </template>
 
   <script>
-    class GridBid extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+    class GridBid extends 
+      GridNavigation(
+          ReduxAsyncActionBehavior(
+            ReduxBehavior(Polymer.Element))) {
 
       static get is() { return 'grid-bid'; }
 
@@ -352,6 +361,10 @@
         this._awarded = false;
         this._awardedToMe = false;
 
+        this._awardedStatus = false;
+        this._inProgress = false;
+        this._review = false;
+
         this.countDown(bid.job.date);
 
         if(bid.job.awarded) {
@@ -370,6 +383,19 @@
                   progress.classList.add('completed');
                 }
               });
+              switch(bid.job.status) {
+                case 1: {
+                  this._awardedStatus = true;
+                  break;
+                }
+                case 2: {
+                  this._inProgress = true;
+                  break;
+                }
+                case 3: {
+                  this._review = true;
+                }
+              }
               if(bid.winner.review) {
                 this._renderStars(bid.winner.review.stars);
               }
@@ -423,6 +449,60 @@
         this.gmap.map.setCenter(position);
         this.gmap.map.setZoom(20);
         this.redirectHome();
+      }
+
+      markInProgress() {
+        if(!this.bid) return;
+        if(this.bid.job.status != 1) return;
+        
+        this.isLoading = true;
+        gAxios.post(`/users/${this.user.id}/bids/${this.bid.id}/status`, {
+          status: 2,
+          job_id: this.bid.job.id
+        }).then( res => {
+
+          this.dispatch('updateBid', res.data);
+
+          let detail = {
+            user_id: res.data.job.user.id,
+            bid_id: res.data.id,
+            job_id: res.data.job.id
+          };
+          
+          window.dispatchEvent( new CustomEvent('bidder:job_in_progress', { detail: detail }));
+        
+        }).catch( err => {
+
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      markCompleted() {
+        if(!this.bid) return;
+        if(this.bid.job.status != 3) return;
+        
+        this.isLoading = true;
+        gAxios.post(`/users/${this.user.id}/bids/${this.bid.id}/status`, {
+          status: 4,
+          job_id: this.bid.job.id
+        }).then( res => {
+          // console.log(res.data);
+          this.dispatch('updateBid', res.data);
+
+          let detail = {
+            user_id: res.data.job.user.id,
+            bid_id: res.data.id,
+            job_id: res.data.job.id
+          };
+          
+          window.dispatchEvent( new CustomEvent('bidder:job_complete', { detail: detail }));
+        
+        }).catch( err => {
+
+        }).then( () => {
+          this.isLoading = false;
+        });
       }
 
       _bidChange(bid) {

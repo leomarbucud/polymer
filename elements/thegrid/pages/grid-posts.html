@@ -635,7 +635,6 @@
         // when user bidded on the job
         socket.on('user:bidded', data => {
           const _data = data;
-          console.log('dispachito', _data);
           if(this.auth) {
             if(_data.job.user.id == this.user.id) {
               // if(_data.job.id == this.post.id) {
@@ -655,6 +654,30 @@
             }
           }
         });
+
+        socket.on('bidder:job_in_progress', data => {
+					if(!this.auth) return;
+
+					// if(data.winner_user_id == this.user.id) {
+						gAxios.get(`/users/${this.user.id}/jobs/${data.job_id}`)
+            .then(res => {
+              this.dispatch('updatePost', res.data);
+            });
+          // }
+          
+				});
+        
+        socket.on('bidder:job_complete', data => {
+					if(!this.auth) return;
+
+					// if(data.winner_user_id == this.user.id) {
+						gAxios.get(`/users/${this.user.id}/jobs/${data.job_id}`)
+            .then(res => {
+              this.dispatch('updatePost', res.data);
+            });
+          // }
+          
+				});
       }
 
     }

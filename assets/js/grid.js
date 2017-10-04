@@ -43,6 +43,11 @@ window.addEventListener('user:job_in_progress', e => {
   socket.emit('user:job_in_progress', data);
 });
 
+window.addEventListener('bidder:job_in_progress', e => {
+  const data = e.detail;
+  socket.emit('bidder:job_in_progress', data);
+});
+
 window.addEventListener('user:job_review', e => {
   const data = e.detail;
   console.log('aaa review', data);
@@ -53,6 +58,12 @@ window.addEventListener('user:job_complete', e => {
   const data = e.detail;
   console.log('aaa job_complete', data);
   socket.emit('user:job_complete', data);
+});
+
+window.addEventListener('bidder:job_complete', e => {
+  const data = e.detail;
+  console.log('aaa job_complete', data);
+  socket.emit('bidder:job_complete', data);
 });
 
 socket.on('user:bidded', data => {
