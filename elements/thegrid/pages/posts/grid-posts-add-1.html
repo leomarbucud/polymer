@@ -354,6 +354,8 @@
         if(gmap.currentLocation) {
 
           this.gmap.map.setCenter(gmap.currentLocation.latlng);
+          self.lat = gmap.currentLocation.lat;
+          self.lng = gmap.currentLocation.lng;
           this.gmap.geocodeLatLng(gmap.currentLocation)
           .then( res => {
             this.where = res[0].formatted_address;
