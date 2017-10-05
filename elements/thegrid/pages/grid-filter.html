@@ -100,6 +100,23 @@
 
         </div>
 
+        <div class="fil">
+          <paper-menu-button id="category" class="p-0 w-100" horizontal-align="left" vertical-align="top" ignore-select="true">
+            <paper-input label="Category" value="[[categoryText]]" readonly class="grid" slot="dropdown-trigger">
+              <div slot="suffix">
+                <iron-icon class="white" icon="arrow-drop-down"></iron-icon>
+              </div>
+            </paper-input>
+            <div slot="dropdown-content" class="dropdown-menu">
+              <paper-item on-click="updateCategory" data-category="0">Any</paper-item>
+              <template is="dom-repeat" items="[[jobCategories]]" as="cat">
+                <paper-item on-click="updateCategory" data-category$="[[cat.id]]">[[cat.category]]</paper-item>
+              </template>
+            </div>
+          </paper-menu-button>
+
+        </div>
+
         <div class="fil slider">
           <div class="label">Minimum Price (AED) <span>[[price]]</span></div>
           <paper-slider id="price" pin max="10000" step="100" value="{{price}}" class="red w-100"></paper-slider>
@@ -157,12 +174,13 @@
           super();
 
           this.initValue();
-          
+          this._getCategories();
         }
 
         initValue() {
-          this.showText = 'Any';
+          this.showText =  this.categoryText = 'Any';
           this.show = '0';
+          this.category = 0;
           this.price = 0;
           this.radius = 0;
           this.dateFrom = moment().unix();
@@ -207,6 +225,20 @@
           this.shadowRoot.querySelector('#show-only').close();
 
         }
+        
+        updateCategory(e) {
+          const target = e.target;
+          const cat = target.getAttribute('data-category');
+
+          if(cat == 0) {
+            this.categoryText = 'Any';
+          } else {
+            this.categoryText = e.model.cat.category;
+          }
+          this.category = cat;
+
+          this.shadowRoot.querySelector('#category').close();
+        }
 
         filter() {
           if(!this.gmap) return;
@@ -246,6 +278,10 @@
               url += `&price=${this.price}`;
             }
 
+            if(this.category != 0) {
+              url += `&category=${this.category}`;
+            }
+
             
 
             _axios.get(url)
@@ -278,6 +314,17 @@
         redirectHome() {
           super.redirectHome();
           // this.classList.remove('active');
+        }
+
+        _getCategories() {
+          axios.get(`${this.url.API_URL}/jobs/categories`)
+          .then(res => {
+            this.jobCategories = res.data;
+          }).catch(err => {
+            if (err.response) {
+
+            }
+          });
         }
 
         _stripYear(date) {
