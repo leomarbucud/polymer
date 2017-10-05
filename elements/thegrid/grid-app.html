@@ -165,6 +165,24 @@
 				--paper-progress-container-color: var(--dark-grey);
 			}
 
+			.page-cont {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				transition-property: -webkit-transform;
+				transition-property: transform;
+				-webkit-transform: translate3d(-100%, 0, 0);
+				transform: translate3d(-100%, 0, 0);
+				transition-duration: 200ms;
+			}
+
+			.page-cont.page-animate {
+				-webkit-transform: translate3d(0, 0, 0);
+  			transform: translate3d(0, 0, 0);
+			}
+
 		</style>
 
 		<!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
@@ -298,7 +316,7 @@
 		</div>
 
 		<app-drawer id="drawer" align="start" swipe-open opened="{{drawerOpened}}">
-			<grid-drawer user="user" is-logged-in="[[isLoggedIn]]" notifications="{{notifications}}" page="[[page]]"></grid-drawer>
+			<grid-drawer user="user" is-logged-in="[[isLoggedIn]]" notifications="{{notifications}}" page="[[routeData.page]]"></grid-drawer>
 		</app-drawer>
 
 		<paper-toast id="notificationToast" vertical-align="top" horizontal-align="right" >
@@ -372,8 +390,9 @@
 					'_isAuth(auth)',
 					'_setUpNeeded(setupAccount)',
 					'_authenticated(token, user)',
-					'_pageChange(routeData)',
-					'_userPostChange(userPost)'
+					// '_routeDataChange(routeData)',
+					'_userPostChange(userPost)',
+					'_pageChange(routeData.page)',
 				]
 			}
 
@@ -383,13 +402,13 @@
 					this.isPageLoading = false;
 			}
 
-			_pageChange(routeData) {
-				if (routeData.page) {
-					this.shadowRoot.querySelector('iron-pages').classList.add('open');
-				} else {
-					this.shadowRoot.querySelector('iron-pages').classList.remove('open');
-				}
-			}
+			// _routeDataChange(routeData) {
+			// 	if (routeData.page) {
+			// 		this.shadowRoot.querySelector('iron-pages').classList.add('open');
+			// 	} else {
+			// 		this.shadowRoot.querySelector('iron-pages').classList.remove('open');
+			// 	}
+			// }
 
 			constructor() {
 				super();
@@ -587,6 +606,25 @@
 				});
 			}
 
+			_pageChange(page) {
+				if(!page) {
+					const pageCont = this.shadowRoot.querySelector('.page-cont');
+					pageCont.classList.remove('page-animate');
+
+					return;
+				}
+				this.animatePage(page);
+			}
+
+			animatePage(page) {
+				const pageCont = this.shadowRoot.querySelector('.page-cont');
+
+				setTimeout( () => {
+					pageCont.classList.add('page-animate');
+				}, 0);
+
+			}
+
 			_authenticated(token, user) {
 				if (token && user) {
 					window.localStorage.clear();
@@ -666,18 +704,18 @@
 					Polymer.Base.importHref(
 						this.resolveUrl('pages/grid-' + routeData.page + '.html'),
 						() => {
-							self.page = routeData.page;
+							this.page = routeData.page;
 							setTimeout(() => {
 								this.shadowRoot.querySelector('#' + routeData.page).classList.add('active');
 							}, 1);
 							this.isPageLoading = false;
 						},
-						self._showPage404.bind(self),
+						this._showPage404.bind(self),
 						true
 					);
 
 				} else {
-					self.page = null;
+					// this.page = null;
 					Polymer.Base.importHref(
 						this.resolveUrl('components/grid-map.html'),
 						() => {

@@ -652,17 +652,6 @@
 
       }
 
-      viewOnMap() {
-        if (!this.bid && this.map) return;
-
-        const job = this.bid.job;
-        const position = new google.maps.LatLng(job.lat, job.lng);
-
-        this.map.setCenter(position);
-        this.map.setZoom(20);
-        this.redirectHome();
-      }
-
       _conversationIdChange(conversationId) {
         if (!conversationId) {
           this.conversation = [];
@@ -747,14 +736,14 @@
         }
 
         if(diff == 1) {
-          return `Yesterday at ${moment(date).format('HH:mm')}`;
+          return `Yesterday - ${moment(date).format('HH:mm')}`;
         }
 
         if(diff >= 7) {
-          return moment(date).format('MMM D [at] HH:mm');
+          return moment(date).format('MMM D [-] HH:mm');
         }
 
-        return moment(date).format('ddd [at] HH:mm');
+        return moment(date).format('ddd [-] HH:mm');
         // return moment(date).fromNow();
       }
 
