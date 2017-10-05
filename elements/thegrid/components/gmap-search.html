@@ -1,0 +1,261 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../behaviors/map-behavior.html">
+<link rel="import" href="../../../behaviors/navigation-behavior.html">
+<link rel="import" href="../grid-styles.html">
+
+<dom-module id="gmap-search">
+  <template>
+      <style include="grid iron-flex">
+
+      :host {
+        display: block;
+        width: 100%;
+        height: 100%;
+        display: none;
+      }
+
+      :host([opened]) {
+        display: block;
+				position: absolute;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				left: 0;
+				z-index: 98;
+			}
+
+      .wrapper {
+        position: relative;
+        height: 100%;
+        background: var(--light-grey);
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+      }
+
+      #map-canvas-search {
+        height: 100%;
+        width: 100%;
+        background-color: #2b2b2b;
+      }
+
+      .gmnoprint:not(.gm-bundled-control), .gmnoscreen {
+          display: none;
+      }
+      .gm-bundled-control .gmnoprint {
+          display: block;
+      }
+
+      .map-control {
+        position: absolute !important;
+        z-index: 99;
+        width: 100%;
+        display: none;
+      }
+
+      .map-control.active {
+        display: block !important;
+      }
+
+      .map-control.map-control-input {
+        top: 0;
+      }
+
+      .map-control .input-group {
+        padding: 0;
+      }
+
+      .map-control.map-control-marker {
+        width: 27px;
+        height: 33px;
+        top: calc(50% - 33px);
+        left: calc(50% - 13px);
+        pointer-events: none;
+      }
+
+      .map-control.map-control-button {
+        bottom: 0;
+        margin: 0;
+        text-align: center;
+        background: var(--red);
+        color: #FFFFFF;
+        border-radius: 0;
+      }
+
+      #search-location {
+        background-color: var(--dark-grey);
+        color: #FFFFFF;
+      }
+
+
+    </style>
+
+    <div class="wrapper">
+      <div class="toolbar dgrey-bg shadow">
+          <paper-icon-button icon="chevron-left" class="red" on-tap="close"></paper-icon-button>
+        <div class="input-group flex">
+          <input id="search-location" type="text" class="input" value="{{search::input}}" placeholder="Search..."/>
+        </div>
+        <paper-icon-button icon="check" class="red" on-tap="doneSelecting"></paper-icon-button>
+      </div>
+
+      <main class="flex p-0 relative">
+        <div id="map-canvas-search"></div>
+        <iron-icon class="map-control map-control-marker active" src="/assets/images/icons/related-marker.svg"></iron-icon>
+      </main>
+
+    </div>
+
+  </template>
+
+  <script>
+
+    class GmapSearch extends 
+      GridNavigation(
+        MapBehaviorMixin(
+          ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'gmap-search'; }
+
+      static get properties() {
+        return {
+
+          apiKey: {
+            type: String,
+            value: 'AIzaSyAJyuWvZ03O18yHTvC1t3Mlj22VY73hJWc'
+          },
+
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
+          },
+
+          cluster: {
+            type: Boolean,
+            value: false
+          },
+
+          location: {
+            type: Object,
+            notify: true
+          },
+
+          opened: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          }
+
+        }
+
+      }
+
+      static get observers() {
+        return [
+          // '_myPropChanged(myProp.*)'
+        ]
+      }
+
+  
+
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.loadMapCanvas();
+        
+      }
+
+      loadMapCanvas() {
+        let e = this.shadowRoot.querySelector('#map-canvas-search');
+        let options = this.mapOptions;
+        options.maxZoom = 21;
+
+        this.map = new google.maps.Map(e, options);
+        this.map.setOptions({ zoomControlOptions: { position: google.maps.ControlPosition.LEFT_BOTTOM } });
+        
+        if(window.mobilecheck()) {
+          this.map.setOptions({zoomControl: false});
+        }
+
+        this.listenMapEvents();
+      }
+
+      listenMapEvents() {
+        const self = this;
+
+        this.mapListener('center_changed', () => {
+          this.center = {
+            lat: this.map.getCenter().lat(),
+            lng: this.map.getCenter().lng()
+          };
+        });
+
+        const searchLoc = this.shadowRoot.querySelector('#search-location');
+
+        if(searchLoc) {
+          var _searchLoc = new google.maps.places.SearchBox(searchLoc);
+
+					_searchLoc.addListener('places_changed', () => {
+						var places = _searchLoc.getPlaces();
+						if (places.length == 0) {
+							return;
+						}
+						const bounds = new google.maps.LatLngBounds();
+            
+						for (var i = 0, place; place = places[i]; i++) {
+							bounds.extend(place.geometry.location);
+						}
+						this.map.fitBounds(bounds);
+					});
+
+					google.maps.event.addListener(this.map, 'bounds_changed', () => {
+						var bounds = this.map.getBounds();
+						_searchLoc.setBounds(bounds);
+					});
+        }
+      }
+
+      doneSelecting() {
+        this.geocodeLatLng(this.center)
+        .then( res => {
+          // this.location.location = res[0].formatted_address;
+          this.location = {
+            lat: this.map.getCenter().lat(),
+            lng: this.map.getCenter().lng(),
+            location : res[0].formatted_address
+          }
+
+          this.close();
+
+        }).catch( err => {
+          console.log(err);
+        });
+      }
+
+      open() {
+        this.opened = true;
+        google.maps.event.trigger(this.map, 'resize');
+      }
+
+      close() {
+        this.opened = false;
+      }
+
+    }
+
+    customElements.define(GmapSearch.is, GmapSearch);
+  </script>
+</dom-module>

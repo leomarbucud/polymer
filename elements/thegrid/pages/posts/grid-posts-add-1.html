@@ -6,6 +6,7 @@
 <link rel="import" href="../../../../../behaviors/form-slider-behavior.html">
 <link rel="import" href="../../../../../behaviors/map-behavior.html">
 <link rel="import" href="../../components/datepicker.html">
+<link rel="import" href="../../components/gmap-search.html">
 <link rel="import" href="../../grid-styles.html">
 
 <dom-module id="grid-posts-add-1">
@@ -154,7 +155,7 @@
 
 
     <grid-date-picker id="date-picker" date-time="{{when}}" time="{{time}}" no-range="true" has-time="true"></grid-date-picker>
-
+    <gmap-search id="gmap-search" location="{{location}}"></gmap-search>
   </template>
 
   <script>
@@ -193,7 +194,8 @@
       static get observers() {
         return [
           '_formDone(what, when, where, category)',
-          '_isMapInit(gmap)'
+          '_isMapInit(gmap)',
+          '_locationChange(location)'
         ]
       }
 
@@ -295,6 +297,10 @@
       }
 
       showMap() {
+        const gmapSearch = this.shadowRoot.querySelector('#gmap-search');
+        gmapSearch.open();
+
+        /*
         const gmap = this.gmap;
         if(!gmap) return;
 
@@ -307,9 +313,11 @@
 
         const sb = this.shadowRoot.querySelector('.top-search-bar')
         sb.querySelector('input').focus();
+        */
 
       }
 
+      /*
       closeSearchBar() {
         this.hideMap(false);
 
@@ -320,6 +328,7 @@
         const sb = this.shadowRoot.querySelector('.top-search-bar')
         sb.querySelector('input').focus();
       }
+      
 
       hideMap(geocode = true) {
         const gmap = this.gmap;
@@ -347,6 +356,8 @@
           console.log(err);
         });
       }
+
+      */
 
       myLocation() {
         const self = this;
@@ -410,6 +421,13 @@
         };
         console.log(this.data);
         this.redirect('/posts/add/#2');
+      }
+
+      _locationChange(location) {
+        if(!location) return;
+        this.where = location.location;
+        this.lat = location.lat;
+        this.lng = location.lng;
       }
 
       _formDone(what, when, where, category) {
