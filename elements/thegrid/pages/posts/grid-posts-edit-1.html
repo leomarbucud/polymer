@@ -6,6 +6,7 @@
 <link rel="import" href="../../../../../behaviors/form-slider-behavior.html">
 <link rel="import" href="../../../../../behaviors/map-behavior.html">
 <link rel="import" href="../../components/datepicker.html">
+<link rel="import" href="../../components/gmap-search.html">
 <link rel="import" href="../../grid-styles.html">
 
 <dom-module id="grid-posts-edit-1">
@@ -16,42 +17,6 @@
         display: block;
         height: 100%;
         background: var(--light-grey);
-      }
-
-      .map-control {
-        position: absolute !important;
-        z-index: 99;
-        width: 100%;
-        display: none;
-      }
-
-      .map-control.active {
-        display: block !important;
-      }
-
-      .map-control.map-control-input {
-        top: 0;
-      }
-
-      .map-control .input-group {
-        padding: 0;
-      }
-
-      .map-control.map-control-marker {
-        width: 27px;
-        height: 33px;
-        top: calc(50% - 33px);
-        left: calc(50% - 13px);
-        pointer-events: none;
-      }
-
-      .map-control.map-control-button {
-        bottom: 0;
-        margin: 0;
-        text-align: center;
-        background: var(--red);
-        color: #FFFFFF;
-        border-radius: 0;
       }
 
     </style>
@@ -132,28 +97,10 @@
         </form>
       </div>
     </div>
-    <div class="map-control map-control-input">
-      <div class="top-search-bar active">
-        <div class="toolbar shadow">
-          <div class="input-group suffix prefix">
-            <div class="addon-prefix has-button">
-              <paper-icon-button icon="chevron-left" class="pointer" on-click="closeSearchBar"></paper-icon-button>
-            </div>
-            <input id="search-location" type="text" class="input" value="{{search::input}}" placeholder="Search..."/>
-            <div class="addon-suffix has-button">
-              <paper-icon-button icon="close" class="pointer" on-click="clearSearchBar"></paper-icon-button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <iron-icon class="map-control map-control-marker" src="/assets/images/icons/related-marker.svg"></iron-icon>
-
-    <paper-button class="map-control map-control-button" on-tap="hideMap">Done</paper-button>
-
 
     <grid-date-picker id="date-picker" date-time="{{when}}" time="{{time}}" no-range="true" has-time="true"></grid-date-picker>
+    
+    <gmap-search id="gmap-search" location="{{location}}"></gmap-search>
 
   </template>
 
@@ -194,8 +141,8 @@
         return [
           '_formDone(what, when, where, category)',
           '_isMapInit(gmap)',
-          '_dataChange(data)'
-
+          '_dataChange(data)',
+          '_locationChange(location)'
         ]
       }
 
@@ -266,74 +213,10 @@
 
       }
 
-      _setMarkerVisibility(visible) {
-        const gmap = this.gmap;
-        if(!gmap) return;
-
-        if(visible){
-          gmap.classList.remove('selecting');
-        } else {
-          gmap.classList.add('selecting');
-        }
-
-        gmap.markers.forEach( marker => {
-          marker.setVisible(visible);
-        });
-        gmap.markerClusterer.repaint();
-      }
-
       showMap() {
-        const gmap = this.gmap;
-        if(!gmap) return;
+        const gmapSearch = this.shadowRoot.querySelector('#gmap-search');
+        gmapSearch.open();
 
-        this._setMarkerVisibility(false);
-
-        const mapControls = this.shadowRoot.querySelectorAll('.map-control');
-        mapControls.forEach( control => {
-          control.classList.add('active');
-        });
-
-        const sb = this.shadowRoot.querySelector('.top-search-bar')
-        sb.querySelector('input').focus();
-
-      }
-
-      closeSearchBar() {
-        this.hideMap(false);
-
-      }
-
-      clearSearchBar() {
-        this.search = '';
-        const sb = this.shadowRoot.querySelector('.top-search-bar')
-        sb.querySelector('input').focus();
-      }
-
-      hideMap(geocode = true) {
-        const gmap = this.gmap;
-        if(!gmap) return;
-
-        this._setMarkerVisibility(true);
-
-        var mapControls = this.shadowRoot.querySelectorAll('.map-control');
-
-        mapControls.forEach( control => {
-          control.classList.remove('active');
-        });
-
-        if(!geocode) return;
-
-        const pos = {
-          lat: this.lat,
-          lng: this.lng
-        };
-        
-        gmap.geocodeLatLng(pos)
-        .then( res => {
-          this.where = res[0].formatted_address;
-        }).catch( err => {
-          console.log(err);
-        });
       }
 
       myLocation() {
@@ -399,6 +282,13 @@
       redirectPost() {
         if(!this.data) return;
         this.redirect(`/posts/${this.data.id}`);
+      }
+
+      _locationChange(location) {
+        if(!location) return;
+        this.where = location.location;
+        this.lat = location.lat;
+        this.lng = location.lng;
       }
 
       _formDone(what, when, where, category) {

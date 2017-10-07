@@ -273,7 +273,7 @@
 
 				<section data-page="search" class="overlay page-right">
 					<div class="center-page">
-						<grid-search id="search" class="animate circle search" map="{{map}}"></grid-search>
+						<grid-search id="search" map="{{map}}"></grid-search>
 					</div>
 				</section>
 
@@ -506,11 +506,11 @@
 
 			redirectSearch(e) {
 				super.redirectSearch();
-				const s = this.shadowRoot.querySelector('#search');
-				const b = e.target.getBoundingClientRect();
-				let top = b.top + 28;
-				let left = b.left + 28;
-				s.style.clipPath = `circle(28px at ${left}px ${top}px)`;
+				// const s = this.shadowRoot.querySelector('#search');
+				// const b = e.target.getBoundingClientRect();
+				// let top = b.top + 28;
+				// let left = b.left + 28;
+				// s.style.clipPath = `circle(28px at ${left}px ${top}px)`;
 			}
 
 			redirectPostsAdd(e) {
