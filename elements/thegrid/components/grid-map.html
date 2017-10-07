@@ -12,6 +12,7 @@
         display: block;
         width: 100%;
         height: 100%;
+        padding-top: 47px; /* to exclude what is not visible to user */
       }
 
       :host(.selecting) {
@@ -233,12 +234,18 @@
         });
       }
 
-      paintMarkers(data) {
+      paintMarkers(data, bounded = false) {
 
         this.removeAllMarkers();
 
         // setTimeout(() => {
           let markerType = this.markerType.newJob;
+
+          let bounds = null;
+
+          if(bounded) {
+            bounds = new google.maps.LatLngBounds();
+          }
 
           for(var i = 0; i < data.length; i++) {
             markerType = this.markerType.newJob;
@@ -279,11 +286,17 @@
             // this.removeBy( _marker => {
             //   return _marker.id === data[i].id;
             // });
-            setTimeout( y => {
-                // markersArray[y].setMap(MY_MAP);   
-                this._newMarker(data[y]);      
-            }, i*100, i); 
+ 
+            this._newMarker(data[i]);
+            if(bounded) {
+              let position = new google.maps.LatLng(data[i].lat, data[i].lng);
+              bounds.extend(position);
+            }  
             
+          }
+
+          if(bounded) {
+            this.map.fitBounds(bounds);
           }
 
           // this.gmap.markerClusterer.repaint();
@@ -438,6 +451,7 @@
           currency: 'AED',
 					price: 'AED ' + data.price,
           date: data.date,
+          distance: data.distance || null,
 					isBidded: data.isBidded,
 					isMyPost: data.isMyPost,
 					lat: parseFloat(data.lat),

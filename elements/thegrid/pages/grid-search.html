@@ -114,10 +114,13 @@
             <div class="search-result flex layout horizontal pointer" on-click="viewJob">
               <div class="flex job-info">
                 <div class="job-name">[[job.name]]</div>
-                <div class="job-date">[[_fromNow(job.date)]]</div>
+                <div class="job-date">[[_roundDistance(job.distance)]] : [[_fromNow(job.date)]]</div>
               </div>
-              <div class="job-avatar">
-              </div>
+              <template is="dom-if" if="[[job.files.length]]">
+                <div class="job-avatar" style$="background-image: url([[_getFilePath(job.files.0.path)]]); background-size: cover; background-position: center;">
+
+                </div>
+              </template>
             </div>
           </template>
         </section>
@@ -126,7 +129,9 @@
         </div>
       </div>
     </main>
-
+    <template is="dom-if" if="[[search_results.length]]">
+      <paper-button class="white w-100" on-click="viewResultsOnMap">View results on map</paper-button>
+    </template>
   </template>
 
   <script>
@@ -244,7 +249,13 @@
 
         this.searching = true;
 
-        axios.get(API_URL + '/jobs/search?q=' + this.q)
+        let url = `${this.url.API_URL}/jobs/search?q=${this.q}`;
+        const gmapLoc = this.gmap.currentLocation;
+        if(gmapLoc) {
+          url += `&lat=${gmapLoc.lat}&lng=${gmapLoc.lng}`;
+        }
+
+        axios.get(url)
         .then( res => {
 
           if( res.data.length > 0 ) {
@@ -268,19 +279,29 @@
 
         const position = new google.maps.LatLng(job.lat, job.lng);
 
-        this.map.setCenter(position);
-        this.map.setZoom(20);
+        this.gmap.map.setCenter(position);
+        this.gmap.map.setZoom(20);
         this.redirectHome();
 
       }
 
       searchThis(e) {
-        this.redirect('/search/' + e.model.search);
+        this.redirect(`/search/${e.model.search}`);
       }
 
       clearRecentSearch() {
         window.localStorage.removeItem('recent_searches');
         this.set('recent_searches', []);
+        this.set('search_results', []);
+      }
+
+      viewResultsOnMap() {
+        if(!this.search_results) return;
+
+        const gmap = this.gmap;
+
+        gmap.paintMarkers(this.search_results, true);
+        this.redirectHome();
       }
 
       _fromNow(date) {
@@ -304,6 +325,7 @@
           this.show_recent_searches = false;
         }
       }
+
       _countRecentSearches(recent_searches) {
         if(recent_searches.length > 0 ) {
           this.show_recent_searches = true;
@@ -311,6 +333,19 @@
           this.show_recent_searches = false;
         }
       }
+
+      _roundDistance(d) {
+        const df = d.toFixed(2);
+				if(df < 1) {
+					const m = df * 1000;
+					return `${m}m`;
+				}
+				return `${df}km`;
+      }
+
+      _getFilePath(path) {
+        return `${this.url.API_BASE_URL}/uploads/${path}`;
+			}
 
     }
 

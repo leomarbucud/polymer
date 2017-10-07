@@ -216,7 +216,8 @@
       showMap() {
         const gmapSearch = this.shadowRoot.querySelector('#gmap-search');
         gmapSearch.open();
-
+        let center = new google.maps.LatLng(this.data.lat, this.data.lng);
+        gmapSearch.map.setCenter(center);
       }
 
       myLocation() {
@@ -287,8 +288,8 @@
       _locationChange(location) {
         if(!location) return;
         this.where = location.location;
-        this.lat = location.lat;
-        this.lng = location.lng;
+        this.lat = this.data.lat = location.lat;
+        this.lng = this.data.lng = location.lng;
       }
 
       _formDone(what, when, where, category) {
