@@ -897,6 +897,8 @@
 			_initSocketEvents() {
 
 				socket.on('post:bidded', data => {
+
+					if(!this.post) return;
 					// console.log('biddedddddddd', data);
 					if(data.id == this.post.id) {
 						this.countDown(data.date);

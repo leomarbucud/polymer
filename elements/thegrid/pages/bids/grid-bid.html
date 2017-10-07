@@ -1,4 +1,5 @@
 <link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
@@ -74,6 +75,9 @@
     <div id="toolbar" class="toolbar">
       <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectBids"></paper-icon-button>
       <span class="flex"></span>
+      <template is="dom-if" if="[[!_awarded]]">
+        <paper-button class="red" on-click="openRebidDialog">Rebid</paper-button>
+      </template>
     </div>
 
     <main class="scroll-area flex">
@@ -186,7 +190,7 @@
           </div>
           <span>[[totalBidders]]</span>
         </div>
-      
+        <!--
         <div class="section-details">
           <div class="flex">
             <span class="title">Highest bid</span>
@@ -200,7 +204,7 @@
           </div>
           <span>AED [[lowestBid]]</span>
         </div>
-
+      -->
         <div class="divider">
           <hr/>
         </div>
@@ -264,6 +268,19 @@
         </div>
       </div>
     </template>
+
+    <paper-dialog id="rebidDialog" class="dialog-dark">
+      <h2>Rebid</h2>
+      <div>
+        <div class="input-group">
+          <input type="number" value="{{rebid::input}}" class="input"  placeholder="Amount" />
+        </div>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss class="white">Cancel</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="submitRebid" class="white">Rebid</paper-button>
+      </div>
+    </paper-dialog>
 
   </template>
 
@@ -501,6 +518,29 @@
         }).catch( err => {
 
         }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      openRebidDialog() {
+        const rebidDialog = this.shadowRoot.querySelector('#rebidDialog');
+        rebidDialog.open();
+      }
+
+      submitRebid() {
+
+        this.isLoading = true;
+
+        gAxios.post(`/users/${this.user.id}/bids/${this.bid.id}/rebid`, {
+          bid_id: this.bid.id,
+          bid: this.rebid
+        })
+        .then(res => {
+          window.dispatchEvent(new CustomEvent('user:bidded', { detail: res.data }) );
+          this.dispatch('updateBid', res.data);
+        }).catch(err => {
+
+        }).then(() => {
           this.isLoading = false;
         });
       }

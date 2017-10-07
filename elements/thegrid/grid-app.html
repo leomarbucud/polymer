@@ -391,7 +391,14 @@
 					// '_routeDataChange(routeData)',
 					'_userPostChange(userPost)',
 					'_pageChange(routeData.page)',
+					'_isPageLoadingChange(isPageLoading)'
 				]
+			}
+
+			_isPageLoadingChange(isPageLoading) {
+				if(!isPageLoading) {
+					// this.animatePage(this.page);
+				}
 			}
 
 			_userPostChange(userPost) {
@@ -616,7 +623,7 @@
 
 			animatePage(page) {
 				const pageCont = this.shadowRoot.querySelector('.page-cont');
-
+				
 				setTimeout( () => {
 					pageCont.classList.add('page-animate');
 				}, 0);

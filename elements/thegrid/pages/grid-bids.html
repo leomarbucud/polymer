@@ -494,7 +494,15 @@
           const _data = data;
           if(this.auth) {
             if(_data.user.id == this.user.id) {
-              this.dispatch('addBid', _data);
+
+              const existingBid = this.bids.find(bid => {
+                return bid.id == res.data.id;
+              });
+              if(existingBid) {
+                this.dispatch('updateBid', res.data);
+              } else {
+                this.dispatch('addBid', res.data);
+              }
               // console.log('this is bid data', d_ata);
               // gAxios.get('/users/' + this.user.id + '/bids/' + _data.id)
               // .then(res => {
