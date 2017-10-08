@@ -148,26 +148,6 @@
         super();
         const self = this;
 
-      //   //self.loadGoogleApi('https://maps.googleapis.com/maps/api/js?key=' + self.apiKey + '&libraries=places', function() {
-      //     self.loadMapCanvas();
-      //     if( self.cluster ) {
-      //       //self.loadGoogleApi('/assets/js/markerclusterer.js',
-      //         //function() {
-      //             self.markerClusterer = new MarkerClusterer(self.map, [], self.clusterOptions);
-      //        // }
-      //      // );
-      //     }
-      //     self.loadGoogleApi('https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.3/oms.min.js',
-      //       function() {
-      //         self.oms = new OverlappingMarkerSpiderfier(self.map, {
-      //           markersWontMove: true,   // we promise not to move any markers, allowing optimizations
-      //           markersWontHide: true,   // we promise not to change visibility of any markers, allowing optimizations
-      //           basicFormatEvents: true  // allow the library to skip calculating advanced formatting information
-      //         });
-      //       }
-      //     )
-      //  // });
-
         this._initSocketEvents();
 
         window.addEventListener('user:connected', e => {
@@ -182,6 +162,15 @@
           console.log(e.detail);
           // this.paintMarkers(e.detail);
         });
+
+        let last_location = localStorage.getItem('last_location');
+
+        if(last_location) {
+          last_location = JSON.parse(last_location);
+          const center = new google.maps.LatLng(last_location.lat, last_location.lng);
+          this.mapOptions.center.lat = last_location.lat;
+          this.mapOptions.center.lng = last_location.lng;
+        }
 
       }
 
@@ -234,13 +223,24 @@
 
         this.map = new google.maps.Map(e, options);
         this.map.setOptions({ zoomControlOptions: { position: google.maps.ControlPosition.LEFT_BOTTOM } });
+
+        this.setMapCenter(this.map);
         
         if(window.mobilecheck()) {
-          console.log('this is mobile');
           this.map.setOptions({zoomControl: false});
         }
         this.listenMapEvents();
         this.populateJobMarkers();
+      }
+
+      setMapCenter(map) {
+        if(!window.localStorage) return;
+        let last_location = localStorage.getItem('last_location');
+        if(last_location) {
+          last_location = JSON.parse(last_location);
+          const center = new google.maps.LatLng(last_location.lat, last_location.lng);
+          map.setCenter(center);
+        }
       }
 
       listenMapEvents() {

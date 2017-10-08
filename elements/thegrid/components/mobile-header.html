@@ -551,6 +551,8 @@
 				}
 
 				this.shadowRoot.querySelector('#location').classList.remove('inactive');
+
+				this.saveCurrentLocation(latLng);
 			}
 
 			getCurrentLocation() {
@@ -590,11 +592,15 @@
       setCurrentLocation() {
 				if(this.currentLocation) {
 					this.setMarker(this.currentLocation, true);
-				} else {
-					this.getCurrentLocation();
 				}
-				
-      }
+				this.getCurrentLocation();
+			}
+			
+			saveCurrentLocation(pos) {
+				if(window.localStorage) {
+					localStorage.setItem('last_location', JSON.stringify({ lat: pos.lat(), lng: pos.lng()}));
+				}
+			}
 
 			openFilters() {
 				this.$.filters.open();
