@@ -189,6 +189,9 @@
                 <span>[[skill.skill]]</span>
               </div>
             </template>
+            <template is="dom-if" if="[[!user.skills.length]]">
+              <paper-item>No recent posts</paper-item>
+            </template>
           </div>
         </div>
 
@@ -282,7 +285,7 @@
                 </a>
               </template>
               <template is="dom-if" if="[[!reviews.length]]">
-                <paper-item>No completed jobs</paper-item>
+                <paper-item>No reviews</paper-item>
               </template>
             </template>
           </div>

@@ -60,8 +60,11 @@
 
     </div>
 
-    <paper-toast id="searchResultToast" duration="0" class="fit-bottom">
-      <paper-button class="red" on-click="closeSearchResult">View all</paper-button>
+    <paper-toast id="searchResultToast" duration="0" class="-fit-bottom" horizontal-align="right" vertical-align="top">
+      <div class="block align-right" style="margin-right: -24px; margin-bottom: -16px; margin-top: 16px;">
+        <paper-button class="red" on-click="closeSearchResultToast">Close</paper-button>
+        <paper-button class="red" on-click="closeSearchResult">View all</paper-button>
+      </div>
     </paper-toast>
 
   </template>
@@ -217,8 +220,12 @@
 
       closeSearchResult() {
         this.populateJobMarkers();
-        this.searchResultToast.toggle();
         this.redirectHome();
+        this.searchResultToast.toggle();
+      }
+
+      closeSearchResultToast() {
+        this.searchResultToast.toggle();
       }
 
       loadMapCanvas() {
@@ -312,8 +319,19 @@
             // this.removeBy( _marker => {
             //   return _marker.id === data[i].id;
             // });
+
+            const duplicateMarker = this.findBy( m => {
+              return (m.lat == data[i].lat && m.lng == data[i].lng);
+            });
+
+            if(duplicateMarker.length) {
+              const offsetPositon = this.offsetMarker(data[i].lat, data[i].lng, 2);
+              data[i].lat = offsetPositon.lat;
+              data[i].lng = offsetPositon.lng;
+            }
  
             this._newMarker(data[i]);
+
             if(bounded) {
               let position = new google.maps.LatLng(data[i].lat, data[i].lng);
               bounds.extend(position);
@@ -325,7 +343,7 @@
             this.map.fitBounds(bounds);
           }
 
-          // this.gmap.markerClusterer.repaint();
+          this.gmap.markerClusterer.repaint();
           
         // }, 1000);
         
@@ -410,6 +428,22 @@
 
       newMarker(data) {
         this._newMarker(data);
+      }
+
+      offsetMarker(lat, lng, m = 2) {
+        lat = Number(lat);
+        lng = Number(lng);
+
+        const r = 6378137;
+        const offset = m;
+
+        const offsetLat = offset/r;
+        const offsetLng = offset/(r*Math.cos(Math.PI*lat/180));
+
+        return {
+          lat: lat + offsetLat * 180/Math.PI,
+          lng: lng + offsetLng * 180/Math.PI
+        };
       }
 
       updateMarker(data) {

@@ -63,6 +63,20 @@
         opacity: 0.7;
       }
 
+      .transactions-summary {
+        /* height: 100px; */
+      }
+
+      .expenses, .earnings {
+        width: 50%;
+        text-align: center;
+      }
+
+      .expenses .amount, .earnings .amount {
+        font-size: 24px;
+        display: block;
+      }
+
     </style>
 
 
@@ -135,6 +149,23 @@
         </template>
       </div>
     </main>
+
+    <div class="transactions-summary p-1 white dgrey-bg">
+      <div class="layout horizontal flex">
+        <div class="expenses">
+          Total expenses
+          <span class="amount">
+            AED [[totalExpenses]]
+          </span>
+        </div>
+        <div class="earnings">
+          Total earnings
+          <span class="amount">
+            AED [[totalEarnings]]
+          </span>
+        </div>
+      </div>
+    </div>
 
     <app-route route="{{route}}"
       pattern="/transactions"
@@ -213,7 +244,8 @@
         return [
         '_subrouteChange(subroute)',
         '_subrouteDataChange(subrouteData)',
-        '_search(search)'
+        '_search(search)',
+        '_transactionsChange(transactions)'
         ]
       }
 
@@ -485,6 +517,26 @@
         if(this.user.id == supplier.id) {
           return 'Receivable';
         }
+      }
+
+      _transactionsChange(transactions) {
+        if(!transactions.length) return;
+
+        this.totalExpenses = 0;
+        this.totalEarnings = 0;
+        
+        transactions.forEach( trans => {
+          let type = this._transactionType(trans.customer, trans.supplier);
+          if(type == 'Payable'){
+            this.totalExpenses += trans.bid.price_bid;
+          } else if( type == 'Receivable') {
+            this.totalEarnings += trans.bid.price_bid;
+          }
+        });
+        
+        this.totalExpenses = this.totalExpenses.toLocaleString();
+        this.totalEarnings = this.totalEarnings.toLocaleString();
+
       }
 
       _initSocketEvents() {
