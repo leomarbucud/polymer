@@ -2,7 +2,7 @@
 <link rel="import" href="../../../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../../bower_components/paper-item/paper-item-body.html">
-<link rel="import" href="../../grid-styles.html?v=1.2.9">
+<link rel="import" href="../../grid-styles.html?v=1.0">
 
 <dom-module id="grid-help-center">
   <template>
@@ -339,7 +339,7 @@
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector('#help-' + subrouteData.id) ) {
             Polymer.Base.importHref(
-  						'/elements/thegrid/pages/help/grid-' + subrouteData.id + '.html?v=1.2.9',
+  						'/elements/thegrid/pages/help/grid-' + subrouteData.id + '.html?v=1.0',
   						() => {
                 this.subPage = subrouteData.id;
   						}
