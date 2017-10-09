@@ -5,8 +5,8 @@
 <link rel="import" href="../../../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../grid-icons.html?v=1.2.7">
-<link rel="import" href="../grid-styles.html?v=1.2.7">
+<link rel="import" href="../grid-icons.html?v=1.2.8">
+<link rel="import" href="../grid-styles.html?v=1.2.8">
 
 <dom-module id="grid-drawer">
   <template>
@@ -150,7 +150,7 @@
       </div>
     </template>
 
-    <div role="list" hidden$="[[showOptions]]">
+    <div role="list" hidden$="[[showOptions]]" class="layout vertical flex">
 
       <iron-selector attr-for-selected="data-page" selected="[[page]]">
 
@@ -222,7 +222,13 @@
         </a>
 
       </iron-selector>
-
+      <div class="flex"></div>
+      <paper-icon-item>
+        <iron-icon icon="grid:system-update-alt" class="white" slot="item-icon"></iron-icon>
+        <paper-item-body>
+          <div>Version 1.2.8</div>
+        </paper-item-body>
+      </paper-icon-item>
     </div>
 
     <template is="dom-if" if="[[isLoggedIn]]">
