@@ -6,6 +6,7 @@
   "dependencies": {
     "avatar-crop": "0.0.1",
     "axios": "^0.16.2",
+    "dotenv": "^4.0.0",
     "moment": "^2.18.1",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",

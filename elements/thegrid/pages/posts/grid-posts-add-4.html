@@ -240,7 +240,7 @@
 				// dispatch posting event
 				window.dispatchEvent(new CustomEvent('posting'));
 
-				gAxios.post('/users/' + this.user.id + '/jobs', this.formData)
+				gAxios.post(`/users/${this.user.id}/jobs`, this.formData)
 					.then(res => {
 						var data = res.data;
 
@@ -252,8 +252,10 @@
 						data.isMyPost = true;
 						data.isBidded = false;
 
-						// add new marker to the map
+						// add new marker to the map and focus
 						this.gmap.newMarker(data);
+						const center = new google.maps.LatLng(data.lat, data.lng);
+						this.gmap.map.setCenter(center);
 
 						// dispatch event
 						window.dispatchEvent(new CustomEvent('user:posted', { detail: data }) );

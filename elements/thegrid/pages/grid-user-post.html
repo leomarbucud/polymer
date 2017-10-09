@@ -158,100 +158,109 @@
 			</div>
 		</div>
 
-		<main class="scroll-area flex">
-			<section class="p-y-1 user-info">
-				<div class="flex layout horizontal">
-					<div class="avatar">
-						<a href$="/@[[post.user.username]]"><img class="circle" src$="[[_profileImage(post.user.profile.profile_image_url)]]"></a>
-					</div>
-					<div class="name">
-						<span id="main-title">[[post.user.name]]</span>
-						<small>[[_fromNow(post.created_at)]]</small>
-					</div>
-				</div>
-			</section>
-
-			<section class="p-y-1 white">
-				<div class="section-title">
-					<div class="flex" style="padding-right: 16px;">
-						<span class="title">[[post.name]]</span>
-						<small class="category block">Category: [[post.category.category]]</small>
-						<small class="block">Location: [[post.location]]</small>
-					</div>
-					<div class="center layout vertical">
-						<paper-icon-button icon="grid:location" class="white" on-tap="viewOnMap"></paper-icon-button>
-						<template is="dom-if" if="[[_getDistance(post.lat, post.lng)]]">
-							<small>[[_getDistance(post.lat, post.lng)]]</small>
-						</template>
-					</div>
-				</div>
-
-				<div id="carousel"></div>
-
-				<div class="divider"><hr/></div>
-
-				<div class="section-title">
-					<div class="flex">
-						<span class="title">Details</span>
-					</div>
-				</div>
-
-				<div class="section-details">
-					<div class="flex">
-						<span class="title">Budget</span>
-						<!-- <iron-icon icon="grid:amount" class="white"></iron-icon> -->
-					</div>
-					<span>AED [[post.price]]</span>
-				</div>
-
-				<div class="section-details">
-					<div class="flex">
-						<span class="title">Job needed</span>
-						<!-- <iron-icon icon="grid:clock" class="white"></iron-icon> -->
-					</div>
-					<span data-countdown$="[[post.date]]">[[_fromNow(post.date)]]</span>
-				</div>
-				
-				<div class="section-details">
-					<div class="flex">
-						<span class="title">Posted</span>
-						<!-- <iron-icon icon="grid:calendar" class="white"></iron-icon> -->
-					</div>
-					<span>[[_fromNow(post.created_at)]]</span>
-				</div>
-
-				<div hidden$="[[!hasPDF]]">
-					<div class="section-details">
-						<div class="flex">
-							<span class="title">PDF</span>
+		<main class="scroll-area flex" hidden$="[[isLoading]]">
+			<div hidden="[[showLoadingPost]]">
+				<section class="p-y-1 user-info">
+					<div class="flex layout horizontal">
+						<div class="avatar">
+							<a href$="/@[[post.user.username]]"><img class="circle" src$="[[_profileImage(post.user.profile.profile_image_url)]]"></a>
 						</div>
-						<span><div id="docs"></div></span>
+						<div class="name">
+							<span id="main-title">[[post.user.name]]</span>
+							<small>[[_fromNow(post.created_at)]]</small>
+						</div>
 					</div>
-				</div>
+				</section>
 
-				<p>[[_details(post.details)]]</p>
+				<section class="p-y-1 white">
+					<div class="section-title">
+						<div class="flex" style="padding-right: 16px;">
+							<span class="title">[[post.name]]</span>
+							<small class="category block">Category: [[post.category.category]]</small>
+							<small class="block">Location: [[post.location]]</small>
+						</div>
+						<div class="center layout vertical">
+							<paper-icon-button icon="grid:location" class="white" on-tap="viewOnMap"></paper-icon-button>
+							<template is="dom-if" if="[[_getDistance(post.lat, post.lng)]]">
+								<small>[[_getDistance(post.lat, post.lng)]]</small>
+							</template>
+						</div>
+					</div>
 
-				<template is="dom-if" if="[[isService]]">
+					<div id="carousel"></div>
 
 					<div class="divider"><hr/></div>
 
 					<div class="section-title">
 						<div class="flex">
-							<span class="title">Required Skills</span>
+							<span class="title">Details</span>
 						</div>
 					</div>
 
-					<template is="dom-repeat" items="[[post.skills]]" as="skill">
-						<div class="chip">
-							<span>[[skill.skill]]</span>
+					<div class="section-details">
+						<div class="flex">
+							<span class="title">Budget</span>
+							<!-- <iron-icon icon="grid:amount" class="white"></iron-icon> -->
 						</div>
-					</template>
-					<template is="dom-if" if="[[!post.skills.length]]">
-						<p>No set of skills provided.</p>
-					</template>
+						<span>AED [[post.price]]</span>
+					</div>
 
-				</template>
-			</section>
+					<div class="section-details">
+						<div class="flex">
+							<span class="title">Job needed</span>
+							<!-- <iron-icon icon="grid:clock" class="white"></iron-icon> -->
+						</div>
+						<span data-countdown$="[[post.date]]">[[_fromNow(post.date)]]</span>
+					</div>
+					
+					<div class="section-details">
+						<div class="flex">
+							<span class="title">Posted</span>
+							<!-- <iron-icon icon="grid:calendar" class="white"></iron-icon> -->
+						</div>
+						<span>[[_fromNow(post.created_at)]]</span>
+					</div>
+
+					<div hidden$="[[!hasPDF]]">
+						<div class="section-details">
+							<div class="flex">
+								<span class="title">PDF</span>
+							</div>
+							<span><div id="docs"></div></span>
+						</div>
+					</div>
+
+					<p>[[_details(post.details)]]</p>
+
+					<template is="dom-if" if="[[isService]]">
+
+						<div class="divider"><hr/></div>
+
+						<div class="section-title">
+							<div class="flex">
+								<span class="title">Required Skills</span>
+							</div>
+						</div>
+
+						<template is="dom-repeat" items="[[post.skills]]" as="skill">
+							<div class="chip">
+								<span>[[skill.skill]]</span>
+							</div>
+						</template>
+						<template is="dom-if" if="[[!post.skills.length]]">
+							<p>No set of skills provided.</p>
+						</template>
+
+					</template>
+				</section>
+			</div>
+
+			<template is="dom-if" if="[[showLoadingPost]]">
+				<section class="p-y-1 white align-center">
+					<h1>Post not found</h1>
+					<paper-button class="white" on-click="redirectHome">Go to home</paper-button>
+				</section>
+			</template>
 
 		</main>
 		<div id="bid-box">
@@ -571,14 +580,6 @@
 
 			populatePost(postId) {
 				
-				// axios.get(`${this.url.API_URL}/jobs/${postId}`)
-				// .then(res => {
-					
-
-				// }).then(() => {
-				// 	this.isLoading = false;
-				// });
-
 				const getLiveData = (url) => {
 					return axios.get(url, {
 						headers: {}
@@ -599,7 +600,7 @@
 					}
 				};
 
-				getLiveData(`${this.url.API_URL}/jobs/${postId}`).then(res => {
+				const liveData = getLiveData(`${this.url.API_URL}/jobs/${postId}`).then(res => {
 					if(!res) return false;
 					if(res.data) {
 						this.post = res.data;
@@ -614,7 +615,7 @@
 					return false;   
 				});
 
-				getChachedData(`${this.url.API_URL}/jobs/${postId}`).then(res => {
+				const cacheData = getChachedData(`${this.url.API_URL}/jobs/${postId}`).then(res => {
 					if(!res) return false;
 					if(res.data) {
 						this.post = res.data;
@@ -628,6 +629,15 @@
 					}
 					return false;
 				});
+
+				liveData.then( fetched => {
+          return fetched || cacheData;
+        }).then( dataFetched => {
+          if(!dataFetched) {
+            this.showLoadingPost = true;
+          }
+          this.isLoading = false;
+        });
 
 			}
 

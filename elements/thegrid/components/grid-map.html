@@ -1,5 +1,4 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../behaviors/map-behavior.html">
 <link rel="import" href="../../../behaviors/navigation-behavior.html">
@@ -47,6 +46,20 @@
         text-transform: none;
       }
 
+      .clear-search, .clear-filter {
+        position: absolute;
+        bottom: 22px;
+        width: 100px;
+        text-align: center;
+        right: calc(50% - 50px);
+        cursor: pointer;
+        display: none;
+      }
+
+      .clear-search.show, .clear-filter.show {
+        display: block;
+      }
+
 
     </style>
 
@@ -60,12 +73,13 @@
 
     </div>
 
-    <paper-toast id="searchResultToast" duration="0" class="-fit-bottom" horizontal-align="right" vertical-align="top">
-      <div class="block align-right" style="margin-right: -24px; margin-bottom: -16px; margin-top: 16px;">
-        <paper-button class="red" on-click="closeSearchResultToast">Close</paper-button>
-        <paper-button class="red" on-click="closeSearchResult">View all</paper-button>
-      </div>
-    </paper-toast>
+    <div id="clearSearch" class="clear-search">
+      <span class="white" on-click="closeClearSearch">Clear Search</span>
+    </div>
+    
+    <div id="clearFilter" class="clear-filter">
+      <span class="white" on-click="closeClearFilter">Clear Filter</span>
+    </div>
 
   </template>
 
@@ -201,20 +215,32 @@
 
       }
 
-      openSearchResultToast(text) {
-        this.searchResultToast.text = text;
-        this.searchResultToast.fitInto = this;
-        this.searchResultToast.open();
+      openClearSearch() {
+        this.closeClearFilter(false);
+        const clearSearch = this.shadowRoot.querySelector('#clearSearch');
+        clearSearch.classList.add('show');
       }
-
-      closeSearchResult() {
-        this.populateJobMarkers();
-        this.redirectHome();
-        this.searchResultToast.toggle();
+      
+      closeClearSearch(reload = true) {
+        const clearSearch = this.shadowRoot.querySelector('#clearSearch');
+        clearSearch.classList.remove('show');
+        if(reload) {
+          this.populateJobMarkers();
+        }
       }
-
-      closeSearchResultToast() {
-        this.searchResultToast.toggle();
+      
+      openClearFilter() {
+        this.closeClearSearch(false);
+        const clearFilter = this.shadowRoot.querySelector('#clearFilter');
+        clearFilter.classList.add('show');
+      }
+      
+      closeClearFilter(reload = true) {
+        const clearFilter = this.shadowRoot.querySelector('#clearFilter');
+        clearFilter.classList.remove('show');
+        if(reload) {
+          this.populateJobMarkers();
+        }
       }
 
       loadMapCanvas() {
@@ -315,11 +341,6 @@
               continue;
             }
 
-            // IDEA: remove existing marker before adding it
-            // this.removeBy( _marker => {
-            //   return _marker.id === data[i].id;
-            // });
-
             const duplicateMarker = this.findBy( m => {
               return (m.lat == data[i].lat && m.lng == data[i].lng);
             });
@@ -412,6 +433,8 @@
         }).then( dataFetched => {
           if(!dataFetched) {
             // 
+            alert('Unable to load the markers');
+            window.location.href = '/';
           }
           this.loadingJobMarkers = false;
         });
@@ -420,10 +443,6 @@
 
       _markersChange(markers) {
         if(!markers) return;
-        // console.log(markers);
-        // for(var i = 0; i < markers.length; i++) {
-        //   this._newMarker(markers[i]);
-        // }
       }
 
       newMarker(data) {
@@ -462,50 +481,26 @@
       }
 
       _newMarker(data) {
-				var self = this;
-				var customPin = {
-					path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
-					fillColor: data.fillColor,
-					fillOpacity: 1,
-					scale: 1.5,
-					strokeColor: data.fillColor,
-					strokeWeight: 0.5,
-					width: 36,
-					height: 36
-				};
-				var svg = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="'+customPin.width+'" height="'+customPin.height+'"><path transform="scale('+customPin.scale+')" fill="'+customPin.fillColor+'" stroke="'+customPin.strokeColor+'" stroke-width="'+customPin.strokeWeight+'" d="'+customPin.path+'"/></svg>';
-				// var d = JSON.stringify(data),
-				// 	content = document.createElement('grid-info-window');
-				// content.data = d;
-				// content.isMyPost = data.isMyPost;
-        // content.isBidded = data.isBidded;
-
-        var content = data.name + '<br/>' + 'AED ' + data.price;
-
-        var icon = '/assets/images/icons/unrelated-marker.svg';
+        
+        var icon = 'unrelated-marker.svg';
 
         if( data.isBidded || data.isMyPost ) {
-          icon = '/assets/images/icons/related-marker.svg';
+          icon = 'related-marker.svg';
         }
 
         if(data.isAwarded) {
-          icon = '/assets/images/icons/awarded-marker.svg';
+          icon = 'awarded-marker.svg';
         }
 
-				// var dups = self.findBy( marker => {
-				// 	return (marker.lat == data.lat) && (marker.lng == data.lng);
-				// });
-
-        var post_url = (username, post_id) => {
-          return '/@' + username + '/posts/' + post_id; 
+        const post_url = (username, post_id) => {
+          return `/@${username}/posts/${post_id}`;
         };
 
-        var _icon = {
-          url: icon,
-          //labelOrigin: new google.maps.Point(10, 40)
-        }
+        const _icon = {
+          url: `/assets/images/icons/${icon}`
+        };
 
-				self.addMarker({
+				this.addMarker({
           id: data.id,
           category: data.category_id,
           currency: 'AED',
@@ -518,7 +513,6 @@
 					lng: parseFloat(data.lng),
 					icon: _icon,
           user: data.user,
-					// content: content,
 					events: [
 						{
 							name: 'spider_click',
@@ -528,12 +522,6 @@
 							}
 						}
 					],
-					// label: {
-					// 	text: "AED " + data.price,
-					// 	color: '#FFF',
-					// 	fontSize: '12px',
-					// 	fontWeight: 'normal',
-					// }
 				});
 			}
 

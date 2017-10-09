@@ -292,7 +292,8 @@
         const gmap = this.gmap;
 
         gmap.paintMarkers(this.search_results, true);
-        gmap.openSearchResultToast(`Showing search results from '${this.q}'`);
+        // gmap.openSearchResultToast(`Showing search results from '${this.q}'`);
+        gmap.openClearSearch()
         this.redirectHome();
       }
 
