@@ -74,11 +74,11 @@
     </div>
 
     <div id="clearSearch" class="clear-search">
-      <span class="white" on-click="closeClearSearch">Clear Search</span>
+      <span class="red" on-click="closeClearSearch">Clear Search</span>
     </div>
     
     <div id="clearFilter" class="clear-filter">
-      <span class="white" on-click="closeClearFilter">Clear Filter</span>
+      <span class="red" on-click="closeClearFilter">Clear Filter</span>
     </div>
 
   </template>
@@ -227,6 +227,7 @@
         if(reload) {
           this.populateJobMarkers();
         }
+        window.dispatchEvent(new CustomEvent('map:clear_search'));
       }
       
       openClearFilter() {
@@ -241,6 +242,7 @@
         if(reload) {
           this.populateJobMarkers();
         }
+        window.dispatchEvent(new CustomEvent('map:clear_filter'));
       }
 
       loadMapCanvas() {

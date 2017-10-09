@@ -222,6 +222,11 @@
           self.searching = false;
         });
 
+        window.addEventListener('map:clear_search', () => {
+          this.set('search_results', []);
+          this.q = '';
+        });
+
       }
 
       search() {

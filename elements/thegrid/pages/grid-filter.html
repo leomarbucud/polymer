@@ -177,6 +177,14 @@
           this._getCategories();
         }
 
+        connectedCallback() {
+          super.connectedCallback();
+
+          window.addEventListener('map:clear_filter', () => {
+            this.initValue();
+          });
+        }
+
         initValue() {
           this.showText =  this.categoryText = 'Any';
           this.show = '0';
