@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../../bower_components/neon-animation/web-animations.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
@@ -323,6 +324,16 @@
 
 		<div id="offline">No internet connection.</div>
 
+		<paper-dialog id="updateDialog" class="dialog-dark">
+			<h2>The Grid</h2>
+			<div>
+				<p>There is a new version of the app</p>
+			</div>
+			<div class="buttons">
+				<paper-button dialog-confirm autofocus on-tap="updateApp">Update</paper-button>
+			</div>
+		</paper-dialog>
+
 	</template>
 
 	<script>
@@ -419,6 +430,7 @@
 				super();
 				this._checkLogin();
 				this._initSocketEvents();
+				this.checkAppVersion();
 
 				window.addEventListener('user:connected', e => {
 					
@@ -539,6 +551,55 @@
 						}
 					}
 				});
+			}
+
+			checkAppVersion() {
+				this.new_version = null;
+
+				const check = () => {
+					if(window.localStorage) {
+						const app_version = localStorage.getItem('app_version');
+						axios.get(`${this.url.API_URL}/app-version`)
+						.then( res => {
+							const version = res.data.version;
+							if(app_version) {
+								if(app_version != version) {
+									// prompt user to update
+									this.shadowRoot.querySelector('#updateDialog').open();
+									this.new_version = version;
+									clearInterval(checking);
+								}
+							} else {
+								localStorage.setItem('app_version', version);
+							}
+						});
+					}
+				};
+
+				const checking = setInterval( () => {
+					check();
+				}, 600000);
+
+				check();
+			}
+
+			updateApp() {
+				const self = this;
+				if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+              registration.unregister();
+            }
+						
+						if(self.new_version) {
+							localStorage.setItem('app_version', self.new_version);
+						}
+						// setTimeout( () => {
+							window.location.href = HOME_URL;
+						// }, 500)
+						
+          });
+        }
 			}
 
 			_checkLogin() {

@@ -75,8 +75,10 @@
     <div id="toolbar" class="toolbar">
       <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectBids"></paper-icon-button>
       <span class="flex"></span>
-      <template is="dom-if" if="[[!_awarded]]">
-        <paper-button class="red" on-click="openRebidDialog">Rebid</paper-button>
+      <template id="dom-if" if="[[biddingEnded]]">
+        <template is="dom-if" if="[[!_awarded]]">
+          <paper-button class="red" on-click="openRebidDialog">Rebid</paper-button>
+        </template>
       </template>
     </div>
 
@@ -381,6 +383,7 @@
         this._awardedStatus = false;
         this._inProgress = false;
         this._review = false;
+        this.biddingEnded = false;
 
         this.countDown(bid.job.date);
 
@@ -454,7 +457,9 @@
             }
 
 					}, interval);
-				}
+				} else {
+          this.biddingEnded = true;
+        }
       }
 
       viewOnMap() {
