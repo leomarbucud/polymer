@@ -1,8 +1,8 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../grid-styles.html">
-<link rel="import" href="../grid-icons.html">
-<link rel="import" href="../components/carousel.html">
+<link rel="import" href="../grid-styles.html?v=1.2.7">
+<link rel="import" href="../grid-icons.html?v=1.2.7">
+<link rel="import" href="../components/carousel.html?v=1.2.7">
 
 <dom-module id="grid-user-post">
 	<template>
@@ -380,7 +380,8 @@
 					user: {
 						type: Object,
 						statePath: 'user'
-					}
+					},
+					gmap: Object
 				}
 			}
 
@@ -416,7 +417,7 @@
 
 				// grid map is required so the map needs to be loaded
 				Polymer.Base.importHref(
-					'/elements/thegrid/components/grid-map.html',
+					'/elements/thegrid/components/grid-map.html?v=1.2.7',
 					() => {
 						// do something after elements has been imported
 					}

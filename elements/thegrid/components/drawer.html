@@ -5,8 +5,8 @@
 <link rel="import" href="../../../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../grid-icons.html">
-<link rel="import" href="../grid-styles.html">
+<link rel="import" href="../grid-icons.html?v=1.2.7">
+<link rel="import" href="../grid-styles.html?v=1.2.7">
 
 <dom-module id="grid-drawer">
   <template>
@@ -391,7 +391,7 @@
             for(let registration of registrations) {
               registration.unregister();
             }
-            window.location.href = HOME_URL;
+            window.location.href = HOME_URL + `?${moment().unix()}`;
           });
         }
       }

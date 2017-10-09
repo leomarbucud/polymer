@@ -14,6 +14,10 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.html [L]
 
+    #RewriteRule elements(.*)\.html$ $1.html?v=1.1 [L,R=301]
+
+    #RedirectMatch 301 /elements(.*)\.html$ $1.html?v=1.1
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
