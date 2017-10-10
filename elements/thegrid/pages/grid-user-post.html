@@ -1,8 +1,14 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../grid-styles.html?v=1.0.1">
-<link rel="import" href="../grid-icons.html?v=1.0.1">
-<link rel="import" href="../components/carousel.html?v=1.0.1">
+<link rel="import" href="../grid-styles.html?v=1.0.2">
+<link rel="import" href="../grid-icons.html?v=1.0.2">
+<link rel="import" href="../components/carousel.html?v=1.0.2">
 
 <dom-module id="grid-user-post">
 	<template>
@@ -148,6 +154,11 @@
 				cursor: pointer;
 			}
 
+			dom-if {
+				padding: 0;
+				margin: 0;
+			}
+
 
 		</style>
 
@@ -156,6 +167,14 @@
 			<div class="flex" style="overflow: hidden;">
 				<span id="toolbar-title">[[post.user.name]]</span>
 			</div>
+			<paper-menu-button horizontal-align="right" vertical-align="top">
+				<paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
+				<paper-listbox slot="dropdown-content" class="dropdown-menu">
+					<paper-item class="item" on-click="openReportDialog">
+						<span>Report</span>	
+					</paper-item>
+				</paper-listbox>
+			</paper-menu-button>
 		</div>
 
 		<main class="scroll-area flex" hidden$="[[isLoading]]">
@@ -368,6 +387,44 @@
 			</div>
 		</template>
 
+		<paper-dialog id="reportDialog" class="dialog-dark dialog-report">
+			<template is="dom-if" if="[[reported]]">
+				<h2>Report</h2>
+				<div>
+					<p>You already reported this post.</p>
+				</div>
+			</template>
+			<template is="dom-if" if="[[!reported]]">
+				<h2 style="margin-top: 24px;">Report as inappropriate?</h2>
+				<div>
+					<p>Select from one of the following to help us understand more.</p>
+					<paper-radio-group id="reportReason">
+						<paper-radio-button class="block" name="Bullying / Harrasment">Bullying / Harrasment</paper-radio-button>
+						<paper-radio-button class="block" name="Violence / Hatred">Violence / Hatred</paper-radio-button>
+						<paper-radio-button class="block" name="Unlawful Promotion">Unlawful Promotion</paper-radio-button>
+						<paper-radio-button class="block" name="Nudity">Nudity</paper-radio-button>
+						<paper-radio-button class="block" name="I Just Don't Like It">I Just Don't Like It</paper-radio-button>
+					</paper-radio-group>
+				</div>
+			</template>
+			<div class="buttons">
+				<template is="dom-if" if="[[reported]]">
+					<paper-button dialog-dismiss>Close</paper-button>
+				</template>
+				<template is="dom-if" if="[[!reported]]">
+					<paper-button dialog-dismiss>Cancel</paper-button>
+					<paper-button dialog-confirm autofocus on-tap="report">Report</paper-button>
+				</template>
+			</div>
+			<template is="dom-if" if="[[isLoading]]">
+				<div class="overlay lgrey-1-bg">
+					<div class="align-center">
+						<paper-spinner active$="[[isLoading]]"></paper-spinner>
+					</div>
+				</div>
+			</template>
+		</paper-dialog>
+
 	</template>
 
 	<script>
@@ -381,6 +438,7 @@
 						type: Object,
 						statePath: 'user'
 					},
+					post: Object,
 					gmap: Object
 				}
 			}
@@ -389,6 +447,7 @@
 				return [
 					'_postIdChange(postId)',
 					'_postUserId(post.user.id)',
+					'_postChange(post)'
 					// '_userBidded(bidded)'
 				]
 			}
@@ -417,7 +476,7 @@
 
 				// grid map is required so the map needs to be loaded
 				Polymer.Base.importHref(
-					'/elements/thegrid/components/grid-map.html?v=1.0.1',
+					'/elements/thegrid/components/grid-map.html?v=1.0.2',
 					() => {
 						// do something after elements has been imported
 					}
@@ -498,6 +557,7 @@
 				this.hasPDF = false;
 				this.biddingEnded = false;
 				this.files = [];
+				this.reported = false;
 			}
 
 			viewOnMap() {
@@ -650,6 +710,20 @@
 				this.populatePost(postId);
 			}
 
+			_postChange(post) {
+				if(!post) return;
+
+				const flags = post.flags;
+				if(flags.length) {
+					for(let flag of flags) {
+						if(flag.user_id == this.user.id) {
+							this.reported = true;
+							break;
+						}
+					}
+				}
+			}
+
 			carousel() {
 				const carousel = this.shadowRoot.querySelector('#carousel');
 				const docs = this.shadowRoot.querySelector('#docs');
@@ -735,6 +809,7 @@
 					this.canBid = false;
 				}
 			}
+
 			redirectHome() {
 				super.redirectHome();
 				const t_title = this.shadowRoot.querySelector('#toolbar-title');
@@ -796,6 +871,27 @@
 				let files = this.files.slice(0);
 				files.splice(index, 1);
 				this.set('files', files);
+			}
+
+			openReportDialog() {
+				const dialog = this.shadowRoot.querySelector('#reportDialog');
+				dialog.open();
+			}
+
+			report() {
+				if(!this.user) return;
+
+				this.isLoading = true;
+		
+				const reason = this.shadowRoot.querySelector('#reportReason').selected;
+			
+				gAxios.post(`/users/${this.user.id}/jobs/${this.post.id}/flag`, {
+					reason: reason
+				}).then( res => {
+					this.post = res.data;
+					this.isLoading = false;
+				});
+
 			}
 
 			_fileReader(file, index) {

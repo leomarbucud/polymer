@@ -1,5 +1,5 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-<link rel="import" href="grid-icons.html?v=1.0.1"> 
+<link rel="import" href="grid-icons.html?v=1.0.2"> 
 
 <custom-style>
   <style>
@@ -8,6 +8,7 @@
 			--dark-red: #D62D33;
 			--dark-grey: #212121;
 			--light-grey: #303030;
+			--light-grey-1: #424242;
       --gradient-red: linear-gradient(209.36deg, #FF3B30 0%, #FF2D55 100%);
 		}
 
@@ -290,6 +291,10 @@
 			.lgrey-bg {
         background-color: var(--light-grey);
       }
+			
+			.lgrey-1-bg {
+        background-color: var(--light-grey-1);
+      }
 
 			.grid-main-fab {
 				background: linear-gradient(213.81deg, #FF3B30 7.88%, #FF2D55 94.63%);
@@ -429,7 +434,7 @@
       }
 
 			.dropdown-menu {
-				background: #FFFFFF;
+				background: var(--light-grey-1);
 				min-width: 150px;
 				padding: 8px 0;
 				/* margin-right: 16px; */
@@ -440,6 +445,7 @@
 				padding: 8px 16px;
 				cursor: pointer;
 				position: relative;
+				color: #FFFFFF;
 				/* user-select: none; */
 			}
 
@@ -578,12 +584,20 @@
 			}
 
 			paper-dialog.dialog-dark {
-				background: var(--dark-grey);
+				background: var(--light-grey-1);
         color: #FFFFFF;
 			}
 
 			paper-dialog.dialog-dark paper-button {
-				color: #FFFFFF;
+				color: var(--red);
+			}
+
+			.dialog-report paper-radio-button {
+				--paper-radio-button-checked-color: var(--red);
+				--paper-radio-button-checked-ink-color: #FFFFFF;
+				--paper-radio-button-label-color: #FFFFFF;
+				--paper-radio-button-label-spacing: 28px;
+				--paper-radio-button-unchecked-color: #DADADA;
 			}
 
 
