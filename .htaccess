@@ -12,7 +12,7 @@
     # Handle Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.html [L]
+    RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
 
     #RewriteRule elements(.*)\.html$ $1.html?v=1.1 [L,R=301]
 

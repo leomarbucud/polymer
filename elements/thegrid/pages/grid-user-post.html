@@ -6,9 +6,9 @@
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../grid-styles.html?v=1.0.2">
-<link rel="import" href="../grid-icons.html?v=1.0.2">
-<link rel="import" href="../components/carousel.html?v=1.0.2">
+<link rel="import" href="../grid-styles.html?v=1.0.3">
+<link rel="import" href="../grid-icons.html?v=1.0.3">
+<link rel="import" href="../components/carousel.html?v=1.0.3">
 
 <dom-module id="grid-user-post">
 	<template>
@@ -172,6 +172,9 @@
 				<paper-listbox slot="dropdown-content" class="dropdown-menu">
 					<paper-item class="item" on-click="openReportDialog">
 						<span>Report</span>	
+					</paper-item>
+					<paper-item class="item" on-click="shareOnFacebook">
+						<span>Share on Facebook</span>	
 					</paper-item>
 				</paper-listbox>
 			</paper-menu-button>
@@ -476,7 +479,7 @@
 
 				// grid map is required so the map needs to be loaded
 				Polymer.Base.importHref(
-					'/elements/thegrid/components/grid-map.html?v=1.0.2',
+					'/elements/thegrid/components/grid-map.html?v=1.0.3',
 					() => {
 						// do something after elements has been imported
 					}
@@ -711,7 +714,7 @@
 			}
 
 			_postChange(post) {
-				if(!post) return;
+				if(!post || !this.user) return;
 
 				const flags = post.flags;
 				if(flags.length) {
@@ -892,6 +895,12 @@
 					this.isLoading = false;
 				});
 
+			}
+
+			shareOnFacebook() {
+				if(!this.post) return;
+				const facebook_share_url = `https://www.facebook.com/sharer/sharer.php?u=${window.location.href}&title=${this.post.name}`;
+				window.open(facebook_share_url,"","menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600");
 			}
 
 			_fileReader(file, index) {

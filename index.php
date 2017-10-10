@@ -7,6 +7,53 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="google-signin-client_id" content="186352805872-hqq59ghhfq4pdf6tttonigp3ipbgmdbb.apps.googleusercontent.com">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <?php
+
+    error_reporting( E_ALL ); 
+    error_reporting(~0);
+    ini_set('display_errors', 1);
+
+    $url = $_GET['url'];
+
+    function get_data($url) {
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+      curl_setopt($ch, CURLOPT_HEADER, false);
+      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_REFERER, $url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+      $result = curl_exec($ch);
+      curl_close($ch);
+      return json_decode($result ,true);
+    }
+
+    function makeOG($property, $content, $name) {
+      echo '<meta property="'.$property.'" content="'.$content.'" name="'.$name.'" />';
+    }
+
+    
+    $url = explode('/', $url);
+
+    if(count($url) == 3) {
+      
+      $isUsername = (strpos($url[0], "@") >= 0) ? 1: 0;
+      $isPost = 'posts' == $url[1];
+
+      if($isUsername && $isPost) {
+        $data = get_data('https://dev-thegrid.azurewebsites.net/api/opengraph/'.$url[2]);
+        makeOG('og:title', $data['title'], 'ogtitlekey');
+        makeOG('og:image', $data['image'], 'ogimagekey');
+        makeOG('og:description', $data['description'], 'ogdesckey');
+        makeOG('fb:app_id', '1451318644890504', 'fbappid');
+      }
+      
+    }
+
+    ?>
+
+
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <style>
       @font-face {
