@@ -67,6 +67,5 @@
   },
   "_source": "https://github.com/PolymerElements/iron-dropdown.git",
   "_target": "^2.0.0",
-  "_originalSource": "PolymerElements/iron-dropdown",
-  "_direct": true
+  "_originalSource": "PolymerElements/iron-dropdown"
 }

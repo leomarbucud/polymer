@@ -14,18 +14,18 @@
 <link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
-<link rel="import" href="../../redux/grid-redux-store.html?v=1.0.3">
-<link rel="import" href="../../behaviors/navigation-behavior.html?v=1.0.3">
+<link rel="import" href="../../redux/grid-redux-store.html?v=1.0.4">
+<link rel="import" href="../../behaviors/navigation-behavior.html?v=1.0.4">
 
-<link rel="import" href="components/mobile-header.html?v=1.0.3">
-<link rel="import" href="components/grid-introduction.html?v=1.0.3">
-<link rel="import" href="components/drawer.html?v=1.0.3">
-<link rel="import" href="pages/grid-search.html?v=1.0.3">
-<link rel="import" href="pages/grid-user-post.html?v=1.0.3">
-<link rel="import" href="pages/grid-user-profile.html?v=1.0.3">
-<link rel="import" href="pages/grid-filter.html?v=1.0.3">
-<link rel="import" href="grid-icons.html?v=1.0.3">
-<link rel="import" href="grid-styles.html?v=1.0.3">
+<link rel="import" href="components/mobile-header.html?v=1.0.4">
+<link rel="import" href="components/grid-introduction.html?v=1.0.4">
+<link rel="import" href="components/drawer.html?v=1.0.4">
+<link rel="import" href="pages/grid-search.html?v=1.0.4">
+<link rel="import" href="pages/grid-user-post.html?v=1.0.4">
+<link rel="import" href="pages/grid-user-profile.html?v=1.0.4">
+<link rel="import" href="pages/grid-filter.html?v=1.0.4">
+<link rel="import" href="grid-icons.html?v=1.0.4">
+<link rel="import" href="grid-styles.html?v=1.0.4">
 
 <dom-module id="grid-app">
 	<template>
@@ -418,14 +418,6 @@
 					this.isPageLoading = false;
 			}
 
-			// _routeDataChange(routeData) {
-			// 	if (routeData.page) {
-			// 		this.shadowRoot.querySelector('iron-pages').classList.add('open');
-			// 	} else {
-			// 		this.shadowRoot.querySelector('iron-pages').classList.remove('open');
-			// 	}
-			// }
-
 			constructor() {
 				super();
 				this._checkLogin();
@@ -525,20 +517,10 @@
 
 			redirectSearch(e) {
 				super.redirectSearch();
-				// const s = this.shadowRoot.querySelector('#search');
-				// const b = e.target.getBoundingClientRect();
-				// let top = b.top + 28;
-				// let left = b.left + 28;
-				// s.style.clipPath = `circle(28px at ${left}px ${top}px)`;
 			}
 
 			redirectPostsAdd(e) {
 				super.redirectPostsAdd();
-				// const s = this.shadowRoot.querySelector('#posts');
-				// const b = e.target.getBoundingClientRect();
-				// let top = b.top + 28;
-				// let left = b.left + 28;
-				// s.style.clipPath = `circle(28px at ${left}px ${top}px)`;
 			}
 
 			requestNotificationPermission() {
@@ -768,7 +750,7 @@
 					this.shadowRoot.querySelector('#' + routeData.page).classList.remove('active');
 
 					Polymer.Base.importHref(
-						this.resolveUrl('pages/grid-' + routeData.page + '.html?v=1.0.3'),
+						this.resolveUrl('pages/grid-' + routeData.page + '.html?v=1.0.4'),
 						() => {
 							this.page = routeData.page;
 							setTimeout(() => {
@@ -783,7 +765,7 @@
 				} else {
 					// this.page = null;
 					Polymer.Base.importHref(
-						'/elements/thegrid/components/grid-map.html?v=1.0.3',
+						'/elements/thegrid/components/grid-map.html?v=1.0.4',
 						() => {
 							// do something after elements has been imported
 						}
@@ -795,7 +777,7 @@
 				this.isPageLoading = false;
 				this.page = '404';
 				Polymer.Base.importHref(
-					this.resolveUrl('pages/grid-404.html?v=1.0.3'),
+					this.resolveUrl('pages/grid-404.html?v=1.0.4'),
 					() => {
 						// do something after elements has been imported
 					}

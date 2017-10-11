@@ -42,11 +42,13 @@
       $isPost = 'posts' == $url[1];
 
       if($isUsername && $isPost) {
-        $data = get_data('https://dev-thegrid.azurewebsites.net/api/opengraph/'.$url[2]);
-        makeOG('og:title', $data['title'], 'ogtitlekey');
-        makeOG('og:image', $data['image'], 'ogimagekey');
-        makeOG('og:description', $data['description'], 'ogdesckey');
-        makeOG('fb:app_id', '1451318644890504', 'fbappid');
+        $data = get_data('https://api.thegrid.com/api/opengraph/'.$url[2]);
+        if(!isset($data['error'])){  
+          makeOG('og:title', $data['title'], 'ogtitlekey');
+          makeOG('og:image', $data['image'], 'ogimagekey');
+          makeOG('og:description', $data['description'], 'ogdesckey');
+          makeOG('fb:app_id', '1451318644890504', 'fbappid');
+        }
       }
       
     }
@@ -163,9 +165,9 @@
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJyuWvZ03O18yHTvC1t3Mlj22VY73hJWc&libraries=places"></script>
     <script src="assets/js/markerclusterer.js" async></script>
-    <script src="assets/js/grid.js?v=1.0.3" async></script>
+    <script src="assets/js/grid.js?v=1.0.4" async></script>
 
-    <link rel="import" href="elements/thegrid/grid-app.html?v=1.0.3" async>
+    <link rel="import" href="elements/thegrid/grid-app.html?v=1.0.4" async>
 
   </body>
 </html>

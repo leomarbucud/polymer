@@ -6,9 +6,9 @@
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../grid-styles.html?v=1.0.3">
-<link rel="import" href="../grid-icons.html?v=1.0.3">
-<link rel="import" href="../components/carousel.html?v=1.0.3">
+<link rel="import" href="../grid-styles.html?v=1.0.4">
+<link rel="import" href="../grid-icons.html?v=1.0.4">
+<link rel="import" href="../components/carousel.html?v=1.0.4">
 
 <dom-module id="grid-user-post">
 	<template>
@@ -401,7 +401,7 @@
 				<h2 style="margin-top: 24px;">Report as inappropriate?</h2>
 				<div>
 					<p>Select from one of the following to help us understand more.</p>
-					<paper-radio-group id="reportReason">
+					<paper-radio-group id="reportReason" selected="{{reason}}">
 						<paper-radio-button class="block" name="Bullying / Harrasment">Bullying / Harrasment</paper-radio-button>
 						<paper-radio-button class="block" name="Violence / Hatred">Violence / Hatred</paper-radio-button>
 						<paper-radio-button class="block" name="Unlawful Promotion">Unlawful Promotion</paper-radio-button>
@@ -416,7 +416,7 @@
 				</template>
 				<template is="dom-if" if="[[!reported]]">
 					<paper-button dialog-dismiss>Cancel</paper-button>
-					<paper-button dialog-confirm autofocus on-tap="report">Report</paper-button>
+					<paper-button dialog-confirm autofocus on-tap="report" disabled="[[submitReportDisabled]]">Report</paper-button>
 				</template>
 			</div>
 			<template is="dom-if" if="[[isLoading]]">
@@ -431,7 +431,10 @@
 	</template>
 
 	<script>
-		class GridUserPost extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+		class GridUserPost extends 
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
 
 			static get is() { return 'grid-user-post'; }
 
@@ -442,7 +445,11 @@
 						statePath: 'user'
 					},
 					post: Object,
-					gmap: Object
+					gmap: Object,
+					reason: {
+						type: String,
+						observer: '_reasonChange'
+					}
 				}
 			}
 
@@ -453,17 +460,6 @@
 					'_postChange(post)'
 					// '_userBidded(bidded)'
 				]
-			}
-
-			static get actions() {
-				return {
-					addBid(bid) {
-						return {
-							type: 'ADD_BID',
-							bid: bid
-						}
-					}
-				};
 			}
 
 			constructor() {
@@ -477,11 +473,10 @@
 			connectedCallback() {
 				super.connectedCallback();
 
-				// grid map is required so the map needs to be loaded
 				Polymer.Base.importHref(
-					'/elements/thegrid/components/grid-map.html?v=1.0.3',
+					'/elements/thegrid/components/grid-map.html?v=1.0.4',
 					() => {
-						// do something after elements has been imported
+
 					}
 				);
 
@@ -561,6 +556,7 @@
 				this.biddingEnded = false;
 				this.files = [];
 				this.reported = false;
+				this.submitReportDisabled = true;
 			}
 
 			viewOnMap() {
@@ -727,6 +723,14 @@
 				}
 			}
 
+			_reasonChange(reason) {
+				if(reason) {
+					this.submitReportDisabled = false;
+				} else {
+					this.submitReportDisabled = true;
+				}
+			}
+
 			carousel() {
 				const carousel = this.shadowRoot.querySelector('#carousel');
 				const docs = this.shadowRoot.querySelector('#docs');
@@ -883,16 +887,20 @@
 
 			report() {
 				if(!this.user) return;
-
-				this.isLoading = true;
 		
-				const reason = this.shadowRoot.querySelector('#reportReason').selected;
-			
+				const reportReason = this.shadowRoot.querySelector('#reportReason');
+				const reason = reportReason.selected;
+
+				if(!reason) return;
+				
+				this.isLoading = true;
+
 				gAxios.post(`/users/${this.user.id}/jobs/${this.post.id}/flag`, {
 					reason: reason
 				}).then( res => {
 					this.post = res.data;
 					this.isLoading = false;
+					reportReason.selected = null;
 				});
 
 			}
@@ -947,15 +955,8 @@
 				}
 				this.message = '';
 				this.checking = true;
-				gAxios.get('/users/' + this.user.id + '/bid/check/' + this.post.id)
+				gAxios.get(`/users/${this.user.id}/bid/check/${this.post.id}`)
 					.then(res => {
-						// if( res.data.bidded ) {
-						// 	this.bidded = true;
-						// 	this.canBid = false;
-						// } else {
-						// 	this.bidded = false;
-						// 	this.canBid = true;
-						// }
 						const data = res.data;
 						if( data.bidded ) {
 							this.bidded_details = res.data.bid;

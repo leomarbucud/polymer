@@ -1,6 +1,6 @@
 {
   "name": "app-datepicker",
-  "version": "2.11.1",
+  "version": "2.11.2",
   "authors": [
     "motss <wes_ngrongsen@hotmail.com>"
   ],
@@ -84,14 +84,13 @@
   "resolutions": {
     "webcomponentsjs": "^1.0.0"
   },
-  "_release": "2.11.1",
+  "_release": "2.11.2",
   "_resolution": {
     "type": "version",
-    "tag": "v2.11.1",
-    "commit": "2a5c33d9cf1a7767d1ae46da6afee244e8beb96d"
+    "tag": "v2.11.2",
+    "commit": "5f76e0a06f4b536607177b1be3a289ab63719ce9"
   },
   "_source": "https://github.com/motss/app-datepicker.git",
   "_target": "^2.11.1",
-  "_originalSource": "app-datepicker",
-  "_direct": true
+  "_originalSource": "app-datepicker"
 }

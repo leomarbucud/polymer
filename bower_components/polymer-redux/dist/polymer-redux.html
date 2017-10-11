@@ -80,19 +80,19 @@ function PolymerRedux(store) {
    * @param {Object} state
    */
 		var update = function update(state) {
+			var propertiesChanged = false;
 			bindings.forEach(function (name) {
-				var _properties$name = properties[name],
-				    statePath = _properties$name.statePath,
-				    readOnly = _properties$name.readOnly;
+				// Perhaps .reduce() to a boolean?
+				var statePath = properties[name].statePath;
 
 				var value = typeof statePath === 'function' ? statePath.call(element, state) : Polymer.Path.get(state, statePath);
 
-				if (readOnly) {
-					element._setProperty(name, value);
-				} else {
-					element[name] = value;
-				}
+				var changed = element._setPendingPropertyOrPath(name, value, true);
+				propertiesChanged = propertiesChanged || changed;
 			});
+			if (propertiesChanged) {
+				element._invalidateProperties();
+			}
 		};
 
 		// Redux listener
@@ -225,6 +225,12 @@ function PolymerRedux(store) {
 						});
 						return originalAction.apply(undefined, args);
 					};
+
+					// Copy props from the original action to the proxy.
+					// see https://github.com/tur-nr/polymer-redux/issues/98
+					Object.keys(originalAction).forEach(function (prop) {
+						action[prop] = originalAction[prop];
+					});
 				}
 
 				return store.dispatch(action);
@@ -246,3 +252,4 @@ return PolymerRedux;
 
 }());
 </script>
+

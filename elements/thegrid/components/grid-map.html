@@ -2,7 +2,7 @@
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../behaviors/map-behavior.html">
 <link rel="import" href="../../../behaviors/navigation-behavior.html">
-<link rel="import" href="../grid-styles.html?v=1.0.3">
+<link rel="import" href="../grid-styles.html?v=1.0.4">
 
 <dom-module id="grid-map">
   <template>
@@ -60,6 +60,25 @@
         display: block;
       }
 
+      #locationError {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 32px;
+        text-align: center;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        color: #FFFFFF;
+        background-color: var(--light-grey);
+      }
+
+      #locationError.show {
+        display: flex;
+      }
+
 
     </style>
 
@@ -79,6 +98,10 @@
     
     <div id="clearFilter" class="clear-filter">
       <span class="red" on-click="closeClearFilter">Clear Filter</span>
+    </div>
+
+    <div id="locationError">
+      <h1>This app requires your location.</h1>
     </div>
 
   </template>
@@ -123,6 +146,11 @@
 							return this;
 						},
 						notify: true
+          },
+
+          locationPermission: {
+            type: Boolean,
+            notify: true
           }
 
         }
@@ -165,6 +193,7 @@
         this._initSocketEvents();
 
         window.addEventListener('user:connected', e => {
+          if(!this.locationPermission) return;
           this.populateJobMarkers();
         });
         
@@ -188,31 +217,38 @@
 
       }
 
+      handleLocationPermission() {
+        const geoSettings = {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        };
+
+        const handleResult = result => {
+          if (result.state == 'granted') {
+            this.loadMapCanvas();
+          } else if (result.state == 'prompt') {
+            navigator.geolocation.getCurrentPosition( 
+              () => { this.loadMapCanvas() }, 
+              () => { this.locationDenied() }, geoSettings);
+          } else if (result.state == 'denied') {
+            this.locationDenied();
+          }
+        };
+
+        navigator.permissions.query({name:'geolocation'}).then( result => {
+          handleResult(result);
+          result.onchange = () => {
+            // handleResult(result);
+            // window.location.reload();
+          }
+        });
+      }
+
       connectedCallback() {
         super.connectedCallback();
 
-        const self = this;
-
-        //self.loadGoogleApi('https://maps.googleapis.com/maps/api/js?key=' + self.apiKey + '&libraries=places', function() {
-          self.loadMapCanvas();
-          if( self.cluster ) {
-            //self.loadGoogleApi('/assets/js/markerclusterer.js',
-              //function() {
-                  self.markerClusterer = new MarkerClusterer(self.map, [], self.clusterOptions);
-             // }
-           // );
-          }
-          self.loadGoogleApi('https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.3/oms.min.js',
-            function() {
-              self.oms = new OverlappingMarkerSpiderfier(self.map, {
-                markersWontMove: true,   // we promise not to move any markers, allowing optimizations
-                markersWontHide: true,   // we promise not to change visibility of any markers, allowing optimizations
-                basicFormatEvents: true  // allow the library to skip calculating advanced formatting information
-              });
-            }
-          )
-       // });
-
+        this.handleLocationPermission();
       }
 
       openClearSearch() {
@@ -246,6 +282,8 @@
       }
 
       loadMapCanvas() {
+        this.locationPermission = true;
+
         let e = this.$.mapCanvas;
         let options = this.mapOptions;
 
@@ -257,8 +295,30 @@
         if(window.mobilecheck()) {
           this.map.setOptions({zoomControl: false});
         }
+        
         this.listenMapEvents();
+
         this.populateJobMarkers();
+
+        if( this.cluster ) {
+          this.markerClusterer = new MarkerClusterer(this.map, [], this.clusterOptions);
+        }
+
+        this.loadGoogleApi('https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.4/oms.min.js',
+          () => {
+            this.oms = new OverlappingMarkerSpiderfier(this.map, {
+              markersWontMove: true,
+              markersWontHide: true,
+              basicFormatEvents: true
+            });
+          }
+        )
+      }
+
+      locationDenied() {
+        this.locationPermission = true;
+        console.log('location denied');
+        this.shadowRoot.querySelector('#locationError').classList.add('show');
       }
 
       setMapCenter(map) {
@@ -528,7 +588,7 @@
 			}
 
       _authChange(auth) {
-        if(!window.google) return;
+        if(!window.google || !this.locationPermission) return;
         this.populateJobMarkers();
       }
 

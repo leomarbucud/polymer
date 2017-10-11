@@ -1,6 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
@@ -11,7 +12,7 @@
 <link rel="import" href="../../../bower_components/range-datepicker/range-datepicker.html">
 <link rel="import" href="../../../bower_components/range-datepicker/range-datepicker-input.html">
 <link rel="import" href="../../../behaviors/navigation-behavior.html">
-<link rel="import" href="../grid-styles.html?v=1.0.3">
+<link rel="import" href="../grid-styles.html?v=1.0.4">
 
 <dom-module id="grid-filter">
   <template>
@@ -90,11 +91,11 @@
                   <iron-icon class="white" icon="arrow-drop-down"></iron-icon>
                 </div>
               </paper-input>
-              <div slot="dropdown-content" class="dropdown-menu">
-                <paper-item on-click="updateShow" data-show="0">Any</paper-item>
-                <paper-item on-click="updateShow" data-show="m_p">My Posts</paper-item>
-                <paper-item on-click="updateShow" data-show="m_b" >My Bids</paper-item>
-              </div>
+              <paper-listbox slot="dropdown-content" class="dropdown-menu">
+                <paper-item class="item" on-click="updateShow" data-show="0">Any</paper-item>
+                <paper-item class="item" on-click="updateShow" data-show="m_p">My Posts</paper-item>
+                <paper-item class="item" on-click="updateShow" data-show="m_b" >My Bids</paper-item>
+              </paper-listbox>
             </paper-menu-button>
           </template>
 
@@ -107,12 +108,12 @@
                 <iron-icon class="white" icon="arrow-drop-down"></iron-icon>
               </div>
             </paper-input>
-            <div slot="dropdown-content" class="dropdown-menu">
-              <paper-item on-click="updateCategory" data-category="0">Any</paper-item>
+            <paper-listbox slot="dropdown-content" class="dropdown-menu">
+              <paper-item class="item"  on-click="updateCategory" data-category="0">Any</paper-item>
               <template is="dom-repeat" items="[[jobCategories]]" as="cat">
-                <paper-item on-click="updateCategory" data-category$="[[cat.id]]">[[cat.category]]</paper-item>
+                <paper-item class="item" on-click="updateCategory" data-category$="[[cat.id]]">[[cat.category]]</paper-item>
               </template>
-            </div>
+            </paper-listbox>
           </paper-menu-button>
 
         </div>

@@ -3,11 +3,12 @@
 <link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/iron-list/iron-list.html">
-<link rel="import" href="../grid-styles.html?v=1.0.3">
-<link rel="import" href="posts/grid-post.html?v=1.0.3">
+<link rel="import" href="../grid-styles.html?v=1.0.4">
+<link rel="import" href="posts/grid-post.html?v=1.0.4">
 
 <dom-module id="grid-posts">
   <template>
@@ -97,30 +98,30 @@
       <paper-icon-button icon="search" class="red pointer" on-click="openSearchBar"></paper-icon-button>
       <paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
         <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
-        <div slot="dropdown-content" class="dropdown-menu">
-          <div class="item" on-click="refreshJobs">
+        <paper-listbox slot="dropdown-content" class="dropdown-menu">
+          <paper-item class="item" on-click="refreshJobs">
             <span>Refresh</span>
             <paper-ripple></paper-ripple>
-          </div>
-          <div class="item-title">
+          </paper-item>
+          <paper-item class="item-title">
             <span>Show only</span>
-          </div>
-          <div class="item">
+          </paper-item>
+          <paper-item class="item">
             <paper-checkbox value="nobidders" on-change="filterCheck">No bidders</paper-checkbox>
-          </div>
-          <div class="item">
+          </paper-item>
+          <paper-item class="item">
             <paper-checkbox value="bidded" on-change="filterCheck">Bidded</paper-checkbox>
-          </div>
-          <div class="item">
+          </paper-item>
+          <paper-item class="item">
             <paper-checkbox value="1" on-change="filterCheck">Awarded</paper-checkbox>
-          </div>
-          <div class="item">
+          </paper-item>
+          <paper-item class="item">
             <paper-checkbox value="2" on-change="filterCheck">In progress</paper-checkbox>
-          </div>
-          <div class="item">
+          </paper-item>
+          <paper-item class="item">
             <paper-checkbox value="4" on-change="filterCheck">Completed</paper-checkbox>
-          </div>
-        </div>
+          </paper-item>
+        </paper-listbox>
       </paper-menu-button>
     </div>
 
@@ -606,7 +607,7 @@
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector(`#posts-${subrouteData.id}`) ) {
             Polymer.Base.importHref(
-  						`/elements/thegrid/pages/posts/grid-posts-${subrouteData.id}.html?v=1.0.3`,
+  						`/elements/thegrid/pages/posts/grid-posts-${subrouteData.id}.html?v=1.0.4`,
   						() => {
                 self.subPage = subrouteData.id;
   						}
