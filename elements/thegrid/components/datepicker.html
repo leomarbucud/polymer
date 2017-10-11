@@ -31,6 +31,10 @@
 				font-size: 14px;
         box-sizing: border-box;
       }
+
+      paper-button {
+        color: var(--red);
+      }
       
     </style>
 
@@ -47,7 +51,7 @@
       </template>
       <div class="buttons">
         <paper-button dialog-dismiss class="red">Cancel</paper-button>
-        <paper-button dialog-confirm autofocus on-tap="updateDate" class="red">Ok</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="updateDate">Ok</paper-button>
       </div>
     </paper-dialog>
 

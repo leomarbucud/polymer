@@ -6,9 +6,9 @@
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../grid-styles.html?v=1.0.4">
-<link rel="import" href="../grid-icons.html?v=1.0.4">
-<link rel="import" href="../components/carousel.html?v=1.0.4">
+<link rel="import" href="../grid-styles.html?v=1.0.5">
+<link rel="import" href="../grid-icons.html?v=1.0.5">
+<link rel="import" href="../components/carousel.html?v=1.0.5">
 
 <dom-module id="grid-user-post">
 	<template>
@@ -474,7 +474,7 @@
 				super.connectedCallback();
 
 				Polymer.Base.importHref(
-					'/elements/thegrid/components/grid-map.html?v=1.0.4',
+					'/elements/thegrid/components/grid-map.html?v=1.0.5',
 					() => {
 
 					}
@@ -560,14 +560,20 @@
 			}
 
 			viewOnMap() {
-				if (!this.post && this.gmap.map) return;
+				if(!this.post) return;
 
 				const job = this.post;
-				const position = new google.maps.LatLng(job.lat, job.lng);
 
-				this.gmap.map.setCenter(position);
-				this.gmap.map.setZoom(20);
-				this.redirectHome();
+				window.open(`https://www.google.ae/maps/?q=${job.lat},${job.lng}`);
+				// if (!this.post && this.gmap.map) return;
+
+				// const job = this.post;
+				// const position = new google.maps.LatLng(job.lat, job.lng);
+
+				// this.gmap.map.setCenter(position);
+				// this.gmap.map.setZoom(20);
+				// this.redirectHome();
+
 			}
 
 			bid() {
