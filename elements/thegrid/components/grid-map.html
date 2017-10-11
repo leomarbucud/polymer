@@ -301,18 +301,18 @@
         this.populateJobMarkers();
 
         if( this.cluster ) {
-          this.markerClusterer = new MarkerClusterer(this.map, [], this.clusterOptions);
+          if(window.MarkerClusterer){
+            this.markerClusterer = new MarkerClusterer(this.map, [], this.clusterOptions);
+          }
         }
 
-        this.loadGoogleApi('https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.4/oms.min.js',
-          () => {
-            this.oms = new OverlappingMarkerSpiderfier(this.map, {
-              markersWontMove: true,
-              markersWontHide: true,
-              basicFormatEvents: true
-            });
-          }
-        )
+        if(window.OverlappingMarkerSpiderfier) {
+          this.oms = new OverlappingMarkerSpiderfier(this.map, {
+            markersWontMove: true,
+            markersWontHide: true,
+            basicFormatEvents: true
+          });
+        }
       }
 
       locationDenied() {
