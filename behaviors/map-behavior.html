@@ -568,13 +568,8 @@
         })
       }
 
-      setCurrentPosition() {
+      getCurrentPosition(map) {
         const self = this;
-
-        const setCenter = pos => {
-          let center = new google.maps.LatLng(pos.lat, pos.lng);
-          self.gmap.map.setCenter(center);
-        }; 
 
         return new Promise(function (resolve, reject) {
           if(self.currentLocation) {
@@ -589,10 +584,16 @@
 
               self.currentLocation = {
                 lat: pos.latitude,
+                lng: pos.longitude,
+                latLng: new google.maps.LatLng(pos.latitude, pos.longitude)
+              };
+
+              self.mapOptions.center = {
+                lat: pos.latitude,
                 lng: pos.longitude
               };
 
-              setCenter(self.currentLocation);
+              // map.setCenter(pos.latLng);
               
               resolve(self.currentLocation);
 

@@ -12,7 +12,7 @@
 <link rel="import" href="../../../bower_components/range-datepicker/range-datepicker.html">
 <link rel="import" href="../../../bower_components/range-datepicker/range-datepicker-input.html">
 <link rel="import" href="../../../behaviors/navigation-behavior.html">
-<link rel="import" href="../grid-styles.html?v=1.0.6">
+<link rel="import" href="../grid-styles.html?v=1.0.8">
 
 <dom-module id="grid-filter">
   <template>
@@ -296,7 +296,7 @@
             _axios.get(url)
             .then( res => {
               this.gmap.paintMarkers(res.data, true);
-              this.gmap.map.setCenter(this.gmap.currentLocation.latlng);
+              this.gmap.map.setCenter(this.gmap.currentLocation.latLng);
 
               this.gmap.openClearFilter();
               // this.gmap.removeAllMarkers();

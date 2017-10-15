@@ -2,7 +2,7 @@
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../behaviors/map-behavior.html">
 <link rel="import" href="../../../behaviors/navigation-behavior.html">
-<link rel="import" href="../grid-styles.html?v=1.0.6">
+<link rel="import" href="../grid-styles.html?v=1.0.8">
 
 <dom-module id="grid-map">
   <template>
@@ -226,10 +226,10 @@
 
         const handleResult = result => {
           if (result.state == 'granted') {
-            this.loadMapCanvas();
+            this.locationGranted();
           } else if (result.state == 'prompt') {
             navigator.geolocation.getCurrentPosition( 
-              () => { this.loadMapCanvas() }, 
+              () => { this.locationGranted() }, 
               () => { this.locationDenied() }, geoSettings);
           } else if (result.state == 'denied') {
             this.locationDenied();
@@ -240,7 +240,7 @@
           handleResult(result);
           result.onchange = () => {
             // handleResult(result);
-            // window.location.reload();
+            window.location.reload();
           }
         });
       }
@@ -249,6 +249,7 @@
         super.connectedCallback();
 
         this.handleLocationPermission();
+
       }
 
       openClearSearch() {
@@ -282,7 +283,7 @@
       }
 
       loadMapCanvas() {
-        this.locationPermission = true;
+        // this.locationPermission = true;
 
         let e = this.$.mapCanvas;
         let options = this.mapOptions;
@@ -290,7 +291,7 @@
         this.map = new google.maps.Map(e, options);
         this.map.setOptions({ zoomControlOptions: { position: google.maps.ControlPosition.LEFT_BOTTOM } });
 
-        this.setMapCenter(this.map);
+        // this.setMapCenter(this.map);
         
         if(window.mobilecheck()) {
           this.map.setOptions({zoomControl: false});
@@ -315,10 +316,33 @@
         }
       }
 
+      locationGranted() {
+        this.getCurrentPosition()
+          .then( res => {
+            this.loadMapCanvas();
+          });
+      }
+
       locationDenied() {
-        this.locationPermission = true;
-        console.log('location denied');
-        this.shadowRoot.querySelector('#locationError').classList.add('show');
+        axios.get(`${this.url.API_URL}/getlocationbyip`)
+        .then( res => {
+          const location = {
+            lat: parseFloat(res.data.latitude),
+            lng: parseFloat(res.data.longitude)
+          };
+          this.currentLocation = {
+            lat: location.lat,
+            lng: location.lng,
+            latLng: new google.maps.LatLng(location.lat, location.lng)
+          };
+          
+          this.mapOptions.center = {
+            lat: location.lat,
+            lng: location.lng
+          };
+
+          this.loadMapCanvas();
+        });
       }
 
       setMapCenter(map) {
@@ -327,7 +351,7 @@
         if(last_location) {
           last_location = JSON.parse(last_location);
           const center = new google.maps.LatLng(last_location.lat, last_location.lng);
-          map.setCenter(center);
+          // map.setCenter(center);
         }
       }
 
@@ -337,7 +361,7 @@
         this.mapListener('center_changed', function() {
 
           if(self.gmap.currentLocation && self.gmap.map.getBounds()) {
-            if(this.map.getBounds().contains(self.gmap.currentLocation.latlng)) {
+            if(this.map.getBounds().contains(self.gmap.currentLocation.latLng)) {
               window.dispatchEvent(new CustomEvent('map:current_location_in_bounds'));
             } else {
               window.dispatchEvent(new CustomEvent('map:current_location_out_bounds'));
@@ -426,7 +450,7 @@
             this.map.fitBounds(bounds);
           }
 
-          this.gmap.markerClusterer.repaint();
+          this.markerClusterer.repaint();
           
         // }, 1000);
         
@@ -442,12 +466,12 @@
         self.loadingJobMarkers = true;
 
         let _axios = axios;
-        let url = `${this.url.API_BASE_URL}/job/all?lat=${self.mapOptions.center.lat}&lng=${self.mapOptions.center.lng}`
+        let url = `${this.url.API_BASE_URL}/job/all?lat=${self.currentLocation.lat}&lng=${self.currentLocation.lng}`
 
         if(this.auth) {
 
           _axios = gAxios;
-          url = `/users/job/all?lat=${self.mapOptions.center.lat}&lng=${self.mapOptions.center.lng}`
+          url = `/users/job/all?lat=${self.currentLocation.lat}&lng=${self.currentLocation.lng}`
         }
 
         const getLiveData = () => {
