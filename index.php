@@ -7,7 +7,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="google-signin-client_id" content="186352805872-hqq59ghhfq4pdf6tttonigp3ipbgmdbb.apps.googleusercontent.com">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <?php
 
     error_reporting( E_ALL ); 

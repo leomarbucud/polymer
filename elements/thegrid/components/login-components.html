@@ -227,7 +227,7 @@
 						var data = err.response.data;
             var loginAttempt = self.loginAttempt + 1;
             self.loginAttempt = loginAttempt;
-            self.loginError = 'No account exists for the provided email address.';//data.message;
+            self.loginError = data.message;
             self.$.username.focus();
           }
 
@@ -363,6 +363,20 @@
         }).then( () => {
           this.isLoggingIn = false;
           this.isLoggedIn = true;
+        }).catch( err => {
+          
+          this.isLoggingIn = false;
+          this.isLoggedIn = false;
+
+          if (err.response) {
+            console.log(err.response.data);
+            var data = err.response.data;
+            var loginAttempt = this.loginAttempt + 1;
+            this.loginAttempt = loginAttempt;
+            this.loginError = err.response.data.message;
+            this.$.username.focus();
+          }
+
         });
       }
 

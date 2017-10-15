@@ -612,7 +612,7 @@
 			}
 
       _authChange(auth) {
-        if(!window.google || !this.locationPermission) return;
+        if(!this.map) return;
         this.populateJobMarkers();
       }
 
