@@ -6,9 +6,9 @@
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../grid-styles.html?v=1.0.8">
-<link rel="import" href="../grid-icons.html?v=1.0.8">
-<link rel="import" href="../components/carousel.html?v=1.0.8">
+<link rel="import" href="../grid-styles.html?v=1.0.9">
+<link rel="import" href="../grid-icons.html?v=1.0.9">
+<link rel="import" href="../components/carousel.html?v=1.0.9">
 
 <dom-module id="grid-user-post">
 	<template>
@@ -347,7 +347,7 @@
 									<div class="addon-prefix">
 										<span>AED </span>
 									</div>
-									<input id="price" id="priceBid" type="number" class="input" autofocus autocomplete="off" placeholder="Amount to Bid" value="{{price::input}}"
+									<input id="price" id="priceBid" type="number" class="input" autocomplete="off" placeholder="Amount to Bid" value="{{price::input}}"
 									max$="[[post.price]]" on-keydown="priceBidEvent"/>
 
 									<div class="addon-suffix has-button">
@@ -444,6 +444,10 @@
 						type: Object,
 						statePath: 'user'
 					},
+					auth: {
+						type: Boolean,
+						statePath: 'auth'
+					},
 					post: Object,
 					gmap: Object,
 					reason: {
@@ -474,7 +478,7 @@
 				super.connectedCallback();
 
 				Polymer.Base.importHref(
-					'/elements/thegrid/components/grid-map.html?v=1.0.8',
+					'/elements/thegrid/components/grid-map.html?v=1.0.9',
 					() => {
 
 					}
@@ -645,18 +649,28 @@
 			}
 
 			populatePost(postId) {
+
+				let _axios = axios;
+        let url = `${this.url.API_URL}/jobs/${postId}`;
+
+        if(this.auth) {
+          _axios = gAxios;
+          url = `/users/jobs/${postId}/view`;
+        }
+
 				
-				const getLiveData = (url) => {
-					return axios.get(url, {
+				
+				const getLiveData = () => {
+					return _axios.get(url, {
 						headers: {}
 					}).catch(function(){
 						return null;
 					});
 				};
 
-				const getChachedData = (url) => {
+				const getChachedData = () => {
 					if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-						return axios.get(url, {
+						return _axios.get(url, {
 							headers: { 'Cached': 'yes'}
 						}).catch(function(){
 							return null;
@@ -666,7 +680,7 @@
 					}
 				};
 
-				const liveData = getLiveData(`${this.url.API_URL}/jobs/${postId}`).then(res => {
+				const liveData = getLiveData().then(res => {
 					if(!res) return false;
 					if(res.data) {
 						this.post = res.data;
@@ -681,7 +695,7 @@
 					return false;   
 				});
 
-				const cacheData = getChachedData(`${this.url.API_URL}/jobs/${postId}`).then(res => {
+				const cacheData = getChachedData().then(res => {
 					if(!res) return false;
 					if(res.data) {
 						this.post = res.data;

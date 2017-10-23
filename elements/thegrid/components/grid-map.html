@@ -2,7 +2,7 @@
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../behaviors/map-behavior.html">
 <link rel="import" href="../../../behaviors/navigation-behavior.html">
-<link rel="import" href="../grid-styles.html?v=1.0.8">
+<link rel="import" href="../grid-styles.html?v=1.0.9">
 
 <dom-module id="grid-map">
   <template>
@@ -249,6 +249,13 @@
         super.connectedCallback();
 
         this.handleLocationPermission();
+
+        if(this.user) {
+          gAxios.get(`/users/getlocationbyip`)
+            .then( res => {
+              console.log(res.data);
+            });
+        }
 
       }
 
