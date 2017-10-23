@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/neon-animation/web-animations.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../../bower_components/neon-animation/web-animations.html">
@@ -14,18 +15,18 @@
 <link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
-<link rel="import" href="../../redux/grid-redux-store.html?v=1.0.9">
-<link rel="import" href="../../behaviors/navigation-behavior.html?v=1.0.9">
+<link rel="import" href="../../redux/grid-redux-store.html?v=1.0.10">
+<link rel="import" href="../../behaviors/navigation-behavior.html?v=1.0.10">
 
-<link rel="import" href="components/mobile-header.html?v=1.0.9">
-<link rel="import" href="components/grid-introduction.html?v=1.0.9">
-<link rel="import" href="components/drawer.html?v=1.0.9">
-<link rel="import" href="pages/grid-search.html?v=1.0.9">
-<link rel="import" href="pages/grid-user-post.html?v=1.0.9">
-<link rel="import" href="pages/grid-user-profile.html?v=1.0.9">
-<link rel="import" href="pages/grid-filter.html?v=1.0.9">
-<link rel="import" href="grid-icons.html?v=1.0.9">
-<link rel="import" href="grid-styles.html?v=1.0.9">
+<link rel="import" href="components/mobile-header.html?v=1.0.10">
+<link rel="import" href="components/grid-introduction.html?v=1.0.10">
+<link rel="import" href="components/drawer.html?v=1.0.10">
+<link rel="import" href="pages/grid-search.html?v=1.0.10">
+<link rel="import" href="pages/grid-user-post.html?v=1.0.10">
+<link rel="import" href="pages/grid-user-profile.html?v=1.0.10">
+<link rel="import" href="pages/grid-filter.html?v=1.0.10">
+<link rel="import" href="grid-icons.html?v=1.0.10">
+<link rel="import" href="grid-styles.html?v=1.0.10">
 
 <dom-module id="grid-app">
 	<template>
@@ -184,19 +185,29 @@
   			transform: translate3d(0, 0, 0);
 			}
 
+			section[data-page] {
+				opacity: 0;
+				transform: translate3d(100%, 0, 0);
+				/* display: none; */
+			}
+
+			section[data-page] > div {
+				background-color: var(--light-grey);
+			}
+
+			section[data-page].show {
+				opacity: 1;
+				transform: translate3d(0, 0, 0);
+				/* display: block; */
+			}
+
 		</style>
 
-		<!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
 		<app-location route="{{route}}"></app-location>
-
-		<app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
-
-		<app-route route="{{subroute}}" pattern="/:id" data="{{subrouteData}}"></app-route>
-
 		<app-route route="{{route}}" pattern="/confirmation/:token" data="{{confirmation_token}}"></app-route>
-
+		<app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
+		<app-route route="{{subroute}}" pattern="/:id" data="{{subrouteData}}"></app-route>
 		<app-route route="{{route}}" pattern="/:user/posts/:id" data="{{userPost}}"></app-route>
-
 		<app-route route="{{route}}" pattern="/inbox/:id" data="{{conversation}}"></app-route>
 
 		<grid-map map="{{map}}" gmap="{{gmap}}"></grid-map>
@@ -208,9 +219,9 @@
 		
 		<grid-introduction is-logged-in="[[isLoggedIn]]"></grid-introduction>
 
-		<div class="page-cont">
+		<!--<div class="page-cont">-->
 
-			<iron-pages attr-for-selected="data-page" selected="[[page]]" class="-overlay">
+			<!-- <iron-pages attr-for-selected="data-page" selected="[[page]]" class="-overlay"> -->
 
 				<section data-page="login" class="overlay">
 					<div class="center-page">
@@ -306,13 +317,13 @@
 					<grid-404></grid-404>
 				</section>
 
-			</iron-pages>
+			<!-- </iron-pages> -->
 
 			<template is="dom-if" if="[[isPageLoading]]">
 				<paper-progress indeterminate class="w-100 top-progress"></paper-progress>
 			</template>
 
-		</div>
+		<!-- </div> -->
 
 		<app-drawer id="drawer" align="start" swipe-open opened="{{drawerOpened}}">
 			<grid-drawer user="user" is-logged-in="[[isLoggedIn]]" notifications="{{notifications}}" page="[[routeData.page]]"></grid-drawer>
@@ -401,7 +412,7 @@
 					'_authenticated(token, user)',
 					// '_routeDataChange(routeData)',
 					'_userPostChange(userPost)',
-					'_pageChange(routeData.page)',
+					'_pageChange(page)',
 					'_isPageLoadingChange(isPageLoading)'
 				]
 			}
@@ -414,8 +425,8 @@
 
 			_userPostChange(userPost) {
 				if( !userPost.user || !userPost.id ) return;
-					this.page = 'user-post';
-					this.isPageLoading = false;
+				this.page = 'user-post';
+				this.isPageLoading = false;
 			}
 
 			constructor() {
@@ -453,6 +464,10 @@
 				});
 
 				this.isPageLoading = false;
+			}
+
+			get searchFab() {
+				return this.shadowRoot.querySelector('#searchFab');
 			}
 
 			connectedCallback() {
@@ -655,13 +670,132 @@
 			}
 
 			_pageChange(page) {
-				if(!page) {
-					const pageCont = this.shadowRoot.querySelector('.page-cont');
-					pageCont.classList.remove('page-animate');
 
-					return;
+				console.log(page);
+
+				const pages = this.shadowRoot.querySelectorAll('section[data-page]');
+
+				pages.forEach( p => {
+					if( p.classList.contains('show') ) {
+						let _keyFrames = [
+							{
+								transform: 'translate3d(0, 0, 0)',
+								opacity: 1,
+								zIndex: 98
+							},
+							{
+								transform: 'translate3d(-30%, 0, 0)',
+								opacity: 0.5,
+								zIndex: 98
+							}
+						];
+
+						if( p.getAttribute('data-page') == 'search' ) {
+							let searchFab = {
+								left: this.searchFab.offsetLeft,
+								top: this.searchFab.offsetTop,
+								height: this.searchFab.offsetHeight,
+								width: this.searchFab.offsetWidth
+							};
+							_keyFrames = [
+								{
+									transform: 'translate3d(0, 0, 0)',
+									clipPath: 'circle(100%)',
+									opacity: 1,
+								},
+								{
+									transform: 'translate3d(0, 0, 0)',
+									clipPath: `circle(28px at ${searchFab.left + 28}px ${searchFab.top + 28}px)`,
+									opacity: 1,
+									zIndex: 98
+								},
+								{
+									transform: 'translate3d(0, 0, 0)',
+									clipPath: `circle(28px at ${searchFab.left + 28}px ${searchFab.top + 28}px)`,
+									opacity: 0,
+									zIndex: 98
+								}
+							];
+						}
+
+						const _options = {
+							duration: 300,
+							easing: 'ease-in-out'
+						}
+						const _animation = p.animate(_keyFrames, _options);
+					}
+					p.classList.remove('show');
+				});
+
+				if(!page) return;
+
+				const pageElem = this.shadowRoot.querySelector(`section[data-page=${page}]`);
+
+				if(pageElem) {
+					let keyFrames = [
+						{
+							transform: 'translate3d(100%, 0, 0)',
+							opacity: 0,
+							zIndex: 99
+						},
+						{
+							transform: 'translate3d(0, 0, 0)',
+							opacity: 1,
+							zIndex: 99
+						}
+					];
+
+					let options = {
+						duration: 300,
+						easing: 'cubic-bezier(0.19, 1, 0.22, 1)'
+					}
+
+					if( page == 'search' ) {
+						let searchFab = {
+							left: this.searchFab.offsetLeft,
+							top: this.searchFab.offsetTop,
+							height: this.searchFab.offsetHeight,
+							width: this.searchFab.offsetWidth,
+							radius: this.searchFab.offsetHeight / 2
+						};
+
+						keyFrames = [
+							{
+								transform: 'translate3d(0, 0, 0)',
+								clipPath: `circle(${searchFab.radius}px at ${searchFab.left + searchFab.radius}px ${searchFab.top + searchFab.radius}px)`,
+								opacity: 0,
+								zIndex: 99
+							},
+							{
+								transform: 'translate3d(0, 0, 0)',
+								clipPath: `circle(${searchFab.radius}px at ${searchFab.left + searchFab.radius}px ${searchFab.top + searchFab.radius}px)`,
+								opacity: 1,
+								zIndex: 99
+							},
+							{
+								transform: 'translate3d(0, 0, 0)',
+								clipPath: 'circle(100%)',
+								opacity: 1,
+							}
+						];
+
+						options.duration = 1000;
+					}
+
+					
+					const animation = pageElem.animate(keyFrames, options);
+					animation.finished.then( () => {
+						pageElem.classList.add('show');
+					});
+
 				}
-				this.animatePage(page);
+				// if(!page) {
+				// 	const pageCont = this.shadowRoot.querySelector('.page-cont');
+				// 	pageCont.classList.remove('page-animate');
+
+				// 	return;
+				// }
+				// this.animatePage(page);
 			}
 
 			animatePage(page) {
@@ -689,6 +823,7 @@
 			_routeChange(route) {
 				if (route.path == '') {
 					this.set('routeData.page', null);
+					this.page = null;
 				}
 			}
 
@@ -729,7 +864,7 @@
 
 					// IDEA: if profile page
 					if (routeData.page.charAt(0) == '@') {
-						//console.log('loding user', routeData.page )
+						if(this.subroute.path) return;
 						this.page = 'user-profile';
 						this.username = routeData.page.substr(1);
 						this.isPageLoading = false;
@@ -747,15 +882,17 @@
 						return;
 					}
 
-					this.shadowRoot.querySelector('#' + routeData.page).classList.remove('active');
+					// this.shadowRoot.querySelector('#' + routeData.page).classList.remove('active');
+
+					this.page = routeData.page;
 
 					Polymer.Base.importHref(
-						this.resolveUrl('pages/grid-' + routeData.page + '.html?v=1.0.9'),
+						this.resolveUrl('pages/grid-' + routeData.page + '.html?v=1.0.10'),
 						() => {
 							this.page = routeData.page;
-							setTimeout(() => {
-								this.shadowRoot.querySelector('#' + routeData.page).classList.add('active');
-							}, 1);
+							// setTimeout(() => {
+							// 	this.shadowRoot.querySelector('#' + routeData.page).classList.add('active');
+							// }, 1);
 							this.isPageLoading = false;
 						},
 						this._showPage404.bind(self),
@@ -763,9 +900,9 @@
 					);
 
 				} else {
-					// this.page = null;
+					this.page = null;
 					Polymer.Base.importHref(
-						'/elements/thegrid/components/grid-map.html?v=1.0.9',
+						'/elements/thegrid/components/grid-map.html?v=1.0.10',
 						() => {
 							// do something after elements has been imported
 						}
@@ -777,7 +914,7 @@
 				this.isPageLoading = false;
 				this.page = '404';
 				Polymer.Base.importHref(
-					this.resolveUrl('pages/grid-404.html?v=1.0.9'),
+					this.resolveUrl('pages/grid-404.html?v=1.0.10'),
 					() => {
 						// do something after elements has been imported
 					}

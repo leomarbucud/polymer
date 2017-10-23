@@ -2,7 +2,7 @@
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../behaviors/map-behavior.html">
 <link rel="import" href="../../../behaviors/navigation-behavior.html">
-<link rel="import" href="../grid-styles.html?v=1.0.9">
+<link rel="import" href="../grid-styles.html?v=1.0.10">
 
 <dom-module id="grid-map">
   <template>
@@ -577,8 +577,12 @@
         
         var icon = 'unrelated-marker.svg';
 
-        if( data.isBidded || data.isMyPost ) {
+        if( data.isMyPost ) {
           icon = 'related-marker.svg';
+        }
+
+        if( data.isBidded ) {
+          icon = 'bidded-marker.svg';
         }
 
         if(data.isAwarded) {

@@ -167,9 +167,9 @@
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJyuWvZ03O18yHTvC1t3Mlj22VY73hJWc&libraries=places"></script>
     <script src="assets/js/markerclusterer.js" async></script>
-    <script src="assets/js/grid.js?v=1.0.9" async></script>
+    <script src="assets/js/grid.js?v=1.0.10" async></script>
 
-    <link rel="import" href="elements/thegrid/grid-app.html?v=1.0.9" async>
+    <link rel="import" href="elements/thegrid/grid-app.html?v=1.0.10" async>
 
   </body>
 </html>
