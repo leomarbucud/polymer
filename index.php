@@ -12,9 +12,9 @@
     <meta http-equiv="Expires" content="0" />
     <?php
 
-    error_reporting( E_ALL ); 
-    error_reporting(~0);
-    ini_set('display_errors', 1);
+    // error_reporting( E_ALL ); 
+    // error_reporting(~0);
+    // ini_set('display_errors', 1);
 
     $url = $_GET['url'];
 
@@ -43,8 +43,10 @@
       $isUsername = (strpos($url[0], "@") >= 0) ? 1: 0;
       $isPost = 'posts' == $url[1];
 
+      $api = 'https://dev-thegrid.azurewebsites.net';
+
       if($isUsername && $isPost) {
-        $data = get_data('https://api.thegrid.com/api/opengraph/'.$url[2]);
+        $data = get_data($api.'/api/opengraph/'.$url[2]);
         if(!isset($data['error'])){  
           makeOG('og:title', $data['title'], 'ogtitlekey');
           makeOG('og:image', $data['image'], 'ogimagekey');
@@ -167,9 +169,10 @@
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJyuWvZ03O18yHTvC1t3Mlj22VY73hJWc&libraries=places"></script>
     <script src="assets/js/markerclusterer.js" async></script>
-    <script src="assets/js/grid.js?v=1.0.10" async></script>
+    <script src="assets/js/oms.min.js" async></script>
+    <script src="assets/js/grid.js?v=1.0.14" async></script>
 
-    <link rel="import" href="elements/thegrid/grid-app.html?v=1.0.10" async>
+    <link rel="import" href="elements/thegrid/grid-app.html?v=1.0.14" async>
 
   </body>
 </html>
