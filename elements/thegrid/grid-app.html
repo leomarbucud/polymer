@@ -15,18 +15,18 @@
 <link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
-<link rel="import" href="../../redux/grid-redux-store.html?v=1.0.12">
-<link rel="import" href="../../behaviors/navigation-behavior.html?v=1.0.12">
+<link rel="import" href="../../redux/grid-redux-store.html?v=1.0.14">
+<link rel="import" href="../../behaviors/navigation-behavior.html?v=1.0.14">
 
-<link rel="import" href="components/mobile-header.html?v=1.0.12">
-<link rel="import" href="components/grid-introduction.html?v=1.0.12">
-<link rel="import" href="components/drawer.html?v=1.0.12">
-<link rel="import" href="pages/grid-search.html?v=1.0.12">
-<link rel="import" href="pages/grid-user-post.html?v=1.0.12">
-<link rel="import" href="pages/grid-user-profile.html?v=1.0.12">
-<link rel="import" href="pages/grid-filter.html?v=1.0.12">
-<link rel="import" href="grid-icons.html?v=1.0.12">
-<link rel="import" href="grid-styles.html?v=1.0.12">
+<link rel="import" href="components/mobile-header.html?v=1.0.14">
+<link rel="import" href="components/grid-introduction.html?v=1.0.14">
+<link rel="import" href="components/drawer.html?v=1.0.14">
+<link rel="import" href="pages/grid-search.html?v=1.0.14">
+<link rel="import" href="pages/grid-user-post.html?v=1.0.14">
+<link rel="import" href="pages/grid-user-profile.html?v=1.0.14">
+<link rel="import" href="pages/grid-filter.html?v=1.0.14">
+<link rel="import" href="grid-icons.html?v=1.0.14">
+<link rel="import" href="grid-styles.html?v=1.0.14">
 
 <dom-module id="grid-app">
 	<template>
@@ -236,6 +236,12 @@
 						<grid-search id="search" gmap="[[gmap]]"></grid-search>
 					</div>
 				</section>
+				
+				<section data-page="add" class="overlay page-right">
+					<div class="center-page">
+						<grid-posts-add id="posts-add" map="{{map}}" gmap="[[gmap]]"></grid-posts-add>
+					</div>
+				</section>
 
 				<section data-page="filter" class="overlay">
 					<div class="center-page">
@@ -416,6 +422,10 @@
 
 			get searchFab() {
 				return this.shadowRoot.querySelector('#searchFab');
+			}
+			
+			get addFab() {
+				return this.shadowRoot.querySelector('#addFab');
 			}
 
 			connectedCallback() {
@@ -640,16 +650,21 @@
 							}
 						];
 
-						if( p.getAttribute('data-page') == 'search' ) {
-							let searchFab = {
+						if( p.getAttribute('data-page') == 'search' || p.getAttribute('data-page') == 'add' ) {
+							let fab = {
 								left: this.searchFab.offsetLeft,
-								top: this.searchFab.offsetTop,
-								height: this.searchFab.offsetHeight,
-								width: this.searchFab.offsetWidth
-							};
-
-							const cp = `circle(28px at ${searchFab.left + 28}px ${searchFab.top + 28}px)`;
-
+								top: this.searchFab.offsetTop
+							}
+	
+							if(p.getAttribute('data-page') == 'add') {
+								fab = {
+									left: this.addFab.offsetLeft,
+									top: this.addFab.offsetTop
+								}
+							}
+		
+							const cp = `circle(28px at ${fab.left + 28}px ${fab.top + 28}px)`;
+	
 							_keyFrames = [
 								{
 									transform: 'translate3d(0, 0, 0)',
@@ -701,15 +716,21 @@
 						easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
 					}
 
-					if( page == 'search' ) {
-						let searchFab = {
+					if( page == 'search' || page == 'add' ) {
+
+						let fab = {
 							left: this.searchFab.offsetLeft,
-							top: this.searchFab.offsetTop,
-							height: this.searchFab.offsetHeight,
-							width: this.searchFab.offsetWidth
-						};
+							top: this.searchFab.offsetTop
+						}
+
+						if(page == 'add') {
+							fab = {
+								left: this.addFab.offsetLeft,
+								top: this.addFab.offsetTop
+							}
+						}
 	
-						const cp = `circle(28px at ${searchFab.left + 28}px ${searchFab.top + 28}px)`;
+						const cp = `circle(28px at ${fab.left + 28}px ${fab.top + 28}px)`;
 
 						keyFrames = [
 							{
@@ -774,6 +795,8 @@
 						case 'posts':
 						case 'bids':
 						case 'inbox':
+						case 'add':
+						case 'settings':
 						case 'transactions':
 							this.redirectLogin();
 							return;
@@ -787,6 +810,23 @@
 				if (routeData.page) {
 
 					this.isPageLoading = true;
+
+					// if add
+
+					if(routeData.page == 'add') {
+						this.page = 'add';
+						
+						Polymer.Base.importHref(
+							this.resolveUrl(`pages/posts/grid-posts-add.html?v=1.0.14`),
+							() => {
+								this.isPageLoading = false;
+							},
+							this._showPage404.bind(self),
+							true
+						);
+
+						return;
+					}
 
 					// IDEA: if profile page
 					if (routeData.page.charAt(0) == '@') {
@@ -813,12 +853,8 @@
 					this.page = routeData.page;
 
 					Polymer.Base.importHref(
-						this.resolveUrl(`pages/grid-${routeData.page}.html?v=1.0.12`),
+						this.resolveUrl(`pages/grid-${routeData.page}.html?v=1.0.14`),
 						() => {
-							// this.page = routeData.page;
-							// setTimeout(() => {
-							// 	this.shadowRoot.querySelector('#' + routeData.page).classList.add('active');
-							// }, 1);
 							this.isPageLoading = false;
 						},
 						this._showPage404.bind(self),
@@ -828,7 +864,7 @@
 				} else {
 					this.page = null;
 					Polymer.Base.importHref(
-						'/elements/thegrid/components/grid-map.html?v=1.0.12',
+						'/elements/thegrid/components/grid-map.html?v=1.0.14',
 						() => {
 							// do something after elements has been imported
 						}
@@ -840,7 +876,7 @@
 				this.isPageLoading = false;
 				this.page = '404';
 				Polymer.Base.importHref(
-					this.resolveUrl('pages/grid-404.html?v=1.0.12'),
+					this.resolveUrl('pages/grid-404.html?v=1.0.14'),
 					() => {
 						// do something after elements has been imported
 					}

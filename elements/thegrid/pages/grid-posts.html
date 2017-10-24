@@ -7,8 +7,8 @@
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/iron-list/iron-list.html">
-<link rel="import" href="../grid-styles.html?v=1.0.12">
-<link rel="import" href="posts/grid-post.html?v=1.0.12">
+<link rel="import" href="../grid-styles.html?v=1.0.14">
+<link rel="import" href="posts/grid-post.html?v=1.0.14">
 
 <dom-module id="grid-posts">
   <template>
@@ -184,10 +184,6 @@
     </main>
 
     <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
-
-      <section data-page="add" class="sub-page">
-        <grid-posts-add id="posts-add" map="{{map}}" gmap="[[gmap]]"></grid-posts-add>
-      </section>
 
       <section data-page="edit" class="sub-page">
         <grid-posts-edit id="posts-edit" post-id="[[postEdit.id]]" gmap="[[gmap]]"></grid-posts-editt>
@@ -607,7 +603,7 @@
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector(`#posts-${subrouteData.id}`) ) {
             Polymer.Base.importHref(
-  						`/elements/thegrid/pages/posts/grid-posts-${subrouteData.id}.html?v=1.0.12`,
+  						`/elements/thegrid/pages/posts/grid-posts-${subrouteData.id}.html?v=1.0.14`,
   						() => {
                 self.subPage = subrouteData.id;
   						}

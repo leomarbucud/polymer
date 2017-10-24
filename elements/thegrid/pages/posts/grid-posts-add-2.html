@@ -3,9 +3,9 @@
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
-<link rel="import" href="../../../../../behaviors/form-slider-behavior.html?v=1.0.12">
-<link rel="import" href="../../../../../behaviors/map-behavior.html?v=1.0.12">
-<link rel="import" href="../../grid-styles.html?v=1.0.12">
+<link rel="import" href="../../../../../behaviors/form-slider-behavior.html?v=1.0.14">
+<link rel="import" href="../../../../../behaviors/map-behavior.html?v=1.0.14">
+<link rel="import" href="../../grid-styles.html?v=1.0.14">
 
 <dom-module id="grid-posts-add-2">
 	<template>
@@ -125,7 +125,7 @@
 			}
 
 			goBack() {
-				this.redirect('/posts/add/#1');
+				this.redirect('/add/#1');
 			}
 
 			submit() {
@@ -144,10 +144,10 @@
 				this.data.price = this.price;
 
 				if( this.data.category == 1) {
-					this.redirect('/posts/add/#3');
+					this.redirect('/add/#3');
 					return;
 				} else {
-					this.redirect('/posts/add/#4');
+					this.redirect('/add/#4');
 					return;
 				}
 
