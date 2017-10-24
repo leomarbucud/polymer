@@ -1,6 +1,6 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../behaviors/navigation-behavior.html">
-<link rel="import" href="../grid-styles.html?v=1.0.11">
+<link rel="import" href="../grid-styles.html?v=1.0.12">
 
 <dom-module id="grid-search">
   <template>
@@ -171,6 +171,10 @@
           show_recent_searches: {
             type: Boolean,
             value: true
+          },
+
+          page: {
+            observer: '_pageChange'
           }
         }
       }
@@ -225,6 +229,13 @@
         window.addEventListener('map:clear_search', () => {
           this.set('search_results', []);
           this.q = '';
+        });
+
+        window.addEventListener('location:back', () => {
+          const inputs = this.shadowRoot.querySelectorAll('input');
+          inputs.forEach( input => {
+            input.blur();
+          });
         });
 
       }
@@ -343,6 +354,15 @@
 
       _getFilePath(path) {
         return `${this.url.API_BASE_URL}/uploads/${path}`;
+      }
+      
+      _pageChange(page) {
+				if(page != 'search') {
+					const input = this.shadowRoot.querySelector('#search-input');
+					if(input) {
+						input.blur();
+					}
+				}
 			}
 
     }

@@ -6,9 +6,9 @@
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../grid-styles.html?v=1.0.11">
-<link rel="import" href="../grid-icons.html?v=1.0.11">
-<link rel="import" href="../components/carousel.html?v=1.0.11">
+<link rel="import" href="../grid-styles.html?v=1.0.12">
+<link rel="import" href="../grid-icons.html?v=1.0.12">
+<link rel="import" href="../components/carousel.html?v=1.0.12">
 
 <dom-module id="grid-user-post">
 	<template>
@@ -453,9 +453,6 @@
 					reason: {
 						type: String,
 						observer: '_reasonChange'
-					},
-					page: {
-						observer: '_pageChange'
 					}
 				}
 			}
@@ -481,7 +478,7 @@
 				super.connectedCallback();
 
 				Polymer.Base.importHref(
-					'/elements/thegrid/components/grid-map.html?v=1.0.11',
+					'/elements/thegrid/components/grid-map.html?v=1.0.12',
 					() => {
 
 					}
@@ -490,6 +487,13 @@
 				this.headerAnimate();
 
 				this._initSocketEvents();
+
+				window.addEventListener('location:back', () => {
+          const inputs = this.shadowRoot.querySelectorAll('input');
+          inputs.forEach( input => {
+            input.blur();
+          });
+        });
 			}
 
 			headerAnimate() {
@@ -1044,15 +1048,6 @@
 						this.populatePost(this.post.id);
 					}
         });
-			}
-
-			_pageChange(page) {
-				if(page != 'user-post') {
-					const input = this.shadowRoot.querySelector('#priceBid');
-					if(input) {
-						input.blur();
-					}
-				}
 			}
 
 		}
