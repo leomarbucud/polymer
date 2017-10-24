@@ -15,18 +15,18 @@
 <link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
-<link rel="import" href="../../redux/grid-redux-store.html?v=1.0.10">
-<link rel="import" href="../../behaviors/navigation-behavior.html?v=1.0.10">
+<link rel="import" href="../../redux/grid-redux-store.html?v=1.0.11">
+<link rel="import" href="../../behaviors/navigation-behavior.html?v=1.0.11">
 
-<link rel="import" href="components/mobile-header.html?v=1.0.10">
-<link rel="import" href="components/grid-introduction.html?v=1.0.10">
-<link rel="import" href="components/drawer.html?v=1.0.10">
-<link rel="import" href="pages/grid-search.html?v=1.0.10">
-<link rel="import" href="pages/grid-user-post.html?v=1.0.10">
-<link rel="import" href="pages/grid-user-profile.html?v=1.0.10">
-<link rel="import" href="pages/grid-filter.html?v=1.0.10">
-<link rel="import" href="grid-icons.html?v=1.0.10">
-<link rel="import" href="grid-styles.html?v=1.0.10">
+<link rel="import" href="components/mobile-header.html?v=1.0.11">
+<link rel="import" href="components/grid-introduction.html?v=1.0.11">
+<link rel="import" href="components/drawer.html?v=1.0.11">
+<link rel="import" href="pages/grid-search.html?v=1.0.11">
+<link rel="import" href="pages/grid-user-post.html?v=1.0.11">
+<link rel="import" href="pages/grid-user-profile.html?v=1.0.11">
+<link rel="import" href="pages/grid-filter.html?v=1.0.11">
+<link rel="import" href="grid-icons.html?v=1.0.11">
+<link rel="import" href="grid-styles.html?v=1.0.11">
 
 <dom-module id="grid-app">
 	<template>
@@ -57,33 +57,6 @@
 
 			app-header paper-icon-button {
 				--paper-icon-button-ink-color: white;
-			}
-
-
-			@media (max-width: 600px) {
-				section .center-page {
-					/* width: 100%;
-					height: 100%; */
-				}
-
-				/*iron-pages.pages {
-					transition-property: all;
-					transition-duration: 200ms;
-					transition-property: -webkit-transform;
-				  transition-property: transform;
-				  -webkit-transform: translate3d(100%, 0, 0);
-				  transform: translate3d(100%, 0, 0)
-				}
-
-				iron-pages.pages.open {
-					-webkit-transform: translate3d(0, 0, 0);
-  				transform: translate3d(0, 0, 0);
-				}
-
-				iron-pages.pages section {
-					height: 100%;
-					width: 100%;
-				}*/
 			}
 
 			@media (min-width: 601px) {
@@ -134,31 +107,6 @@
 				display: block;
 			}
 
-			.animate {
-				transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
-				-moz-transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
-				-webkit-transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
-				-o-transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
-				-ms-transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
-			}
-
-			.animate.circle.search {
-				/* -webkit-clip-path: circle(28px at 50% 42%);
-				clip-path: circle(28px at 50% 42%); */
-				clip-path: circle(28px at 408px 583px);
-				/* transition-delay: 0.12s; */
-			}
-
-			.animate.circle.add {
-				clip-path: circle(28px at 408px 653px);
-			}
-
-			.animate.circle.search.active,
-			.animate.circle.add.active {
-				/* -webkit-clip-path: circle(28px ) !important; */
-				clip-path: circle(100%) !important;
-			}
-
 			.top-progress {
 				position: absolute; 
 				top: 0; 
@@ -167,38 +115,36 @@
 				--paper-progress-container-color: var(--dark-grey);
 			}
 
-			.page-cont {
-				position: absolute;
-				top: 0;
-				left: 0;
-				right: 0;
-				bottom: 0;
-				transition-property: -webkit-transform;
-				transition-property: transform;
-				-webkit-transform: translate3d(-100%, 0, 0);
-				transform: translate3d(-100%, 0, 0);
-				transition-duration: 200ms;
-			}
-
-			.page-cont.page-animate {
-				-webkit-transform: translate3d(0, 0, 0);
-  			transform: translate3d(0, 0, 0);
-			}
-
 			section[data-page] {
 				opacity: 0;
 				transform: translate3d(100%, 0, 0);
-				/* display: none; */
 			}
 
 			section[data-page] > div {
-				background-color: var(--light-grey);
+				background: var(--light-grey);
 			}
 
 			section[data-page].show {
 				opacity: 1;
 				transform: translate3d(0, 0, 0);
-				/* display: block; */
+			}
+
+			#searchFab {
+				transition: transform 1s cubic-bezier(0.0, 0.0, 0.2, 1);
+			}
+
+			#searchFab.open {
+				transition: transform 0.5s cubic-bezier(0.0, 0.0, 0.2, 1);
+  			transform: translateX(-160px);
+			}
+
+			#searchFab paper-fab {
+				transition: transform 0.5s cubic-bezier(0.0, 0.0, 0.2, 1);
+			}
+
+			#searchFab.open paper-fab {
+				transition: transform 1s cubic-bezier(0.0, 0.0, 0.2, 1);
+  			transform: translateY(-160px);
 			}
 
 		</style>
@@ -212,7 +158,9 @@
 
 		<grid-map map="{{map}}" gmap="{{gmap}}"></grid-map>
 
-		<paper-fab id="searchFab" icon="search" class="grid-main-fab" on-tap="redirectSearch"></paper-fab>
+		<div id="searchFab">
+			<paper-fab id="_searchFab" icon="search" class="grid-main-fab" on-tap="redirectSearch"></paper-fab>
+		</div>
 		<paper-fab id="addFab" icon="add" class="grid-main-fab" on-tap="redirectPostsAdd"></paper-fab>
 
 		<mobile-header map="{{map}}" gmap="[[gmap]]"></mobile-header>
@@ -284,7 +232,7 @@
 				</section>
 
 				<section data-page="search" class="overlay page-right">
-					<div class="center-page">
+					<div class="center-page search">
 						<grid-search id="search" gmap="[[gmap]]"></grid-search>
 					</div>
 				</section>
@@ -297,7 +245,7 @@
 
 				<section data-page="user-post" class="overlay">
 					<div class="center-page">
-						<grid-user-post id="user-post" post-id="[[userPost.id]]" map="{{map}}" gmap="[[gmap]]"></grid-user-post>
+						<grid-user-post id="user-post" post-id="[[userPost.id]]" map="{{map}}" gmap="[[gmap]]" page="[[page]]"></grid-user-post>
 					</div>
 				</section>
 
@@ -671,7 +619,6 @@
 
 			_pageChange(page) {
 
-				console.log(page);
 
 				const pages = this.shadowRoot.querySelectorAll('section[data-page]');
 
@@ -684,8 +631,8 @@
 								zIndex: 98
 							},
 							{
-								transform: 'translate3d(-30%, 0, 0)',
-								opacity: 0.5,
+								transform: 'translate3d(-100%, 0, 0)',
+								opacity: 1,
 								zIndex: 98
 							}
 						];
@@ -697,6 +644,9 @@
 								height: this.searchFab.offsetHeight,
 								width: this.searchFab.offsetWidth
 							};
+
+							const cp = `circle(28px at ${searchFab.left + 28}px ${searchFab.top + 28}px)`;
+
 							_keyFrames = [
 								{
 									transform: 'translate3d(0, 0, 0)',
@@ -705,22 +655,20 @@
 								},
 								{
 									transform: 'translate3d(0, 0, 0)',
-									clipPath: `circle(28px at ${searchFab.left + 28}px ${searchFab.top + 28}px)`,
-									opacity: 1,
-									zIndex: 98
+									clipPath: cp,
+									opacity: 1
 								},
 								{
 									transform: 'translate3d(0, 0, 0)',
-									clipPath: `circle(28px at ${searchFab.left + 28}px ${searchFab.top + 28}px)`,
-									opacity: 0,
-									zIndex: 98
+									clipPath: cp,
+									opacity: 0
 								}
 							];
 						}
 
 						const _options = {
-							duration: 300,
-							easing: 'ease-in-out'
+							duration: 195,
+							easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
 						}
 						const _animation = p.animate(_keyFrames, _options);
 					}
@@ -735,7 +683,7 @@
 					let keyFrames = [
 						{
 							transform: 'translate3d(100%, 0, 0)',
-							opacity: 0,
+							opacity: 1,
 							zIndex: 99
 						},
 						{
@@ -746,8 +694,8 @@
 					];
 
 					let options = {
-						duration: 300,
-						easing: 'cubic-bezier(0.19, 1, 0.22, 1)'
+						duration: 225,
+						easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
 					}
 
 					if( page == 'search' ) {
@@ -755,56 +703,31 @@
 							left: this.searchFab.offsetLeft,
 							top: this.searchFab.offsetTop,
 							height: this.searchFab.offsetHeight,
-							width: this.searchFab.offsetWidth,
-							radius: this.searchFab.offsetHeight / 2
+							width: this.searchFab.offsetWidth
 						};
+	
+						const cp = `circle(28px at ${searchFab.left + 28}px ${searchFab.top + 28}px)`;
 
 						keyFrames = [
 							{
 								transform: 'translate3d(0, 0, 0)',
-								clipPath: `circle(${searchFab.radius}px at ${searchFab.left + searchFab.radius}px ${searchFab.top + searchFab.radius}px)`,
-								opacity: 0,
-								zIndex: 99
-							},
-							{
-								transform: 'translate3d(0, 0, 0)',
-								clipPath: `circle(${searchFab.radius}px at ${searchFab.left + searchFab.radius}px ${searchFab.top + searchFab.radius}px)`,
-								opacity: 1,
-								zIndex: 99
+								clipPath: cp,
+								opacity: 1
 							},
 							{
 								transform: 'translate3d(0, 0, 0)',
 								clipPath: 'circle(100%)',
-								opacity: 1,
+								opacity: 1
 							}
 						];
-
-						options.duration = 1000;
 					}
 
-					
 					const animation = pageElem.animate(keyFrames, options);
 					animation.finished.then( () => {
 						pageElem.classList.add('show');
 					});
 
 				}
-				// if(!page) {
-				// 	const pageCont = this.shadowRoot.querySelector('.page-cont');
-				// 	pageCont.classList.remove('page-animate');
-
-				// 	return;
-				// }
-				// this.animatePage(page);
-			}
-
-			animatePage(page) {
-				const pageCont = this.shadowRoot.querySelector('.page-cont');
-				
-				setTimeout( () => {
-					pageCont.classList.add('page-animate');
-				}, 0);
-
 			}
 
 			_authenticated(token, user) {
@@ -887,9 +810,9 @@
 					this.page = routeData.page;
 
 					Polymer.Base.importHref(
-						this.resolveUrl('pages/grid-' + routeData.page + '.html?v=1.0.10'),
+						this.resolveUrl(`pages/grid-${routeData.page}.html?v=1.0.11`),
 						() => {
-							this.page = routeData.page;
+							// this.page = routeData.page;
 							// setTimeout(() => {
 							// 	this.shadowRoot.querySelector('#' + routeData.page).classList.add('active');
 							// }, 1);
@@ -902,7 +825,7 @@
 				} else {
 					this.page = null;
 					Polymer.Base.importHref(
-						'/elements/thegrid/components/grid-map.html?v=1.0.10',
+						'/elements/thegrid/components/grid-map.html?v=1.0.11',
 						() => {
 							// do something after elements has been imported
 						}
@@ -914,7 +837,7 @@
 				this.isPageLoading = false;
 				this.page = '404';
 				Polymer.Base.importHref(
-					this.resolveUrl('pages/grid-404.html?v=1.0.10'),
+					this.resolveUrl('pages/grid-404.html?v=1.0.11'),
 					() => {
 						// do something after elements has been imported
 					}
