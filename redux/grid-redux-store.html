@@ -115,6 +115,14 @@
         });
         break;
       }
+      case 'REMOVE_POST': {
+        let posts = state.posts.slice(0);
+        const updatedPosts = posts.filter(item => item.id != action.post.id);
+        return Object.assign({}, state, {
+          posts: updatedPosts
+        });
+        break;
+      }
       case 'SET_BIDS': {
         return Object.assign({}, state, {
           bids: action.bids
@@ -359,6 +367,13 @@
         updatePost(post) {
           return {
             type: 'UPDATE_POST',
+            post: post
+          }
+        },
+        
+        removePost(post) {
+          return {
+            type: 'REMOVE_POST',
             post: post
           }
         },

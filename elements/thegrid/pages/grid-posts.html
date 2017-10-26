@@ -3,6 +3,9 @@
 <link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
@@ -69,6 +72,54 @@
         background-color: #484848;
       }
 
+      .card-list {
+        width: 100%;
+        margin-top: 8px;
+        background-color: var(--light-grey-1);
+      }
+
+      .card-list .card-content {
+        max-width: calc(100% - 40px);
+      }
+
+      .card-list paper-menu-button {
+        margin-top: 8px;
+        padding: 0;
+        --paper-menu-button-dropdown-background: var(--light-grey-1);
+      }
+
+      .card-list paper-icon-button {
+        color: #DADADA;
+      }
+
+      .card-list .header-date {
+        color: rgba(255,255,255,0.7);
+        font-style: italic;
+        font-size: 14px;
+      }
+
+      .card-list .header-title {
+        color: #FFFFFF;
+        font-size: 16px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        font-weight: normal;
+      }
+
+      .card-list .description {
+        margin-top: 12px;
+        color: rgba(255,255,255,0.7);
+        font-size: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        line-height: 16px;
+        max-height: 46px;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+      }
+
     </style>
 
     <app-location route="{{route}}" ></app-location>
@@ -101,7 +152,6 @@
         <paper-listbox slot="dropdown-content" class="dropdown-menu">
           <paper-item class="item" on-click="refreshJobs">
             <span>Refresh</span>
-            <paper-ripple></paper-ripple>
           </paper-item>
           <paper-item class="item-title">
             <span>Show only</span>
@@ -143,19 +193,44 @@
       <section class="p-y-1 title">
         <h1 id="main-title" class="white m-0">Posts</h1>
       </section>
-      <div id="post-list" class="white" role="listbox">
-        <iron-selector attr-for-selected="id" selected="[[post.id]]" >
+      <div id="post-list" class="white p-y-1" role="listbox">
+        <!-- <iron-selector attr-for-selected="id" selected="[[post.id]]" > -->
           <template is="dom-repeat" items="[[posts]]" as="job" filter="{{_filterPosts(query)}}">
-            <paper-item id$="[[job.id]]" on-click="viewPost">
-              <paper-item-body two-line>
-                <div>[[job.name]]</div>
-                <div secondary>Date needed: <span data-time$="[[job.date]]">[[_fromNow(job.date)]]</span></div>
-                <paper-ripple></paper-ripple>
-              </paper-item-body>
-              <div class="time" data-time$="[[job.created_at]]">[[_fromNow(job.created_at)]]</div>
-            </paper-item>
+            <paper-card class="card-list" id$="[[job.id]]">
+              <div class="layout horizontal w-100">
+                <div class="card-content flex p-1" on-click="viewPost">
+                  <div class="header-date">
+                    Posted [[_fromNow(job.created_at)]]
+                  </div>
+                  <div class="header-title">
+                    [[job.name]]
+                  </div>
+                  <div class="description">
+                    [[job.details]]
+                  </div>
+                </div>
+                <paper-menu-button horizontal-align="right" vertical-align="top">
+                    <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
+                    <paper-listbox slot="dropdown-content" class="dropdown-menu">
+                      <template is="dom-if" if="[[!job.winner]]">
+                        <paper-item class="item" on-click="editPost">
+                          <span>Edit</span>
+                        </paper-item>
+                        <paper-item class="item" on-click="openDeletePostDialog">
+                          <span>Remove</span>
+                        </paper-item>
+                      </template>
+                      <template is="dom-if" if="[[job.winner]]">
+                        <paper-item class="item" on-click="openDeletePostDialog">
+                          <span>Cancel</span>
+                        </paper-item>
+                      </template>
+                    </paper-listbox>
+                  </paper-menu-button>
+              </div>
+            </paper-card>
           </template>
-        </iron-selector>
+        <!-- </iron-selector> -->
         <template is="dom-if" if="[[!posts.length]]">
           <paper-item>
             <paper-item-body>
@@ -164,23 +239,6 @@
           </paper-item>
         </template>
       </div>
-      <!-- <section class="list" id="post-list">
-        <template is="dom-repeat" items="[[posts]]" as="job" filter="{{_filterPost(query)}}">
-          <div class="row" on-click="viewPost">
-            <div class="job-title">{{job.name}}</div>
-            <div secondary>Date needed: [[_fromNow(job.date)]]</div>
-            <div class="time" data-time$="[[job.created_at]]">[[_fromNow(job.created_at)]]</div>
-            <paper-ripple></paper-ripple>
-          </div>
-          <div class="divider"><hr/></div>
-        </template>
-        <template is="dom-if" if="[[!posts.length]]">
-            <div class="row">
-              <div class="job-title">You don't have any post</div>
-              <div secondary class="time"></div>
-            </div>
-        </template>
-      </section> -->
     </main>
 
     <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
@@ -202,6 +260,19 @@
         </div>
       </div>
     </template>
+
+    <paper-dialog id="deleteDialog" class="dialog-dark">
+      <h2>Remove Post?</h2>
+      <div>
+        <p>Removing this post is permanent. Any bidding in progress will be lost.</p>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss autofocus>No</paper-button>
+        <paper-button dialog-confirm on-tap="deletePost">Yes</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-toast id="deleteToast" duration="3000" class="fit-bottom" text="Post deleted."></paper-toast>
 
   </template>
 
@@ -430,6 +501,33 @@
           };
           this.isLoading = false;
           this.dispatch('setPosts', data.data);
+          /*setTimeout( () => {
+            const list = this.shadowRoot.querySelector('#post-list');
+            const cards = list.querySelectorAll('paper-card');
+            list.animate([
+              { opacity: 0 },
+              { opacity: 1 },
+            ], 350);
+            cards.forEach( (card, i) => {
+              card.animate([
+                  
+                { transform: 'translateY(40px)' }
+              ], {
+                duration: 0,
+                fill: 'both'
+              });
+
+              card.animate([
+                  { transform: 'translateY(40px)' },
+                  { transform: 'translateY(0)' }
+              ], {
+                duration: 195,
+                delay: i * 50,
+                fill: 'both',
+                ease: 'ease-in'
+              });
+            });
+          }, 0);*/
         };
 
         const url = `/users/${this.user.id}/jobs`;
@@ -485,8 +583,36 @@
 
       viewPost(e) {
         const job_id = e.model.job.id;
-        this.redirect('/posts/' + job_id);
+        this.redirect(`/posts/${job_id}`);
         this._post = e.model.job;
+      }
+      
+      editPost(e) {
+        const job_id = e.model.job.id;
+        this.redirect(`/posts/edit/${job_id}/#1`);
+        this._post = e.model.job;
+      }
+
+      openDeletePostDialog(e) {
+        const deletePostDialog = this.shadowRoot.querySelector('#deleteDialog');
+        deletePostDialog.open();
+        this.post_to_delete = e.model.job;
+      }
+
+      deletePost() {
+        if(this.post_to_delete) {
+          this.isLoading = true;
+          gAxios.post(`/users/${this.user.id}/jobs/${this.post_to_delete.id}/delete`)
+            .then( res => {
+              const deleteToast = this.shadowRoot.querySelector('#deleteToast');
+              deleteToast.open();
+              this.dispatch('removePost', this.post_to_delete);
+            }).catch( err => {
+
+            }).then( () => {
+              this.isLoading = false;
+            });
+        }
       }
 
       openMenu() {

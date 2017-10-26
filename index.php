@@ -111,6 +111,24 @@
       [loaded] ~ .splash {
         display: none;
       }
+      .pulse {
+        display: block;
+        height: 100px;
+        width: 100px;
+        animation: pulse 2s infinite;
+      }
+      
+      @keyframes pulse {
+        0% {
+          opacity: 0.6;
+        }
+        70% {
+            opacity: 0.1
+        }
+        100% {
+          opacity: 1
+        }
+      }
 
     </style>
     <base href="/">
@@ -156,7 +174,8 @@
     <grid-app></grid-app>
 
     <div class="splash">
-      <img src="assets/images/grid-logo.svg" alt="THE GRID"/>
+      <img src="assets/images/grid-logo.svg?new" class="pulse" alt="THE GRID"/>
+      <!-- <span class="pulse"></span> -->
     </div>
 
     <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>

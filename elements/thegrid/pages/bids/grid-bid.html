@@ -75,7 +75,7 @@
     <div id="toolbar" class="toolbar">
       <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectBids"></paper-icon-button>
       <span class="flex"></span>
-      <template id="dom-if" if="[[biddingEnded]]">
+      <template is="dom-if" if="[[!biddingEnded]]">
         <template is="dom-if" if="[[!_awarded]]">
           <paper-button class="red" on-click="openRebidDialog">Rebid</paper-button>
         </template>
@@ -103,7 +103,6 @@
             <small class="category block">Category: [[bid.job.category.category]]</small>
             <small class="location block">Location: [[bid.job.location]]</small>
           </div>
-          <!-- <paper-icon-button icon="maps:pin-drop" class="red pointer" on-tap="viewOnMap"></paper-icon-button> -->
           <div class="center layout vertical">
             <paper-icon-button icon="grid:location" class="white" on-tap="viewOnMap"></paper-icon-button>
             <template is="dom-if" if="[[_getDistance(bid.job.lat, bid.job.lng)]]">

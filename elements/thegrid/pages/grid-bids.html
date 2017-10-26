@@ -127,13 +127,15 @@
       </section>
       <div id="post-list" class="white" role="listbox">
         <template is="dom-repeat" items="[[bids]]" as="bid" filter="{{_filterBids(query)}}">
-          <paper-item on-click="viewBid">
-            <paper-item-body two-line>
-              <div>[[bid.job.name]]</div>
-              <div secondary>Date needed: <span data-time$="[[bid.created_at]]">[[_fromNow(bid.created_at)]]</span></div>
-              <paper-ripple></paper-ripple>
-            </paper-item-body>
-          </paper-item>
+          <template is="dom-if" if="[[bid.job]]">
+            <paper-item on-click="viewBid">
+              <paper-item-body two-line>
+                <div>[[bid.job.name]]</div>
+                <div secondary>Date needed: <span data-time$="[[bid.job.date]]">[[_fromNow(bid.job.date)]]</span></div>
+                <paper-ripple></paper-ripple>
+              </paper-item-body>
+            </paper-item>
+          </template>
         </template>
         <template is="dom-if" if="[[!bids.length]]">
           <paper-item>
