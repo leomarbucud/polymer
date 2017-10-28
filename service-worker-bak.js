@@ -14,7 +14,7 @@
 //   'Service worker disabled for development, will be generated at build time.'
 // );
 // Set a name for the current cache
-var cacheName = '1.0.14';
+var cacheName = '1.0.15';
 
 // Default files to always cache
 var cacheFiles = [
@@ -233,6 +233,8 @@ self.addEventListener('fetch', function (e) {
 
 	if (/\.googleapis\.com$/.test(requestURL.hostname) ||
 			/\.gstatic\.com$/.test(requestURL.hostname)) {
+			
+				return;
 
 				// console.log('requestUrl', requestURL);
 		e.respondWith(
