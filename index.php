@@ -83,13 +83,12 @@
       }
       * {
         box-sizing: border-box;
-        /* font-family: 'Museo Sans 500', 'Roboto', sans-serif !important; */
+        font-family: museo-sans, 'Roboto', sans-serif;
       }
       html, body {
         background-color: #fff;
         color: #636b6f;
-        /* font-family: 'Museo Sans 500', 'Roboto', sans-serif; */
-        font-family: 'Roboto', sans-serif;
+        font-family: museo-sans, 'Roboto', sans-serif;
         font-weight: 100;
         height: 100%;
         margin: 0;
@@ -136,7 +135,7 @@
     <link rel="icon" href="assets/images/favicon.ico">
 
     <!-- See https://goo.gl/OOhYW5 -->
-    <link rel="manifest" href="manifest.json?v=1.0.15">
+    <link rel="manifest" href="manifest.json?v=1.0.16">
 
     <!-- See https://goo.gl/qRE0vM -->
     <meta name="theme-color" content="#303030">
@@ -167,6 +166,8 @@
       const baseUrl = document.querySelector('base').href;
 
     </script>
+    <script src="https://use.typekit.net/nan8fpy.js"></script>
+    <script>try{Typekit.load({ async: true });}catch(e){}</script>
   </head>
 
   <body>
@@ -189,9 +190,9 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJyuWvZ03O18yHTvC1t3Mlj22VY73hJWc&libraries=places"></script>
     <script src="assets/js/markerclusterer.js" async></script>
     <script src="assets/js/oms.min.js" async></script>
-    <script src="assets/js/grid.js?v=1.0.15" async></script>
+    <script src="assets/js/grid.js?v=1.0.16" async></script>
 
-    <link rel="import" href="elements/thegrid/grid-app.html?v=1.0.15" async>
+    <link rel="import" href="elements/thegrid/grid-app.html?v=1.0.16" async>
 
   </body>
 </html>

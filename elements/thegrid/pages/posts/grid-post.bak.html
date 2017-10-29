@@ -1,0 +1,819 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../grid-styles.html?v=1.0.16">
+<link rel="import" href="../../grid-icons.html?v=1.0.16">
+<link rel="import" href="../../components/ratings.html?v=1.0.16">
+<link rel="import" href="../../components/carousel.html?v=1.0.16">
+
+<dom-module id="grid-post">
+  <template>
+    <style include="grid grid-progress iron-flex">
+       :host {
+        display: block;
+        background: var(--light-grey);
+        height: 100%;
+      }
+
+      .chip {
+        padding-right: 16px;
+      }
+
+      .bidder-list {
+        width: 100%;
+        text-align: left;
+      }
+
+      .section-title,
+      .section-details {
+        display: flex;
+        justify-content: left;
+        align-items: center;
+      }
+
+      .section-title .title {
+        font-size: 24px;
+        color: #FFFFFF;
+        font-weight: 400;
+        line-height: 34px;
+        margin-bottom: 8px;
+      }
+
+      div.divider {
+        padding: 8px 0;
+      }
+
+      div.divider hr {
+        margin: 0;
+        opacity: 0.12;
+      }
+
+      .mark-job {
+        display: block;
+        width: 100%;
+        margin-top: 8px;
+      }
+
+      my-carousel {
+        width: 100%;
+        contain: content;
+      }
+      my-carousel::after {
+        display: block;
+        content: '';
+        padding-top: 75%; /* 4:3 = height is 75% of width */
+      }
+      my-carousel img, my-carousel div {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+
+      a {
+        color: #FFFFFF;
+        text-decoration: none;
+      }
+
+    </style>
+
+    <div id="toolbar" class="toolbar">
+      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectBack"></paper-icon-button>
+      <span class="flex"></span>
+      <template is="dom-if" if="[[!post.winner]]">
+        <paper-icon-button icon="create" class="red pointer" on-click="editPost"></paper-icon-button>
+      </template>
+      <template is="dom-if" if="[[post.winner]]">
+        <paper-icon-button icon="grid:inbox" class="red" on-tap="messageBidder"></paper-icon-button>
+      </template>
+    </div>
+
+    <main class="scroll-area flex">
+
+      <section class="p-y-1 white">
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">[[post.name]]</span>
+            <small class="category block">Category: [[post.category.category]]</small>
+            <small class="location block">Location: [[post.location]]</small>
+          </div>
+          <paper-icon-button icon="maps:pin-drop" class="red pointer" on-tap="viewOnMap"></paper-icon-button>
+        </div>
+
+        <div class="divider">
+          <hr/>
+        </div>
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">Status</span>
+          </div>
+        </div>
+
+        <ul id="status" class="progress-indicator">
+          
+            <li data-progress="1">
+              <span class="bubble">1</span> Awarded
+            </li>
+            <li data-progress="2">
+              <span class="bubble">2</span> In-progress
+              <template is="dom-if" if="[[_awarded]]">
+                <button type="button" class="mark-job" on-click="markInProgress">Mark</button>
+              </template>
+            </li>
+            <li data-progress="3">
+              <span class="bubble">3</span> Review
+              <template is="dom-if" if="[[_inProgress]]">
+                <button type="button" class="mark-job" on-click="showReview">Review</button>
+              </template>
+            </li>
+            <li data-progress="4">
+              <span class="bubble">4</span> Completed
+              <template is="dom-if" if="[[_review]]">
+                <button type="button" class="mark-job" on-click="markCompleted">Mark</button>
+              </template>
+            </li>
+          
+        </ul>
+
+        <div hidden$="[[!_showReview]]">
+          <grid-ratings rate="{{rate}}" selectable="[[!_review]]"></grid-ratings>
+          <template is="dom-if" if="[[!post.winner.review]]">
+            <div class="input-group">
+              <textarea rows="6" class="input" value="{{review::input}}" style="resize: none; height: 100px; padding: 16px;" placeholder="Your review.."></textarea>
+            </div>
+            <button type="button" on-click="submitReview">Submit</button>
+          </template>
+          <template is="dom-if" if="[[post.winner.review]]">
+            <p class="white">Your review: [[post.winner.review.review]]</p>
+          </template>
+        </div>
+
+        <template is="dom-if" if="[[post.winner]]">
+          <div class="section-details">
+            <div class="flex">
+              <span class="title">Awarded to</span>
+            </div>
+            <span>[[post.winner.user.name]]</span>
+          </div>
+          <div class="section-details">
+            <div class="flex">
+              <span class="title">Approved amount</span>
+            </div>
+            <span>AED [[post.winner.bid.price_bid]]</span>
+          </div>
+          <div class="section-details">
+            <div class="flex">
+              <span class="title">Date awarded</span>
+            </div>
+            <span>[[_fromNow(post.winner.created_at)]]</span>
+          </div>
+          
+        </template>
+
+        <div class="divider">
+          <hr/>
+        </div>
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">Bidders</span>
+          </div>
+        </div>
+        <template is="dom-if" if="[[post.bidders.length]]">
+          <table class="bidder-list">
+            <thead>
+              <tr>
+                <th>Bidder</th>
+                <th>Bid</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <template is="dom-repeat" items="[[post.bidders]]" as="bidder">
+                <tr>
+                  <td><a href$="/@[[bidder.user.username]]">[[bidder.user.name]]</a></td>
+                  <td>[[bidder.price_bid]]</td>
+                  <td>
+                    <template is="dom-if" if="[[!post.winner]]">
+                      <paper-button on-tap="openAwardJobDialog">Award Job</paper-button>
+                    </template>
+                    <template is="dom-if" if="[[bidder.files.length]]">
+                      <paper-button on-tap="viewFiles">View Files</paper-button>
+                    </template>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </template>
+        <template is="dom-if" if="[[!post.bidders.length]]">
+          <p>No bidders on this post.</p>
+        </template>
+
+        <div class="divider">
+          <hr/>
+        </div>
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">Details</span>
+          </div>
+        </div>
+
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Budget</span>
+          </div>
+          <span>AED [[post.price]]</span>
+        </div>
+
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Job needed</span>
+          </div>
+          <span>[[_fromNow(post.date)]]</span>
+        </div>
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Posted</span>
+          </div>
+          <span>[[_fromNow(post.created_at)]]</span>
+        </div>
+        <div hidden$="[[!hasPDF]]">
+          <div class="section-details">
+            <div class="flex">
+              <span class="title">PDF</span>
+            </div>
+            <span><div id="docs"></div></span>
+          </div>
+        </div>
+
+        <p>[[_details(post.details)]]</p>
+
+        <div class="divider">
+          <hr/>
+        </div>
+
+        <template is="dom-if" if="[[post.skills.length]]">
+
+          <div class="section-title">
+            <div class="flex">
+              <span class="title">Required Skills</span>
+            </div>
+          </div>
+
+          <template is="dom-repeat" items="[[post.skills]]" as="skill">
+            <div class="chip">
+              <span>[[skill.skill]]</span>
+            </div>
+          </template>
+          <template is="dom-if" if="[[!post.skills.length]]">
+            <p>No set of skills provided.</p>
+          </template>
+
+        </template>
+
+        <div id="carousel"></div>
+
+        <template is="dom-if" if="[[post.files.length]]">
+
+        </template>
+
+      </section>
+
+    </main>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay lgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+    <paper-dialog id="filesPreviewDialog" style="min-width: 300px;" class="dialog-dark">
+      <h2>Files</h2>
+      <paper-dialog-scrollable>
+        <div id="docs-dialog"></div>
+        <div id="carousel-dialog"></div>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Close</paper-button>
+      </div>
+    </paper-dialog>
+    
+    <paper-dialog id="awardDialog" class="dialog-dark">
+      <h2>Award this job</h2>
+      <div>
+        <p>Are you sure you want to award this job to [[awardee.user.name]]?</p>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss>No</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="awardJob">Yes</paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+    class GridPost extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+
+      static get is() { return 'grid-post'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
+          },
+
+          posts: {
+            type: Array,
+            statePath: 'posts'
+          },
+
+          inbox: {
+            type: Array,
+            statePath: 'inbox'
+          },
+
+          isLoading: {
+            type: Boolean,
+            value: false
+          }
+
+        }
+      }
+
+      static get observers() {
+        return [
+          '_postsChange(posts)',
+          '_postChange(post)',
+          '_postIdChange(postId)',
+        ]
+      }
+
+      static get actions() {
+        return {
+          updatePost(post) {
+            return {
+              type: 'UPDATE_POST',
+              post: post
+            }
+          },
+
+          addInbox(conversation) {
+            return {
+              type: 'ADD_INBOX',
+              conversation: conversation
+            }
+          }
+        };
+      }
+
+      constructor() {
+        super();
+
+        // grid map is required so the map needs to be loaded
+        Polymer.Base.importHref(
+          '/elements/thegrid/components/grid-map.html?v=1.0.16',
+          () => {
+            // do something after elements has been imported
+          }
+        );
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.headerAnimate();
+
+      }
+
+      headerAnimate() {
+				const toolbar = this.shadowRoot.querySelector('#toolbar');
+        const main = this.shadowRoot.querySelector('main');
+
+        const scroll = () => {
+          let _st = main.scrollTop;
+          
+          if( _st > 0 ) {
+            toolbar.classList.add('shadow');
+          } else {
+            toolbar.classList.remove('shadow');
+          }
+          
+        };
+
+        main.addEventListener('scroll', scroll);
+      }
+
+      renderPost(post) {
+        if (!this.user) return;
+
+        this.post = post;
+        this.isLoading = false;
+
+        this._awarded = false;
+        this._inProgress = false;
+        this._review = false;
+        this.star = 1;
+        this._showReview = false;
+
+        const status = this.shadowRoot.querySelector('#status');
+        const progressList = status.querySelectorAll('[data-progress]');
+
+        progressList.forEach( progress => {
+          let p = progress.getAttribute('data-progress');
+          progress.classList.remove('completed');
+          if(Number(post.status) >= Number(p)) {
+            progress.classList.add('completed');
+          }
+        });
+
+        switch(this.post.status) {
+          case 1: {
+            this._awarded = true;
+            break;
+          }
+          case 2: {
+            this._inProgress = true;
+            break;
+          }
+          case 3: {
+            this._review = true;
+          }
+        }
+
+        if(this.post.winner) {
+          if(this.post.winner.review) {
+
+            this.showReview(false);
+            this.rate = this.post.winner.review.stars;
+
+          }
+        }
+
+        // carousel
+        this.hasPDF = false;
+
+        const carousel = this.shadowRoot.querySelector('#carousel');
+        const docs = this.shadowRoot.querySelector('#docs');
+        
+        if(post.files.length) {
+          
+          let my_carousel = document.createElement('my-carousel');
+          let pdf = document.createElement('div');
+
+          post.files.forEach( file => {
+            let allowFile = false;
+            switch (file.type) {
+              case 'jpeg':
+              case 'png': {
+                allowFile = true;
+                break;
+              }
+              case 'pdf': {
+                let a = document.createElement('a');
+                a.href = this._getFilePath(file.path);
+                a.setAttribute('download', true);
+                a.textContent = file.original_name;
+                pdf.appendChild(a);
+                this.hasPDF = true;
+                break;
+              }
+            }
+            if( !allowFile ) return;
+            let img = document.createElement('img');
+            let div = document.createElement('div');
+            // img.setAttribute('data-src', this._getFilePath(file.path));
+
+            div.style.backgroundImage = `url(${this._getFilePath(file.path)})`;
+            div.style.backgroundSize = 'cover';
+            div.style.backgroundPosition = 'center';
+
+            my_carousel.appendChild(div);
+          });
+
+          carousel.innerHTML = '';
+          carousel.appendChild(my_carousel);
+
+          docs.innerHTML = '';
+          docs.appendChild(pdf);
+
+        } else {
+          carousel.innerHTML = '';
+        }
+
+        
+
+      }
+
+
+      viewOnMap() {
+        if (!this.post && this.map) return;
+
+        const job = this.post;
+        const position = new google.maps.LatLng(job.lat, job.lng);
+
+        this.map.setCenter(position);
+        this.map.setZoom(20);
+        this.redirectHome();
+      }
+
+      openAwardJobDialog(e) {
+        const bidder = e.model.bidder;
+
+        const awardDialog = this.shadowRoot.querySelector('#awardDialog');
+
+        this.awardee = bidder;
+
+        awardDialog.open();
+      }
+
+      awardJob() {
+        if(!this.auth) return;
+
+        if(!this.awardee) return;
+
+        const bidder = this.awardee;
+        this.isLoading = true;
+
+        gAxios.post(`/users/${this.user.id}/bids/${bidder.id}/approve`, {
+          job_id: this.post.id,
+          user_id: bidder.user.id
+        }).then( res => {
+          console.log(res.data);
+          this.dispatch('updatePost', res.data);
+          
+          // window.dispatchEvent( new CustomEvent('user:grant_job', { detail: res.data.winner }));
+
+          // to notify other bidders
+
+          this.post.bidders.forEach(bidder => {
+            bidder.winner_user_id = res.data.winner.user_id;
+            window.dispatchEvent( new CustomEvent('user:grant_job', { detail: bidder }));
+          });
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      markInProgress() {
+        if(!this.post) return;
+        if(this.post.status != 1) return;
+        
+        this.isLoading = true;
+        gAxios.post(`/users/${this.user.id}/jobs/${this.post.id}/status`, {
+          status: 2
+        }).then( res => {
+          // console.log(res.data);
+          this.dispatch('updatePost', res.data);
+
+          let detail = {
+            winner_user_id: res.data.winner.user_id,
+            bid_id: res.data.winner.bid_id
+          };
+          
+          window.dispatchEvent( new CustomEvent('user:job_in_progress', { detail: detail }));
+        
+        }).catch( err => {
+
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      markCompleted() {
+        if(!this.post) return;
+        if(this.post.status != 3) return;
+        
+        this.isLoading = true;
+        gAxios.post('/users/' + this.user.id + '/jobs/' + this.post.id + '/status', {
+          status: 4
+        }).then( res => {
+          // console.log(res.data);
+          this.dispatch('updatePost', res.data);
+
+          let detail = {
+            winner_user_id: res.data.winner.user_id,
+            bid_id: res.data.winner.bid_id
+          };
+          
+          window.dispatchEvent( new CustomEvent('user:job_complete', { detail: detail }));
+        
+        }).catch( err => {
+
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      showReview(event = true) {
+
+        this._showReview = true;
+
+      }
+
+      submitReview() {
+        if(!this.auth) return;
+
+        this.isLoading = true;
+
+        gAxios.post('/users/' + this.user.id + '/review', {
+          user_id: this.post.winner.user.id,
+          job_id: this.post.id,
+          review: this.review,
+          stars: this.rate
+        }).then( res => {
+          console.log(res.data);
+          this.dispatch('updatePost', res.data);
+
+          let detail = {
+            winner_user_id: res.data.winner.user_id,
+            bid_id: res.data.winner.bid_id
+          };
+          
+          window.dispatchEvent( new CustomEvent('user:job_review', { detail: detail }));
+        
+        }).catch( err => {
+
+        }).then( () => {
+          this.isLoading = false;
+        })
+      }
+
+      messageBidder() {
+        if( !this.post.winner ) return;
+
+        if( this.post.conversation ) {
+          this.redirect('/inbox/' + this.post.conversation.id);
+          return;
+        }
+
+        this.isLoading = true;
+        gAxios.post('/users/' + this.user.id + '/inbox', {
+          job_id: this.post.id,
+          user_id_1: this.user.id,
+          user_id_2: this.post.winner.user.id
+        }).then( res => {
+          
+          var convoExist = this.inbox.find(item => {
+            return item.id == res.data.id;
+          });
+          
+          if(!convoExist) {
+            this.dispatch('addInbox', res.data);
+            let detail = res.data;
+            detail.to = this.post.winner.user.id;
+            window.dispatchEvent(new CustomEvent('user:create_conversation', { detail: res.data }));
+          }
+          this.redirect('/inbox/' + res.data.id);
+
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      viewFiles(e) {
+        const files = e.model.bidder.files;
+
+        if(files.length) {
+          const carousel = this.shadowRoot.querySelector('#carousel-dialog');
+          const docs = this.shadowRoot.querySelector('#docs-dialog');
+          
+          if(files.length) {
+            
+            let my_carousel = document.createElement('my-carousel');
+            let pdf = document.createElement('div');
+
+            files.forEach( file => {
+              let allowFile = false;
+              switch (file.type) {
+                case 'jpeg':
+                case 'png': {
+                  allowFile = true;
+                  break;
+                }
+                case 'pdf': {
+                  let a = document.createElement('a');
+                  a.href = this._getFilePath(file.path);
+                  a.setAttribute('download', true);
+                  a.textContent = file.original_name;
+                  pdf.appendChild(a);
+                  break;
+                }
+              }
+              if( !allowFile ) return;
+              let img = document.createElement('img');
+              let div = document.createElement('div');
+
+              div.style.backgroundImage = `url(${this._getFilePath(file.path)})`;
+              div.style.backgroundSize = 'cover';
+              div.style.backgroundPosition = 'center';
+
+              my_carousel.appendChild(div);
+            });
+
+            carousel.innerHTML = '';
+            carousel.appendChild(my_carousel);
+
+            docs.innerHTML = '';
+            docs.appendChild(pdf);
+
+            const dialog = this.shadowRoot.querySelector('#filesPreviewDialog');
+            dialog.fitInto = this;
+            dialog.open();
+
+          } else {
+            carousel.innerHTML = '';
+          }
+        }
+      }
+
+      editPost() {
+        if(!this.post) return;
+
+        this.redirect(`/posts/edit/${this.post.id}/#1`);
+      }
+
+      _nextStatus(status) {
+        if(!this.post) return false;
+
+        
+        if( this.post.status + 1 == status ) {
+          return true;
+        }
+
+        return false;
+      }
+
+      _postChange(post) {
+        if (!post) return;
+        this.renderPost(post);
+      }
+
+      _postIdChange(postId) {
+        // console.log('postId', postId);
+        if (!postId) return;
+        if (!this.auth) return;
+        if (!this.posts) return;
+        if (this.post) return;
+        this.isLoading = true;
+        this.posts.map(post => {
+          if (parseInt(post.id) === parseInt(this.postId)) {
+            this.renderPost(post);
+            this.isLoading = false;
+          }
+        });
+        // gAxios.get('/users/' + this.user.id + '/jobs/' + postId)
+        //   .then(res => {
+        //     this.renderPost(res.data);
+        //   }).then(() => {
+        //     this.isLoading = false;
+        //   });
+      }
+
+      _postsChange(posts) {
+        posts.forEach(post => {
+          if (parseInt(post.id) == parseInt(this.postId)) {
+            this.renderPost(post);
+          }
+        });
+      }
+
+      _fromNow(date) {
+        return moment(date).fromNow();
+      }
+
+      _details(details) {
+        if (details) return details;
+
+        return '';
+      }
+
+      _compareWinnerBidder(id1, id2) {
+        return id1 == id2;
+      }
+
+      _getFilePath(path) {
+        return `${this.url.API_BASE_URL}/uploads/${path}`;
+      }
+      
+
+    }
+
+    customElements.define(GridPost.is, GridPost);
+  </script>
+</dom-module>

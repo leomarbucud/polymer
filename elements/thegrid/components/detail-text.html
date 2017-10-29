@@ -1,0 +1,65 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../grid-styles.html?v=1.0.16">
+
+<dom-module id="detail-text">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+      }
+
+      .label {
+        font-size: 14px;
+        font-weight: 100;
+        letter-spacing: -0.14px;
+        line-height: normal;
+        color: #FFFFFF;
+      }
+
+      .details {
+        font-size: 24px;
+        letter-spacing: -0.24px;
+        line-height: normal;
+        color: #FFFFFF;
+      }
+
+    </style>
+    <label class="label">
+      [[ label ]]
+    </label>
+    <div class="details">
+      [[ details ]]
+    </div>
+
+  </template>
+
+  <script>
+
+    class DetailText extends ReduxBehavior(Polymer.Element) {
+
+      static get is() { return 'detail-text'; }
+
+      static get properties() {
+        return {
+          label: String,
+          details: String
+        }
+      }
+      
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+
+    }
+
+    customElements.define(DetailText.is, DetailText);
+	</script>
+</dom-module>

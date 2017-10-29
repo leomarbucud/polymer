@@ -5,8 +5,8 @@
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/iron-list/iron-list.html">
-<link rel="import" href="../grid-styles.html?v=1.0.15">
-<link rel="import" href="transactions/grid-transaction.html?v=1.0.15">
+<link rel="import" href="../grid-styles.html?v=1.0.16">
+<link rel="import" href="transactions/grid-transaction.html?v=1.0.16">
 
 <dom-module id="grid-transactions">
   <template>
@@ -493,7 +493,7 @@
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector('#transactions-' + subrouteData.id) ) {
             Polymer.Base.importHref(
-  						'/elements/thegrid/pages/transactions/grid-transactions-' + subrouteData.id + '.html?v=1.0.15',
+  						'/elements/thegrid/pages/transactions/grid-transactions-' + subrouteData.id + '.html?v=1.0.16',
   						() => {
                 self.subPage = subrouteData.id;
   						}

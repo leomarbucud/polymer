@@ -1,0 +1,103 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="time-remaining">
+  <template>
+
+  </template>
+
+  <script>
+
+    class TimeRemaining extends Polymer.Element {
+
+      static get is() { return 'time-remaining'; }
+
+      static get properties() {
+        return {
+          date: {
+            type: String,
+            observer: '_startCountdown'
+          },
+          timeRemaining: {
+            value: '---',
+            type: String,
+            notify: true
+          }
+        }
+      }
+      
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+      
+      _setTimeRemaining(duration) {
+        let	s = moment.duration(duration).seconds();
+        let	m = moment.duration(duration).minutes();
+        let	h = moment.duration(duration).hours();
+        let	d = moment.duration(duration).days();
+        let	mn = moment.duration(duration).months();
+
+        if( mn > 0 ) {
+          this.timeRemaining = `${mn} ${this._pluralize('Month', mn)}, ${d} ${this._pluralize('Day', d)}`;
+          return;
+        }
+        
+        if( d > 0 ) {
+          this.timeRemaining = `${d} ${this._pluralize('Day', d)}, ${h} ${this._pluralize('Hour', h)}`;
+          return;
+        }
+
+        if ( h > 0 ) {
+          this.timeRemaining = `${h} ${this._pluralize('Hour',h)}, ${m} ${this._pluralize('Minute', m)}`;
+          return;
+        }
+
+        if( m > 0 ) {
+          this.timeRemaining = `${m} ${this._pluralize('Minute', m)}, ${s} ${this._pluralize('Second', s)}`;
+          return;
+        }
+
+        this.timeRemaining = `${s} ${this._pluralize('Second', s)}`;
+
+        if( s <= 0 ) clearInterval(this._countDown);
+      }
+
+      _startCountdown(date) {
+				let eventTime = moment(date, 'YYYY-MM-DD HH:mm:ss').unix(),
+					currentTime = moment().unix(),
+					diffTime = eventTime - currentTime,
+					duration = moment.duration(diffTime * 1000, 'milliseconds'),
+					interval = 1000;
+
+        duration = moment.duration(duration.asMilliseconds() - interval, 'milliseconds');
+        this._setTimeRemaining(duration);
+				
+        if(this._countDown) clearInterval(this._countDown);
+
+				if(diffTime > 0) {
+					this._countDown = setInterval( () => {
+              
+            this._setTimeRemaining(duration);
+
+					}, interval);
+				} else {
+          this.timeRemaining = `Time's up`;
+        }
+			}
+
+      _pluralize(text, count) {
+        if( count > 1 ) return `${text}s`;
+
+        return text;
+      }
+
+    }
+
+    customElements.define(TimeRemaining.is, TimeRemaining);
+	</script>
+</dom-module>

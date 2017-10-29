@@ -1,5 +1,5 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-<link rel="import" href="grid-icons.html?v=1.0.15"> 
+<link rel="import" href="grid-icons.html?v=1.0.16"> 
 
 <custom-style>
   <style>
@@ -13,13 +13,11 @@
 			--range-datepicker-cell-hover: #FF2D55;
 			--range-datepicker-cell-selected: var(--red);
 			--range-datepicker-cell-hovered: var(--dark-red);
-		}
 
-		 /* --grid-transition-effect: {
-			transition-property: all;
-			transform-style: cubic-bezier(0.4, 0, 0.2, 1);
-			transition-duration: 350ms;
-		}  */
+			--paper-font-common-base: {
+				font-family: museo-sans, 'Roboto', sans-serif; 
+			}
+		}
 	</style>
 </custom-style>
 
@@ -278,6 +276,17 @@
 			.toolbar paper-button {
 				min-width: auto;
 				font-weight: bold
+			}
+
+			.toolbar .toolbar-title {
+				font-size: 20px;
+				color: #FFFFFF;
+				font-size: 20px;
+				color: #FFFFFF;
+				height: 20px;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
 			}
 
 			.loading-bg, .red-bg {
@@ -618,6 +627,39 @@
 		</style>
 	</template>
 </dom-module>
+
+<dom-module id="grid-tabs">
+	<template>
+		<style>
+			paper-tabs.tabs-dark {
+				--paper-tabs-selection-bar-color: var(--red);
+				--paper-tabs-selection-bar: {
+					background-color: var(--dark-grey);
+				}
+				--paper-tabs: {
+					color: #FFFFFF;
+					background-color: var(--dark-grey);
+				}
+			}
+
+			paper-tabs.tabs-dark paper-tab {
+				--paper-tab-ink: var(--light-grey);
+				--paper-tab: {
+					font-weight: normal;
+					font-size: 16px;
+				}
+				--paper-tab-content: {
+					color: var(--red);
+					font-weight: normal;
+				}
+				--paper-tab-content-unselected: {
+					color: #FFFFFF;
+				}
+			}
+		</style>
+	</template>
+</dom-module>
+
 <dom-module id="grid-progress">
 	<template>
 		<style>

@@ -1,0 +1,182 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../grid-styles.html?v=1.0.16">
+<link rel="import" href="chart-js-import.html?v=1.0.16">
+
+<dom-module id="line-chart">
+  <template>
+    <style include="iron-flex">
+      :host {
+        display: block;
+        position: relative;
+        max-height: 500px;
+        height: 300px;
+        width: 100%;
+      }
+
+      :host>div {
+        height: 300px;
+      }
+
+      #chart {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+    <div>
+      <canvas id="chart"></canvas>
+    </div>
+
+  </template>
+
+  <script>
+
+    class LineChart extends Polymer.Element {
+
+      static get is() { return 'line-chart'; }
+
+      static get properties() {
+        return {
+          label: String,
+          details: String,
+          type: {
+            type: String,
+            readOnly: true,
+            value: 'bar',
+          },
+          chart: {
+            notify: true
+          },
+          data: {
+            type: Object,
+            value: function () {
+              return {};
+            }
+          },
+          options: {
+            type: Object,
+            value: function () {
+              return {};
+            }
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_configurationChanged(data.*, options.*)'
+        ];
+      }
+
+      get canvas() {
+        return this.shadowRoot.querySelector('#chart');
+      }
+
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        this._queue();
+        window.addEventListener('resize', () => {
+          this._queue();
+        });
+      }
+
+      _measure(cb) {
+        function measure() {
+          if (this.offsetHeight) {
+            cb(true);
+          } else {
+            cb(false);
+          }
+        }
+        requestAnimationFrame(measure.bind(this));
+      }
+
+      _queue() {
+        // if (this.hasData) {
+        this._measure(function (hasHeight) {
+          if (hasHeight) {
+            this.updateChart();
+          }
+        }.bind(this));
+        // }
+      }
+
+      updateChart() {
+        var myChart = new Chart(this.canvas, {
+          type: 'line',
+          data: {
+            labels: ["January", "February", "March", "April", "May", "June", "July"],
+            datasets: [
+              {
+                label: "Views",
+                borderColor: "rgba(255,58,48,1)",
+                borderWidth: 2,
+                pointBackgroundColor: "rgba(255,58,48,1)",
+                pointBorderColor: "rgba(255,58,48,1)",
+                pointHoverBackgroundColor: "rgba(255,58,48,1)",
+                data: [65, 59, 80, 81, 56, 55, 40],
+                fill: false,
+                lineTension: 0
+              },
+              {
+                label: "Offers",
+                borderColor: "#FFFFFF",
+                borderWidth: 2,
+                pointBackgroundColor: "#fff",
+                pointBorderColor: "#fff",
+                pointHighlightFill: "#fff",
+                data: [28, 48, 40, 19, 86, 27, 90],
+                fill: false,
+                lineTension: 0
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            legend: {
+              display: false,
+            },
+            scales: {
+              xAxes: [{
+                gridLines: {
+                  display: false
+                },
+                ticks: {
+                  fontColor: '#FFFFFF',
+                  fontFamily: "'museo-sans', 'Roboto', sans-serif"
+                }
+              }],
+              yAxes: [{
+                gridLines: {
+                  color: 'rgba(255, 255, 255, 0.2)'
+                },
+                ticks: {
+                  fontColor: '#FFFFFF',
+                  fontFamily: "'museo-sans', 'Roboto', sans-serif"
+                }
+              }]
+            }
+          }
+        });
+      }
+
+      _configurationChanged(dataRecord, optionsRecord) {
+        if (dataRecord.base.labels && dataRecord.base.datasets) {
+          this.hasData = true;
+        } else {
+          this.hasData = false;
+        }
+        if (this.hasData && this.isAttached) {
+          this._queue();
+        }
+      }
+
+    }
+
+    customElements.define(LineChart.is, LineChart);
+  </script>
+</dom-module>
