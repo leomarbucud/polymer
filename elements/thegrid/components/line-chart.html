@@ -1,6 +1,6 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../grid-styles.html?v=1.0.17">
-<link rel="import" href="chart-js-import.html?v=1.0.17">
+<link rel="import" href="../grid-styles.html?v=1.0.18">
+<link rel="import" href="chart-js-import.html?v=1.0.18">
 
 <dom-module id="line-chart">
   <template>
@@ -9,12 +9,12 @@
         display: block;
         position: relative;
         max-height: 500px;
-        height: 300px;
+        /* height: 300px; */
         width: 100%;
       }
 
       :host>div {
-        height: 300px;
+        /* height: 300px; */
       }
 
       #chart {
@@ -159,7 +159,8 @@
                   fontFamily: "'museo-sans', 'Roboto', sans-serif"
                 }
               }]
-            }
+            },
+            responsiveAnimationDuration: 0
           }
         });
       }

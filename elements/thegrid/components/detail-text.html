@@ -1,5 +1,5 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../grid-styles.html?v=1.0.17">
+<link rel="import" href="../grid-styles.html?v=1.0.18">
 
 <dom-module id="detail-text">
   <template>
@@ -15,6 +15,7 @@
         letter-spacing: -0.14px;
         line-height: normal;
         color: #FFFFFF;
+        font-style: italic;
       }
 
       .details {
@@ -24,6 +25,10 @@
         color: #FFFFFF;
       }
 
+      :host(.normal) .details {
+        font-size: 16px;
+      }
+
     </style>
     <label class="label">
       [[ label ]]
@@ -31,6 +36,7 @@
     <div class="details">
       [[ details ]]
     </div>
+    <slot></slot>
 
   </template>
 

@@ -8,8 +8,8 @@
 <link rel="import" href="../../../bower_components/paper-badge/paper-badge.html">
 <link rel="import" href="../../../bower_components/iron-dropdown/iron-dropdown.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
-<link rel="import" href="../grid-styles.html?v=1.0.17">
-<link rel="import" href="inbox/grid-conversation.html?v=1.0.17">
+<link rel="import" href="../grid-styles.html?v=1.0.18">
+<link rel="import" href="inbox/grid-conversation.html?v=1.0.18">
 
 <dom-module id="grid-inbox">
   <template>
@@ -663,7 +663,7 @@
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector('#posts-' + subrouteData.id) ) {
             Polymer.Base.importHref(
-  						'/elements/thegrid/pages/inbox/grid-inbox-' + subrouteData.id + '.html?v=1.0.17',
+  						'/elements/thegrid/pages/inbox/grid-inbox-' + subrouteData.id + '.html?v=1.0.18',
   						() => {
                 self.subPage = subrouteData.id;
   						}

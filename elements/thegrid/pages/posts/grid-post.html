@@ -4,16 +4,19 @@
 <link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../grid-styles.html?v=1.0.17">
-<link rel="import" href="../../grid-icons.html?v=1.0.17">
-<link rel="import" href="../../components/ratings.html?v=1.0.17">
-<link rel="import" href="../../components/carousel.html?v=1.0.17">
-<link rel="import" href="../../components/detail-text.html?v=1.0.17">
-<link rel="import" href="../../components/time-remaining.html?v=1.0.17">
-<link rel="import" href="../../components/line-chart.html?v=1.0.17">
+<link rel="import" href="../../grid-styles.html?v=1.0.18">
+<link rel="import" href="../../grid-icons.html?v=1.0.18">
+<link rel="import" href="../../components/ratings.html?v=1.0.18">
+<link rel="import" href="../../components/carousel.html?v=1.0.18">
+<link rel="import" href="../../components/detail-text.html?v=1.0.18">
+<link rel="import" href="../../components/time-remaining.html?v=1.0.18">
+<link rel="import" href="../../components/line-chart.html?v=1.0.18">
+<link rel="import" href="../../components/offer-item.html?v=1.0.18">
 
 <dom-module id="grid-post">
   <template>
@@ -66,13 +69,71 @@
         background: linear-gradient(270deg, #FFFFFF 100%, #D5D5D5 0%)
       }
 
+      #previews {
+				display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+			}
+
+			#previews .wrap {
+				margin: 5px 0;
+			}
+
+			.file {
+				display: inline-block;
+				position: relative;
+				color: #FFFFFF;
+				background: rgba(33, 33, 33, 0.87);
+				border-radius: 2px;
+				padding: 4px 4px;
+
+			}
+
+			.file img {
+				width: 24px;
+				height: 24px;
+				vertical-align: middle;
+			}
+
+			.file span {
+				line-height: 25px;
+				margin: 0 5px;
+				font-size: 14px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
+			.file iron-icon {
+				cursor: pointer;
+			}
+
+      .filter-offer {
+        text-align: right;
+      }
+
+      .filter-offer label {
+        color: #FFFFFF;
+        font-size: 14px;
+      }
+
     </style>
 
     <div id="toolbar" class="toolbar dgrey-bg">
       <paper-icon-button icon="first-page" class="red" on-click="redirectHome"></paper-icon-button>
       <paper-icon-button icon="chevron-left" class="red" on-click="redirectPosts"></paper-icon-button>
       <span class="flex toolbar-title">[[ post.name ]]</span>
-      <paper-icon-button icon="more-vert" class="red" on-click="redirectBack"></paper-icon-button>
+      <paper-menu-button horizontal-align="right" vertical-align="top">
+        <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
+        <paper-listbox slot="dropdown-content" class="dropdown-menu">
+          <paper-item class="item" on-click="refreshJobs">
+            <span>Edit</span>
+          </paper-item>
+        </paper-listbox>
+      </paper-menu-button>
     </div>
     <paper-tabs selected="{{selected_tab}}" class="tabs-dark">
       <paper-tab>About</paper-tab>
@@ -106,21 +167,69 @@
             <detail-text label="Expected Amount" details="AED [[ post.price ]]"></detail-text>
           </div>
           <div class="details">
-            <div class="legends">
-              <label>
-                <span class="views"></span>
-                &nbsp;Views
-              </label>
-              <label>
-                <span class="offers"></span>
-                &nbsp;Offers
-              </label>
+            <div class="layout horizontal">
+              <div class="flex">
+                <label>[[ chartDataLabel ]]</label>
+                <paper-menu-button id="chart-data-dropdown" class="p-0" horizontal-align="right" vertical-align="top">
+                  <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
+                  <paper-listbox slot="dropdown-content" class="dropdown-menu">
+                    <paper-item class="item" on-click="showPassWeek" data-text="Pass 7 days">Pass 7 days</paper-item>
+                    <paper-item class="item" on-click="showPassMonth" data-text="Pass 30 days">Pass 30 days</paper-item>
+                  </paper-listbox>
+                </paper-menu-button>
+              </div>
+              <div class="legends">
+                <label>
+                  <span class="views"></span>
+                  &nbsp;Views
+                </label>
+                <label>
+                  <span class="offers"></span>
+                  &nbsp;Offers
+                </label>
+              </div>
             </div>
             <line-chart data="[[ chart_data ]]"></line-chart>
           </div>
+          <div class="details">
+            <detail-text label="Details" details="[[ post.details ]]" class="normal"></detail-text>
+          </div>
+          <div class="details">
+            <detail-text label="Attachments">
+              <div id="previews">
+                <template is="dom-repeat" items="[[files]]" as="file">
+                  <div class="wrap">
+                    <div class="file layout horizontal">
+                      <img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
+                      <span class="flex">[[file.original_name]]</span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </detail-text>
+          </div>
+          <div class="details">
+            <detail-text label="Tags">
+
+            </detail-text>
+          </div>
         </section>
         <section class="p-y-1 white">
-          Offers      
+          <div class="filter-offer">
+            <label>[[ sortedByLabel ]]</label>
+            <paper-menu-button id="sort-offer" class="p-0" horizontal-align="right" vertical-align="top">
+              <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
+              <paper-listbox slot="dropdown-content" class="dropdown-menu">
+                <paper-item class="item" on-click="sortOffers" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
+                <paper-item class="item" on-click="sortOffers" data-sort="h_r" data-text="Highest Rating">Highest Rating</paper-item>
+                <paper-item class="item" on-click="sortOffers" data-sort="h_a" data-text="Highest Amount">Highest Amount</paper-item>
+                <paper-item class="item" on-click="sortOffers" data-sort="l_a" data-text="Lowest Amount">Lowest Amount</paper-item>
+              </paper-listbox>
+            </paper-menu-button>
+          </div>
+          <template id="offerList" is="dom-repeat" items="[[ post.bidders ]]" as="bidder" sort="_sortByMostRecent">
+            <offer-item data="[[ bidder ]]"></offer-item>
+          </template>
         </section>
         <section class="p-y-1 white">
           Queries      
@@ -141,13 +250,13 @@
     </paper-dialog>
     
     <paper-dialog id="awardDialog" class="dialog-dark">
-      <h2>Award this job</h2>
+      <h2>Award this post</h2>
       <div>
-        <p>Are you sure you want to award this job to [[awardee.user.name]]?</p>
+        <p>Your post will be awarded to [[awardee.user.name]] and will require their confirmation</p>
       </div>
       <div class="buttons">
-        <paper-button dialog-dismiss>No</paper-button>
-        <paper-button dialog-confirm autofocus on-tap="awardJob">Yes</paper-button>
+        <paper-button dialog-dismiss auto-focus>Cancel</paper-button>
+        <paper-button dialog-confirm on-tap="awardJob">Yes</paper-button>
       </div>
     </paper-dialog>
 
@@ -200,11 +309,19 @@
         super();
 
         this.selected_tab = 0;
-
+        this.sortedByLabel = "Most Recent";
+        this.chartDataLabel = "Pass 7 days"
       }
 
       connectedCallback() {
         super.connectedCallback();
+
+        window.addEventListener('post:award', e => {
+          const data = e.detail;
+          const awardDialog = this.shadowRoot.querySelector('#awardDialog');
+          this.awardee = data;
+          awardDialog.open();
+        });
 
       }
 
@@ -224,10 +341,48 @@
         this.docs_count = 0;
         this.image_count = 0;
 
-        this._setChartData(post);
+        this.files = post.files;
+        this.showPassWeek();
         this._setFiles(post.files);
         this._setRanking(post.bidders);
 
+      }
+
+      sortOffers(e) {
+        const target = e.target;
+        const text = target.getAttribute('data-text');
+        const sortBy = target.getAttribute('data-sort');
+        const offerList = this.shadowRoot.querySelector('#offerList');
+        this.sortedByLabel = text;
+
+        switch ( sortBy ) {
+          case 'm_r': {
+            offerList.sort = '_sortByMostRecent';
+            break;
+          }
+          case 'h_r': {
+            offerList.sort = '_sortByHighestRating';
+            break;
+          }
+          case 'h_a': {
+            offerList.sort = '_sortByHighestAmount';
+            break;
+          }
+          case 'l_a': {
+            offerList.sort = '_sortByLowestAmount';
+            break;
+          }
+        }
+      }
+
+      showPassWeek() {
+        this.chartDataLabel = 'Pass 7 days';
+        this._setChartData(this.post, 'week');
+      }
+      
+      showPassMonth() {
+        this.chartDataLabel = 'Pass 30 days';
+        this._setChartData(this.post, 'month');
       }
 
       viewOnMap() {
@@ -264,9 +419,6 @@
           user_id: bidder.user.id
         }).then( res => {
           this.dispatch('updatePost', res.data);
-          
-          // window.dispatchEvent( new CustomEvent('user:grant_job', { detail: res.data.winner }));
-
           // to notify other bidders
 
           this.post.bidders.forEach(bidder => {
@@ -549,38 +701,70 @@
         this.image_count = image;
       }
 
-      _setChartData(post) {
+      _setChartData(post, type = 'week') {
         let labels = [];
         let views = [];
         let offers = [];
 
-        for( let i = 6; i >= 0; i-- ) {
-          labels.push(moment().subtract('days', i).format('MM/DD'));
+        if ( type == 'week' ) {
+          for( let i = 6; i >= 0; i-- ) {
+            labels.push(moment().subtract('days', i).format('MM/DD'));
+          }
+  
+          labels.forEach( label => {
+            let count = 0;
+            post.views_this_week.forEach( view => {
+              const day = moment(view.day).format('MM/DD');
+              if( day == label ) {
+                count = view.count;
+              }
+            });
+  
+            views.push(count);
+          });
+  
+          labels.forEach( label => {
+            let count = 0;
+            post.offers_this_week.forEach( offer => {
+              const day = moment(offer.day).format('MM/DD');
+              if( day == label ) {
+                count = offer.count;
+              }
+            });
+  
+            offers.push(count);
+          });
+
+        } else if( type == 'month' ) {
+          for( let i = 30; i >= 0; i-- ) {
+            labels.push(moment().subtract('days', i).format('MM/DD'));
+          }
+  
+          labels.forEach( label => {
+            let count = 0;
+            post.views_this_month.forEach( view => {
+              const day = moment(view.day).format('MM/DD');
+              if( day == label ) {
+                count = view.count;
+              }
+            });
+  
+            views.push(count);
+          });
+  
+          labels.forEach( label => {
+            let count = 0;
+            post.offers_this_month.forEach( offer => {
+              const day = moment(offer.day).format('MM/DD');
+              if( day == label ) {
+                count = offer.count;
+              }
+            });
+  
+            offers.push(count);
+          });
         }
 
-        labels.forEach( label => {
-          let count = 0;
-          post.views_this_week.forEach( view => {
-            const day = moment(view.day).format('MM/DD');
-            if( day == label ) {
-              count = view.count;
-            }
-          });
-
-          views.push(count);
-        });
-        
-        labels.forEach( label => {
-          let count = 0;
-          post.offers_this_week.forEach( offer => {
-            const day = moment(offer.day).format('MM/DD');
-            if( day == label ) {
-              count = offer.count;
-            }
-          });
-
-          offers.push(count);
-        });
 
         this.chart_data = {
           labels: labels,
@@ -588,6 +772,46 @@
           offers: offers
         }
       }
+
+      _fileReader(file, index) {
+				const previews = this.shadowRoot.querySelector('#previews');
+				if(file.id) {
+					if(file.type == 'jpeg' || file.type == 'png') {
+						setTimeout( () => {
+							previews.querySelector(`img#file-${index}`).src = `${this.url.API_BASE_URL}/uploads/${file.path}`;
+						}, 100);
+					} else if( file.type == 'pdf') {
+						setTimeout( () => {
+							previews.querySelector(`img#file-${index}`).src = `data:image/png;base64,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`;
+						}, 100);
+					}
+					return;
+				}
+      }
+      
+      _sortByMostRecent(a, b) {
+				a = new Date(a.created_at);
+				b = new Date(b.created_at);
+				return b < a ? -1 : b > a ? 1 : 0;
+      }
+      
+      _sortByLowestAmount(a, b) {
+				a = a.price_bid;
+				b = b.price_bid;
+				return b > a ? -1 : b < a ? 1 : 0;
+			}
+      
+      _sortByHighestAmount(a, b) {
+				a = a.price_bid;
+				b = b.price_bid;
+				return b < a ? -1 : b > a ? 1 : 0;
+			}
+      
+      _sortByHighestRating(a, b) {
+				a = a.user.rating.length ? a.user.rating[0].star : 0;
+				b = b.user.rating.length ? b.user.rating[0].star : 0;
+				return b < a ? -1 : b > a ? 1 : 0;
+			}
 
     }
 

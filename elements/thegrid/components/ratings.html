@@ -1,5 +1,5 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../grid-styles.html?v=1.0.17">
+<link rel="import" href="../grid-styles.html?v=1.0.18">
 
 <dom-module id="grid-ratings">
   <template>
@@ -18,6 +18,10 @@
       .stars .star {
         display: inline;
         color: yellow;
+      }
+
+      :host(.white) .stars .star {
+        color: #FFFFFF;
       }
 
     </style>
@@ -58,7 +62,8 @@
           selectable: {
             type: Boolean,
             value: false,
-          }
+          },
+          color: String
         }
       }
 

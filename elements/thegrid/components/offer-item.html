@@ -1,0 +1,199 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../grid-styles.html?v=1.0.18">
+<link rel="import" href="../components/ratings.html?v=1.0.18">
+
+<dom-module id="offer-item">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+      }
+
+      .card-list {
+        width: 100%;
+        background-color: var(--light-grey-1);
+        padding: 16px;
+        margin: 0px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .card-list .avatar {
+        width: 40px;
+        height: 40px;
+        margin-right: 12px;
+        background: #C4C4C4;
+        border-radius: 50%;
+      }
+
+      .card-list .avatar img.circle {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+      }
+
+      .card-list .name {
+        font-size: 16px;
+        text-decoration: underline;
+        line-height: 20px;
+      }
+
+      .card-list .offer {
+        font-size: 16px;
+        line-height: 20px;
+      }
+
+      .card-list .expanded {
+        display: none;
+        opacity: 0;
+      }
+
+      :host([opened]) .card-list {
+        margin-top: 8px;
+        margin-bottom: 8px;
+      }
+
+      :host([opened]) .card-list .expanded {
+        display: block;
+        opacity: 1;
+      }
+
+      .actions {
+        margin-right: -16px;
+        margin-top: -16px;
+      }
+
+      .actions .action {
+        color: #FFFFFF;
+        opacity: 0.7;
+      }
+
+      .expanded .date {
+        font-style: italic;
+        font-size: 12px;
+        opacity: 0.7;
+        line-height: 16px;
+      }
+
+      .expanded .bio {
+        font-size: 14px;
+        line-height: 16px;
+        margin-top: 16px;
+      }
+
+      .expanded .button {
+        text-align: right;
+        margin-bottom: -16px;
+        margin-right: -40px;
+      }
+
+    </style>
+    <paper-card class="card-list">
+      <div class="layout horizontal">
+        <div class="avatar">
+          <img class="circle" src$="[[ _profileImage(data.user.profile.profile_image_url) ]] ">
+        </div>
+        <div class="flex">
+          <div class="name">[[ data.user.name ]]</div>
+          <grid-ratings rate="[[ rate ]]" class="white"></grid-ratings>
+          <div class="offer">AED [[ data.price_bid ]]</div>
+          <div class="expanded">
+            <div class="date">Offer made on [[ _formatDate(data.date_updated) ]]</div>
+            <div class="bio">[[ data.user.profile.bio ]]</div>
+            <div class="button">
+              <paper-button class="red" on-click="openAwardJobDialog">Award Bid</paper-button>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <paper-icon-button icon="[[ expander ]]" class="action" on-click="toggleOffer"></paper-icon-button>
+        </div>
+      </div>
+    </paper-card>
+
+  </template>
+
+  <script>
+
+    class OfferItem extends GridNavigation(Polymer.Element) {
+
+      static get is() { return 'offer-item'; }
+
+      static get properties() {
+        return {
+          data: Object,
+          opened: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_dataChange(data.*)',
+          '_openedChange(opened)'
+        ]
+      }
+      
+      constructor() {
+        super();
+        this.rate = 0;
+        this.expander = 'expand-more';
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      toggleOffer() {
+        this.opened = !this.opened;
+
+        this.expander = this.opened ? 'expand-less' : 'expand-more';
+      }
+
+      openAwardJobDialog() {
+        window.dispatchEvent( new CustomEvent('post:award', {
+          detail: this.data
+        }));
+      }
+
+      _dataChange(dataRecord) {
+        this.rate = 0;
+        if( !dataRecord.base.user.rating.length ) return;
+
+        this.rate = dataRecord.base.user.rating[0].star;
+      }
+
+      _formatDate(date) {
+        return moment(date).format('DD/MM/YY');
+      }
+
+      _openedChange(opened) {
+        if( opened ) {
+          const expandContent = this.shadowRoot.querySelector('.expanded');
+          expandContent.animate([
+            { opacity: 0 },
+            { opacity: 1 }
+          ], { duration: 350 });
+        }
+      }
+
+      _profileImage(img) {
+        if( img ) {
+          return `${this.url.API_BASE_URL}/uploads/${img}`;
+        }
+        if(this.data.user) return LetterAvatar(this.data.user.name, '40');
+
+      }
+
+    }
+
+    customElements.define(OfferItem.is, OfferItem);
+	</script>
+</dom-module>
