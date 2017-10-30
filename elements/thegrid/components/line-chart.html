@@ -1,6 +1,6 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../grid-styles.html?v=1.0.16">
-<link rel="import" href="chart-js-import.html?v=1.0.16">
+<link rel="import" href="../grid-styles.html?v=1.0.17">
+<link rel="import" href="chart-js-import.html?v=1.0.17">
 
 <dom-module id="line-chart">
   <template>
@@ -96,20 +96,20 @@
       }
 
       _queue() {
-        // if (this.hasData) {
+        if (this.hasData) {
         this._measure(function (hasHeight) {
           if (hasHeight) {
             this.updateChart();
           }
         }.bind(this));
-        // }
+        }
       }
 
       updateChart() {
         var myChart = new Chart(this.canvas, {
           type: 'line',
           data: {
-            labels: ["January", "February", "March", "April", "May", "June", "July"],
+            labels: this.data.labels,
             datasets: [
               {
                 label: "Views",
@@ -118,7 +118,7 @@
                 pointBackgroundColor: "rgba(255,58,48,1)",
                 pointBorderColor: "rgba(255,58,48,1)",
                 pointHoverBackgroundColor: "rgba(255,58,48,1)",
-                data: [65, 59, 80, 81, 56, 55, 40],
+                data: this.data.views,
                 fill: false,
                 lineTension: 0
               },
@@ -129,7 +129,7 @@
                 pointBackgroundColor: "#fff",
                 pointBorderColor: "#fff",
                 pointHighlightFill: "#fff",
-                data: [28, 48, 40, 19, 86, 27, 90],
+                data: this.data.offers,
                 fill: false,
                 lineTension: 0
               }
@@ -165,12 +165,12 @@
       }
 
       _configurationChanged(dataRecord, optionsRecord) {
-        if (dataRecord.base.labels && dataRecord.base.datasets) {
+        if (dataRecord.base.views && dataRecord.base.offers) {
           this.hasData = true;
         } else {
           this.hasData = false;
         }
-        if (this.hasData && this.isAttached) {
+        if (this.hasData) {
           this._queue();
         }
       }
