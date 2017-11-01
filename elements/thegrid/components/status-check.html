@@ -1,0 +1,81 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../grid-icons.html?v=1.0.18">
+<link rel="import" href="../grid-styles.html?v=1.0.18">
+
+<dom-module id="status-check">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+      }
+
+      .wrapper {
+        color: var(--white);
+      }
+
+      .icon {
+        padding: 16px;
+      }
+      
+      .label {
+        font-size: 16px;
+        align-items: center;
+        justify-content: flex-start;
+        display: flex;
+      }
+
+
+    </style>
+    <div class="wrapper layout horizontal">
+      <div class="icon">
+        <iron-icon icon="grid:[[ icon ]]" class="red"></iron-icon>
+      </div>
+      <div class="label">
+        <slot></slot>
+      </div>
+    </div>
+
+  </template>
+
+  <script>
+
+    class StatusCheck extends Polymer.Element {
+
+      static get is() { return 'status-check'; }
+
+      static get properties() {
+        return {
+          checked: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true,
+            observer: '_isChecked'
+          },
+        }
+      }
+      
+      constructor() {
+        super();
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      _isChecked(checked) {
+        if( checked ) {
+          this.icon = 'circle-check';
+        } else {
+          this.icon = 'circle-uncheck';
+        }
+      }
+
+
+    }
+
+    customElements.define(StatusCheck.is, StatusCheck);
+	</script>
+</dom-module>

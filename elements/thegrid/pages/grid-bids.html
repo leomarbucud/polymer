@@ -559,6 +559,19 @@
           });
 
         });
+       
+        socket.on('user:cancel_grant_job', data => {
+          const _data = data;
+          if(!this.auth) return;
+            
+          gAxios.get(`/users/${this.user.id}/bids/${_data.id}`)
+          .then(res => {
+            this.dispatch('updateBid', res.data);
+          }).then(() => {
+            this.isLoading = false;
+          });
+
+        });
 
         socket.on('user:job_in_progress', data => {
 					if(!this.auth) return;

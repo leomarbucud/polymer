@@ -17,13 +17,13 @@
         /* height: 300px; */
       }
 
-      #chart {
+      .chart {
         width: 100%;
         height: 100%;
       }
     </style>
-    <div>
-      <canvas id="chart"></canvas>
+    <div id="container">
+      <canvas class="chart"></canvas>
     </div>
 
   </template>
@@ -97,16 +97,29 @@
 
       _queue() {
         if (this.hasData) {
-        this._measure(function (hasHeight) {
-          if (hasHeight) {
-            this.updateChart();
-          }
-        }.bind(this));
+          this._measure(function (hasHeight) {
+            if (hasHeight) {
+              this.updateChart();
+            }
+          }.bind(this));
         }
       }
 
+      clearCanvas() {
+        const newCanvas = document.createElement('canvas');
+
+      }
+
       updateChart() {
-        var myChart = new Chart(this.canvas, {
+        const canvasContainer = this.shadowRoot.querySelector('#container');
+        canvasContainer.innerHTML = '';
+        const newCanvas = document.createElement('canvas');
+        newCanvas.classList.add('chart');
+        const canvas = newCanvas.getContext('2d');
+        canvasContainer.appendChild(newCanvas);
+        if( !canvas ) return;
+        
+        var myChart = new Chart(canvas, {
           type: 'line',
           data: {
             labels: this.data.labels,
@@ -160,7 +173,7 @@
                 }
               }]
             },
-            responsiveAnimationDuration: 0
+            responsiveAnimation: 0
           }
         });
       }

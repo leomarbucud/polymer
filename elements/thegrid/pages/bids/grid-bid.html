@@ -3,12 +3,19 @@
 <link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../../../../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../grid-styles.html?v=1.0.18">
 <link rel="import" href="../../components/ratings.html?v=1.0.18">
+<link rel="import" href="../../components/detail-text.html?v=1.0.18">
+<link rel="import" href="../../components/time-remaining.html?v=1.0.18">
+<link rel="import" href="../../components/status-check.html?v=1.0.18">
 
 <dom-module id="grid-bid">
   <template>
-    <style include="grid grid-progress iron-flex">
+    <style include="grid grid-tabs grid-progress iron-flex">
        :host {
         display: block;
         background: var(--light-grey);
@@ -70,196 +77,173 @@
         width: 100%;
         margin-top: 8px;
       }
+
+      .details {
+        margin-bottom: 16px;
+      }
+
+      .details .p-r-1 {
+        padding-right: 32px;
+      }
+
+      .red-box {
+        background: linear-gradient(252deg, #FF3B30 0%, #FF2D55 100%);
+        color: var(--white);
+        margin-left: -16px;
+        margin-right: -16px;
+        margin-bottom: 16px;
+      }
+      .red-box p {
+        font-size: 16px;
+        padding: 16px;
+        padding-bottom: 32px;
+        margin: 0;
+        letter-spacing: -0.16px;
+      }
+
+      .red-box .action {
+        text-align: right;
+        padding: 8px;
+      }
+
+      .status {
+        margin-left: -16px;
+        margin-right: -16px;
+      }
     </style>
 
-    <div id="toolbar" class="toolbar">
+    <div id="toolbar" class="toolbar dgrey-bg">
       <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectBids"></paper-icon-button>
-      <span class="flex"></span>
-      <template is="dom-if" if="[[!biddingEnded]]">
-        <template is="dom-if" if="[[!_awarded]]">
-          <paper-button class="red" on-click="openRebidDialog">Rebid</paper-button>
-        </template>
-      </template>
+      <span class="flex toolbar-title">[[ bid.job.name ]]</span>
+      <paper-menu-button horizontal-align="right" vertical-align="top">
+        <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
+        <paper-listbox slot="dropdown-content" class="dropdown-menu">
+          <template is="dom-if" if="[[ !bid.job.is_accepted ]]">
+            <paper-item class="item" on-click="openRebidDialog">
+              <span>Bid Again</span>
+            </paper-item>
+          </template>
+          <template is="dom-if" if="[[ _isUserAccepted(bid.status) ]]">
+            <paper-item class="item" on-click="messageBidder">
+              <span>Message</span>
+            </paper-item>
+          </template>
+        </paper-listbox>
+      </paper-menu-button>
     </div>
+    <paper-tabs selected="{{selected_tab}}" class="tabs-dark">
+      <paper-tab>Stats</paper-tab>
+      <paper-tab>Queries</paper-tab>
+    </paper-tabs>
 
-    <main class="scroll-area flex">
-      <section class="p-y-1 user-info">
-        <div class="flex layout horizontal">
-          <div class="avatar">
-            <a><img class="circle" src$="[[_profileImage(bid.job.user.profile.profile_image_url)]]"></a>
-          </div>
-          <div class="name">
-            <span>[[bid.job.user.name]]</span>
-            <small>[[_fromNow(bid.job.created_at)]]</small>
-          </div>
-        </div>
-      </section>
-
-      <section class="p-y-1 white">
-
-        <div class="section-title">
-          <div class="flex">
-            <span class="title">[[bid.job.name]]</span>
-            <small class="category block">Category: [[bid.job.category.category]]</small>
-            <small class="location block">Location: [[bid.job.location]]</small>
-          </div>
-          <div class="center layout vertical">
-            <paper-icon-button icon="grid:location" class="white" on-tap="viewOnMap"></paper-icon-button>
-            <template is="dom-if" if="[[_getDistance(bid.job.lat, bid.job.lng)]]">
-              <small>[[_getDistance(bid.job.lat, bid.job.lng)]]</small>
-            </template>
+    <main class="scroll-area flex">  
+      <iron-pages selected="{{selected_tab}}">
+        <section class="p-y-1 white">
+          <template is="dom-if" if="[[ _isShowAwardConfirmation(bid.status) ]]">
+            <div class="red-box">
+              <p>This post has now been awarded to you. Congratulations!</p>
+              <div class="action">
+                <paper-button class="white" on-click="declineJob">Decline</paper-button>
+                <paper-button class="white" on-click="acceptJob">Accept</paper-button>
+              </div>
             </div>
-        </div>
-
-        <div class="divider">
-          <hr/>
-        </div>
-
-        <div class="section-title">
-          <div class="flex">
-            <span class="title">Status</span>
-          </div>
-        </div>
-
-        <template is="dom-if" if="[[!_awarded]]">
-          <p>Wait for [[bid.job.user.name]] to award this job.</p>
-        </template>
-
-        <template is="dom-if" if="[[_awarded]]">
-        
-          <template is="dom-if" if="[[_awardedToMe]]">
-            <ul id="status" class="progress-indicator">
-              <li data-progress="1">
-                <span class="bubble">1</span> Awarded
-              </li>
-              <li data-progress="2">
-                <span class="bubble">2</span> In-progress
-                <template is="dom-if" if="[[_awardedStatus]]">
-                  <button type="button" class="mark-job" on-click="markInProgress">Mark</button>
-                </template>
-              </li>
-              <li data-progress="3">
-                <span class="bubble">3</span> Review
-              </li>
-              <li data-progress="4">
-                <span class="bubble">4</span> Completed
-                <template is="dom-if" if="[[_review]]">
-                  <button type="button" class="mark-job" on-click="markCompleted">Mark</button>
-                </template>
-              </li>
-            </ul>
-
-            <template is="dom-if" if="[[bid.winner.review]]" >
-              <grid-ratings rate="[[bid.winner.review.stars]]"></grid-ratings>
-              <p class="white">Review: [[bid.winner.review.review]]</p>
-            </template>
-            
           </template>
-
-          <template is="dom-if" if="[[!_awardedToMe]]">
-            <p>Sorry this job has been awarded to other bidder.</p>
+          <template is="dom-if" if="[[ _isAwardedToOther(bid.status, bid.job.is_accepted) ]]">
+            <div class="red-box">
+              <p>Sorry! This post has been awarded to other.</p>
+            </div>
           </template>
-        </template>
-
-        <div class="divider">
-          <hr/>
-        </div>
-
-        <div class="section-title">
-          <div class="flex">
-            <span class="title">Bid Details</span>
+          <template is="dom-if" if="[[ _isUserAccepted(bid.status) ]]">
+            <div class="details status">
+              <status-check checked>
+                <span>Bidding</span>
+              </status-check>
+              <status-check checked>
+                <span>Awarded</span>
+              </status-check>
+              <status-check checked="[[ bid.job.is_moving ]]" on-click="openMarkInProgressDialog">
+                <span>In Progress</span>
+              </status-check>
+              <status-check checked="[[ bid.job.is_completed ]]">
+                <span>Review and Complete</span>
+              </status-check>
+            </div>
+          </template>
+          <div class="details">
+            <detail-text label="Posted by" details="[[ bid.job.user.name ]]"></detail-text>
           </div>
-        </div>
-
-        <div class="section-details">
-          <div class="flex">
-            <span class="title">Your bid</span>
+          <div class="details">
+            <time-remaining date="[[ bid.job.date ]]" time-remaining="{{ time_remaining }}"></time-remaining>
+            <detail-text label="Time Remaining" details="[[ time_remaining ]]"></detail-text>
           </div>
-          <span>AED [[bid.price_bid]]</span>
-        </div>
-
-        <div class="section-details">
-          <div class="flex">
-            <span class="title">Your rank</span>
+          <div class="details">
+            <detail-text label="Location" details="[[ bid.job.location ]]"></detail-text>
           </div>
-          <span>[[rank]]</span>
-        </div>
-
-        <div class="section-details">
-          <div class="flex">
-            <span class="title">Number of bidders</span>
+          <div class="details">
+            <detail-text label="Attachments" details="[[ docs_count ]] [[ _pluralize('file', docs_count) ]], [[ image_count ]] [[ _pluralize('image', image_count) ]]"></detail-text>
           </div>
-          <span>[[totalBidders]]</span>
-        </div>
-        <!--
-        <div class="section-details">
-          <div class="flex">
-            <span class="title">Highest bid</span>
+          <template is="dom-if" if="[[ _isUserAccepted(bid.status) ]]">
+            <div class="layout horizontal details">
+              <div class="p-r-1">
+                <div class="details">
+                  <detail-text label="Categories" details="[[ bid.job.category.category ]]"></detail-text>
+                </div>
+              </div>
+              <div class="flex">
+                <div class="details">
+                  <detail-text label="You Receive" details="[[ currency ]] [[ bid.price_bid ]]"></detail-text>
+                </div>
+              </div>
+            </div>
+          </template>
+          <template is="dom-if" if="[[ !_isUserAccepted(bid.status) ]]">
+            <div class="layout horizontal details">
+              <div class="p-r-1">
+                <div class="details">
+                  <detail-text label="Categories" details="[[ bid.job.category.category ]]"></detail-text>
+                </div>
+                <div class="details">
+                  <detail-text label="Offers" details="[[ total_bidders ]] [[ _pluralize('Bid', total_bidders) ]]"></detail-text>
+                </div>
+                <div class="details">
+                  <detail-text label="Your Bid [[ times ]]" details="[[ currency ]] [[ bid.price_bid ]]"></detail-text>
+                </div>
+              </div>
+              <div class="flex">
+                <div class="details">
+                  <detail-text label="Queries" details="10 Questions"></detail-text>
+                </div>
+                <div class="details">
+                  <detail-text label="Rank" details="[[ rank ]]/[[ total_bidders ]]"></detail-text>
+                </div>
+                <div class="details">
+                  <detail-text label="Expected Amount" details="[[ currency ]] [[ bid.job.price ]]"></detail-text>
+                </div>
+              </div>
+            </div>
+          </template>
+          <div class="details">
+            <detail-text label="Details" details="[[ bid.job.details ]]" class="normal"></detail-text>
           </div>
-          <span>AED [[highestBid]]</span>
-        </div>
-        
-        <div class="section-details">
-          <div class="flex">
-            <span class="title">Lowest bid</span>
+          <div class="details">
+            <detail-text label="Attachments">
+              <div id="previews">
+                <template is="dom-repeat" items="[[ files ]]" as="file">
+                  <div class="wrap">
+                    <div class="file layout horizontal">
+                      <img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
+                      <span class="flex">[[file.original_name]]</span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </detail-text>
           </div>
-          <span>AED [[lowestBid]]</span>
-        </div>
-      -->
-        <div class="divider">
-          <hr/>
-        </div>
+        </section>
+        <section class="p-y-1 white">
 
-        <div class="section-title">
-          <div class="flex">
-            <span class="title">Details</span>
-          </div>
-        </div>
-
-        <div class="section-details">
-          <div class="flex">
-            <span class="title">Budget</span>
-          </div>
-          <span>AED [[bid.job.price]]</span>
-        </div>
-
-        <div class="section-details">
-          <div class="flex">
-            <span class="title">Job needed</span>
-          </div>
-          <span data-countdown$="[[bid.job.date]]">[[_fromNow(bid.job.date)]]</span>
-        </div>
-        <div class="section-details">
-          <div class="flex">
-            <span class="title">Posted</span>
-          </div>
-          <span>[[_fromNow(bid.job.created_at)]]</span>
-        </div>
-
-        <p>[[_details(bid.job.details)]]</p>
-
-        <div class="divider">
-          <hr/>
-        </div>
-
-        <div class="section-title">
-          <div class="flex">
-            <span class="title">Required Skills</span>
-          </div>
-        </div>
-
-        <template is="dom-repeat" items="[[bid.job.skills]]" as="skill">
-          <div class="chip">
-            <span>[[skill.skill]]</span>
-          </div>
-        </template>
-        <template is="dom-if" if="[[!bid.job.skills.length]]">
-          <p>No set of skills provided.</p>
-        </template>
-
-      </section>
-
-
+        </section>
+      </iron-pages>
     </main>
 
     <template is="dom-if" if="[[isLoading]]">
@@ -280,6 +264,17 @@
       <div class="buttons">
         <paper-button dialog-dismiss class="white">Cancel</paper-button>
         <paper-button dialog-confirm autofocus on-tap="submitRebid" class="white">Rebid</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="inProgressDialog" class="dialog-dark">
+      <h2>Set In Progress</h2>
+      <div>
+        <p>Setting this post in progress means you are working on it.</p>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss auto-focus>Cancel</paper-button>
+        <paper-button dialog-confirm on-tap="markInProgress">Ok</paper-button>
       </div>
     </paper-dialog>
 
@@ -335,38 +330,13 @@
       constructor() {
         super();
 
-        // grid map is required so the map needs to be loaded
-        Polymer.Base.importHref(
-          '/elements/thegrid/components/grid-map.html?v=1.0.18',
-          () => {
-            // do something after elements has been imported
-          }
-        );
+        this.selected_tab = 0;
 
       }
 
       connectedCallback() {
         super.connectedCallback();
 
-        this.headerAnimate();
-      }
-
-      headerAnimate() {
-				const toolbar = this.shadowRoot.querySelector('#toolbar');
-        const main = this.shadowRoot.querySelector('main');
-
-        const scroll = () => {
-          let _st = main.scrollTop;
-          
-          if( _st > 0 ) {
-            toolbar.classList.add('shadow');
-          } else {
-            toolbar.classList.remove('shadow');
-          }
-
-        };
-
-        main.addEventListener('scroll', scroll);
       }
 
       renderBid(bid) {
@@ -384,80 +354,24 @@
         this._review = false;
         this.biddingEnded = false;
 
-        this.countDown(bid.job.date);
+        this.total_bidders = 0;
+        this.docs_count = 0;
+        this.image_count = 0;
 
-        if(bid.job.awarded) {
-          this._awarded = true;
-          if(bid.job.awarded.user_id == this.user.id) {
-            this._awardedToMe = true;
+        this.currency = bid.job.user.country.currency_unit;
 
-            setTimeout( () => {
-              const status = this.shadowRoot.querySelector('#status');
-              const progressList = status.querySelectorAll('[data-progress]');
+        this.files = bid.job.files;
+        this._setFiles(bid.job.files);
+        this._setRanking(bid.job.only_bids);
 
-              progressList.forEach( progress => {
-                let p = progress.getAttribute('data-progress');
-                progress.classList.remove('completed');
-                if(Number(bid.job.status) >= Number(p)) {
-                  progress.classList.add('completed');
-                }
-              });
-              switch(bid.job.status) {
-                case 1: {
-                  this._awardedStatus = true;
-                  break;
-                }
-                case 2: {
-                  this._inProgress = true;
-                  break;
-                }
-                case 3: {
-                  this._review = true;
-                }
-              }
-              if(bid.winner.review) {
-                this._renderStars(bid.winner.review.stars);
-              }
-            }, 0);
-          }
-        }
-      }
-
-      countDown(date) {
-				const cd = this.shadowRoot.querySelector('[data-countdown]');
-
-				let eventTime = moment(date, 'YYYY-MM-DD HH:mm:ss').unix(),
-					currentTime = moment().unix(),
-					diffTime = eventTime - currentTime,
-					duration = moment.duration(diffTime * 1000, 'milliseconds'),
-          interval = 1000;
-          
-          // console.log('dddddd', duration);
-				
-				if(diffTime > 0) {
-					if(this._countDown) clearInterval(this._countDown);
-					this._countDown = setInterval( () => {
-							
-            duration = moment.duration(duration.asMilliseconds() - interval, 'milliseconds');
-            let	s = moment.duration(duration).seconds();
-            let	m = moment.duration(duration).minutes();
-            let	h = moment.duration(duration).hours();
-            let	d = moment.duration(duration).days();
-            
-            if(m == 0 && h == 0 && d == 0) {
-              cd.textContent = `${s} sec`;
-              if(s <= 0) {
-                cd.textContent = this._fromNow(date);
-                this.biddingEnded = true;
-                this.canBid = false;
-              }
-            } else {
-              cd.textContent = this._fromNow(date);
-            }
-
-					}, interval);
-				} else {
-          this.biddingEnded = true;
+        if( bid.times == 2 ) {
+          this.times = '(2nd Offer)';
+        } else if( bid.times == 2 ) {
+          this.times == '(2nd Offer)';
+        } else if ( bid.times == 3 ) {
+          this.times = '(3rd Offer)';
+        } else { 
+          this.times = '';
         }
       }
 
@@ -472,14 +386,54 @@
         this.redirectHome();
       }
 
+      acceptJob() {
+        if(!this.bid) return;
+
+        this.isLoading = true;
+        gAxios.post(`/users/${this.user.id}/bids/${this.bid.id}/accept`, {
+          job_id: this.bid.job.id
+        }).then( res => { 
+          this.dispatch('updateBid', res.data);
+          window.dispatchEvent( new CustomEvent('bidder:accept_job', { detail: res.data.job }));
+        }).catch( err => {
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+      
+      declineJob() {
+        if(!this.bid) return;
+
+        this.isLoading = true;
+        gAxios.post(`/users/${this.user.id}/bids/${this.bid.id}/decline`, {
+          job_id: this.bid.job.id
+        }).then( res => { 
+          this.dispatch('updateBid', res.data);
+          window.dispatchEvent( new CustomEvent('bidder:decline_job', { detail: res.data.job }));
+        }).catch( err => {
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      openMarkInProgressDialog() {
+        if( !this.bid ) return;
+
+        if( this.bid.job.is_moving ) return; 
+
+        const dialog = this.shadowRoot.querySelector('#inProgressDialog');
+        dialog.open();
+      }
+
       markInProgress() {
         if(!this.bid) return;
-        if(this.bid.job.status != 1) return;
+        // if(this.bid.job.status != 1) return;
         
         this.isLoading = true;
         gAxios.post(`/users/${this.user.id}/bids/${this.bid.id}/status`, {
           status: 2,
-          job_id: this.bid.job.id
+          job_id: this.bid.job.id,
+          is_moving: true
         }).then( res => {
 
           this.dispatch('updateBid', res.data);
@@ -506,7 +460,8 @@
         this.isLoading = true;
         gAxios.post(`/users/${this.user.id}/bids/${this.bid.id}/status`, {
           status: 4,
-          job_id: this.bid.job.id
+          job_id: this.bid.job.id,
+          is_completed: true
         }).then( res => {
           // console.log(res.data);
           this.dispatch('updateBid', res.data);
@@ -529,6 +484,39 @@
       openRebidDialog() {
         const rebidDialog = this.shadowRoot.querySelector('#rebidDialog');
         rebidDialog.open();
+      }
+
+      messageBidder() {
+        if( !this.bid.job.is_accepted ) return;
+
+        if( this.bid.job.conversation ) {
+          this.redirect(`/inbox/${this.bid.job.conversation.id}`);
+          return;
+        }
+
+        this.isLoading = true;
+        gAxios.post(`/users/${this.user.id}/inbox`, {
+          job_id: this.bid.job.id,
+          user_id_1: this.job.user.id,
+          user_id_2: this.user.id
+        }).then( res => {
+          
+          var convoExist = this.inbox.find(item => {
+            return item.id == res.data.id;
+          });
+          
+          if(!convoExist) {
+            this.dispatch('addInbox', res.data);
+            let detail = res.data;
+            detail.to = this.bid.job.winner.user.id;
+            window.dispatchEvent(new CustomEvent('user:create_conversation', { detail: res.data }));
+            this.bid.job.conversation = res.data;
+          }
+          this.redirect(`/inbox/${res.data.id}`);
+
+        }).then( () => {
+          this.isLoading = false;
+        });
       }
 
       submitRebid() {
@@ -668,6 +656,73 @@
 				return `${df}km`;
 			}
 
+      _setRanking(bidders) {
+        if( !bidders ) return;
+        if( !bidders.length ) return;
+				const sorted = bidders.slice().sort((a,b)=>a.price_bid - b.price_bid)
+        this.total_bidders = bidders.length;
+        this.rank = sorted.findIndex((e)=>{
+          return e.user_id == this.user.id;
+        }) + 1;
+      }
+
+      _setFiles(files) { 
+        if( !files ) return;
+        if( !files.length ) return;
+        let docs = 0;
+        let image = 0;
+        files.forEach( file => {
+          let allowFile = false;
+          switch (file.type) {
+            case 'jpeg':
+            case 'png': {
+              image++;
+              break;
+            }
+            case 'docx':
+            case 'pdf': {
+              docs++;
+              break;
+            }
+          }
+        });
+        this.docs_count = docs;
+        this.image_count = image;
+      }
+
+      _pluralize(text, count) {
+        if( count > 1 ) return `${text}s`;
+
+        return text;
+      }
+
+      _fileReader(file, index) {
+				const previews = this.shadowRoot.querySelector('#previews');
+				if(file.id) {
+					if(file.type == 'jpeg' || file.type == 'png') {
+						setTimeout( () => {
+							previews.querySelector(`img#file-${index}`).src = `${this.url.API_BASE_URL}/uploads/${file.path}`;
+						}, 100);
+					} else if( file.type == 'pdf') {
+						setTimeout( () => {
+							previews.querySelector(`img#file-${index}`).src = `data:image/png;base64,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`;
+						}, 100);
+					}
+					return;
+				}
+      }
+
+      _isShowAwardConfirmation(status) {
+        return status == 1 ? true : false;
+      }
+
+      _isUserAccepted(status) {
+        return status == 2 ? true : false;
+      }
+
+      _isAwardedToOther(status, is_accepted) {
+        return ( status == 0 && is_accepted ) ? true : false;
+      }
 
     }
 

@@ -200,7 +200,7 @@
               <div class="layout horizontal w-100">
                 <div class="card-content flex p-1" on-click="viewPost">
                   <div class="header-date">
-                    Posted [[_fromNow(job.created_at)]]
+                    [[ _getStatus(job) ]]
                   </div>
                   <div class="header-title">
                     [[job.name]]
@@ -801,6 +801,38 @@
           // }
           
 				});
+        
+        socket.on('bidder:accept_job', data => {
+					if(!this.auth) return;
+						gAxios.get(`/users/${this.user.id}/jobs/${data.id}`)
+            .then(res => {
+              this.dispatch('updatePost', res.data);
+            });
+				});
+        
+        socket.on('bidder:decline_job', data => {
+					if(!this.auth) return;
+						gAxios.get(`/users/${this.user.id}/jobs/${data.id}`)
+            .then(res => {
+              this.dispatch('updatePost', res.data);
+            });
+				});
+      }
+
+      _getStatus(post) {
+        if( post.is_completed ) {
+          return `Completed ${this._fromNow(post.updated_at)}`;
+        }
+        
+        if( post.is_moving ) {
+          return `In Progress ${this._fromNow(post.updated_at)}`;
+        }
+        
+        if( post.is_awarded ) {
+          return `Awarded ${this._fromNow(post.updated_at)}`;
+        }
+
+        return `Posted ${this._fromNow(post.updated_at)}`;
       }
 
     }

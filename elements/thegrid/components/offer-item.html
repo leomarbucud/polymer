@@ -61,6 +61,10 @@
         opacity: 1;
       }
 
+      :host([inactive]) {
+        opacity: 0.5;
+      }
+
       .actions {
         margin-right: -16px;
         margin-top: -16px;
@@ -83,6 +87,13 @@
         line-height: 16px;
         margin-top: 16px;
       }
+      
+      .expanded .message {
+        font-size: 14px;
+        line-height: 16px;
+        margin-top: 16px;
+        font-style: italic;
+      }
 
       .expanded .button {
         text-align: right;
@@ -99,13 +110,30 @@
         <div class="flex">
           <div class="name">[[ data.user.name ]]</div>
           <grid-ratings rate="[[ rate ]]" class="white"></grid-ratings>
-          <div class="offer">AED [[ data.price_bid ]]</div>
+          <div class="offer">[[ currency ]] [[ data.price_bid ]]</div>
           <div class="expanded">
-            <div class="date">Offer made on [[ _formatDate(data.date_updated) ]]</div>
+            <div class="date">[[ times ]] Offer made on [[ _formatDate(data.updated_at) ]]</div>
             <div class="bio">[[ data.user.profile.bio ]]</div>
-            <div class="button">
-              <paper-button class="red" on-click="openAwardJobDialog">Award Bid</paper-button>
-            </div>
+            <template is="dom-if" if="[[ !awarded ]]">
+              <div class="button">
+                <paper-button class="red" on-click="openAwardJobDialog">Award Bid</paper-button>
+              </div>
+            </template>
+            <template is="dom-if" if="[[ _isAwarded(data.status) ]]">
+              <div class="message">
+                You have selected this person.
+              </div>
+            </template>
+            <template is="dom-if" if="[[ _isAwarded(data.status) ]]">
+              <div class="button">
+                <paper-button class="red" on-click="openCancelwardJobDialog">Cancel</paper-button>
+              </div>
+            </template>
+            <template is="dom-if" if="[[ _isAccepted(data.status) ]]">
+              <div class="button">
+                <paper-button class="red" on-click="openCancelwardJobDialog">Terminate</paper-button>
+              </div>
+            </template>
           </div>
         </div>
         <div class="actions">
@@ -129,7 +157,14 @@
             type: Boolean,
             value: false,
             reflectToAttribute: true
-          }
+          },
+          inactive: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          },
+          awarded: Boolean,
+          currency: String
         }
       }
 
@@ -144,6 +179,7 @@
         super();
         this.rate = 0;
         this.expander = 'expand-more';
+        this.times = '';
       }
 
       connectedCallback() {
@@ -162,12 +198,43 @@
           detail: this.data
         }));
       }
+     
+      openCancelwardJobDialog() {
+        window.dispatchEvent( new CustomEvent('post:cancel_award', {
+          detail: this.data
+        }));
+      }
 
       _dataChange(dataRecord) {
+        const data = dataRecord.base;
         this.rate = 0;
-        if( !dataRecord.base.user.rating.length ) return;
+        
+        if( data.user.rating.length ) {
+          this.rate = data.user.rating[0].star;
+        }
 
-        this.rate = dataRecord.base.user.rating[0].star;
+        const times = data.times;
+
+        if( times > 1 ) {
+          if( times == 2 ) {
+            this.times = '2nd';
+          } else if ( times == 3 ) {
+            this.times = '3rd';
+          }
+        }
+
+        if( data.status == 1 ) {
+          this.toggleOffer();
+          this.inactive = false;
+        }
+
+        if( this.awarded && data.status == 0 ) {
+          this.inactive = true;
+        } else {
+          this.inactive = false;
+        }
+
+
       }
 
       _formatDate(date) {
@@ -190,6 +257,14 @@
         }
         if(this.data.user) return LetterAvatar(this.data.user.name, '40');
 
+      }
+
+      _isAwarded(status) {
+        return status == 1 ? true : false;
+      }
+      
+      _isAccepted(status) {
+        return status == 2 ? true : false;
       }
 
     }

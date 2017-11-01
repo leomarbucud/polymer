@@ -66,6 +66,16 @@ window.addEventListener('bidder:job_complete', e => {
   socket.emit('bidder:job_complete', data);
 });
 
+window.addEventListener('bidder:accept_job', e => {
+  const data = e.detail;
+  socket.emit('bidder:accept_job', data);
+});
+
+window.addEventListener('bidder:decline_job', e => {
+  const data = e.detail;
+  socket.emit('bidder:decline_job', data);
+});
+
 socket.on('user:bidded', data => {
   logger(data);
 });
@@ -95,8 +105,12 @@ window.addEventListener('user:typing', e => {
 
 window.addEventListener('user:grant_job', e => {
   const data = e.detail;
-  console.log('grant', data);
   socket.emit('user:grant_job', data);
+});
+
+window.addEventListener('user:cancel_grant_job', e => {
+  const data = e.detail;
+  socket.emit('user:cancel_grant_job', data);
 });
 
 window.addEventListener('user:other_bidded', e => {

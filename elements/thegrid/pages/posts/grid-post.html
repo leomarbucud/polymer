@@ -4,6 +4,7 @@
 <link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../../../../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
@@ -17,6 +18,7 @@
 <link rel="import" href="../../components/time-remaining.html?v=1.0.18">
 <link rel="import" href="../../components/line-chart.html?v=1.0.18">
 <link rel="import" href="../../components/offer-item.html?v=1.0.18">
+<link rel="import" href="../../components/status-check.html?v=1.0.18">
 
 <dom-module id="grid-post">
   <template>
@@ -31,10 +33,8 @@
         margin-bottom: 16px;
       }
 
-      .details.layout detail-text {
-        max-width: 50%;
-        min-width: 200px;
-        width: 30%;
+      .details .p-r-1 {
+        padding-right: 32px;
       }
 
       .legends {
@@ -120,6 +120,11 @@
         font-size: 14px;
       }
 
+      .status {
+        margin-left: -16px;
+        margin-right: -16px;
+      }
+
     </style>
 
     <div id="toolbar" class="toolbar dgrey-bg">
@@ -129,14 +134,21 @@
       <paper-menu-button horizontal-align="right" vertical-align="top">
         <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
         <paper-listbox slot="dropdown-content" class="dropdown-menu">
-          <paper-item class="item" on-click="refreshJobs">
-            <span>Edit</span>
-          </paper-item>
+          <template is="dom-if" if="[[ !post.is_accepted ]]">
+            <paper-item class="item" on-click="editPost">
+              <span>Edit</span>
+            </paper-item>
+          </template>
+          <template is="dom-if" if="[[ post.is_accepted ]]">
+            <paper-item class="item" on-click="messageBidder">
+              <span>Message</span>
+            </paper-item>
+          </template>
         </paper-listbox>
       </paper-menu-button>
     </div>
     <paper-tabs selected="{{selected_tab}}" class="tabs-dark">
-      <paper-tab>About</paper-tab>
+      <paper-tab>Stats</paper-tab>
       <paper-tab>Offers</paper-tab>
       <paper-tab>Queries</paper-tab>
     </paper-tabs>
@@ -145,52 +157,108 @@
 
       <iron-pages selected="{{selected_tab}}">
         <section class="p-y-1 white">
-          <div class="details">
-            <time-remaining date="[[ post.date ]]" time-remaining="{{ time_remaining }}"></time-remaining>
-            <detail-text label="Time Remaining" details="[[ time_remaining ]]"></detail-text>
-          </div>
+          <template is="dom-if" if="[[ post.is_accepted ]]">
+            <div class="details status">
+              <status-check checked>
+                <span>Bidding</span>
+              </status-check>
+              <status-check checked>
+                <span>Awarded</span>
+              </status-check>
+              <status-check checked="[[ post.is_moving ]]">
+                <span>In Progress</span>
+              </status-check>
+              <status-check checked="[[ post.is_completed ]]" on-click="openReviewDialog">
+                <span>Review and Complete</span>
+              </status-check>
+            </div>
+          </template>
+          <template is="dom-if" if="[[ !post.is_accepted ]]">
+            <div class="details">
+              <time-remaining date="[[ post.date ]]" time-remaining="{{ time_remaining }}"></time-remaining>
+              <detail-text label="Time Remaining" details="[[ time_remaining ]]"></detail-text>
+            </div>
+          </template>
+          <template is="dom-if" if="[[ post.is_accepted ]]">
+            <template is="dom-if" if="[[ post.winner ]]">
+              <div class="details">
+                <detail-text label="Awarded To" details="[[ post.winner.user.name ]]"></detail-text>
+              </div>
+            </template>
+          </template>
           <div class="details">
             <detail-text label="Location" details="[[ post.location ]]"></detail-text>
           </div>
           <div class="details">
             <detail-text label="Attachments" details="[[ docs_count ]] [[ _pluralize('file', docs_count) ]], [[ image_count ]] [[ _pluralize('image', image_count) ]]"></detail-text>
           </div>
-          <div class="layout horizontal details">
-            <detail-text label="Offers" details="[[ total_bidders ]] [[ _pluralize('Bid', total_bidders) ]]"></detail-text>
-            <detail-text label="Queries" details="10 Questions"></detail-text>
-          </div>
-          <div class="layout horizontal details">
-            <detail-text label="Highest Amount" details="AED [[ highest_bidder.price_bid ]]"></detail-text>
-            <detail-text label="Lowest Amount" details="AED [[ lowest_bidder.price_bid ]]"></detail-text>
-          </div>
-          <div class="details">
-            <detail-text label="Expected Amount" details="AED [[ post.price ]]"></detail-text>
-          </div>
-          <div class="details">
-            <div class="layout horizontal">
-              <div class="flex">
-                <label>[[ chartDataLabel ]]</label>
-                <paper-menu-button id="chart-data-dropdown" class="p-0" horizontal-align="right" vertical-align="top">
-                  <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
-                  <paper-listbox slot="dropdown-content" class="dropdown-menu">
-                    <paper-item class="item" on-click="showPassWeek" data-text="Pass 7 days">Pass 7 days</paper-item>
-                    <paper-item class="item" on-click="showPassMonth" data-text="Pass 30 days">Pass 30 days</paper-item>
-                  </paper-listbox>
-                </paper-menu-button>
+          <template is="dom-if" if="[[ post.is_accepted ]]">
+            <template is="dom-if" if="[[ post.winner ]]">
+              <div class="layout horizontal details">
+                <div class="p-r-1">
+                  <div class="details">
+                    <detail-text label="Categories" details="[[ post.category.category ]]"></detail-text>
+                  </div>
+                </div>
+                <div class="flex">
+                  <div class="details">
+                    <detail-text label="You Pay" details="[[ post.user.country.currency_unit ]] [[ post.winner.bid.price_bid ]]"></detail-text>
+                  </div>
+                </div>
               </div>
-              <div class="legends">
-                <label>
-                  <span class="views"></span>
-                  &nbsp;Views
-                </label>
-                <label>
-                  <span class="offers"></span>
-                  &nbsp;Offers
-                </label>
+            </template>
+          </template>
+          <template is="dom-if" if="[[ !post.is_accepted ]]">
+            <div class="layout horizontal details">
+              <div class="p-r-1">
+                <div class="details">
+                  <detail-text label="Categories" details="[[ post.category.category ]]"></detail-text>
+                </div>
+                <div class="details">
+                  <detail-text label="Offers" details="[[ total_bidders ]] [[ _pluralize('Bid', total_bidders) ]]"></detail-text>
+                </div>
+                <div class="details">
+                  <detail-text label="Highest Amount" details="[[ post.user.country.currency_unit ]] [[ highest_bidder.price_bid ]]"></detail-text>
+                </div>
+              </div>
+              <div class="flex">
+                <div class="details">
+                  <detail-text label="Queries" details="10 Questions"></detail-text>
+                </div>
+                <div class="details">
+                  <detail-text label="Expected Amount" details="[[ post.user.country.currency_unit ]] [[ post.price ]]"></detail-text>
+                </div>
+                <div class="details">
+                  <detail-text label="Lowest Amount" details="[[ post.user.country.currency_unit ]] [[ lowest_bidder.price_bid ]]"></detail-text>
+                </div>
               </div>
             </div>
-            <line-chart data="[[ chart_data ]]"></line-chart>
-          </div>
+            <div class="details">
+              <div class="layout horizontal">
+                <div class="flex">
+                  <label>[[ chartDataLabel ]]</label>
+                  <paper-menu-button id="chart-data-dropdown" class="p-0" horizontal-align="right" vertical-align="top">
+                    <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
+                    <paper-listbox slot="dropdown-content" class="dropdown-menu">
+                      <paper-item class="item" on-click="showPassWeek" data-text="Pass 7 days">Pass 7 days</paper-item>
+                      <paper-item class="item" on-click="showPassMonth" data-text="Pass 30 days">Pass 30 days</paper-item>
+                    </paper-listbox>
+                  </paper-menu-button>
+                </div>
+                <div class="legends">
+                  <label>
+                    <span class="views"></span>
+                    &nbsp;Views
+                  </label>
+                  <label>
+                    <span class="offers"></span>
+                    &nbsp;Offers
+                  </label>
+                </div>
+              </div>
+              <line-chart data="[[ chart_data ]]"></line-chart>
+            </div>
+          </template>
           <div class="details">
             <detail-text label="Details" details="[[ post.details ]]" class="normal"></detail-text>
           </div>
@@ -228,7 +296,7 @@
             </paper-menu-button>
           </div>
           <template id="offerList" is="dom-repeat" items="[[ post.bidders ]]" as="bidder" sort="_sortByMostRecent">
-            <offer-item data="[[ bidder ]]"></offer-item>
+            <offer-item data="[[ bidder ]]" awarded="[[ post.is_awarded ]]" currency="[[ post.user.country.currency_unit ]]"></offer-item>
           </template>
         </section>
         <section class="p-y-1 white">
@@ -237,6 +305,14 @@
       </iron-pages>
 
     </main>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay lgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
 
     <paper-dialog id="filesPreviewDialog" style="min-width: 300px;" class="dialog-dark">
       <h2>Files</h2>
@@ -259,11 +335,39 @@
         <paper-button dialog-confirm on-tap="awardJob">Yes</paper-button>
       </div>
     </paper-dialog>
+    
+    <paper-dialog id="cancelAwardDialog" class="dialog-dark">
+      <h2>Cancel awarded post</h2>
+      <div>
+        <p>Are you sure you want to cancel the awarded post to [[awardee.user.name]]?</p>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss auto-focus>No</paper-button>
+        <paper-button dialog-confirm on-tap="cancelAwardJob">Yes</paper-button>
+      </div>
+    </paper-dialog>
+    
+    <paper-dialog id="reviewDialog" class="dialog-dark">
+      <h2>Review [[ post.winner.user.name ]]</h2>
+      <div>
+        <p>Please select how much star you want to give.</p>
+        <grid-ratings rate="{{ stars }}" selectable="true" class="white"></grid-ratings>
+        <paper-textarea id="review-comment" always-float-label label="Comment" class="red" value="{{reviewComment::input}}"></paper-textarea>
+        <div>[[ reviewMessage ]]</div>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss auto-focus>No</paper-button>
+        <paper-button on-tap="submitReview">Submit</paper-button>
+      </div>
+    </paper-dialog>
 
   </template>
 
   <script>
-    class GridPost extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+    class GridPost extends 
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
 
       static get is() { return 'grid-post'; }
 
@@ -322,6 +426,13 @@
           this.awardee = data;
           awardDialog.open();
         });
+       
+        window.addEventListener('post:cancel_award', e => {
+          const data = e.detail;
+          const awardDialog = this.shadowRoot.querySelector('#cancelAwardDialog');
+          this.awardee = data;
+          awardDialog.open();
+        });
 
       }
 
@@ -346,6 +457,11 @@
         this._setFiles(post.files);
         this._setRanking(post.bidders);
 
+      }
+
+      editPost() {
+        if( !this.bid ) return;
+        this.redirect(`/posts/edit/${this.bid.job_id}/#1`);
       }
 
       sortOffers(e) {
@@ -396,16 +512,6 @@
         this.redirectHome();
       }
 
-      openAwardJobDialog(e) {
-        const bidder = e.model.bidder;
-
-        const awardDialog = this.shadowRoot.querySelector('#awardDialog');
-
-        this.awardee = bidder;
-
-        awardDialog.open();
-      }
-
       awardJob() {
         if(!this.auth) return;
 
@@ -421,9 +527,31 @@
           this.dispatch('updatePost', res.data);
           // to notify other bidders
 
-          this.post.bidders.forEach(bidder => {
-            bidder.winner_user_id = res.data.winner.user_id;
-            window.dispatchEvent( new CustomEvent('user:grant_job', { detail: bidder }));
+          this.post.bidders.forEach( b => {
+            b.winner_user_id = bidder.user_id;
+            window.dispatchEvent( new CustomEvent('user:grant_job', { detail: b }));
+          });
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+      
+      cancelAwardJob() {
+        if(!this.auth) return;
+
+        if(!this.awardee) return;
+
+        const bidder = this.awardee;
+        this.isLoading = true;
+
+        gAxios.post(`/users/${this.user.id}/bids/${bidder.id}/cancel`, {
+          job_id: this.post.id,
+          user_id: bidder.user.id
+        }).then( res => {
+          this.dispatch('updatePost', res.data);
+          this.post.bidders.forEach( b => {
+            b.winner_user_id = bidder.user_id;
+            window.dispatchEvent( new CustomEvent('user:cancel_grant_job', { detail: b }));
           });
         }).then( () => {
           this.isLoading = false;
@@ -436,7 +564,8 @@
         
         this.isLoading = true;
         gAxios.post(`/users/${this.user.id}/jobs/${this.post.id}/status`, {
-          status: 2
+          status: 2,
+          is_moving: true
         }).then( res => {
           // console.log(res.data);
           this.dispatch('updatePost', res.data);
@@ -461,7 +590,8 @@
         
         this.isLoading = true;
         gAxios.post('/users/' + this.user.id + '/jobs/' + this.post.id + '/status', {
-          status: 4
+          status: 4,
+          is_completed: true
         }).then( res => {
           // console.log(res.data);
           this.dispatch('updatePost', res.data);
@@ -484,16 +614,33 @@
         this._showReview = true;
       }
 
+      openReviewDialog() {
+        if( !this.post.is_moving || this.post.is_reviewed || this.post.is_completed ) return;
+        const dialog = this.shadowRoot.querySelector('#reviewDialog');
+        dialog.open();
+      }
+      
+      closeReviewDialog() {
+        const dialog = this.shadowRoot.querySelector('#reviewDialog');
+        dialog.close();
+      }
+
       submitReview() {
         if(!this.auth) return;
+        if( !this.stars || !this.reviewComment ) {
+          this.reviewMessage = 'Oops, you forgot to select star rating or add a comment.';
+          return;
+        }
+
+        this.closeReviewDialog();
 
         this.isLoading = true;
 
-        gAxios.post('/users/' + this.user.id + '/review', {
+        gAxios.post(`/users/${this.user.id}/review`, {
           user_id: this.post.winner.user.id,
           job_id: this.post.id,
-          review: this.review,
-          stars: this.rate
+          review: this.reviewComment,
+          stars: this.stars
         }).then( res => {
           
           this.dispatch('updatePost', res.data);
@@ -516,12 +663,12 @@
         if( !this.post.winner ) return;
 
         if( this.post.conversation ) {
-          this.redirect('/inbox/' + this.post.conversation.id);
+          this.redirect(`/inbox/${this.post.conversation.id}`);
           return;
         }
 
         this.isLoading = true;
-        gAxios.post('/users/' + this.user.id + '/inbox', {
+        gAxios.post(`/users/${this.user.id}/inbox`, {
           job_id: this.post.id,
           user_id_1: this.user.id,
           user_id_2: this.post.winner.user.id
@@ -536,8 +683,9 @@
             let detail = res.data;
             detail.to = this.post.winner.user.id;
             window.dispatchEvent(new CustomEvent('user:create_conversation', { detail: res.data }));
+            this.post.conversation = res.data;
           }
-          this.redirect('/inbox/' + res.data.id);
+          this.redirect(`/inbox/${res.data.id}`);
 
         }).then( () => {
           this.isLoading = false;
@@ -705,66 +853,43 @@
         let labels = [];
         let views = [];
         let offers = [];
+        let _views = [];
+        let _offers = [];
+        let days = 7;
 
         if ( type == 'week' ) {
-          for( let i = 6; i >= 0; i-- ) {
-            labels.push(moment().subtract('days', i).format('MM/DD'));
-          }
-  
-          labels.forEach( label => {
-            let count = 0;
-            post.views_this_week.forEach( view => {
-              const day = moment(view.day).format('MM/DD');
-              if( day == label ) {
-                count = view.count;
-              }
-            });
-  
-            views.push(count);
-          });
-  
-          labels.forEach( label => {
-            let count = 0;
-            post.offers_this_week.forEach( offer => {
-              const day = moment(offer.day).format('MM/DD');
-              if( day == label ) {
-                count = offer.count;
-              }
-            });
-  
-            offers.push(count);
-          });
-
-        } else if( type == 'month' ) {
-          for( let i = 30; i >= 0; i-- ) {
-            labels.push(moment().subtract('days', i).format('MM/DD'));
-          }
-  
-          labels.forEach( label => {
-            let count = 0;
-            post.views_this_month.forEach( view => {
-              const day = moment(view.day).format('MM/DD');
-              if( day == label ) {
-                count = view.count;
-              }
-            });
-  
-            views.push(count);
-          });
-  
-          labels.forEach( label => {
-            let count = 0;
-            post.offers_this_month.forEach( offer => {
-              const day = moment(offer.day).format('MM/DD');
-              if( day == label ) {
-                count = offer.count;
-              }
-            });
-  
-            offers.push(count);
-          });
+          days = 7;
+          _views = post.views_this_week;
+          _offers = post.offers_this_week;
+        } else if ( type == 'month' ) {
+          days = 30;
+          _views = post.views_this_month
+          _offers = post.offers_this_month;
         }
+        
+        for( let i = days; i >= 0; i-- ) {
+          labels.push(moment().subtract('days', i).format('MM/DD'));
+        }
+  
+        labels.forEach( label => {
+          let v_count = 0;
+          _views.forEach( view => {
+            const day = moment(view.day).format('MM/DD');
+            if( day == label ) {
+              v_count = view.count;
+            }
+          });
+          views.push(v_count);
 
+          let o_count = 0;
+          _offers.forEach( offer => {
+            const day = moment(offer.day).format('MM/DD');
+            if( day == label ) {
+              o_count = offer.count;
+            }
+          });
+          offers.push(o_count);
+        });
 
         this.chart_data = {
           labels: labels,
@@ -790,24 +915,28 @@
       }
       
       _sortByMostRecent(a, b) {
+        if( a.status > 0 || b.status > 0 ) return -1;
 				a = new Date(a.created_at);
 				b = new Date(b.created_at);
 				return b < a ? -1 : b > a ? 1 : 0;
       }
       
       _sortByLowestAmount(a, b) {
+        if( a.status > 0 || b.status > 0 ) return -1;
 				a = a.price_bid;
 				b = b.price_bid;
 				return b > a ? -1 : b < a ? 1 : 0;
 			}
       
       _sortByHighestAmount(a, b) {
+        if( a.status > 0 || b.status > 0 ) return -1;
 				a = a.price_bid;
 				b = b.price_bid;
 				return b < a ? -1 : b > a ? 1 : 0;
 			}
       
       _sortByHighestRating(a, b) {
+        if( a.status > 0 || b.status > 0 ) return -1;
 				a = a.user.rating.length ? a.user.rating[0].star : 0;
 				b = b.user.rating.length ? b.user.rating[0].star : 0;
 				return b < a ? -1 : b > a ? 1 : 0;

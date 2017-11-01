@@ -56,12 +56,12 @@
         return {
           rate: {
             type: Number,
-            value: 1,
+            value: 0,
             notify: true
           },
           selectable: {
             type: Boolean,
-            value: false,
+            reflectToAttribute: true
           },
           color: String
         }
@@ -98,6 +98,24 @@
         this.mouseover = this._mouseover;
         this.mouseout = this._mouseout;
         this.click = this._click;
+
+        this.addEventIfSelectable()
+      }
+      
+      addEventIfSelectable() {
+        const stars = this.shadowRoot.querySelector('.stars').querySelectorAll('li.star');
+
+        stars.forEach( star => {
+
+          if(this.selectable) {
+          
+            star.addEventListener('mouseover', this.mouseover, true);
+            star.addEventListener('mouseout', this.mouseout, true);
+            star.addEventListener('click', this.click, true);
+          
+          }
+
+        }); 
       }
 
       _starsChange(rate) {
@@ -115,9 +133,9 @@
 
       _selectableChange(selectable) {
 
-        // console.log('selectable change', selectable);
+        console.log('selectable change', selectable);
 
-        const self = this;
+        if( !selectable ) return false;
 
         const stars = this.shadowRoot.querySelector('.stars').querySelectorAll('li.star');
 
@@ -137,10 +155,8 @@
 
           }
 
-        });
-        
+        }); 
       }
-      
 
     }
 

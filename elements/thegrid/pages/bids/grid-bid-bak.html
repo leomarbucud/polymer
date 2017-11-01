@@ -1,0 +1,676 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../grid-styles.html?v=1.0.18">
+<link rel="import" href="../../components/ratings.html?v=1.0.18">
+
+<dom-module id="grid-bid">
+  <template>
+    <style include="grid grid-progress iron-flex">
+       :host {
+        display: block;
+        background: var(--light-grey);
+        height: 100%;
+      }
+
+      img.circle {
+				height: 64px;
+				width: 64px;
+				border-radius: 50%;
+			}
+
+			.user-info .name {
+				padding-left: 16px;
+			}
+
+			.user-info .name span {
+				color: #FFFFFF;
+				font-size: 32px;
+				font-weight: 400;
+				display: block;
+			}
+
+			.user-info .name small {
+				font-size: 14px;
+				color: #FFFFFF;
+				opacity: 0.7;
+			}
+
+			.chip {
+				padding-right: 16px;
+			}
+
+      .section-title, .section-details {
+        display: flex;
+        justify-content: left;
+        align-items: center;
+      }
+
+      .section-title .title {
+        font-size: 24px;
+				color: #FFFFFF;
+				font-weight: 400;
+				line-height: 34px;
+        margin-bottom: 8px;
+      }
+
+      div.divider {
+        padding: 8px 0;
+      }
+
+      div.divider hr {
+        margin: 0;
+        opacity: 0.12;
+      }
+      
+      .mark-job {
+        display: block;
+        width: 100%;
+        margin-top: 8px;
+      }
+    </style>
+
+    <div id="toolbar" class="toolbar">
+      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectBids"></paper-icon-button>
+      <span class="flex"></span>
+      <template is="dom-if" if="[[!biddingEnded]]">
+        <template is="dom-if" if="[[!_awarded]]">
+          <paper-button class="red" on-click="openRebidDialog">Rebid</paper-button>
+        </template>
+      </template>
+    </div>
+
+    <main class="scroll-area flex">
+      <section class="p-y-1 user-info">
+        <div class="flex layout horizontal">
+          <div class="avatar">
+            <a><img class="circle" src$="[[_profileImage(bid.job.user.profile.profile_image_url)]]"></a>
+          </div>
+          <div class="name">
+            <span>[[bid.job.user.name]]</span>
+            <small>[[_fromNow(bid.job.created_at)]]</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="p-y-1 white">
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">[[bid.job.name]]</span>
+            <small class="category block">Category: [[bid.job.category.category]]</small>
+            <small class="location block">Location: [[bid.job.location]]</small>
+          </div>
+          <div class="center layout vertical">
+            <paper-icon-button icon="grid:location" class="white" on-tap="viewOnMap"></paper-icon-button>
+            <template is="dom-if" if="[[_getDistance(bid.job.lat, bid.job.lng)]]">
+              <small>[[_getDistance(bid.job.lat, bid.job.lng)]]</small>
+            </template>
+            </div>
+        </div>
+
+        <div class="divider">
+          <hr/>
+        </div>
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">Status</span>
+          </div>
+        </div>
+
+        <template is="dom-if" if="[[!_awarded]]">
+          <p>Wait for [[bid.job.user.name]] to award this job.</p>
+        </template>
+
+        <template is="dom-if" if="[[_awarded]]">
+        
+          <template is="dom-if" if="[[_awardedToMe]]">
+            <ul id="status" class="progress-indicator">
+              <li data-progress="1">
+                <span class="bubble">1</span> Awarded
+              </li>
+              <li data-progress="2">
+                <span class="bubble">2</span> In-progress
+                <template is="dom-if" if="[[_awardedStatus]]">
+                  <button type="button" class="mark-job" on-click="markInProgress">Mark</button>
+                </template>
+              </li>
+              <li data-progress="3">
+                <span class="bubble">3</span> Review
+              </li>
+              <li data-progress="4">
+                <span class="bubble">4</span> Completed
+                <template is="dom-if" if="[[_review]]">
+                  <button type="button" class="mark-job" on-click="markCompleted">Mark</button>
+                </template>
+              </li>
+            </ul>
+
+            <template is="dom-if" if="[[bid.winner.review]]" >
+              <grid-ratings rate="[[bid.winner.review.stars]]"></grid-ratings>
+              <p class="white">Review: [[bid.winner.review.review]]</p>
+            </template>
+            
+          </template>
+
+          <template is="dom-if" if="[[!_awardedToMe]]">
+            <p>Sorry this job has been awarded to other bidder.</p>
+          </template>
+        </template>
+
+        <div class="divider">
+          <hr/>
+        </div>
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">Bid Details</span>
+          </div>
+        </div>
+
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Your bid</span>
+          </div>
+          <span>AED [[bid.price_bid]]</span>
+        </div>
+
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Your rank</span>
+          </div>
+          <span>[[rank]]</span>
+        </div>
+
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Number of bidders</span>
+          </div>
+          <span>[[totalBidders]]</span>
+        </div>
+        <!--
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Highest bid</span>
+          </div>
+          <span>AED [[highestBid]]</span>
+        </div>
+        
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Lowest bid</span>
+          </div>
+          <span>AED [[lowestBid]]</span>
+        </div>
+      -->
+        <div class="divider">
+          <hr/>
+        </div>
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">Details</span>
+          </div>
+        </div>
+
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Budget</span>
+          </div>
+          <span>AED [[bid.job.price]]</span>
+        </div>
+
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Job needed</span>
+          </div>
+          <span data-countdown$="[[bid.job.date]]">[[_fromNow(bid.job.date)]]</span>
+        </div>
+        <div class="section-details">
+          <div class="flex">
+            <span class="title">Posted</span>
+          </div>
+          <span>[[_fromNow(bid.job.created_at)]]</span>
+        </div>
+
+        <p>[[_details(bid.job.details)]]</p>
+
+        <div class="divider">
+          <hr/>
+        </div>
+
+        <div class="section-title">
+          <div class="flex">
+            <span class="title">Required Skills</span>
+          </div>
+        </div>
+
+        <template is="dom-repeat" items="[[bid.job.skills]]" as="skill">
+          <div class="chip">
+            <span>[[skill.skill]]</span>
+          </div>
+        </template>
+        <template is="dom-if" if="[[!bid.job.skills.length]]">
+          <p>No set of skills provided.</p>
+        </template>
+
+      </section>
+
+
+    </main>
+
+    <template is="dom-if" if="[[isLoading]]">
+      <div class="overlay lgrey-bg" style="margin-top: 64px;">
+        <div class="align-center">
+          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+        </div>
+      </div>
+    </template>
+
+    <paper-dialog id="rebidDialog" class="dialog-dark">
+      <h2>Rebid</h2>
+      <div>
+        <div class="input-group">
+          <input type="number" value="{{rebid::input}}" class="input"  placeholder="Amount" />
+        </div>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss class="white">Cancel</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="submitRebid" class="white">Rebid</paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+    class GridBid extends 
+      GridNavigation(
+          ReduxAsyncActionBehavior(
+            ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'grid-bid'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
+          },
+
+          bids: {
+            type: Array,
+            statePath: 'bids'
+          },
+
+          isLoading: {
+            type: Boolean,
+            value: false
+          }
+
+        }
+      }
+
+      static get observers() {
+        return [
+          '_bidChange(bid)',
+          '_bidIdChange(bidId)',
+          '_bidsChange(bids)'
+        ]
+      }
+
+      static get actions() {
+        return {
+
+        };
+      }
+
+      constructor() {
+        super();
+
+        // grid map is required so the map needs to be loaded
+        Polymer.Base.importHref(
+          '/elements/thegrid/components/grid-map.html?v=1.0.18',
+          () => {
+            // do something after elements has been imported
+          }
+        );
+
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.headerAnimate();
+      }
+
+      headerAnimate() {
+				const toolbar = this.shadowRoot.querySelector('#toolbar');
+        const main = this.shadowRoot.querySelector('main');
+
+        const scroll = () => {
+          let _st = main.scrollTop;
+          
+          if( _st > 0 ) {
+            toolbar.classList.add('shadow');
+          } else {
+            toolbar.classList.remove('shadow');
+          }
+
+        };
+
+        main.addEventListener('scroll', scroll);
+      }
+
+      renderBid(bid) {
+        if (!this.user) return;
+
+        this.bid = bid;
+        this.isLoading = false;
+        this._setRank();
+
+        this._awarded = false;
+        this._awardedToMe = false;
+
+        this._awardedStatus = false;
+        this._inProgress = false;
+        this._review = false;
+        this.biddingEnded = false;
+
+        this.countDown(bid.job.date);
+
+        if(bid.job.awarded) {
+          this._awarded = true;
+          if(bid.job.awarded.user_id == this.user.id) {
+            this._awardedToMe = true;
+
+            setTimeout( () => {
+              const status = this.shadowRoot.querySelector('#status');
+              const progressList = status.querySelectorAll('[data-progress]');
+
+              progressList.forEach( progress => {
+                let p = progress.getAttribute('data-progress');
+                progress.classList.remove('completed');
+                if(Number(bid.job.status) >= Number(p)) {
+                  progress.classList.add('completed');
+                }
+              });
+              switch(bid.job.status) {
+                case 1: {
+                  this._awardedStatus = true;
+                  break;
+                }
+                case 2: {
+                  this._inProgress = true;
+                  break;
+                }
+                case 3: {
+                  this._review = true;
+                }
+              }
+              if(bid.winner.review) {
+                this._renderStars(bid.winner.review.stars);
+              }
+            }, 0);
+          }
+        }
+      }
+
+      countDown(date) {
+				const cd = this.shadowRoot.querySelector('[data-countdown]');
+
+				let eventTime = moment(date, 'YYYY-MM-DD HH:mm:ss').unix(),
+					currentTime = moment().unix(),
+					diffTime = eventTime - currentTime,
+					duration = moment.duration(diffTime * 1000, 'milliseconds'),
+          interval = 1000;
+          
+          // console.log('dddddd', duration);
+				
+				if(diffTime > 0) {
+					if(this._countDown) clearInterval(this._countDown);
+					this._countDown = setInterval( () => {
+							
+            duration = moment.duration(duration.asMilliseconds() - interval, 'milliseconds');
+            let	s = moment.duration(duration).seconds();
+            let	m = moment.duration(duration).minutes();
+            let	h = moment.duration(duration).hours();
+            let	d = moment.duration(duration).days();
+            
+            if(m == 0 && h == 0 && d == 0) {
+              cd.textContent = `${s} sec`;
+              if(s <= 0) {
+                cd.textContent = this._fromNow(date);
+                this.biddingEnded = true;
+                this.canBid = false;
+              }
+            } else {
+              cd.textContent = this._fromNow(date);
+            }
+
+					}, interval);
+				} else {
+          this.biddingEnded = true;
+        }
+      }
+
+      viewOnMap() {
+        if (!this.bid && this.gmap) return;
+
+        const job = this.bid.job;
+        const position = new google.maps.LatLng(job.lat, job.lng);
+
+        this.gmap.map.setCenter(position);
+        this.gmap.map.setZoom(20);
+        this.redirectHome();
+      }
+
+      markInProgress() {
+        if(!this.bid) return;
+        if(this.bid.job.status != 1) return;
+        
+        this.isLoading = true;
+        gAxios.post(`/users/${this.user.id}/bids/${this.bid.id}/status`, {
+          status: 2,
+          job_id: this.bid.job.id
+        }).then( res => {
+
+          this.dispatch('updateBid', res.data);
+
+          let detail = {
+            user_id: res.data.job.user.id,
+            bid_id: res.data.id,
+            job_id: res.data.job.id
+          };
+          
+          window.dispatchEvent( new CustomEvent('bidder:job_in_progress', { detail: detail }));
+        
+        }).catch( err => {
+
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      markCompleted() {
+        if(!this.bid) return;
+        if(this.bid.job.status != 3) return;
+        
+        this.isLoading = true;
+        gAxios.post(`/users/${this.user.id}/bids/${this.bid.id}/status`, {
+          status: 4,
+          job_id: this.bid.job.id
+        }).then( res => {
+          // console.log(res.data);
+          this.dispatch('updateBid', res.data);
+
+          let detail = {
+            user_id: res.data.job.user.id,
+            bid_id: res.data.id,
+            job_id: res.data.job.id
+          };
+          
+          window.dispatchEvent( new CustomEvent('bidder:job_complete', { detail: detail }));
+        
+        }).catch( err => {
+
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      openRebidDialog() {
+        const rebidDialog = this.shadowRoot.querySelector('#rebidDialog');
+        rebidDialog.open();
+      }
+
+      submitRebid() {
+
+        this.isLoading = true;
+
+        gAxios.post(`/users/${this.user.id}/bids/${this.bid.id}/rebid`, {
+          bid_id: this.bid.id,
+          bid: this.rebid
+        })
+        .then(res => {
+          window.dispatchEvent(new CustomEvent('user:bidded', { detail: res.data }) );
+          this.dispatch('updateBid', res.data);
+        }).catch(err => {
+
+        }).then(() => {
+          this.isLoading = false;
+        });
+      }
+
+      _bidChange(bid) {
+        if (!bid) return;
+        this.renderBid(bid)
+      }
+
+      _bidIdChange(bidId) {
+        if (!bidId) return;
+        if (!this.auth) return;
+        // if (!this.bids) return;
+        // if (this.bid) return;
+        this.isLoading = true;
+
+        this.bids.map(bid => {
+          if (parseInt(bid.id) === parseInt(this.bidId)) {
+            this.renderBid(bid);
+            this.isLoading = false;
+          }
+        });
+        // gAxios.get('/users/' + this.user.id + '/bids/' + bidId)
+        //   .then(res => {
+        //     this.bid = res.data
+        //   }).then(() => {
+        //     this.isLoading = false;
+        //   });
+      }
+
+      _bidsChange(bids) {
+        // console.log('bids change', bids);
+        bids.map(bid => {
+          if (parseInt(bid.id) === parseInt(this.bidId)) {
+            this.renderBid(bid);
+          }
+        });
+      }
+
+      _renderStars(star) {
+        if(!star) return;
+
+        if(!this.shadowRoot.querySelector('.stars')) return;
+
+        const stars = this.shadowRoot.querySelector('.stars').querySelectorAll('li.star');
+
+        stars.forEach( _star => {
+          if( star < _star.getAttribute('data-star' )) {
+            _star.querySelector('[icon]').icon = 'star-border';
+          } else {
+            _star.querySelector('[icon]').icon = 'star';
+          }
+        });
+
+      }
+
+      _nextStatus(status) {
+        if(!this.bid) return;
+
+        if( this.bid.job.status + 1 == status ) {
+          return true;
+        }
+
+        return false;
+      }
+
+      _fromNow(date) {
+        return moment(date).fromNow();
+      }
+
+      _profileImage(img) {
+        if (img) {
+          return this.url.API_BASE_URL + '/uploads/' + img;
+        }
+        if (this.bid.job.user) return LetterAvatar(this.bid.job.user.name, '64');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
+
+        return LetterAvatar('Grid', 64);
+
+      }
+
+      _details(details) {
+        if (details) return details;
+
+        return '';
+      }
+
+      _setRank() {
+				const arr = this.bid.job.only_bids;
+				const sorted = arr.slice().sort((a,b)=>{return a.price_bid - b.price_bid})
+				const ranks = arr.slice().map((v)=>{ return sorted.indexOf(v)+1 });
+				this.rank = sorted.findIndex((e)=>{
+                      return e.user_id == this.user.id;
+                    }) + 1;
+				this.lowestBid = sorted[0].price_bid;
+        this.highestBid = sorted[sorted.length-1].price_bid;
+        this.totalBidders = this.bid.job.only_bids.length;
+        
+      }
+      
+      _myBid(id) {
+        console.log(id, '===', this.user.id);
+        return id == this.user.id;
+      }
+
+      _getDistance(lat, lng) {
+        if(! this.gmap ) return 0;
+				if (!this.gmap.currentLocation) return 0;
+				
+
+				const p1 = this.gmap.currentLocation.latLng;
+
+				const R = 6371; // Radius of the Earth in km
+				const dLat = (lat - p1.lat()) * Math.PI / 180;
+				const dLon = (lng - p1.lng()) * Math.PI / 180;
+				const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+					Math.cos(p1.lat() * Math.PI / 180) * Math.cos(lat * Math.PI / 180) *
+					Math.sin(dLon / 2) * Math.sin(dLon / 2);
+				const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+				const d = R * c;
+				const df = d.toFixed(2)
+				return `${df}km`;
+			}
+
+
+    }
+
+    customElements.define(GridBid.is, GridBid);
+  </script>
+</dom-module>
