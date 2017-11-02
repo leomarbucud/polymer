@@ -179,6 +179,14 @@
         });
         break;
       }
+      case 'REMOVE_BID': {
+        let bids = state.bids.slice(0);
+        const updatedBids = bids.filter(item => item.id != action.bid.id);
+        return Object.assign({}, state, {
+          bids: updatedBids
+        });
+        break;
+      }
       case 'SET_INBOX': {
         return Object.assign({}, state, {
           inbox: action.inbox
@@ -405,6 +413,13 @@
             type: 'UPDATE_BIDDERS',
             id: id,
             bidders: bidders
+          }
+        },
+
+        removeBid(bid) {
+          return {
+            type: 'REMOVE_BID',
+            bid: bid
           }
         },
 

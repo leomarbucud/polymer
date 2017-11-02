@@ -129,15 +129,15 @@
                 <paper-button class="red" on-click="openCancelwardJobDialog">Cancel</paper-button>
               </div>
             </template>
-            <template is="dom-if" if="[[ _isAccepted(data.status) ]]">
+            <!-- <template is="dom-if" if="[[ _isAccepted(data.status) ]]">
               <div class="button">
                 <paper-button class="red" on-click="openCancelwardJobDialog">Terminate</paper-button>
               </div>
-            </template>
+            </template> -->
           </div>
         </div>
         <div class="actions">
-          <paper-icon-button icon="[[ expander ]]" class="action" on-click="toggleOffer"></paper-icon-button>
+          <paper-icon-button icon="[[ expander ]]" class="action" on-click="toggle"></paper-icon-button>
         </div>
       </div>
     </paper-card>
@@ -187,10 +187,19 @@
 
       }
 
-      toggleOffer() {
+      toggle() {
         this.opened = !this.opened;
-
         this.expander = this.opened ? 'expand-less' : 'expand-more';
+      }
+
+      open() {
+        this.opened = true;
+        this.expander = 'expand-less';
+      }
+
+      close() {
+        this.opened = false;
+        this.expander = 'expand-more';
       }
 
       openAwardJobDialog() {
@@ -214,6 +223,7 @@
         }
 
         const times = data.times;
+        this.times = '';
 
         if( times > 1 ) {
           if( times == 2 ) {
@@ -223,8 +233,10 @@
           }
         }
 
+        this.close();
+
         if( data.status == 1 ) {
-          this.toggleOffer();
+          this.open();
           this.inactive = false;
         }
 

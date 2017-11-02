@@ -23,6 +23,10 @@
 			--paper-button: {
 				font-weight: 700;
 			}
+
+			--paper-dialog: {
+				max-width: 500px;
+			}
 		}
 	</style>
 </custom-style>
@@ -386,6 +390,11 @@
         overflow-y: auto;
         height: calc(100% - 64px);
       }
+      
+			main.scroll-area.tabs {
+        overflow-y: auto;
+        height: calc(100% - 112px);
+      }
 
       main.scroll-area::-webkit-scrollbar, main::-webkit-scrollbar {
           width: 0px;
@@ -664,6 +673,171 @@
 	</template>
 </dom-module>
 
+<dom-module id="grid-cards">
+	<template>
+		<style>
+			.card-list {
+        width: 100%;
+        margin-top: 8px;
+        background-color: var(--light-grey-1);
+				display: var(--layout-horizontal_-_display);
+        -ms-flex-direction: var(--layout-horizontal_-_-ms-flex-direction);
+        -webkit-flex-direction: var(--layout-horizontal_-_-webkit-flex-direction);
+        flex-direction: var(--layout-horizontal_-_flex-direction);
+        -ms-flex-align: var(--layout-center_-_-ms-flex-align);
+        -webkit-align-items: var(--layout-center_-_-webkit-align-items);
+        align-items: var(--layout-center_-_align-items);
+        position: relative;
+      }
+
+      .card-list .card-content {
+				padding: 16px;
+				-ms-flex: 1 1 0.000000001px;
+				-webkit-flex: 1;
+				flex: 1;
+				-webkit-flex-basis: 0.000000001px;
+				flex-basis: 0.000000001px;
+				overflow: hidden;
+      }
+
+      .card-list paper-menu-button {
+        margin-top: 8px;
+        padding: 0;
+        --paper-menu-button-dropdown-background: var(--light-grey-1);
+      }
+
+      .card-list paper-icon-button {
+        color: #DADADA;
+      }
+
+      .card-list .header-date {
+        color: rgba(255,255,255,0.7);
+        font-style: italic;
+        font-size: 14px;
+      }
+
+      .card-list .header-title {
+        color: #FFFFFF;
+        font-size: 16px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        font-weight: normal;
+      }
+
+      .card-list .description {
+        margin-top: 12px;
+        color: rgba(255,255,255,0.7);
+        font-size: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        line-height: 16px;
+        max-height: 46px;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+      }
+		</style>
+	</template>
+</dom-module>
+
+<dom-module id="grid-file-preview">
+	<template>
+		<style>
+				#previews, .previews {
+					display: -ms-flexbox;
+					display: -webkit-flex;
+					display: flex;
+						-ms-flex-direction: column;
+					-webkit-flex-direction: column;
+					flex-direction: column;
+				}
+	
+				#previews .wrap, .previews .wrap {
+					margin: 5px 0;
+				}
+	
+				.file {
+					display: inline-block;
+					position: relative;
+					color: #FFFFFF;
+					background: rgba(33, 33, 33, 0.87);
+					border-radius: 2px;
+					padding: 4px 4px;
+	
+				}
+	
+				.file img {
+					width: 24px;
+					height: 24px;
+					vertical-align: middle;
+				}
+	
+				.file span {
+					line-height: 25px;
+					margin: 0 5px;
+					font-size: 14px;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+	
+				.file iron-icon {
+					cursor: pointer;
+				}
+	
+				.filter-offer {
+					text-align: right;
+				}
+	
+				.filter-offer label {
+					color: #FFFFFF;
+					font-size: 14px;
+				}
+		</style>
+	</template>
+</dom-module>
+<dom-module id="grid-review">
+	<template>
+		<style>
+			.rating-container {
+				text-align: center;
+			}
+
+			.rating-container .review-title {
+				color: var(--white);
+				font-size: 24px;
+			}
+
+			.rating-container .review-comment {
+				font-size: 16px;
+				color: var(--white);
+			}
+		</style>
+	</template>
+</dom-module>
+<dom-module id="grid-divider">
+	<template>
+		<style>
+			.divider {
+        padding: 16px 0;
+      }
+
+      .divider hr {
+        margin: 0;
+        opacity: 0.12;
+      }
+
+			.divider.p-0 {
+				padding: 0;
+			}
+
+			.divider.n-m {
+				margin: 0 -16px;
+			}
+		</style>
+	</template>
+</dom-module>
 <dom-module id="grid-progress">
 	<template>
 		<style>

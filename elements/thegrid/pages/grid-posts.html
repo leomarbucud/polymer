@@ -15,7 +15,7 @@
 
 <dom-module id="grid-posts">
   <template>
-    <style include="grid iron-flex">
+    <style include="grid grid-cards iron-flex">
 
       :host {
         display: block;
@@ -70,54 +70,6 @@
 
       paper-item.iron-selected {
         background-color: #484848;
-      }
-
-      .card-list {
-        width: 100%;
-        margin-top: 8px;
-        background-color: var(--light-grey-1);
-      }
-
-      .card-list .card-content {
-        max-width: calc(100% - 40px);
-      }
-
-      .card-list paper-menu-button {
-        margin-top: 8px;
-        padding: 0;
-        --paper-menu-button-dropdown-background: var(--light-grey-1);
-      }
-
-      .card-list paper-icon-button {
-        color: #DADADA;
-      }
-
-      .card-list .header-date {
-        color: rgba(255,255,255,0.7);
-        font-style: italic;
-        font-size: 14px;
-      }
-
-      .card-list .header-title {
-        color: #FFFFFF;
-        font-size: 16px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        font-weight: normal;
-      }
-
-      .card-list .description {
-        margin-top: 12px;
-        color: rgba(255,255,255,0.7);
-        font-size: 12px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        line-height: 16px;
-        max-height: 46px;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
       }
 
     </style>
@@ -198,7 +150,7 @@
           <template is="dom-repeat" items="[[posts]]" as="job" filter="{{_filterPosts(query)}}">
             <paper-card class="card-list" id$="[[job.id]]">
               <div class="layout horizontal w-100">
-                <div class="card-content flex p-1" on-click="viewPost">
+                <div class="card-content" on-click="viewPost">
                   <div class="header-date">
                     [[ _getStatus(job) ]]
                   </div>
@@ -212,7 +164,7 @@
                 <paper-menu-button horizontal-align="right" vertical-align="top">
                     <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
                     <paper-listbox slot="dropdown-content" class="dropdown-menu">
-                      <template is="dom-if" if="[[!job.winner]]">
+                      <template is="dom-if" if="[[ !job.is_accepted ]]">
                         <paper-item class="item" on-click="editPost">
                           <span>Edit</span>
                         </paper-item>
@@ -220,7 +172,7 @@
                           <span>Remove</span>
                         </paper-item>
                       </template>
-                      <template is="dom-if" if="[[job.winner]]">
+                      <template is="dom-if" if="[[ job.is_accepted ]]">
                         <paper-item class="item" on-click="openDeletePostDialog">
                           <span>Cancel</span>
                         </paper-item>
@@ -832,7 +784,7 @@
           return `Awarded ${this._fromNow(post.updated_at)}`;
         }
 
-        return `Posted ${this._fromNow(post.updated_at)}`;
+        return `Posted ${this._fromNow(post.created_at)}`;
       }
 
     }

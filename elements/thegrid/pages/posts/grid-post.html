@@ -22,7 +22,7 @@
 
 <dom-module id="grid-post">
   <template>
-    <style include="grid grid-progress grid-tabs iron-flex">
+    <style include="grid grid-progress grid-review grid-divider grid-file-preview grid-tabs iron-flex">
        :host {
         display: block;
         background: var(--light-grey);
@@ -69,57 +69,6 @@
         background: linear-gradient(270deg, #FFFFFF 100%, #D5D5D5 0%)
       }
 
-      #previews {
-				display: -ms-flexbox;
-        display: -webkit-flex;
-        display: flex;
-         -ms-flex-direction: column;
-        -webkit-flex-direction: column;
-        flex-direction: column;
-			}
-
-			#previews .wrap {
-				margin: 5px 0;
-			}
-
-			.file {
-				display: inline-block;
-				position: relative;
-				color: #FFFFFF;
-				background: rgba(33, 33, 33, 0.87);
-				border-radius: 2px;
-				padding: 4px 4px;
-
-			}
-
-			.file img {
-				width: 24px;
-				height: 24px;
-				vertical-align: middle;
-			}
-
-			.file span {
-				line-height: 25px;
-				margin: 0 5px;
-				font-size: 14px;
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-			}
-
-			.file iron-icon {
-				cursor: pointer;
-			}
-
-      .filter-offer {
-        text-align: right;
-      }
-
-      .filter-offer label {
-        color: #FFFFFF;
-        font-size: 14px;
-      }
-
       .status {
         margin-left: -16px;
         margin-right: -16px;
@@ -153,12 +102,12 @@
       <paper-tab>Queries</paper-tab>
     </paper-tabs>
     
-    <main class="scroll-area flex">
+    <main class="scroll-area flex tabs">
 
       <iron-pages selected="{{selected_tab}}">
         <section class="p-y-1 white">
           <template is="dom-if" if="[[ post.is_accepted ]]">
-            <div class="details status">
+            <div class="status">
               <status-check checked>
                 <span>Bidding</span>
               </status-check>
@@ -172,11 +121,24 @@
                 <span>Review and Complete</span>
               </status-check>
             </div>
+            <div class="divider n-m">
+              <hr/>
+            </div>
+          </template>          
+          <template is="dom-if" if="[[ post.is_completed ]]">
+            <div class="rating-container">
+              <div class="review-title">Review</div>
+              <grid-ratings rate="[[ post.winner.review.stars ]]" class="white"></grid-ratings>
+              <div class="review-comment">[[ post.winner.review.review ]]</div>
+            </div>
+            <div class="divider n-m">
+              <hr/>
+            </div>
           </template>
           <template is="dom-if" if="[[ !post.is_accepted ]]">
             <div class="details">
               <time-remaining date="[[ post.date ]]" time-remaining="{{ time_remaining }}"></time-remaining>
-              <detail-text label="Time Remaining" details="[[ time_remaining ]]"></detail-text>
+              <detail-text label="Time Remaining" details="[[ time_remaining ]]" title="[[ post.date ]]"></detail-text>
             </div>
           </template>
           <template is="dom-if" if="[[ post.is_accepted ]]">
@@ -263,10 +225,10 @@
             <detail-text label="Details" details="[[ post.details ]]" class="normal"></detail-text>
           </div>
           <div class="details">
-            <detail-text label="Attachments">
+            <detail-text label="Attachments" class="normal">
               <div id="previews">
                 <template is="dom-repeat" items="[[files]]" as="file">
-                  <div class="wrap">
+                  <div class="wrap" on-click="viewFile">
                     <div class="file layout horizontal">
                       <img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
                       <span class="flex">[[file.original_name]]</span>
@@ -274,6 +236,9 @@
                   </div>
                 </template>
               </div>
+              <template is="dom-if" if="[[ !files.count ]]">
+                No attachment
+              </template>
             </detail-text>
           </div>
           <div class="details">
@@ -295,12 +260,12 @@
               </paper-listbox>
             </paper-menu-button>
           </div>
-          <template id="offerList" is="dom-repeat" items="[[ post.bidders ]]" as="bidder" sort="_sortByMostRecent">
-            <offer-item data="[[ bidder ]]" awarded="[[ post.is_awarded ]]" currency="[[ post.user.country.currency_unit ]]"></offer-item>
+          <template id="offerList" is="dom-repeat" items="[[ bidders ]]" as="bidder" sort="_sortByMostRecent">
+            <offer-item data="[[ bidder ]]" awarded="[[ post.is_awarded ]]" currency="[[ post.user.country.currency_unit ]]" ></offer-item>
           </template>
         </section>
         <section class="p-y-1 white">
-          Queries      
+          Queries
         </section>
       </iron-pages>
 
@@ -358,6 +323,15 @@
       <div class="buttons">
         <paper-button dialog-dismiss auto-focus>No</paper-button>
         <paper-button on-tap="submitReview">Submit</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="viewFileDialog" class="dialog-dark">
+      <div>
+        <img src$="[[ currentImage ]]" style="width: 100%; max-width: 100%; max-height: 400px;"/>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss auto-focus>Close</paper-button>
       </div>
     </paper-dialog>
 
@@ -451,6 +425,8 @@
         this.total_bidders = 0;
         this.docs_count = 0;
         this.image_count = 0;
+        this.bidders = [];
+        this.bidders = post.bidders;
 
         this.files = post.files;
         this.showPassWeek();
@@ -754,6 +730,19 @@
         this.redirect(`/posts/edit/${this.post.id}/#1`);
       }
 
+      viewFile(e) {
+        const file = e.model.file;
+        const dialog = this.shadowRoot.querySelector('#viewFileDialog');
+        
+        if(file.type == 'jpeg' || file.type == 'png') {
+          this.currentImage = `${this.url.API_BASE_URL}/uploads/${file.path}`;
+          dialog.open();
+        } else if( file.type == 'pdf') {
+          window.open(`${this.url.API_BASE_URL}/uploads/${file.path}`, '_blank');
+        }
+        
+      }
+
       _nextStatus(status) {
         if(!this.post) return false;
 
@@ -915,28 +904,28 @@
       }
       
       _sortByMostRecent(a, b) {
-        if( a.status > 0 || b.status > 0 ) return -1;
+        if( a.status > 0 || b.status > 0 ) return 0;
 				a = new Date(a.created_at);
 				b = new Date(b.created_at);
 				return b < a ? -1 : b > a ? 1 : 0;
       }
       
       _sortByLowestAmount(a, b) {
-        if( a.status > 0 || b.status > 0 ) return -1;
+        if( a.status > 0 || b.status > 0 ) return 0;
 				a = a.price_bid;
 				b = b.price_bid;
 				return b > a ? -1 : b < a ? 1 : 0;
 			}
       
       _sortByHighestAmount(a, b) {
-        if( a.status > 0 || b.status > 0 ) return -1;
+        if( a.status > 0 || b.status > 0 ) return 0;
 				a = a.price_bid;
 				b = b.price_bid;
 				return b < a ? -1 : b > a ? 1 : 0;
 			}
       
       _sortByHighestRating(a, b) {
-        if( a.status > 0 || b.status > 0 ) return -1;
+        if( a.status > 0 || b.status > 0 ) return 0;
 				a = a.user.rating.length ? a.user.rating[0].star : 0;
 				b = b.user.rating.length ? b.user.rating[0].star : 0;
 				return b < a ? -1 : b > a ? 1 : 0;

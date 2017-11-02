@@ -3,6 +3,7 @@
 <link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="../grid-styles.html?v=1.0.18">
@@ -10,7 +11,7 @@
 
 <dom-module id="grid-bids">
   <template>
-    <style include="grid iron-flex">
+    <style include="grid grid-cards iron-flex">
 
       :host {
         display: block;
@@ -125,16 +126,48 @@
       <section class="p-y-1 title">
         <h1 id="main-title" class="white m-0">Bids</h1>
       </section>
-      <div id="post-list" class="white" role="listbox">
+      <div id="post-list" class="white p-y-1" role="listbox">
         <template is="dom-repeat" items="[[bids]]" as="bid" filter="{{_filterBids(query)}}">
           <template is="dom-if" if="[[bid.job]]">
-            <paper-item on-click="viewBid">
-              <paper-item-body two-line>
-                <div>[[bid.job.name]]</div>
-                <div secondary>Date needed: <span data-time$="[[bid.job.date]]">[[_fromNow(bid.job.date)]]</span></div>
-                <paper-ripple></paper-ripple>
-              </paper-item-body>
-            </paper-item>
+            <paper-card class="card-list" id$="[[bi.job.id]]">
+              <div class="layout horizontal w-100">
+                <div class="card-content" on-click="viewBid">
+                  <div class="header-date">
+                    [[ _getStatus(bid) ]]
+                  </div>
+                  <div class="header-title">
+                    [[bid.job.name]]
+                  </div>
+                  <div class="description">
+                    [[bid.job.details]]
+                  </div>
+                </div>
+                <paper-menu-button horizontal-align="right" vertical-align="top">
+                  <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
+                  <paper-listbox slot="dropdown-content" class="dropdown-menu">
+                    <template is="dom-if" if="[[ !_isUserAccepted(bid.status) ]]">
+                      <paper-item class="item" on-click="openRemoveBidDialog">
+                        <span>Remove</span>
+                      </paper-item>
+                    </template>
+                    <template is="dom-if" if="[[ _isUserAccepted(bid.status) ]]">
+                      <template is="dom-if" if="[[ bid.job.is_accepted ]]">
+                          <template is="dom-if" if="[[ !bid.job.is_completed ]]">
+                            <paper-item class="item" on-click="openDeletePostDialog">
+                              <span>Terminate</span>
+                            </paper-item>
+                          </template>
+                      </template>
+                      <template is="dom-if" if="[[ bid.job.is_completed ]]">
+                        <paper-item class="item" on-click="openDeletePostDialog">
+                          <span>Highlight</span>
+                        </paper-item>
+                      </template>
+                    </template>
+                  </paper-listbox>
+                </paper-menu-button>
+              </div>
+            </paper-card>
           </template>
         </template>
         <template is="dom-if" if="[[!bids.length]]">
@@ -162,6 +195,17 @@
         </div>
       </div>
     </template>
+
+    <paper-dialog id="deleteDialog" class="dialog-dark">
+      <h2>Remove Bid?</h2>
+      <div>
+        <p>Removing this bid is permanent.</p>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss autofocus>No</paper-button>
+        <paper-button dialog-confirm on-tap="removeBid">Yes</paper-button>
+      </div>
+    </paper-dialog>
 
   </template>
 
@@ -385,6 +429,26 @@
         const bid_id = e.model.bid.id;
         this.redirect('/bids/' + bid_id);
         this._bid = e.model.bid;
+      }
+
+      openRemoveBidDialog(e) {
+        const dialog = this.shadowRoot.querySelector('#deleteDialog');
+        dialog.open();
+        this.bid_to_delete = e.model.bid;
+      }
+
+      removeBid() {
+        if( ! this.bid_to_delete ) return;
+        const bid = this.bid_to_delete;
+        this.isLoading = true;
+        gAxios.post(`/users/${this.user.id}/bids/${bid.id}/remove`, {
+          
+        }).then( res => { 
+          this.dispatch('removeBid', bid);
+        }).catch( err => {
+        }).then( () => {
+          this.isLoading = false;
+        });
       }
 
       openSearchBar() {
@@ -613,6 +677,26 @@
           // }
         });
 
+      }
+
+      _getStatus(bid) {
+        if( bid.job.is_completed ) {
+          return `Completed ${this._fromNow(bid.job.updated_at)}`;
+        }
+        
+        if( bid.job.is_moving ) {
+          return `In Progress ${this._fromNow(bid.job.updated_at)}`;
+        }
+        
+        if( bid.job.is_awarded ) {
+          return `Awarded ${this._fromNow(bid.job.updated_at)}`;
+        }
+
+        return `Waiting since ${this._fromNow(bid.created_at)}`;
+      }
+
+      _isUserAccepted(status) {
+        return status == 2 ? true : false;
       }
 
     }
