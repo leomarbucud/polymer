@@ -1,0 +1,393 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../grid-styles.html?v=1.0.19">
+<link rel="import" href="../components/ratings.html?v=1.0.19">
+
+<dom-module id="query-item">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+      }
+
+      .card-list {
+        width: 100%;
+        background-color: var(--light-grey-1);
+        margin: 0px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .card-list .query {
+        font-size: 16px;
+        line-height: 20px;
+        margin-top: 16px;
+        padding-left: 16px;
+      }
+
+      .card-list .expanded {
+        display: none;
+        opacity: 0;
+      }
+
+      :host([opened]) .card-list {
+        margin-top: 8px;
+        margin-bottom: 8px;
+      }
+
+      :host([opened]) .card-list .expanded {
+        display: block;
+        opacity: 1;
+      }
+
+      :host([inactive]) {
+        opacity: 0.5;
+      }
+
+      .actions {
+        text-align: right;
+        padding: 8px 8px 8px 16px;
+      }
+
+      .actions .action {
+        color: #FFFFFF;
+        opacity: 0.7;
+      }
+
+      .actions .count {
+        color: rgba(255, 255, 255, 0.7);
+        margin-left: 8px;
+        line-height: 40px;
+      }
+
+      .expanded .by {
+        font-style: italic;
+        font-size: 12px;
+        opacity: 0.7;
+        line-height: 16px;
+        padding-left: 16px;
+      }
+
+      .expanded .bio {
+        font-size: 14px;
+        line-height: 16px;
+        margin-top: 16px;
+      }
+      
+      .expanded .reply {
+        font-size: 14px;
+        line-height: 16px;
+        margin-top: 16px;
+        padding-left: 16px;
+        padding-bottom: 16px;
+      }
+
+      .buttons {
+        position: relative;
+        padding: 8px 8px 8px 24px;
+        margin: 0;
+        display: none;
+        -ms-flex-direction: var(--layout-horizontal_-_-ms-flex-direction);
+        -webkit-flex-direction: var(--layout-horizontal_-_-webkit-flex-direction);
+        flex-direction: var(--layout-horizontal_-_flex-direction);
+        -ms-flex-pack: var(--layout-end-justified_-_-ms-flex-pack);
+        -webkit-justify-content: flex-end;
+        justify-content: flex-end;
+      }
+
+      :host([opened]) .buttons {
+        display: var(--layout-horizontal_-_display);
+      }
+      
+      :host([is-liked]) .is-liked, 
+      :host([is-disliked]) .is-disliked {
+        color: var(--red);
+      }
+
+    </style>
+    <paper-card class="card-list">
+      <div class="layout horizontal">
+        <div class="flex">
+          <div class="query">[[ data.query ]]</div>
+          <div class="expanded">
+            <div class="by">Asked by [[ _personName(data.user) ]] [[ _formatDate(data.created_at) ]] </div>
+            <template is="dom-if" if="[[ data.reply ]]">
+              <div class="reply">
+                [[ data.reply.reply ]]
+              </div>
+            </template>
+            <template is="dom-if" if="[[ isReplying ]]">
+              <div class="align-center">
+                <paper-spinner active$="[[ isReplying ]]"></paper-spinner>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="actions">
+          <paper-icon-button icon="[[ expander ]]" class="action" on-click="toggle"></paper-icon-button>
+          <div class="layout horizontal">
+            <span class="count is-liked">[[ like ]]</span><paper-icon-button icon="thumb-up" class="action is-liked" on-click="addLike" disabled="[[ !isAbleToLike ]]"></paper-icon-button>
+            <span class="count is-disliked">[[ dislike ]]</span><paper-icon-button icon="thumb-down" class="action is-disliked" on-click="addDislike" disabled="[[ !isAbleToLike ]]"></paper-icon-button>
+          </div>
+        </div>
+      </div>
+      <template is="dom-if" if="[[ !data.reply ]]">
+        <template is="dom-if" if="[[ replyable ]]">
+          <div class="buttons">
+            <paper-button class="red" on-click="openReplyDialog">Reply</paper-button>
+          </div>
+        </template>
+      </template>
+    </paper-card>
+
+    <paper-dialog id="replyDialog" class="dialog-dark">
+      <h2>Reply</h2>
+      <div>
+        <paper-textarea id="review-comment" always-float-label label="Type your reply" class="red" value="{{reply::input}}"></paper-textarea>
+        <div>[[ replyMessage ]]</div>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss auto-focus>Cancel</paper-button>
+        <paper-button on-tap="submitReply">Reply</paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+
+    class QueryItem extends 
+      GridNavigation(
+          ReduxAsyncActionBehavior(
+            ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'query-item'; }
+
+      static get properties() {
+        return {
+          data: Object,
+          opened: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          },
+          replyable: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          },
+          isLiked: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          },
+          isDisliked: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          },
+          user: {
+            type: Object
+          },
+          bidders: {
+            type: Array,
+            value: function () {
+              return [];
+            }
+          },
+          post: {
+            type: Object
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_dataChange(data.*)',
+          '_openedChange(opened)'
+        ]
+      }
+      
+      constructor() {
+        super();
+        this.rate = 0;
+        this.expander = 'expand-more';
+        this.times = '';
+      }
+
+      get replyDialog() {
+        return this.shadowRoot.querySelector('#replyDialog');
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.setState();
+      }
+
+      toggle() {
+        this.opened = !this.opened;
+        this.expander = this.opened ? 'expand-less' : 'expand-more';
+      }
+
+      open() {
+        this.opened = true;
+        this.expander = 'expand-less';
+      }
+
+      close() {
+        this.opened = false;
+        this.expander = 'expand-more';
+      }
+
+      setState() {
+        this.like = this.data.likes.length;
+        this.dislike = this.data.dislikes.length;
+
+        if( this.user ) {
+          if( this.user.id == this.data.user.id ) {
+            this.isAbleToLike = false;
+          } else {
+            let is_liked = this.data.likes.find( item => item.user_id == this.user.id );
+            let is_disliked = this.data.dislikes.find( item => item.user_id == this.user.id );
+
+            this.isLiked = is_liked ? true : false;
+            this.isDisliked = is_disliked ? true : false;
+
+            if(is_liked || is_disliked) {
+              this.isAbleToLike = false;
+            } else {
+              this.isAbleToLike = true;
+            }
+          }
+        } else {
+          this.isAbleToLike = false;
+        }
+      }
+
+      addLike() {
+        if( !this.user ) return;
+
+        this.like = this.like + 1;
+        this.isAbleToLike = false;
+        this.isLiked = true;
+        
+        gAxios.post(`/users/${this.user.id}/queries/${this.data.id}/like`, {
+          job_id: this.data.job_id
+        }).then( res => {
+          this.dispatch('updatePostQueries', this.data.job_id, res.data);
+          if( this.bidders.length ) {
+            this.bidders.forEach( bidder => {
+              if( bidder.user_id == this.user.id ) return;
+              window.dispatchEvent( new CustomEvent('user:like_query', { detail: bidder }));
+            });
+          }
+          if( this.post ) {
+            window.dispatchEvent( new CustomEvent('user:like_query', { detail: this.post }));
+          }
+        }).catch( err => {
+
+        }).then(() => {
+
+        });
+
+      }
+
+      addDislike() {
+        if( !this.user ) return;
+
+        this.dislike = this.dislike + 1;
+        this.isAbleToLike = false;
+        this.isDisliked = true;
+
+        gAxios.post(`/users/${this.user.id}/queries/${this.data.id}/dislike`, {
+          job_id: this.data.job_id
+        }).then( res => {
+          this.dispatch('updatePostQueries', this.data.job_id, res.data);
+          if( this.bidders.length ) {
+            this.bidders.forEach( bidder => {
+              if( bidder.user_id == this.user.id ) return;
+              window.dispatchEvent( new CustomEvent('user:dislike_query', { detail: bidder }));
+            });
+            if( this.post ) {
+              window.dispatchEvent( new CustomEvent('user:dislike_query', { detail: this.post }));
+            }
+          }
+        }).catch( err => {
+
+        }).then(() => {
+
+        });
+
+      }
+
+      openReplyDialog() {
+        this.replyDialog.open();
+      }
+
+      submitReply() {
+        if( !this.data ) return;
+        if( this.reply == '' || !this.reply ) {
+          this.replyMessage = 'Pleas provide your reply message.';
+          return;
+        }
+
+        this.isReplying = true;
+        this.replyDialog.close();
+
+        gAxios.post(`/users/${this.user.id}/queries/${this.data.id}/reply`, {
+          reply: this.reply,
+          job_id: this.data.job_id
+        }).then( res => {
+          this.dispatch('updatePostQueries', this.data.job_id, res.data);
+          if( this.bidders.length ) {
+            this.bidders.forEach( bidder => {
+              window.dispatchEvent( new CustomEvent('user:reply_query', { detail: bidder }));
+            });
+          }
+        }).catch( err => {
+        }).then(() => {
+          this.isReplying = false;
+        });
+
+
+      }
+ 
+      _dataChange(dataRecord) {
+        const data = dataRecord.base;
+        // console.log('dataRecord Change', dataRecord);
+        this.setState();
+      }
+
+      _formatDate(date) {
+        return moment(date).fromNow();
+      }
+
+      _openedChange(opened) {
+        if( opened ) {
+          const expandContent = this.shadowRoot.querySelector('.expanded');
+          expandContent.animate([
+            { opacity: 0 },
+            { opacity: 1 }
+          ], { duration: 350 });
+        }
+      }
+
+      _personName(user) {
+        if( this.user ) {
+          if( this.user.id == user.id ) {
+            return 'You';
+          }
+        }
+
+        return user.name;
+      }
+
+    }
+
+    customElements.define(QueryItem.is, QueryItem);
+	</script>
+</dom-module>

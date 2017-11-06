@@ -6,8 +6,8 @@
 <link rel="import" href="../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
-<link rel="import" href="../grid-styles.html?v=1.0.18">
-<link rel="import" href="bids/grid-bid.html?v=1.0.18">
+<link rel="import" href="../grid-styles.html?v=1.0.19">
+<link rel="import" href="bids/grid-bid.html?v=1.0.19">
 
 <dom-module id="grid-bids">
   <template>
@@ -539,7 +539,7 @@
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector('#bids-' + subrouteData.id) ) {
             Polymer.Base.importHref(
-  						'/elements/thegrid/pages/bids/grid-bids-' + subrouteData.id + '.html?v=1.0.18',
+  						'/elements/thegrid/pages/bids/grid-bids-' + subrouteData.id + '.html?v=1.0.19',
   						() => {
                 self.subPage = subrouteData.id;
   						}
@@ -675,6 +675,50 @@
               this.isLoading = false;
             });
           // }
+        });
+
+        socket.on('user:reply_query', data => {
+          if(!this.auth) return;
+          gAxios.get(`/users/${this.user.id}/bids/${data.id}`)
+          .then(res => {
+            this.dispatch('updateBid', res.data);
+          }).then(() => {
+            this.isLoading = false;
+          });
+
+        });
+        
+        socket.on('user:like_query', data => {
+          if(!this.auth) return;
+          gAxios.get(`/users/${this.user.id}/bids/${data.id}`)
+          .then(res => {
+            this.dispatch('updateBid', res.data);
+          }).then(() => {
+            this.isLoading = false;
+          });
+
+        });
+        
+        socket.on('user:dislike_query', data => {
+          if(!this.auth) return;
+          gAxios.get(`/users/${this.user.id}/bids/${data.id}`)
+          .then(res => {
+            this.dispatch('updateBid', res.data);
+          }).then(() => {
+            this.isLoading = false;
+          });
+
+        });
+        
+        socket.on('user:add_query', data => {
+          if(!this.auth) return;
+          gAxios.get(`/users/${this.user.id}/bids/${data.id}`)
+          .then(res => {
+            this.dispatch('updateBid', res.data);
+          }).then(() => {
+            this.isLoading = false;
+          });
+
         });
 
       }

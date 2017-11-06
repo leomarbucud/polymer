@@ -141,7 +141,7 @@
         break;
       }
       case 'UPDATE_BID': {
-        console.log('updating bid..', action.bid);
+        // console.log('updating bid..', action.bid);
         let bids = state.bids.slice(0);
         const updatedBids = bids.map(item => {
           if(item.id === action.bid.id){
@@ -165,7 +165,7 @@
 
         bid.job.only_bids = action.bidders;
 
-        console.log('updated bid is', bid);
+        // console.log('updated bid is', bid);
 
         const updatedBids = bids.map(item => {
           if(item.id === action.id){
@@ -235,7 +235,7 @@
       }
       case 'UPDATE_CONVERSATION': {
         let inbox = state.inbox.slice(0);
-        console.log('updating conversation');
+        // console.log('updating conversation');
         
         var conversation = inbox.find(item => {
           return item.id == action.id;
@@ -312,6 +312,36 @@
       case 'SET_ONLINE_USERS': {
         return Object.assign({}, state, {
           online_users: action.users
+        });
+        break;
+      }
+      case 'UPDATE_POST_QUERIES': {
+        let posts = state.posts.slice(0);
+        let queries = action.queries;
+        const updatedPosts = posts.map(item => {
+          if(item.id == action.id){
+            item.questions = queries;
+            return item;
+          }
+          return item
+        });
+        return Object.assign({}, state, {
+          posts: updatedPosts
+        });
+        break;
+      }
+      case 'UPDATE_BID_QUERIES': {
+        let bids = state.bids.slice(0);
+        let queries = action.queries;
+        const updatedBids = bids.map(item => {
+          if(item.id == action.id){
+            item.job.questions = queries;
+            return item;
+          }
+          return item
+        });
+        return Object.assign({}, state, {
+          bids: updatedBids
         });
         break;
       }
@@ -500,6 +530,22 @@
           return {
             type: 'SET_ONLINE_USERS',
             users: users
+          }
+        },
+
+        updatePostQueries(id, queries) {
+          return {
+            type: 'UPDATE_POST_QUERIES',
+            id: id,
+            queries: queries
+          }
+        },
+
+        updateBidQueries(id, queries) {
+          return {
+            type: 'UPDATE_BID_QUERIES',
+            id: id,
+            queries: queries
           }
         }
 

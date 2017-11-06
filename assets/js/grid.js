@@ -124,6 +124,25 @@ window.addEventListener('app:title_change', e => {
   document.title = data.title;
 });
 
+window.addEventListener('user:reply_query', e => {
+  const data = e.detail;
+  socket.emit('user:reply_query', data);
+});
+
+window.addEventListener('user:like_query', e => {
+  const data = e.detail;
+  socket.emit('user:like_query', data);
+});
+
+window.addEventListener('user:dislike_query', e => {
+  const data = e.detail;
+  socket.emit('user:dislike_query', data);
+});
+
+window.addEventListener('user:add_query', e => {
+  const data = e.detail;
+  socket.emit('user:add_query', data);
+});
 
 // push notification
 

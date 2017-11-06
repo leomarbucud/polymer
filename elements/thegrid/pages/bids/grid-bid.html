@@ -3,15 +3,17 @@
 <link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../../../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../../../../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../../../../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../../bower_components/paper-menu-button/paper-menu-button.html">
-<link rel="import" href="../../grid-styles.html?v=1.0.18">
-<link rel="import" href="../../components/ratings.html?v=1.0.18">
-<link rel="import" href="../../components/detail-text.html?v=1.0.18">
-<link rel="import" href="../../components/time-remaining.html?v=1.0.18">
-<link rel="import" href="../../components/status-check.html?v=1.0.18">
+<link rel="import" href="../../grid-styles.html?v=1.0.19">
+<link rel="import" href="../../components/ratings.html?v=1.0.19">
+<link rel="import" href="../../components/detail-text.html?v=1.0.19">
+<link rel="import" href="../../components/time-remaining.html?v=1.0.19">
+<link rel="import" href="../../components/status-check.html?v=1.0.19">
+<link rel="import" href="../../components/query-item.html?v=1.0.19">
 
 <dom-module id="grid-bid">
   <template>
@@ -110,6 +112,17 @@
         margin-left: -16px;
         margin-right: -16px;
       }
+
+      .filter-offer,
+      .filter-query {
+        text-align: right;
+      }
+
+      .filter-offer label,
+      .filter-query label {
+        color: #FFFFFF;
+        font-size: 14px;
+      }
     </style>
 
     <div id="toolbar" class="toolbar dgrey-bg">
@@ -121,6 +134,9 @@
           <template is="dom-if" if="[[ !bid.job.is_accepted ]]">
             <paper-item class="item" on-click="openRebidDialog">
               <span>Bid Again</span>
+            </paper-item>
+            <paper-item class="item" on-click="openQueryDialog">
+              <span>Ask Question</span>
             </paper-item>
           </template>
           <template is="dom-if" if="[[ _isUserAccepted(bid.status) ]]">
@@ -252,7 +268,19 @@
           </div>
         </section>
         <section class="p-y-1 white">
-
+          <div class="filter-query">
+            <label>[[ sortedByQueryLabel ]]</label>
+            <paper-menu-button id="sort-query" class="p-0" horizontal-align="right" vertical-align="top">
+              <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
+              <paper-listbox slot="dropdown-content" class="dropdown-menu">
+                <paper-item class="item" on-click="sortQueries" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
+                <paper-item class="item" on-click="sortQueries" data-sort="m_h" data-text="Most Helpful">Most Helpful</paper-item>
+              </paper-listbox>
+            </paper-menu-button>
+          </div>
+          <template id="queryList" is="dom-repeat" items="[[ queries ]]" as="query" sort="_sortQueryByMostRecent">
+            <query-item data="[[ query ]]" user="[[ user ]]" bidders="[[ bidders ]]" post="[[ bid.job ]]"></query-item>
+          </template>
         </section>
       </iron-pages>
     </main>
@@ -298,6 +326,17 @@
       </div>
     </paper-dialog>
 
+    <paper-dialog id="queryDialog" class="dialog-dark" style="min-width: 400px;">
+      <h2>Ask a Question</h2>
+      <div>
+        <paper-textarea always-float-label label="Your Question" class="red" value="{{question::input}}"></paper-textarea>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss class="white">Cancel</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="submitQuestion" class="white" disabled="[[ !hasQuestion ]]">Ask</paper-button>
+      </div>
+    </paper-dialog>
+
   </template>
 
   <script>
@@ -333,6 +372,11 @@
           inbox: {
             type: Array,
             statePath: 'inbox'
+          },
+
+          question: {
+            type: String,
+            observer: '_questionChange'
           }
 
         }
@@ -346,22 +390,16 @@
         ]
       }
 
-      static get actions() {
-        return {
-
-        };
-      }
-
       constructor() {
         super();
 
         this.selected_tab = 0;
-
+        this.hasQuestion = false;
       }
 
       connectedCallback() {
         super.connectedCallback();
-
+        this.sortedByQueryLabel = "Most Recent";
       }
 
       renderBid(bid) {
@@ -384,6 +422,9 @@
         this.image_count = 0;
 
         this.currency = bid.job.user.country.currency_unit;
+        
+        this.bidders = bid.job.only_bids;
+        this.queries = bid.job.questions;
 
         this.files = bid.job.files;
         this._setFiles(bid.job.files);
@@ -511,6 +552,10 @@
         rebidDialog.open();
       }
 
+      openQueryDialog() {
+        this.shadowRoot.querySelector('#queryDialog').open();
+      }
+
       messageBidder() {
         if( !this.bid.job.is_accepted ) return;
 
@@ -562,6 +607,30 @@
         });
       }
 
+      submitQuestion() {
+        this.isLoading = true;
+
+        gAxios.post(`/users/${this.user.id}/jobs/${this.bid.job.id}/query`, {
+          query: this.question
+        }).then( res => {
+          console.log(res.data);
+          this.dispatch('updateBidQueries', this.bid.id, res.data);
+          if( this.bidders.length ) {
+            this.bidders.forEach( bidder => {
+              if( bidder.user_id == this.user.id ) return;
+              window.dispatchEvent( new CustomEvent('user:add_query', { detail: bidder }));
+            });
+          }
+          if( this.bid.job ) {
+            window.dispatchEvent( new CustomEvent('user:add_query', { detail: this.bid.job }));
+          }
+        }).catch( err => {
+
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
       viewFile(e) {
         const file = e.model.file;
         const dialog = this.shadowRoot.querySelector('#viewFileDialog');
@@ -573,6 +642,25 @@
           window.open(`${this.url.API_BASE_URL}/uploads/${file.path}`, '_blank');
         }
         
+      }
+
+      sortQueries(e) {
+        const target = e.target;
+        const text = target.getAttribute('data-text');
+        const sortBy = target.getAttribute('data-sort');
+        const queryList = this.shadowRoot.querySelector('#queryList');
+        this.sortedByQueryLabel = text;
+
+        switch ( sortBy ) {
+          case 'm_r': {
+            queryList.sort = '_sortQueryByMostRecent';
+            break;
+          }
+          case 'm_h': {
+            queryList.sort = '_sortQueryByMostHelpful';
+            break;
+          }
+        }
       }
 
       _bidChange(bid) {
@@ -760,6 +848,32 @@
 
       _isAwardedToOther(status, is_accepted) {
         return ( status == 0 && is_accepted ) ? true : false;
+      }
+
+      _questionChange(question) {
+        if( question != '' ) {
+          this.hasQuestion = true;
+        } else {
+          this.hasQuestion = false;
+        }
+      }
+
+      _sortQueryByMostRecent(a, b) {
+        if( this.user ) {
+          if( a.user_id == this.user_id || b.user_id == this.user.id ) return 0;
+        }
+				a = new Date(a.created_at);
+				b = new Date(b.created_at);
+				return b < a ? -1 : b > a ? 1 : 0;
+      }
+      
+      _sortQueryByMostHelpful(a, b) {
+        if( this.user ) {
+          if( a.user_id == this.user_id || b.user_id == this.user.id ) return 0;
+        }
+				a = a.likes.length;
+				b = b.likes.length;
+				return b < a ? -1 : b > a ? 1 : 0;
       }
 
     }

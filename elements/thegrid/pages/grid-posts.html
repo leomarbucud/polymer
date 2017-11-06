@@ -10,8 +10,8 @@
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/iron-list/iron-list.html">
-<link rel="import" href="../grid-styles.html?v=1.0.18">
-<link rel="import" href="posts/grid-post.html?v=1.0.18">
+<link rel="import" href="../grid-styles.html?v=1.0.19">
+<link rel="import" href="posts/grid-post.html?v=1.0.19">
 
 <dom-module id="grid-posts">
   <template>
@@ -681,7 +681,7 @@
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector(`#posts-${subrouteData.id}`) ) {
             Polymer.Base.importHref(
-  						`/elements/thegrid/pages/posts/grid-posts-${subrouteData.id}.html?v=1.0.18`,
+  						`/elements/thegrid/pages/posts/grid-posts-${subrouteData.id}.html?v=1.0.19`,
   						() => {
                 self.subPage = subrouteData.id;
   						}
@@ -768,7 +768,40 @@
             .then(res => {
               this.dispatch('updatePost', res.data);
             });
-				});
+        });
+        
+        socket.on('user:like_query', data => {
+          if(!this.auth) return;
+          gAxios.get(`/users/${this.user.id}/jobs/${data.id}`)
+          .then(res => {
+            this.dispatch('updatePost', res.data);
+          }).then(() => {
+            this.isLoading = false;
+          });
+
+        });
+        
+        socket.on('user:dislike_query', data => {
+          if(!this.auth) return;
+          gAxios.get(`/users/${this.user.id}/jobs/${data.id}`)
+          .then(res => {
+            this.dispatch('updatePost', res.data);
+          }).then(() => {
+            this.isLoading = false;
+          });
+
+        });
+        
+        socket.on('user:add_query', data => {
+          if(!this.auth) return;
+          gAxios.get(`/users/${this.user.id}/jobs/${data.id}`)
+          .then(res => {
+            this.dispatch('updatePost', res.data);
+          }).then(() => {
+            this.isLoading = false;
+          });
+
+        });
       }
 
       _getStatus(post) {
