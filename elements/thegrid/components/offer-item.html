@@ -40,6 +40,9 @@
         text-decoration: underline;
         line-height: 20px;
       }
+      .card-list .name a {
+        color: var(--white);
+      }
 
       .card-list .offer {
         font-size: 16px;
@@ -108,7 +111,7 @@
           <img class="circle" src$="[[ _profileImage(data.user.profile.profile_image_url) ]] ">
         </div>
         <div class="flex">
-          <div class="name">[[ data.user.name ]]</div>
+          <div class="name" ><a href="/@[[ data.user.username ]]">[[ data.user.name ]]</a></div>
           <grid-ratings rate="[[ rate ]]" class="white"></grid-ratings>
           <div class="offer">[[ currency ]] [[ data.price_bid ]]</div>
           <div class="expanded">
@@ -129,11 +132,6 @@
                 <paper-button class="red" on-click="openCancelwardJobDialog">Cancel</paper-button>
               </div>
             </template>
-            <!-- <template is="dom-if" if="[[ _isAccepted(data.status) ]]">
-              <div class="button">
-                <paper-button class="red" on-click="openCancelwardJobDialog">Terminate</paper-button>
-              </div>
-            </template> -->
           </div>
         </div>
         <div class="actions">

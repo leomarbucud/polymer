@@ -158,6 +158,16 @@
   			transform: translateY(-160px);
 			}
 
+			@media (min-width: 601px) {
+				section.has-padding { 
+					padding: 32px;
+				}
+
+				section.has-padding > .center-page {
+					min-width: 350px;
+				}
+			}
+
 		</style>
 
 		<app-location route="{{route}}"></app-location>
@@ -212,7 +222,7 @@
 					</div>
 				</section>
 
-				<section data-page="user-profile" class="overlay">
+				<section data-page="user-profile" class="overlay has-padding">
 					<div class="center-page">
 						<grid-user-profile id="user-profile" username="[[username]]"></grid-user-profile>
 					</div>
@@ -254,13 +264,13 @@
 					</div>
 				</section>
 
-				<section data-page="filter" class="overlay">
+				<section data-page="filter" class="overlay has-padding">
 					<div class="center-page">
 						<grid-filter id="filter" gmap="{{gmap}}"></grid-filter>
 					</div>
 				</section>
 
-				<section data-page="user-post" class="overlay">
+				<section data-page="user-post" class="overlay has-padding">
 					<div class="center-page">
 						<grid-user-post id="user-post" post-id="[[userPost.id]]" map="{{map}}" gmap="[[gmap]]" page="[[page]]"></grid-user-post>
 					</div>
@@ -648,6 +658,8 @@
 
 				pages.forEach( p => {
 					if( p.classList.contains('show') ) {
+
+						const dataPage = p.getAttribute('data-page');
 						let _keyFrames = [
 							{
 								transform: 'translate3d(0, 0, 0)',
@@ -662,17 +674,17 @@
 						];
 
 						let _options = {
-							duration: 375,
+							duration: 195,
 							easing: 'cubic-bezier(.42,0,.58,1)'
 						}
 
-						if( p.getAttribute('data-page') == 'search' || p.getAttribute('data-page') == 'add' ) {
+						if( dataPage == 'search' || dataPage == 'add' ) {
 							let fab = {
 								left: this.searchFab.offsetLeft,
 								top: this.searchFab.offsetTop
 							}
 	
-							if(p.getAttribute('data-page') == 'add') {
+							if(dataPage == 'add') {
 								fab = {
 									left: this.addFab.offsetLeft,
 									top: this.addFab.offsetTop
@@ -699,10 +711,24 @@
 								}
 							];
 
-							_options.duration = 375;
+							_options.duration = 275;
 						}
 
-						
+						if( dataPage == 'user-post' || dataPage == 'filter' ) {
+							_keyFrames = [
+								{
+									transform: 'translate3d(0, 0, 0)',
+									opacity: 1,
+									zIndex: 98
+								},
+								{
+									transform: 'translate3d(0, 100%, 0)',
+									opacity: 1,
+									zIndex: 98
+								}
+							];
+						}
+
 						const _animation = p.animate(_keyFrames, _options);
 					}
 					p.classList.remove('show');
@@ -758,6 +784,21 @@
 								transform: 'translate3d(0, 0, 0)',
 								clipPath: 'circle(100%)',
 								opacity: 1
+							}
+						];
+					}
+
+					if( page == 'user-post' || page == 'filter' ) {
+						keyFrames = [
+							{
+								transform: 'translate3d(0, 100%, 0)',
+								opacity: 1,
+								zIndex: 99
+							},
+							{
+								transform: 'translate3d(0, 0, 0)',
+								opacity: 1,
+								zIndex: 99
 							}
 						];
 					}

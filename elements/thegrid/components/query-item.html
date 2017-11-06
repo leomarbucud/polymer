@@ -12,6 +12,7 @@
 
       :host {
         display: block;
+        position: relative;
       }
 
       .card-list {
@@ -107,6 +108,10 @@
         color: var(--red);
       }
 
+      .is-replying {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
     </style>
     <paper-card class="card-list">
       <div class="layout horizontal">
@@ -117,11 +122,6 @@
             <template is="dom-if" if="[[ data.reply ]]">
               <div class="reply">
                 [[ data.reply.reply ]]
-              </div>
-            </template>
-            <template is="dom-if" if="[[ isReplying ]]">
-              <div class="align-center">
-                <paper-spinner active$="[[ isReplying ]]"></paper-spinner>
               </div>
             </template>
           </div>
@@ -140,6 +140,13 @@
             <paper-button class="red" on-click="openReplyDialog">Reply</paper-button>
           </div>
         </template>
+      </template>
+      <template is="dom-if" if="[[ isReplying ]]">
+        <div class="overlay is-replying">
+          <div class="align-center">
+            <paper-spinner active$="[[ isReplying ]]"></paper-spinner>
+          </div>
+        </div>
       </template>
     </paper-card>
 
