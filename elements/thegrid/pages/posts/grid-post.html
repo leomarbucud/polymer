@@ -86,6 +86,26 @@
         font-size: 14px;
       }
 
+      .red-box {
+        background: linear-gradient(252deg, #FF3B30 0%, #FF2D55 100%);
+        color: var(--white);
+        margin-left: -16px;
+        margin-right: -16px;
+        margin-bottom: 16px;
+      }
+      .red-box p {
+        font-size: 16px;
+        padding: 16px;
+        padding-bottom: 32px;
+        margin: 0;
+        letter-spacing: -0.16px;
+      }
+
+      .red-box .action {
+        text-align: right;
+        padding: 8px;
+      }
+
     </style>
 
     <div id="toolbar" class="toolbar dgrey-bg">
@@ -189,21 +209,21 @@
                   <detail-text label="Categories" details="[[ post.category.category ]]"></detail-text>
                 </div>
                 <div class="details">
-                  <detail-text label="Offers" details="[[ total_bidders ]] [[ _pluralize('Bid', total_bidders) ]]"></detail-text>
+                  <detail-text label="Offers" details="[[ total_bidders ]] [[ _pluralize('Bid', total_bidders) ]]" on-click="goToOffers"></detail-text>
                 </div>
                 <div class="details">
-                  <detail-text label="Highest Amount" details="[[ post.user.country.currency_unit ]] [[ highest_bidder.price_bid ]]"></detail-text>
+                  <detail-text label="Highest Amount" details="[[ post.user.country.currency_unit ]] [[ highest_bidder.price_bid ]]" on-click="goToOffersWithHighestAmount"></detail-text>
                 </div>
               </div>
               <div class="flex">
                 <div class="details">
-                  <detail-text label="Queries" details="10 Questions"></detail-text>
+                  <detail-text label="Queries" details="[[ queries_count ]] [[ _pluralize('Question', queries_count) ]]" on-click="goToQueries"></detail-text>
                 </div>
                 <div class="details">
                   <detail-text label="Expected Amount" details="[[ post.user.country.currency_unit ]] [[ post.price ]]"></detail-text>
                 </div>
                 <div class="details">
-                  <detail-text label="Lowest Amount" details="[[ post.user.country.currency_unit ]] [[ lowest_bidder.price_bid ]]"></detail-text>
+                  <detail-text label="Lowest Amount" details="[[ post.user.country.currency_unit ]] [[ lowest_bidder.price_bid ]]" on-click="goToOffersWithLowestAmount"></detail-text>
                 </div>
               </div>
             </div>
@@ -260,35 +280,49 @@
           </div>
         </section>
         <section class="p-y-1 white">
-          <div class="filter-offer">
-            <label>[[ sortedByLabel ]]</label>
-            <paper-menu-button id="sort-offer" class="p-0" horizontal-align="right" vertical-align="top">
-              <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
-              <paper-listbox slot="dropdown-content" class="dropdown-menu">
-                <paper-item class="item" on-click="sortOffers" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
-                <paper-item class="item" on-click="sortOffers" data-sort="h_r" data-text="Highest Rating">Highest Rating</paper-item>
-                <paper-item class="item" on-click="sortOffers" data-sort="h_a" data-text="Highest Amount">Highest Amount</paper-item>
-                <paper-item class="item" on-click="sortOffers" data-sort="l_a" data-text="Lowest Amount">Lowest Amount</paper-item>
-              </paper-listbox>
-            </paper-menu-button>
-          </div>
-          <template id="offerList" is="dom-repeat" items="[[ bidders ]]" as="bidder" sort="_sortByMostRecent">
-            <offer-item data="[[ bidder ]]" awarded="[[ post.is_awarded ]]" currency="[[ post.user.country.currency_unit ]]" ></offer-item>
+          <template is="dom-if" if="[[ bidders.length ]]">
+            <div class="filter-offer">
+              <label>[[ sortedByLabel ]]</label>
+              <paper-menu-button id="sort-offer" class="p-0" horizontal-align="right" vertical-align="top">
+                <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
+                <paper-listbox slot="dropdown-content" class="dropdown-menu">
+                  <paper-item class="item" on-click="sortOffers" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
+                  <paper-item class="item" on-click="sortOffers" data-sort="h_r" data-text="Highest Rating">Highest Rating</paper-item>
+                  <paper-item class="item" on-click="sortOffers" data-sort="h_a" data-text="Highest Amount">Highest Amount</paper-item>
+                  <paper-item class="item" on-click="sortOffers" data-sort="l_a" data-text="Lowest Amount">Lowest Amount</paper-item>
+                </paper-listbox>
+              </paper-menu-button>
+            </div>
+            <template id="offerList" is="dom-repeat" items="[[ bidders ]]" as="bidder" sort="_sortByMostRecent">
+              <offer-item data="[[ bidder ]]" awarded="[[ post.is_awarded ]]" currency="[[ post.user.country.currency_unit ]]" ></offer-item>
+            </template>
+          </template>
+          <template is="dom-if" if="[[ !bidders.length ]]">
+            <div class="red-box">
+              <p>No offer has been made in this post.</p>
+            </div>
           </template>
         </section>
         <section class="p-y-1 white">
-          <div class="filter-query">
-            <label>[[ sortedByQueryLabel ]]</label>
-            <paper-menu-button id="sort-query" class="p-0" horizontal-align="right" vertical-align="top">
-              <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
-              <paper-listbox slot="dropdown-content" class="dropdown-menu">
-                <paper-item class="item" on-click="sortQueries" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
-                <paper-item class="item" on-click="sortQueries" data-sort="m_h" data-text="Most Helpful">Most Helpful</paper-item>
-              </paper-listbox>
-            </paper-menu-button>
-          </div>
-          <template id="queryList" is="dom-repeat" items="[[ queries ]]" as="query" sort="_sortQueryByMostRecent">
-            <query-item data="[[ query ]]" user="[[ user ]]" bidders="[[ bidders ]]" replyable></query-item>
+          <template is="dom-if" if="[[ queries.length ]]">
+            <div class="filter-query">
+              <label>[[ sortedByQueryLabel ]]</label>
+              <paper-menu-button id="sort-query" class="p-0" horizontal-align="right" vertical-align="top">
+                <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
+                <paper-listbox slot="dropdown-content" class="dropdown-menu">
+                  <paper-item class="item" on-click="sortQueries" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
+                  <paper-item class="item" on-click="sortQueries" data-sort="m_h" data-text="Most Helpful">Most Helpful</paper-item>
+                </paper-listbox>
+              </paper-menu-button>
+            </div>
+            <template id="queryList" is="dom-repeat" items="[[ queries ]]" as="query" sort="_sortQueryByMostRecent">
+              <query-item data="[[ query ]]" user="[[ user ]]" bidders="[[ bidders ]]" replyable></query-item>
+            </template>
+          </template>
+          <template is="dom-if" if="[[ !queries.length ]]">
+            <div class="red-box">
+              <p>No question has been asked in this post.</p>
+            </div>
           </template>
         </section>
       </iron-pages>
@@ -435,6 +469,28 @@
 
       }
 
+      goToQueries() {
+        this.selected_tab = 2;
+      }
+      
+      goToOffers() {
+        this.selected_tab = 1;
+      }
+
+      goToOffersWithLowestAmount() {
+        this.selected_tab = 1;
+        this.sortedByLabel = 'Lowest Amount';
+        const offerList = this.shadowRoot.querySelector('#offerList');
+        offerList.sort = '_sortByLowestAmount';
+      }
+      
+      goToOffersWithHighestAmount() {
+        this.selected_tab = 1;
+        this.sortedByLabel = 'Highest Amount';
+        const offerList = this.shadowRoot.querySelector('#offerList');
+        offerList.sort = '_sortByHighestAmount';
+      }
+
       renderPost(post) {
         if (!this.user || !post) return;
         this.post = post;
@@ -453,6 +509,7 @@
         this.bidders = [];
         this.bidders = post.bidders;
         this.queries = post.questions;
+        this.queries_count = this.queries.length;
 
         this.files = post.files;
         this.showPassWeek();

@@ -238,7 +238,7 @@
               </div>
               <div class="flex">
                 <div class="details">
-                  <detail-text label="Queries" details="10 Questions"></detail-text>
+                  <detail-text label="Queries" details="[[ queries_count ]] [[ _pluralize('Question', queries_count) ]]" on-click="goToQueries"></detail-text>
                 </div>
                 <div class="details">
                   <detail-text label="Rank" details="[[ rank ]]/[[ total_bidders ]]"></detail-text>
@@ -268,18 +268,28 @@
           </div>
         </section>
         <section class="p-y-1 white">
-          <div class="filter-query">
-            <label>[[ sortedByQueryLabel ]]</label>
-            <paper-menu-button id="sort-query" class="p-0" horizontal-align="right" vertical-align="top">
-              <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
-              <paper-listbox slot="dropdown-content" class="dropdown-menu">
-                <paper-item class="item" on-click="sortQueries" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
-                <paper-item class="item" on-click="sortQueries" data-sort="m_h" data-text="Most Helpful">Most Helpful</paper-item>
-              </paper-listbox>
-            </paper-menu-button>
-          </div>
-          <template id="queryList" is="dom-repeat" items="[[ queries ]]" as="query" sort="_sortQueryByMostRecent">
-            <query-item data="[[ query ]]" user="[[ user ]]" bidders="[[ bidders ]]" post="[[ bid.job ]]"></query-item>
+          <template is="dom-if" if="[[ queries.length ]]">
+            <div class="filter-query">
+              <label>[[ sortedByQueryLabel ]]</label>
+              <paper-menu-button id="sort-query" class="p-0" horizontal-align="right" vertical-align="top">
+                <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
+                <paper-listbox slot="dropdown-content" class="dropdown-menu">
+                  <paper-item class="item" on-click="sortQueries" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
+                  <paper-item class="item" on-click="sortQueries" data-sort="m_h" data-text="Most Helpful">Most Helpful</paper-item>
+                </paper-listbox>
+              </paper-menu-button>
+            </div>
+            <template id="queryList" is="dom-repeat" items="[[ queries ]]" as="query" sort="_sortQueryByMostRecent">
+              <query-item data="[[ query ]]" user="[[ user ]]" bidders="[[ bidders ]]" post="[[ bid.job ]]"></query-item>
+            </template>
+          </template>
+          <template is="dom-if" if="[[ !queries.length ]]">
+            <div class="red-box">
+              <p>No question has been asked in this post.</p>
+              <div class="action">
+                <paper-button class="white" on-click="openQueryDialog">Ask now</paper-button>
+              </div>
+            </div>
           </template>
         </section>
       </iron-pages>
@@ -326,7 +336,7 @@
       </div>
     </paper-dialog>
 
-    <paper-dialog id="queryDialog" class="dialog-dark" style="min-width: 400px;">
+    <paper-dialog id="queryDialog" class="dialog-dark" >
       <h2>Ask a Question</h2>
       <div>
         <paper-textarea always-float-label label="Your Question" class="red" value="{{question::input}}"></paper-textarea>
@@ -402,6 +412,10 @@
         this.sortedByQueryLabel = "Most Recent";
       }
 
+      goToQueries() {
+        this.selected_tab = 1;
+      }
+
       renderBid(bid) {
         if (!this.user) return;
 
@@ -425,6 +439,7 @@
         
         this.bidders = bid.job.only_bids;
         this.queries = bid.job.questions;
+        this.queries_count = this.queries.length;
 
         this.files = bid.job.files;
         this._setFiles(bid.job.files);
@@ -613,7 +628,7 @@
         gAxios.post(`/users/${this.user.id}/jobs/${this.bid.job.id}/query`, {
           query: this.question
         }).then( res => {
-          console.log(res.data);
+          // console.log(res.data);
           this.dispatch('updateBidQueries', this.bid.id, res.data);
           if( this.bidders.length ) {
             this.bidders.forEach( bidder => {
