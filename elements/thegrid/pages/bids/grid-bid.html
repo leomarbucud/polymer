@@ -8,12 +8,12 @@
 <link rel="import" href="../../../../../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../../bower_components/paper-menu-button/paper-menu-button.html">
-<link rel="import" href="../../grid-styles.html?v=1.0.19">
-<link rel="import" href="../../components/ratings.html?v=1.0.19">
-<link rel="import" href="../../components/detail-text.html?v=1.0.19">
-<link rel="import" href="../../components/time-remaining.html?v=1.0.19">
-<link rel="import" href="../../components/status-check.html?v=1.0.19">
-<link rel="import" href="../../components/query-item.html?v=1.0.19">
+<link rel="import" href="../../grid-styles.html?v=1.1.0">
+<link rel="import" href="../../components/ratings.html?v=1.1.0">
+<link rel="import" href="../../components/detail-text.html?v=1.1.0">
+<link rel="import" href="../../components/time-remaining.html?v=1.1.0">
+<link rel="import" href="../../components/status-check.html?v=1.1.0">
+<link rel="import" href="../../components/query-item.html?v=1.1.0">
 
 <dom-module id="grid-bid">
   <template>
@@ -152,7 +152,7 @@
       <paper-tab>Queries</paper-tab>
     </paper-tabs>
 
-    <main class="scroll-area flex tabs">  
+    <main class="scroll-area flex tabs relative">  
       <iron-pages selected="{{selected_tab}}">
         <section class="p-y-1 white">
           <template is="dom-if" if="[[ _isShowAwardConfirmation(bid.status) ]]">
@@ -284,9 +284,9 @@
             </template>
           </template>
           <template is="dom-if" if="[[ !queries.length ]]">
-            <div class="red-box">
-              <p>No question has been asked in this post.</p>
-              <div class="action">
+            <div class="overlay">
+              <div class="align-center">
+                <p>No question has been asked in this post.</p>
                 <paper-button class="white" on-click="openQueryDialog">Ask now</paper-button>
               </div>
             </div>
@@ -304,15 +304,14 @@
     </template>
 
     <paper-dialog id="rebidDialog" class="dialog-dark">
-      <h2>Rebid</h2>
+      <h2>Bid</h2>
       <div>
-        <div class="input-group">
-          <input type="number" value="{{rebid::input}}" class="input"  placeholder="Amount" />
-        </div>
+        <paper-input id="bidAmount" autofocus always-float-label label="Amout" class="red" value="{{ bidAmount::input }}"></paper-textarea>
       </div>
+      <div>[[ biddingMessage ]]</div>
       <div class="buttons">
         <paper-button dialog-dismiss class="white">Cancel</paper-button>
-        <paper-button dialog-confirm autofocus on-tap="submitRebid" class="white">Rebid</paper-button>
+        <paper-button autofocus on-tap="submitRebid" class="white">Rebid</paper-button>
       </div>
     </paper-dialog>
 
@@ -344,6 +343,16 @@
       <div class="buttons">
         <paper-button dialog-dismiss class="white">Cancel</paper-button>
         <paper-button dialog-confirm autofocus on-tap="submitQuestion" class="white" disabled="[[ !hasQuestion ]]">Ask</paper-button>
+      </div>
+    </paper-dialog>
+    
+    <paper-dialog id="errorBidDialog" class="dialog-dark" >
+      <h2>Bid</h2>
+      <div>
+        [[ errorBidMessage ]]
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus class="white">Ok</paper-button>
       </div>
     </paper-dialog>
 
@@ -563,8 +572,7 @@
       }
 
       openRebidDialog() {
-        const rebidDialog = this.shadowRoot.querySelector('#rebidDialog');
-        rebidDialog.open();
+        this.shadowRoot.querySelector('#rebidDialog').open();
       }
 
       openQueryDialog() {
@@ -606,17 +614,33 @@
 
       submitRebid() {
 
+        this.biddingMessage = '';
+				if( this.bidAmount == '' ) {
+					this.biddingMessage = 'Please enter the amount to bid.';
+					return;
+				}
+				
+				if( isNaN(this.bidAmount) ) {
+					this.biddingMessage = 'Invalid input';
+					return;
+        }
+        
+        this.shadowRoot.querySelector('#rebidDialog').close();
+
         this.isLoading = true;
 
         gAxios.post(`/users/${this.user.id}/bids/${this.bid.id}/rebid`, {
           bid_id: this.bid.id,
-          bid: this.rebid
+          bid: this.bidAmount
         })
         .then(res => {
           window.dispatchEvent(new CustomEvent('user:bidded', { detail: res.data }) );
           this.dispatch('updateBid', res.data);
         }).catch(err => {
-
+          if( err.response ) {
+            this.shadowRoot.querySelector('#errorBidDialog').open();
+            this.errorBidMessage = err.response.data.message;
+          }
         }).then(() => {
           this.isLoading = false;
         });
@@ -639,6 +663,7 @@
           if( this.bid.job ) {
             window.dispatchEvent( new CustomEvent('user:add_query', { detail: this.bid.job }));
           }
+          window.dispatchEvent( new CustomEvent('user_post:update_query', { detail: { id: this.bid.job.id } }));
         }).catch( err => {
 
         }).then( () => {

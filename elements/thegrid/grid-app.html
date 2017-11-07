@@ -15,18 +15,18 @@
 <link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
-<link rel="import" href="../../redux/grid-redux-store.html?v=1.0.19">
-<link rel="import" href="../../behaviors/navigation-behavior.html?v=1.0.19">
+<link rel="import" href="../../redux/grid-redux-store.html?v=1.1.0">
+<link rel="import" href="../../behaviors/navigation-behavior.html?v=1.1.0">
 
-<link rel="import" href="components/mobile-header.html?v=1.0.19">
-<link rel="import" href="components/grid-introduction.html?v=1.0.19">
-<link rel="import" href="components/drawer.html?v=1.0.19">
-<link rel="import" href="pages/grid-search.html?v=1.0.19">
-<link rel="import" href="pages/grid-user-post.html?v=1.0.19">
-<link rel="import" href="pages/grid-user-profile.html?v=1.0.19">
-<link rel="import" href="pages/grid-filter.html?v=1.0.19">
-<link rel="import" href="grid-icons.html?v=1.0.19">
-<link rel="import" href="grid-styles.html?v=1.0.19">
+<link rel="import" href="components/mobile-header.html?v=1.1.0">
+<link rel="import" href="components/grid-introduction.html?v=1.1.0">
+<link rel="import" href="components/drawer.html?v=1.1.0">
+<link rel="import" href="pages/grid-search.html?v=1.1.0">
+<link rel="import" href="pages/grid-user-post.html?v=1.1.0">
+<link rel="import" href="pages/grid-user-profile.html?v=1.1.0">
+<link rel="import" href="pages/grid-filter.html?v=1.1.0">
+<link rel="import" href="grid-icons.html?v=1.1.0">
+<link rel="import" href="grid-styles.html?v=1.1.0">
 
 <dom-module id="grid-app">
 	<template>
@@ -874,7 +874,7 @@
 						this.page = 'add';
 						
 						Polymer.Base.importHref(
-							this.resolveUrl(`pages/posts/grid-posts-add.html?v=1.0.19`),
+							this.resolveUrl(`pages/posts/grid-posts-add.html?v=1.1.0`),
 							() => {
 								this.isPageLoading = false;
 							},
@@ -910,7 +910,7 @@
 					this.page = routeData.page;
 
 					Polymer.Base.importHref(
-						this.resolveUrl(`pages/grid-${routeData.page}.html?v=1.0.19`),
+						this.resolveUrl(`pages/grid-${routeData.page}.html?v=1.1.0`),
 						() => {
 							this.isPageLoading = false;
 						},
@@ -921,7 +921,7 @@
 				} else {
 					this.page = null;
 					Polymer.Base.importHref(
-						'/elements/thegrid/components/grid-map.html?v=1.0.19',
+						'/elements/thegrid/components/grid-map.html?v=1.1.0',
 						() => {
 							// do something after elements has been imported
 						}
@@ -933,7 +933,7 @@
 				this.isPageLoading = false;
 				this.page = '404';
 				Polymer.Base.importHref(
-					this.resolveUrl('pages/grid-404.html?v=1.0.19'),
+					this.resolveUrl('pages/grid-404.html?v=1.1.0'),
 					() => {
 						// do something after elements has been imported
 					}

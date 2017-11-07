@@ -144,6 +144,11 @@ window.addEventListener('user:add_query', e => {
   socket.emit('user:add_query', data);
 });
 
+window.addEventListener('user_post:update_query', e => {
+  const data = e.detail;
+  socket.emit('user_post:update_query', data);
+});
+
 // push notification
 
 let swRegistration = null;

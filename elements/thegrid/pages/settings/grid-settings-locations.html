@@ -3,8 +3,8 @@
 <link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../grid-styles.html?v=1.0.19">
-<link rel="import" href="../../components/gmap-search.html">
+<link rel="import" href="../../grid-styles.html?v=1.1.0">
+<link rel="import" href="../../components/gmap-search.html?v=1.1.0">
 
 <dom-module id="grid-settings-locations">
   <template>
@@ -78,9 +78,8 @@
       <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
       <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
       <span id="toolbar-title" class="flex active">Locations</span>
+      <paper-icon-button icon="add" class="red" on-tap="showMap"></paper-icon-button>
     </div>
-
-    <paper-fab id="addFab" icon="add" class="grid-main-fab" on-tap="showMap"></paper-fab>
 
     <main class="flex">
 

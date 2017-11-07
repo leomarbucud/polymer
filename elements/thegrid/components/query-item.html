@@ -3,8 +3,8 @@
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../grid-styles.html?v=1.0.19">
-<link rel="import" href="../components/ratings.html?v=1.0.19">
+<link rel="import" href="../grid-styles.html?v=1.1.0">
+<link rel="import" href="../components/ratings.html?v=1.1.0">
 
 <dom-module id="query-item">
   <template>
@@ -295,6 +295,7 @@
           if( this.post ) {
             window.dispatchEvent( new CustomEvent('user:like_query', { detail: this.post }));
           }
+          window.dispatchEvent( new CustomEvent('user_post:update_query', { detail: { id: this.data.job_id } }));
         }).catch( err => {
 
         }).then(() => {
@@ -319,10 +320,11 @@
               if( bidder.user_id == this.user.id ) return;
               window.dispatchEvent( new CustomEvent('user:dislike_query', { detail: bidder }));
             });
-            if( this.post ) {
-              window.dispatchEvent( new CustomEvent('user:dislike_query', { detail: this.post }));
-            }
           }
+          if( this.post ) {
+            window.dispatchEvent( new CustomEvent('user:dislike_query', { detail: this.post }));
+          }
+          window.dispatchEvent( new CustomEvent('user_post:update_query', { detail: { id: this.data.job_id } }));
         }).catch( err => {
 
         }).then(() => {
@@ -345,6 +347,8 @@
         this.isReplying = true;
         this.replyDialog.close();
 
+        this.set('data.reply', { reply: this.reply });
+
         gAxios.post(`/users/${this.user.id}/queries/${this.data.id}/reply`, {
           reply: this.reply,
           job_id: this.data.job_id
@@ -355,6 +359,7 @@
               window.dispatchEvent( new CustomEvent('user:reply_query', { detail: bidder }));
             });
           }
+          window.dispatchEvent( new CustomEvent('user_post:update_query', { detail: { id: this.data.job_id } }));
         }).catch( err => {
         }).then(() => {
           this.isReplying = false;

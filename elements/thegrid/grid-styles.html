@@ -1,5 +1,5 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-<link rel="import" href="grid-icons.html?v=1.0.19"> 
+<link rel="import" href="grid-icons.html?v=1.1.0"> 
 
 <custom-style>
   <style>
@@ -25,9 +25,16 @@
 				font-weight: 700;
 			}
 
-			--paper-dialog: {
+			/* --paper-dialog: {
 				max-width: 500px;
 				min-width: 350px;
+			} */
+
+			@media (min-width: 601px) {
+				--paper-dialog: {
+					max-width: 500px;
+					min-width: 350px;
+				}
 			}
 
 		}
