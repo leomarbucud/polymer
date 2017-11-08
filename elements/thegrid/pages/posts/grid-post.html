@@ -256,28 +256,33 @@
           <div class="details">
             <detail-text label="Details" details="[[ post.details ]]" class="normal"></detail-text>
           </div>
-          <div class="details">
-            <detail-text label="Attachments" class="normal">
-              <div id="previews">
-                <template is="dom-repeat" items="[[files]]" as="file">
-                  <div class="wrap" on-click="viewFile">
-                    <div class="file layout horizontal">
-                      <img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
-                      <span class="flex">[[file.original_name]]</span>
+          <template is="dom-if" if="[[ files.length ]]">
+            <div class="details">
+              <detail-text label="Attachments" class="normal">
+                <div id="previews">
+                  <template is="dom-repeat" items="[[files]]" as="file">
+                    <div class="wrap" on-click="viewFile">
+                      <div class="file layout horizontal">
+                        <img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
+                        <span class="flex">[[file.original_name]]</span>
+                      </div>
                     </div>
+                  </template>
+                </div>
+              </detail-text>
+            </div>
+          </template>
+          <template is="dom-if" if="[[ tags.length ]]">
+            <div class="details">
+              <detail-text label="Tags">
+                <template is="dom-repeat" items="[[ tags ]]" as="tag">
+                  <div class="chip">
+                    <span>[[ tag.name ]]</span>
                   </div>
                 </template>
-              </div>
-              <template is="dom-if" if="[[ !files.count ]]">
-                No attachment
-              </template>
-            </detail-text>
-          </div>
-          <div class="details">
-            <detail-text label="Tags">
-
-            </detail-text>
-          </div>
+              </detail-text>
+            </div>
+          </template>
         </section>
         <section class="p-y-1 white">
           <template is="dom-if" if="[[ bidders.length ]]">
@@ -512,6 +517,7 @@
         this.queries_count = this.queries.length;
 
         this.files = post.files;
+        this.tags = post.tags;
         this.showPassWeek();
         this._setFiles(post.files);
         this._setRanking(post.bidders);

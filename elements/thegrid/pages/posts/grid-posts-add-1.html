@@ -221,14 +221,6 @@
         // IDEA: Initialize some properties
         this.set('step.message', 'Add Posts');
 
-        // IDEA: Load map if not loaded
-        Polymer.Base.importHref(
-          '/elements/thegrid/components/grid-map.html?v=1.1.0',
-          () => {
-            // do something after elements has been imported
-          }
-        );
-
         const today = () => {
           let today = new Date();
           let dd = today.getDate();

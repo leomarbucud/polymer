@@ -270,12 +270,15 @@
 
       submit() {
         this.step1 = true;
-        this.data.what = this.what;
-        this.data.where = this.where;
-        this.data.when = this.when;
-        this.data.lat = this.lat;
-        this.data.lng = this.lng;
-        this.data.category = this.category;
+        let _data = this.data;
+        _data.what = this.what;
+        _data.where = this.where;
+        _data.when = this.when;
+        _data.lat = this.lat;
+        _data.lng = this.lng;
+        _data.category = this.category;
+        this.data = null;
+        this.set('data', _data);
 
         this.redirect(`/posts/edit/${this.data.id}#2`);
       }

@@ -252,20 +252,33 @@
           <div class="details">
             <detail-text label="Details" details="[[ bid.job.details ]]" class="normal"></detail-text>
           </div>
-          <div class="details">
-            <detail-text label="Attachments">
-              <div id="previews">
-                <template is="dom-repeat" items="[[ files ]]" as="file">
-                  <div class="wrap" on-click="viewFile">
-                    <div class="file layout horizontal">
-                      <img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
-                      <span class="flex">[[file.original_name]]</span>
+          <template is="dom-if" if="[[ files.length ]]">
+            <div class="details">
+              <detail-text label="Attachments">
+                <div id="previews">
+                  <template is="dom-repeat" items="[[ files ]]" as="file">
+                    <div class="wrap" on-click="viewFile">
+                      <div class="file layout horizontal">
+                        <img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
+                        <span class="flex">[[file.original_name]]</span>
+                      </div>
                     </div>
+                  </template>
+                </div>
+              </detail-text>
+            </div>
+          </template>
+          <template is="dom-if" if="[[ tags.length ]]">
+            <div class="details">
+              <detail-text label="Tags">
+                <template is="dom-repeat" items="[[ tags ]]" as="tag">
+                  <div class="chip">
+                    <span>[[ tag.name ]]</span>
                   </div>
                 </template>
-              </div>
-            </detail-text>
-          </div>
+              </detail-text>
+            </div>
+          </template>
         </section>
         <section class="p-y-1 white">
           <template is="dom-if" if="[[ queries.length ]]">
@@ -451,6 +464,7 @@
         this.queries_count = this.queries.length;
 
         this.files = bid.job.files;
+        this.tags = bid.job.tags;
         this._setFiles(bid.job.files);
         this._setRanking(bid.job.only_bids);
 

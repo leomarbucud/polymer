@@ -3,11 +3,11 @@
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
-<link rel="import" href="../../../../../behaviors/form-slider-behavior.html?v=1.1.0">
-<link rel="import" href="../../../../../behaviors/map-behavior.html?v=1.1.0">
-<link rel="import" href="../../grid-styles.html?v=1.1.0">
+<link rel="import" href="../../../../../behaviors/form-slider-behavior.html?v=1.0.18">
+<link rel="import" href="../../../../../behaviors/map-behavior.html?v=1.0.18">
+<link rel="import" href="../../grid-styles.html?v=1.0.18">
 
-<dom-module id="grid-posts-edit-3">
+<dom-module id="grid-posts-add-3">
 	<template>
 		<style include="grid iron-flex">
 			:host {
@@ -69,6 +69,7 @@
 			<div class="flex"></div>
 			<!-- <div class="flex align-right"> -->
 				<!-- <span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span> -->
+				<paper-button id="next" class="white pointer" on-click="skip" hidden$="[[readyPost]]">Skip</paper-button>
 				<paper-button id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</paper-button>
 			<!-- </div> -->
 		</div>
@@ -83,7 +84,7 @@
 			</div>
 			<form class="form" form-carousel>
 				<div class="input-group suffix" data-step="1" data-question="What skills would you require?" style="z-index: 1;">
-					<input id="tag" type="text" class="input" autocomplete="off" autofocus value="{{query::input}}" placeholder="Enter Skill.."	/>
+					<input id="skill" type="text" class="input" autocomplete="off" autofocus value="{{query::input}}" placeholder="Enter Skill.."	/>
 
 					<div class="addon-suffix">
 						<span class="input-action pointer" on-click="cancelSearch">
@@ -92,10 +93,11 @@
 					</div>
 
 					<div id="result" class="auto-complete">
-						<template is="dom-repeat" items="[[ selectable_tags ]]" as="tag" filter="{{_filter(query)}}">
+						<template is="dom-repeat" items="[[_skills]]" as="skill" filter="{{_filter(query)}}">
 							<div class="row" on-click="select">
-								<span>[[tag.name]]</span>
-								<span secondary>[[tag.type.name]]</span>
+								<span>[[skill.skill]]</span>
+								<span secondary>[[skill.skill]]</span>
+								<paper-ripple></paper-ripple>
 							</div>
 						</template>
 					</div>
@@ -104,11 +106,12 @@
 			</form>
 
 			<div class="skills-container">
-				<template is="dom-repeat" items="[[ selected_tags ]]" as="tag">
+				<div hidden$="[[skills]]" class="white">Loading your awesome skills...</div>
+				<template is="dom-repeat" items="[[skills]]" as="skill">
 					<div class="chip">
-						<span>[[ tag.name ]]</span>
+						<span>[[skill.skill]]</span>
 						<span class="close">
-							<iron-icon icon="close" class="small" on-click="removeTag"></iron-icon>
+							<iron-icon icon="close" class="small" on-click="removeSkill"></iron-icon>
 						</span>
 					</div>
 				</template>
@@ -118,12 +121,13 @@
 	</template>
 
 	<script>
-		class GrdiPostsEdit3 extends
+		class GrdiPostsAdd3 extends
 			FormSliderBehavior(
 				GridNavigation(
-					ReduxBehavior(Polymer.Element))) {
+					ReduxBehavior(Polymer.Element)))
+		{
 
-			static get is() { return 'grid-posts-edit-3'; }
+			static get is() { return 'grid-posts-add-3'; }
 
 			static get properties() {
 				return {
@@ -145,27 +149,18 @@
 						notify: true
 					},
 
-					tags: {
-						type: Array,
-						value: function() {
-							return [];
-						}
-					},
-					
-					selectable_tags: {
-						type: Array,
-						value: function() {
-							return [];
-						}
+					_skills: {
+						type: Object
 					},
 
-					selected_tags: {
+					skills: {
 						type: Array,
 						value: function () {
 							return [];
-						}
+						},
+						notify: true
 					},
-					tagsCount: {
+					skillCount: {
 						type: Number,
 						value: 0
 					}
@@ -174,9 +169,8 @@
 
 			static get observers() {
 				return [
-					'_formDone(tagsCount)',
+					'_formDone(skillCount)',
 					'_searching(query)',
-					'_dataChange(data.*, tags)'
 				]
 			}
 
@@ -188,25 +182,21 @@
 
 			constructor() {
 				super();
-				this.readyPost = true;
-				this.getTags();
-			}
-
-			getTags() {
-				gAxios.get(`/tags`)
-				.then( res => {
-					this.tags = res.data;
-				});
+				this.readyPost = false;
+				gAxios.get('/users/skills')
+					.then(res => {
+						this.set('_skills', res.data);
+					});
 			}
 
 			connectedCallback() {
 				super.connectedCallback();
 
 				this.initForm();
-				this.set('step.message', 'Tags');
+				this.set('step.message', 'What skills would you require?');
 
 				const self = this;
-				const tagInput = this.shadowRoot.querySelector('#tag');
+				const skillInput = this.$.skill;
 
 				self.selected = -1;
 				self.scroll = 0;
@@ -269,11 +259,11 @@
 				};
 
 
-				tagInput.addEventListener('keydown', keydown);
+				skillInput.addEventListener('keydown', keydown);
 
 				window.addEventListener('done-posting', () => {
 					this.set('query', '');
-					this.set('selected_tags', []);
+					this.set('skills', []);
 					this.readyPost = false;
 				});
 
@@ -287,49 +277,52 @@
 			}
 
 			goBack() {
-				if(!this.data) return;
-				this.redirect(`/posts/edit/${this.data.id}#2`);
+				this.redirect('/add/#2');
 			}
 
 			submit() {
-				this.data.tags = this.selected_tags;
-				this.redirect(`/posts/edit/${this.data.id}#4`);
+				this.data.skills = this.skills;
+				this.redirect('/add/#4');
+			}
+
+			skip() {
+				this.redirect('/add/#4');
 			}
 
 			select(e) {
-				const tag = e.model.tag;
+				const skill = e.model.skill;
 
-				var found = this.selected_tags.find(function (item) {
-					return item.id === tag.id;
+				var found = this.skills.find(function (item) {
+					return item.id === skill.id;
 				});
 
 				if (!found) {
-					this.push('selected_tags', tag);
-					this.tagsCount += 1;
+					this.push('skills', skill);
+					this.skillCount += 1;
 				}
 				this.set('query', '');
-				this.shadowRoot.querySelector('#tag').focus();
+				this.$.skill.focus();
 			}
 
 			cancelSearch(e) {
 				this.set('query', '');
 			}
 
-			removeTag(e) {
-				const tag = e.model.tag;
+			removeSkill(e) {
+				const skill = e.model.skill;
 
-				const index = this.selected_tags.indexOf(tag);
+				const index = this.skills.indexOf(skill);
 
 				if (index != -1) {
-					this.splice('selected_tags', index, 1);
-					this.tagsCount -= 1;
+					this.splice('skills', index, 1);
+					this.skillCount -= 1;
 				}
 
 			}
 
-			_formDone(tagsCount) {
+			_formDone(skillCount) {
 				this.readyPost = false;
-				if (tagsCount > 0) {
+				if (skillCount > 0) {
 					this.readyPost = true;
 				}
 			}
@@ -340,7 +333,7 @@
 				} else {
 					query = query.toLowerCase();
 					return function (item) {
-						var name = item.name.toLowerCase();
+						var name = item.skill.toLowerCase();
 						return (name.indexOf(query) != -1);
 					};
 				}
@@ -368,29 +361,9 @@
 					this.$.result.style.display = 'none';
 				}
 			}
-			
-			_dataChange(dataRecord, tags) {
-				const data = dataRecord.base;
-				console.log('datachange step 3 edit', data);
-				if( !data ) return;
-				this.selected_tags = data.tags;
-				this.tagsCount = data.tags.length;
-
-				if( !this.selected_category ) {
-					this.selected_category = data.category;
-				}
-				if( this.selected_category != data.category ) {
-					this.selected_tags = [];
-					this.selected_category = data.category;
-				}
-				if( data.category && tags ) {
-					this.selectable_tags = this.tags.filter( item => item.category.id == data.category );
-				}
-			}
-			
 
 		}
 
-		customElements.define(GrdiPostsEdit3.is, GrdiPostsEdit3);
+		customElements.define(GrdiPostsAdd3.is, GrdiPostsAdd3);
 	</script>
 </dom-module>

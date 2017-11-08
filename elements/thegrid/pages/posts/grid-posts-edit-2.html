@@ -143,41 +143,7 @@
 
 				this.data.price = this.price;
 
-				if( this.data.category == 1) {
-					this.redirect(`/posts/edit/${this.data.id}#3`);
-					return;
-				} else {
-					this.redirect(`/posts/edit/${this.data.id}#4`);
-					return;
-				}
-
-				
-
-				// dispatch posting event
-				// window.dispatchEvent(new CustomEvent('posting'));
-
-				// gAxios.post('/users/' + this.user.id + '/jobs', data)
-				// 	.then(res => {
-				// 		var data = res.data;
-				// 		this.dispatch('addPost', data);
-				// 		this.redirectHome();
-
-				// 		// set marker options
-				// 		data.isMyPost = true;
-				// 		data.isBidded = false;
-
-				// 		// add new marker to the map
-				// 		this.gmap.newMarker(data);
-
-				// 	}).catch(err => {
-				// 		if (err.response) {
-				// 			alert('Oops something went wrong.. \n Please reload the page.');
-				// 			window.location.href = '/';
-				// 		}
-				// 	}).then(() => {
-				// 		// dispatch event to clear the form
-				// 		window.dispatchEvent(new CustomEvent('done-posting'));
-				// 	});
+				this.redirect(`/posts/edit/${this.data.id}#3`);
 			}
 
 			_formDone(price) {

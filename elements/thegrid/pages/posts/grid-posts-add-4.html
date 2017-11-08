@@ -189,11 +189,7 @@
 			}
 
 			goBack() {
-				if(this.data.category == 1) {
-					this.redirect('/add/#3');
-					return;
-				}
-				this.redirect('/add/#2');
+				this.redirect('/add/#3');
 			}
 
 			submit() {
@@ -223,9 +219,9 @@
 				this.formData.append('location', this.data.where);
 				this.formData.append('date', this.data.when);
 				this.formData.append('category_id', this.data.category);
-				if(this.data.skills) {
+				if(this.data.tags) {
 					// if(this.data.skills.length) {
-						this.formData.append('skills', JSON.stringify(this.data.skills));
+						this.formData.append('tags', JSON.stringify(this.data.tags));
 					// }
 				}
 				this.formData.append('details', this.details);

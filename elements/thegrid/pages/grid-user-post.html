@@ -247,20 +247,33 @@
 					<div class="details">
 						<detail-text label="Details" details="[[ post.details ]]" class="normal"></detail-text>
 					</div>
-					<div class="details">
-						<detail-text label="Attachments">
-							<div id="previews">
-								<template is="dom-repeat" items="[[ files ]]" as="file">
-									<div class="wrap" on-click="viewFile">
-										<div class="file layout horizontal">
-											<img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
-											<span class="flex">[[file.original_name]]</span>
+					<template is="dom-if" if="[[ files.length ]]">
+						<div class="details">
+							<detail-text label="Attachments">
+								<div id="previews">
+									<template is="dom-repeat" items="[[ files ]]" as="file">
+										<div class="wrap" on-click="viewFile">
+											<div class="file layout horizontal">
+												<img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
+												<span class="flex">[[file.original_name]]</span>
+											</div>
 										</div>
+									</template>
+								</div>
+							</detail-text>
+						</div>
+					</template>
+					<template is="dom-if" if="[[ tags.length ]]">
+						<div class="details">
+							<detail-text label="Tags">
+								<template is="dom-repeat" items="[[ tags ]]" as="tag">
+									<div class="chip">
+										<span>[[ tag.name ]]</span>
 									</div>
 								</template>
-							</div>
-						</detail-text>
-					</div>
+							</detail-text>
+						</div>
+					</template>
 				</section>
 				<section class="p-y-1 white">
 					<template is="dom-if" if="[[ queries.length ]]">
@@ -464,6 +477,7 @@
 				this.hasPDF = false;
 				this.biddingEnded = false;
 				this.files = [];
+				this.tags = [];
 				this.reported = false;
 				this.submitReportDisabled = true;
 				this.selected_tab = 0;
@@ -563,6 +577,7 @@
 				this.image_count = 0;
 				this.currency = post.user.country.currency_unit;
 				this.files = post.files;
+				this.tags = post.tags;
 				this.queries = post.questions;
 				this.bidders = post.only_bids;
 				this.userCanAsk = this._userCanAsk(this.user);

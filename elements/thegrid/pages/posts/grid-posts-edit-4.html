@@ -182,11 +182,7 @@
 
 			goBack() {
 				if(!this.data) return;
-				if(this.data.category == 1) {
-					this.redirect(`/posts/edit/${this.data.id}#3`);
-					return;
-				}
-				this.redirect(`/posts/edit/${this.data.id}#2`)
+				this.redirect(`/posts/edit/${this.data.id}#3`);
 			}
 
 			submit() {
@@ -219,9 +215,9 @@
 				formData.append('location', this.data.where);
 				formData.append('date', this.data.when);
 				formData.append('category_id', this.data.category);
-				if(this.data.skills) {
+				if(this.data.tags) {
 					// if(this.data.skills.length) {
-						formData.append('skills', JSON.stringify(this.data.skills));
+						formData.append('tags', JSON.stringify(this.data.tags));
 					// }
 				}
 				formData.append('details', this.details);
