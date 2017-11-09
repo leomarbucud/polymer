@@ -152,6 +152,11 @@
             type: Boolean,
             value: false,
             reflectToAttribute: true
+          },
+
+          current_location: {
+            type: Object,
+            statePath: 'current_location'
           }
 
         }
@@ -182,6 +187,7 @@
         let e = this.shadowRoot.querySelector('#map-canvas-search');
         let options = this.mapOptions;
         options.maxZoom = 21;
+        options.zoom = 12;
 
         this.map = new google.maps.Map(e, options);
         this.map.setOptions({ zoomControlOptions: { position: google.maps.ControlPosition.LEFT_BOTTOM } });
@@ -251,6 +257,10 @@
       open() {
         this.opened = true;
         google.maps.event.trigger(this.map, 'resize');
+        if( this.current_location && !this.location ) {
+          console.log('setting current location');
+          this.map.setCenter(this.current_location);
+        }
       }
 
       close() {

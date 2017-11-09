@@ -25,9 +25,15 @@
   <template>
     <style include="grid grid-progress grid-review grid-divider grid-file-preview grid-tabs iron-flex">
        :host {
-        display: block;
+        position: relative;
         background: var(--light-grey);
         height: 100%;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
       }
 
       .details {
@@ -134,8 +140,7 @@
       <paper-tab>Queries</paper-tab>
     </paper-tabs>
     
-    <main class="scroll-area flex tabs">
-
+    <main class="scroll-area flex tabs relative">
       <iron-pages selected="{{selected_tab}}">
         <section class="p-y-1 white">
           <template is="dom-if" if="[[ post.is_accepted ]]">
@@ -303,10 +308,12 @@
             </template>
           </template>
           <template is="dom-if" if="[[ !bidders.length ]]">
-            <div class="red-box">
-              <p>No offer has been made in this post.</p>
-            </div>
-          </template>
+						<div class="overlay">
+							<div class="align-center">
+								<p>No offer has been made in this post.</p>
+							</div>
+						</div>
+					</template>
         </section>
         <section class="p-y-1 white">
           <template is="dom-if" if="[[ queries.length ]]">
@@ -325,10 +332,12 @@
             </template>
           </template>
           <template is="dom-if" if="[[ !queries.length ]]">
-            <div class="red-box">
-              <p>No question has been asked in this post.</p>
-            </div>
-          </template>
+						<div class="overlay">
+							<div class="align-center">
+								<p>No question has been asked in this post.</p>
+							</div>
+						</div>
+					</template>
         </section>
       </iron-pages>
 

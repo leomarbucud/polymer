@@ -245,6 +245,11 @@
 					permissionLocation: {
 						type: Boolean,
 						observer: '_permissionLocationChange'
+					},
+
+					current_location: {
+						type: Object,
+						statePath: 'current_location'
 					}
 				}
 			}
@@ -571,6 +576,7 @@
 				this.shadowRoot.querySelector('#location').classList.remove('inactive');
 
 				this.saveCurrentLocation(latLng);
+				this.dispatch('setCurrentLocation', latLng);
 			}
 
 			getCurrentLocation() {

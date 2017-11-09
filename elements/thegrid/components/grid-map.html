@@ -569,6 +569,8 @@
 
         if(markers.length) {
           markers[0].setPosition(new_marker_position);
+        } else {
+          this._newMarker(data);
         }
         
       }

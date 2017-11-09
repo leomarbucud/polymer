@@ -218,7 +218,7 @@
 						<detail-text label="Time Remaining" details="[[ time_remaining ]]"></detail-text>
 					</div>
 					<div class="details">
-						<detail-text label="Location" details="[[ post.location ]]"></detail-text>
+						<detail-text label="Location" details="[[ post.location ]]" on-click="viewOnMap"></detail-text>
 					</div>
 					<div class="details">
 						<detail-text label="Attachments" details="[[ docs_count ]] [[ _pluralize('file', docs_count) ]], [[ image_count ]] [[ _pluralize('image', image_count) ]]"></detail-text>
@@ -429,7 +429,7 @@
 			static get observers() {
 				return [
 					'_postIdChange(postId)',
-					'_postUserId(post.user.id)',
+					// '_postUserId(post.user.id)',
 					'_postChange(post)'
 					// '_userBidded(bidded)'
 				]

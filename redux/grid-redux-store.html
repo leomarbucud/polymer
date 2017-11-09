@@ -30,7 +30,8 @@
     notifications: [],
     transactions: [],
     feedback: [],
-    online_users: []
+    online_users: [],
+    current_location: null
   };
 
   const updateLocalStorage = (name, value) => {
@@ -345,6 +346,12 @@
         });
         break;
       }
+      case 'SET_CURRENT_LOCATION': {
+        return Object.assign({}, state, {
+          current_location: action.current_location
+        });
+        break;
+      }
     }
   };
 
@@ -546,6 +553,13 @@
             type: 'UPDATE_BID_QUERIES',
             id: id,
             queries: queries
+          }
+        },
+        
+        setCurrentLocation(current_location) {
+          return {
+            type: 'SET_CURRENT_LOCATION',
+            current_location: current_location
           }
         }
 

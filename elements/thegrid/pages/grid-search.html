@@ -257,20 +257,23 @@
         this.searching = true;
 
         let url = `${this.url.API_URL}/jobs/search?q=${this.q}`;
+        let _axios = axios;
+        if( this.user ) {
+          url = `/users/jobs/search?q=${this.q}`;
+          _axios = gAxios;
+        }
         const gmapLoc = this.gmap.currentLocation;
         if(gmapLoc) {
           url += `&lat=${gmapLoc.lat}&lng=${gmapLoc.lng}`;
         }
 
-        axios.get(url)
+        _axios.get(url)
         .then( res => {
-
           if( res.data.length > 0 ) {
             this.set('search_results', res.data);
           } else {
             this.no_result = true;
           }
-
         }).catch( err => {
           console.log(err.response);
         }).then( () => {
@@ -344,6 +347,7 @@
       }
 
       _roundDistance(d) {
+        if( !d ) return 0;
         const df = d.toFixed(2);
 				if(df < 1) {
 					const m = df * 1000;

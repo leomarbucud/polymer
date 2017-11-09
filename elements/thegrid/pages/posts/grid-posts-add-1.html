@@ -111,9 +111,10 @@
                 placeholder="Where?"
                 value="{{where::input}}"
                 data-validate="required"
-                data-message-required="Please tell us where." />
+                data-message-required="Please tell us where." 
+                on-click="showMap"/>
             <div class="addon-suffix has-icon">
-              <paper-icon-button icon="maps:pin-drop" class="red" hidden$="[[!gmap.map]]" on-tap="showMap"></paper-icon-button>
+              <!-- <paper-icon-button icon="maps:pin-drop" class="red" hidden$="[[!gmap.map]]" on-tap="showMap"></paper-icon-button> -->
               <paper-icon-button id="locationButton" class="red" icon="maps:my-location" hidden$="[[!gmap.map]]" on-tap="myLocation"></paper-icon-button>
               <!-- <span id="locationButton" on-click="myLocation" class="pointer inactive" hidden$="[[!map]]">
                 <iron-icon icon="maps:my-location" class="red" title="Press for current location"></iron-icon>
@@ -439,7 +440,7 @@
       _isMapInit(gmap) {
         if(!gmap) return;
 
-        const self = this;
+/*        const self = this;
         const searchBox = self.shadowRoot.querySelector('#where');
 
 				if(searchBox) {
@@ -495,6 +496,7 @@
 						_searchLoc.setBounds(bounds);
 					});
         }
+*/
       }
 
       _getCategories() {
