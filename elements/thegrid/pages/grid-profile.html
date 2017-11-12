@@ -204,7 +204,7 @@
                     </div>
                   </template>
                 </div>
-                <span class="red pointer" on-click="redirectProfileSkills">Edit</span>
+                <span class="red pointer" on-click="redirectProfileTags">Edit</span>
               </detail-text>
             </div>
             <div>
@@ -254,14 +254,14 @@
 
     <!-- <a href="/profile/skills">Skills</a> -->
 
-    <iron-pages attr-for-selected="data-page" selected="[[subPage]]">
+    <iron-pages attr-for-selected="data-page" selected="[[ subPage ]]">
 
       <section data-page="setup" class="sub-page">
         <grid-setup id="setup"></grid-setup>
       </section>
 
-      <section data-page="skills" class="sub-page">
-        <grid-profile-skills id="skills"></grid-profile-skills>
+      <section data-page="tags" class="sub-page">
+        <grid-profile-skills id="tags"></grid-profile-skills>
       </section>
 
       <section data-page="edit" class="sub-page">
@@ -479,7 +479,7 @@
             self.subPage = null;
           }
           Polymer.Base.importHref(
-						'/elements/thegrid/pages/profile/grid-profile-' + subrouteData.id + '.html',
+						`/elements/thegrid/pages/profile/grid-profile-${subrouteData.id}.html`,
 						() => {
               self.subPage = subrouteData.id;
 						}

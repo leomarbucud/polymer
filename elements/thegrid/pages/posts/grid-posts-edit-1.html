@@ -88,8 +88,8 @@
           <div class="input-group" data-step="4" data-question="Set Category">
             <select id="category" class="input" data-validate="required" data-message-required="Category is required.">
             <option value="">--Please select category--</option>
-            <template is="dom-repeat" items="[[jobCategories]]" as="cat">
-              <option value$="[[cat.id]]" selected$="[[cat.selected]]">[[cat.category]]</option>
+            <template is="dom-repeat" items="[[ categories ]]" as="cat">
+              <option value$="[[ cat.id ]]" >[[ cat.category ]]</option>
             </template>
             </select>
           </div>
@@ -133,6 +133,11 @@
           data: {
             type: Object,
             notify: true
+          },
+          categories: {
+            type: Array,
+            statePath: 'categories',
+            observer: '_categoriesChange'
           }
         }
       }
@@ -193,8 +198,6 @@
 					self.category = this.value;
 				};
 				cat.addEventListener('change', change);
-
-        this._getCategories();
         
         window.addEventListener('map:center_changed', e => {
           let detail = e.detail;
@@ -210,6 +213,10 @@
           dp.min = moment(today()).unix();
           dp.open();
         });
+
+        if( this.data ) {
+          this._dataChange(this.data);
+        }
 
       }
 
@@ -363,24 +370,21 @@
         }
       }
 
-      _getCategories() {
-				gAxios.get('/jobs/categories')
-				.then(res => {
-          var data = res.data;
-          if(this.data) {
-            data.map( d => {
-              if(d.id == this.data.category_id) {
-                d.selected = true;
-              }
-              return d;
-            });
-          }
-					this.jobCategories = data;
-				}).catch(err => {
-					if (err.response) {
+      _categoriesChange(categories) {
+        if( !this.data ) return;
+        // this._getCategories();
+      }
 
-					}
-				});
+      _getCategories() {
+        let categories = this.categories.slice(0);
+        
+        categories.map( category => {
+          if(category.id == this.data.category_id) {
+            category.selected = true;
+          }
+          return d;
+        });
+				this.jobCategories = categories;
       }
       
       _dataChange(data) {
@@ -391,21 +395,12 @@
         this.when = data.date;
         this.lat = data.lat;
         this.lng = data.lng;
-        this.category = data.category_id;
+        this.category = data.category_id;;
 
-        this.shadowRoot.querySelector('#category').selectedIndex = data.category_id;
-
-        // if(this.jobCategories) {
-        //   let jc = this.jobCategories.slice(0);
-        //   jc.map( d => {
-        //     console.log(d.id, '==', this.data.category_id);
-        //     if(d.id == this.data.category_id) {
-        //       d.selected = true;
-        //     }
-        //     return d;
-        //   });
-        //   this.set('jobCategories', jc);
-        // }
+        const selected_category = this.categories.find(item => item.id == data.category_id);
+        setTimeout( () => {
+          this.shadowRoot.querySelector('#category').selectedIndex = this.categories.indexOf(selected_category) + 1;
+        }, 0)
         
       }
 

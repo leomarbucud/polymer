@@ -31,7 +31,8 @@
     transactions: [],
     feedback: [],
     online_users: [],
-    current_location: null
+    current_location: null,
+    categories: []
   };
 
   const updateLocalStorage = (name, value) => {
@@ -368,6 +369,12 @@
         });
         break;
       }
+      case 'SET_CATEGORIES': {
+        return Object.assign({}, state, {
+          categories: action.categories
+        });
+        break;
+      }
     }
   };
 
@@ -576,6 +583,13 @@
           return {
             type: 'SET_CURRENT_LOCATION',
             current_location: current_location
+          }
+        },
+        
+        setCategories(categories) {
+          return {
+            type: 'SET_CATEGORIES',
+            categories: categories
           }
         },
         

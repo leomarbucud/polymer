@@ -125,7 +125,7 @@
           <div class="input-group" data-step="4" data-question="Set Category">
             <select id="category" class="input" data-validate="required" data-message-required="Category is required.">
             <option value="">--Please select category--</option>
-            <template is="dom-repeat" items="[[jobCategories]]" as="cat">
+            <template is="dom-repeat" items="[[ categories ]]" as="cat">
               <option value$="[[cat.id]]">[[cat.category]]</option>
             </template>
             </select>
@@ -188,6 +188,10 @@
           data: {
             type: Object,
             notify: true
+          },
+          categories: {
+            type: Array,
+            statePath: 'categories'
           }
         }
       }
@@ -254,7 +258,7 @@
 				};
 				cat.addEventListener('change', change);
 
-        this._getCategories();
+        // this._getCategories();
         
         window.addEventListener('map:center_changed', e => {
           let detail = e.detail;

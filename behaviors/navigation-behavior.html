@@ -19,7 +19,7 @@
                 REGISTER_URL : '/register',
                 FORGOT_URL : '/forgot',
                 PROFILE_URL : '/profile',
-                PROFILE_SKILLS_URL : '/profile/skills',
+                PROFILE_TAGS_URL : '/profile/tags',
                 VERIFY_URL : '/verification',
                 SETUP_URL : '/profile/setup',
                 LOGOUT_URL : '/logout',
@@ -76,9 +76,9 @@
         this.updateTitle('Profile - The Grid');
       }
 
-      redirectProfileSkills() {
-        this.redirect(this.url.PROFILE_SKILLS_URL);
-        this.updateTitle('Skills - The Grid');
+      redirectProfileTags() {
+        this.redirect(this.url.PROFILE_TAGS_URL);
+        this.updateTitle('Tags - The Grid');
       }
 
       redirectVerify() {

@@ -257,7 +257,7 @@
 					if (e.keyCode == 13) {
 						e.preventDefault();
 						e.stopPropagation();
-						console.log(self.selected);
+						// console.log(self.selected);
 						if( self.selected == -1 ) {
 							// add new skill to database
 							
@@ -371,7 +371,7 @@
 			
 			_dataChange(dataRecord, tags) {
 				const data = dataRecord.base;
-				console.log('datachange step 3 edit', data);
+				// console.log('datachange step 3 edit', data);
 				if( !data ) return;
 				this.selected_tags = data.tags;
 				this.tagsCount = data.tags.length;

@@ -110,7 +110,7 @@
             </paper-input>
             <paper-listbox slot="dropdown-content" class="dropdown-menu">
               <paper-item class="item"  on-click="updateCategory" data-category="0">Any</paper-item>
-              <template is="dom-repeat" items="[[jobCategories]]" as="cat">
+              <template is="dom-repeat" items="[[ categories ]]" as="cat">
                 <paper-item class="item" on-click="updateCategory" data-category$="[[cat.id]]">[[cat.category]]</paper-item>
               </template>
             </paper-listbox>
@@ -152,7 +152,10 @@
 
   <script>
 
-    class GridFilter extends GridNavigation(ReduxBehavior(Polymer.Element)) {
+    class GridFilter extends 
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
 
         static get is() { return 'grid-filter'; }
 
@@ -166,6 +169,11 @@
             user: {
               type: Object,
               statePath: 'user'
+            },
+            
+            categories: {
+              type: Array,
+              statePath: 'categories'
             }
             
           }
@@ -330,7 +338,7 @@
         _getCategories() {
           axios.get(`${this.url.API_URL}/jobs/categories`)
           .then(res => {
-            this.jobCategories = res.data;
+            this.dispatch('setCategories', res.data);
           }).catch(err => {
             if (err.response) {
 
