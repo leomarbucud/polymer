@@ -674,6 +674,32 @@
 					color: #FFFFFF;
 				}
 			}
+			
+			paper-tabs.tabs-red {
+				--paper-tabs-selection-bar-color: var(--white);
+				--paper-tabs-selection-bar: {
+					background-color: var(--dark-red);
+				}
+				--paper-tabs: {
+					color: #FFFFFF;
+					background-color: var(--dark-red);
+				}
+			}
+
+			paper-tabs.tabs-red paper-tab {
+				--paper-tab-ink: var(--white);
+				--paper-tab: {
+					font-weight: normal;
+					font-size: 16px;
+				}
+				--paper-tab-content: {
+					color: var(--white);
+					font-weight: normal;
+				}
+				--paper-tab-content-unselected: {
+					color: rgba(255, 255, 255, 0.7);
+				}
+			}
 		</style>
 	</template>
 </dom-module>

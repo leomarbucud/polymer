@@ -129,6 +129,33 @@
         }
       }
 
+      .pac-card {
+        margin: 10px 10px 0 0;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        background-color: #303030;
+        font-family: museo-sans, 'Roboto', sans-serif;
+      }
+
+      #pac-container {
+        padding-bottom: 12px;
+        margin-right: 12px;
+      }
+
+      .pac-controls {
+        display: inline-block;
+        padding: 5px 11px;
+      }
+
+      .pac-controls label {
+        font-family: museo-sans, 'Roboto', sans-serif;
+        font-size: 13px;
+        font-weight: 300;
+      }
+
     </style>
     <base href="/">
 

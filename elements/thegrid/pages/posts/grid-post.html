@@ -495,14 +495,18 @@
         this.selected_tab = 1;
         this.sortedByLabel = 'Lowest Amount';
         const offerList = this.shadowRoot.querySelector('#offerList');
-        offerList.sort = '_sortByLowestAmount';
+        if( offerList ) {
+          offerList.sort = '_sortByLowestAmount';
+        }
       }
       
       goToOffersWithHighestAmount() {
         this.selected_tab = 1;
         this.sortedByLabel = 'Highest Amount';
         const offerList = this.shadowRoot.querySelector('#offerList');
-        offerList.sort = '_sortByHighestAmount';
+        if( offerList ) {
+          offerList.sort = '_sortByHighestAmount';
+        }
       }
 
       renderPost(post) {

@@ -1,0 +1,211 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../grid-styles.html?v=1.1.0">
+<link rel="import" href="../components/ratings.html?v=1.1.0">
+
+<dom-module id="highlighted-item">
+  <template>
+    <style include="grid iron-flex">
+
+      :host {
+        display: block;
+      }
+
+      .card-list {
+        width: 100%;
+        background-color: var(--light-grey-1);
+        padding: 16px;
+        margin: 0px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--white);
+      }
+
+      .card-list .name {
+        font-size: 16px;
+        line-height: 20px;
+      }
+      .card-list .name {
+        color: var(--white);
+      }
+
+      .card-list .offer {
+        font-size: 16px;
+        line-height: 20px;
+      }
+
+      .card-list .expanded {
+        display: none;
+        opacity: 0;
+      }
+
+      :host([opened]) .card-list {
+        margin-top: 8px;
+        margin-bottom: 8px;
+      }
+
+      :host([opened]) .card-list .expanded {
+        display: block;
+        opacity: 1;
+      }
+
+      :host([inactive]) {
+        opacity: 0.5;
+      }
+
+      .actions {
+        margin-right: -16px;
+        margin-top: -16px;
+      }
+
+      .actions .action {
+        color: #FFFFFF;
+        opacity: 0.7;
+      }
+
+      .expanded .date {
+        font-style: italic;
+        font-size: 12px;
+        opacity: 0.7;
+        line-height: 16px;
+      }
+
+      .expanded .bio {
+        font-size: 14px;
+        line-height: 16px;
+        margin-top: 16px;
+      }
+      
+      .expanded .message {
+        font-size: 14px;
+        line-height: 16px;
+        margin-top: 16px;
+        font-style: italic;
+      }
+
+      .expanded .button {
+        text-align: right;
+        margin-bottom: -16px;
+        margin-right: -40px;
+      }
+
+    </style>
+    <paper-card class="card-list">
+      <div class="layout horizontal">
+        <div class="flex">
+          <div class="name" >[[ data.job.name ]]</div>
+          <div class="expanded">
+            <div class="date">Posted by [[ data.job.user.name ]] on [[ _formatDate(data.job.created_at) ]]</div>
+            <div class="date">Completed by [[ user.name ]] on [[ _formatDate(data.job.updated_at) ]]</div>
+            <grid-ratings rate="[[ rate ]]" class="white"></grid-ratings>
+            <div class="bio">[[ data.job.details ]]</div>
+          </div>
+        </div>
+        <div class="actions">
+          <paper-icon-button icon="[[ expander ]]" class="action" on-click="toggle"></paper-icon-button>
+        </div>
+      </div>
+    </paper-card>
+
+  </template>
+
+  <script>
+
+    class HighlightedItem extends GridNavigation(Polymer.Element) {
+
+      static get is() { return 'highlighted-item'; }
+
+      static get properties() {
+        return {
+          data: Object,
+          opened: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          },
+          inactive: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          },
+          awarded: Boolean,
+          currency: String
+        }
+      }
+
+      static get observers() {
+        return [
+          '_dataChange(data.*)',
+          '_openedChange(opened)'
+        ]
+      }
+      
+      constructor() {
+        super();
+        this.rate = 0;
+        this.expander = 'expand-more';
+        this.times = '';
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      toggle() {
+        this.opened = !this.opened;
+        this.expander = this.opened ? 'expand-less' : 'expand-more';
+      }
+
+      open() {
+        this.opened = true;
+        this.expander = 'expand-less';
+      }
+
+      close() {
+        this.opened = false;
+        this.expander = 'expand-more';
+      }
+
+      openAwardJobDialog() {
+        window.dispatchEvent( new CustomEvent('post:award', {
+          detail: this.data
+        }));
+      }
+     
+      openCancelwardJobDialog() {
+        window.dispatchEvent( new CustomEvent('post:cancel_award', {
+          detail: this.data
+        }));
+      }
+
+      _dataChange(dataRecord) {
+        const data = dataRecord.base;
+        this.rate = 0;
+        
+        this.rate = data.winner.review.stars;
+
+        this.close();
+
+      }
+
+      _formatDate(date) {
+        return moment(date).format('DD/MM/YY');
+      }
+
+      _openedChange(opened) {
+        if( opened ) {
+          const expandContent = this.shadowRoot.querySelector('.expanded');
+          expandContent.animate([
+            { opacity: 0 },
+            { opacity: 1 }
+          ], { duration: 350 });
+        }
+      }
+
+    }
+
+    customElements.define(HighlightedItem.is, HighlightedItem);
+	</script>
+</dom-module>

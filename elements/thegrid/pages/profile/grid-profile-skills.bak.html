@@ -75,15 +75,15 @@
 
       <div class="header-text-container">
         <h1 class="header-text m-0">
-          <span>My Tags</span>
+          <span>My Skills</span>
         </h1>
       </div>
 
       <form class="form" action="#">
         <div class="input-group suffix">
-          <input id="tag" type="text" class="input" autocomplete="off" autofocus
+          <input id="skill" type="text" class="input" autocomplete="off" autofocus
               value="{{query::input}}"
-              placeholder="Search available tag.." />
+              placeholder="Enter Skill.." />
 
           <div class="addon-suffix">
               <paper-spinner active$="[[isAddingSkill]]" class="red" hidden$="[[!isAddingSkill]]"></paper-spinner>
@@ -94,10 +94,10 @@
 
           <div id="result" class="auto-complete">
             <!-- <iron-list items="[[_skills]]" as="skill" as="skill" filter="{{_filter(query)}}"> -->
-              <template is="dom-repeat" items="[[ tags ]]" as="tag" filter="{{_filter(query)}}">
+              <template is="dom-repeat" items="[[_skills]]" as="skill" filter="{{_filter(query)}}">
                 <div class="row" on-click="select">
-                  <span>[[ tag.name ]]</span>
-                  <span secondary>[[ tag.type.name ]]</span>
+                  <span>[[skill.skill]]</span>
+                  <span secondary>[[skill.skill]]</span>
                   <paper-ripple></paper-ripple>
                 </div>
               </template>
@@ -107,11 +107,12 @@
       </form>
 
       <div class="skills-container">
-        <template is="dom-repeat" items="[[ selected_tags ]]" as="tag">
+        <div hidden$="[[skills]]" class="white">Loading your awesome skills...</div>
+        <template is="dom-repeat" items="[[skills]]" as="skill">
           <div class="chip">
-            <span>[[ tag.name ]]</span>
+            <span>[[skill.skill]]</span>
             <span class="close">
-              <iron-icon icon="close" class="small" on-click="removeTag"></iron-icon>
+              <iron-icon icon="close" class="small" on-click="removeSkill"></iron-icon>
             </span>
           </div>
         </template>
@@ -122,10 +123,7 @@
 
   <script>
 
-    class GridProfileSkills extends 
-      GridNavigation(
-        ReduxAsyncActionBehavior(
-          ReduxBehavior(Polymer.Element))) {
+    class GridProfileSkills extends GridNavigation(ReduxBehavior(Polymer.Element)) {
 
       static get is() { return 'grid-profile-skills'; }
 
@@ -137,14 +135,19 @@
             statePath: 'user'
           },
 
-          tags: {
+          skills: {
+            type: Object,
+            statePath: 'skills'
+          },
+
+          _skills: {
             type: Array,
             value: []
           },
 
-          selected_tags: {
+          selectedSkills: {
             type: Array,
-            statePath: 'user.tags'
+            value: null
           }
 
         }
@@ -158,14 +161,39 @@
         ]
       }
 
+      static get actions() {
+  			return {
+          setSkills(skills) {
+  					return {
+  						type: 'SET_SKILLS',
+  						skills: skills
+  					}
+  				},
+
+          addSkill(skill) {
+  					return {
+  						type: 'ADD_SKILL',
+  						skill: skill
+  					}
+  				},
+
+          removeSkill(skill) {
+  					return {
+  						type: 'REMOVE_SKILL',
+  						skill: skill
+  					}
+  				}
+  			};
+  		}
+
       constructor() {
         super();
         const self = this;
         this.isAddingSkill = false;
-        axios.get(`${this.url.API_URL}/tags`)
+        axios.get(`${this.url.API_URL}/users/skills`)
         .then( res => {
           // console.log(res);
-          this.tags = res.data;
+          self.set('_skills', res.data);
           //self.dispatch('setSkills', res.data);
         });
       }
@@ -173,7 +201,7 @@
       connectedCallback() {
         super.connectedCallback();
         const self = this;
-        const tagInput = this.$.tag;
+        const skillInput = this.$.skill;
 
         self.selected = -1;
         self.scroll = 0;
@@ -224,6 +252,20 @@
           if( e.keyCode == 13 ) {
             e.preventDefault();
             e.stopPropagation();
+            if(self.selected == -1) {
+              // add new skill
+              self.isAddingSkill = true;
+              gAxios.post('/users/' + self.user.id + '/skills', {
+                skill: self.query
+              })
+              .then( res => {
+                self.set('query', '');
+                self.$.skill.focus();
+                self.dispatch('addSkill', res.data);
+                self.isAddingSkill = false;
+              });
+              return;
+            }
             results[self.selected].click();
           }
 
@@ -233,43 +275,42 @@
         //   self.cancelSearch(e);
         // };
 
-        tagInput.addEventListener('keydown', keydown);
-        // tagInput.addEventListener('blur', blur);
+        skillInput.addEventListener('keydown', keydown);
+        // skillInput.addEventListener('blur', blur);
       }
 
       select(e) {
-        const tag = e.model.tag;
+        const skill = e.model.skill;
 
-        var found = this.selected_tags.find( function( item ) {
-            return item.id === tag.id;
+        var found = this.selectedSkills.find( function( item ) {
+            return item.id === skill.id;
         } );
 
         if(!found) {
-          this.dispatch('addTag', tag);
-          gAxios.post(`/users/${this.user.id}/tags`, {
-            tag_id: tag.id
-          }).then( res => {
+          // this.push('selectedSkills', skill);
+          this.dispatch('addSkill', skill);
+          gAxios.post('/users/' + this.user.id + '/skills', skill)
+          .then( res => {
             // console.log(res);
           });
         }
         this.set('query', '');
-        this.$.tag.focus();
+        this.$.skill.focus();
       }
 
       cancelSearch(e) {
         this.set('query', '');
       }
 
-      removeTag(e) {
-        const tag = e.model.tag;
+      removeSkill(e) {
+        const skill = e.model.skill;
 
-        const index = this.selected_tags.indexOf(tag);
-        console.log(tag, index);
+        const index = this.skills.indexOf(skill);
 
         if( index != -1) {
           // this.splice('selectedSkills', index, 1);
-          this.dispatch('removeTag', index);
-          gAxios.delete(`/users/${this.user.id}/tags/${tag.id}`)
+          this.dispatch('removeSkill', skill);
+          gAxios.delete('/users/' + this.user.id + '/skills/' + skill.id)
           .then( res => {
             // console.log(res);
           });
@@ -307,7 +348,7 @@
         } else {
           query = query.toLowerCase();
           return function(item) {
-            var name = item.name.toLowerCase();
+            var name = item.skill.toLowerCase();
             return (name.indexOf(query) != -1);
           };
         }

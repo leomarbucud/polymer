@@ -69,6 +69,22 @@
         return Object.assign({}, state, { token: _token, user: _user, auth: true });
         break;
       }
+      case 'ADD_TAG': {
+        let user = JSON.parse(JSON.stringify(state.user));
+        let tags = user.tags;
+        tags.push(action.tag);
+        user.tags = tags;
+        return Object.assign({}, state, { user: user });
+        break;
+      }
+      case 'REMOVE_TAG': {
+        let user = JSON.parse(JSON.stringify(state.user));
+        let tags = user.tags;
+        tags.splice(action.index, 1);
+        user.tags = tags;
+        return Object.assign({}, state, { user: user });
+        break;
+      }
       case 'SET_SKILLS': {
         const _skills = action.skills;
         return Object.assign({}, state, { skills: _skills });
@@ -560,6 +576,20 @@
           return {
             type: 'SET_CURRENT_LOCATION',
             current_location: current_location
+          }
+        },
+        
+        addTag(tag) {
+          return {
+            type: 'ADD_TAG',
+            tag: tag
+          }
+        },
+        
+        removeTag(index) {
+          return {
+            type: 'REMOVE_TAG',
+            index: index
           }
         }
 

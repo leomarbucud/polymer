@@ -1,21 +1,30 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../grid-styles.html?v=1.1.0">
 <link rel="import" href="../grid-icons.html?v=1.1.0">
 <link rel="import" href="../components/ratings.html?v=1.1.0">
+<link rel="import" href="../components/detail-text.html?v=1.1.0">
+<link rel="import" href="../components/highlighted-item.html?v=1.1.0">
 
 <dom-module id="grid-profile">
   <template>
-    <style include="grid iron-flex">
+    <style include="grid grid-tabs iron-flex">
 
       :host {
-        display: block;
         position: relative;
         width: 100%;
         height: 100%;
         margin: 0 auto;
         background: var(--dark-red);
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
       }
 
       .top-section {
@@ -28,7 +37,22 @@
 
       .lower-section {
         background: #303030;
-        padding: 16px;
+        padding-bottom: 16px;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+      }
+
+      main {
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
       }
 
       .section-title {
@@ -93,6 +117,10 @@
         opacity: 0.7;
       }
 
+      .tags-container {
+        padding: 16px 0;
+      }
+
     </style>
 
     <!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
@@ -110,11 +138,9 @@
     <div id="toolbar" class="toolbar dred-bg">
       <paper-icon-button icon="first-page" class="white pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
-      <!-- <paper-icon-button icon="create" class="white pointer" on-click="editProfile"></paper-icon-button> -->
-      <!-- <paper-icon-button icon="more-vert" class="white pointer"></paper-icon-button> -->
-    </div>
+   </div>
 
-    <main class="scroll-area flex layout vertical">
+    <main class="scroll-area flex">
       <section class="p-y-1 top-section dred-bg">
 
         <div class="layout horizontal avatar-name">
@@ -133,13 +159,7 @@
         <div class="layout horizontal white">
           <div class="flex m-0">
             <span class="block" style="height: 28px;">
-              <!-- <iron-icon icon="star"></iron-icon>
-              <iron-icon icon="star"></iron-icon>
-              <iron-icon icon="star"></iron-icon>
-              <iron-icon icon="star"></iron-icon>
-              <iron-icon icon="star"></iron-icon>
-               -->
-               <grid-ratings rate="[[rate]]"></grid-ratings>
+               <grid-ratings rate="[[rate]]" class="white"></grid-ratings>
             </span>
             <span class="block white-7">[[user.reviews.length]] Ratings</span>
           </div>
@@ -154,150 +174,79 @@
         </div>
 
       </section>
+      
+      <div>
+        <paper-tabs selected="{{ selected_tab }}" class="tabs-red">
+          <paper-tab>About</paper-tab>
+          <paper-tab>Highlights</paper-tab>
+          <paper-tab>Reviews</paper-tab>
+        </paper-tabs>
+      </div>
+      <section class="lower-section flex">
+        <div class="p-y-1 flex relative" style="padding-top: 16px; background: #303030;">
 
-      <section class="p-y-1 lower-section flex">
-
-        <div class="white">
-          <div class="layout horizontal white section-title">
-            <span class="flex title">About</span>
-            <span class="red pointer" on-click="redirectAbout">Edit</span>
-            <!-- <span class="red">More</span> -->
-          </div>
-          <p class="white">
-            [[user.profile.bio]]
-          </p>
-          <template is="dom-if" if="[[!user.profile.bio]]" >
-            Set it now
-          </template>
-        </div>
-
-        <!-- <div class="divider"><hr/></div>
-
-        <div>
-          <div class="white section-title">
-            <span class="title">Metrics</span>
-          </div>
-          <p class="white">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-          </p>
-        </div> -->
-
-        <div class="divider"><hr/></div>
-
-        <div>
-          <div class="layout horizontal white section-title">
-            <span class="flex title">Skills</span>
-            <span class="red pointer" on-click="redirectProfileSkills">Edit</span>
-          </div>
-          <div class="skills-container">
-            <!-- <div hidden$="[[skills]]" class="white">Loading your awesome skills...</div> -->
-            <template is="dom-if" if="[[isSkillsLoading]]">
-              <div class="center">
-                <paper-spinner class="white" active></paper-spinner>
-              </div> 
-            </template>
-            <template is="dom-repeat" items="[[skills]]" as="skill">
-              <div class="chip">
-                <span>[[skill.skill]]</span>
-              </div>
-            </template>
-          </div>
-        </div>
-
-        <div class="divider"><hr/></div>
-        
-        <div>
-          <div class="layout horizontal white section-title">
-            <span class="flex title">Recent Posts</span>
-          </div>
-          <div class="white" role="listbox" style="margin: 0 -16px;">
-            <template is="dom-if" if="[[isRecentPostsLoading]]">
-              <div class="center">
-                <paper-spinner class="white" active></paper-spinner>
-              </div> 
-            </template>
-            <template is="dom-if" if="[[!isRecentPostsLoading]]">
-              <template is="dom-repeat" items="[[recentPosts]]" as="job" >
-                <a href$="/@[[user.username]]/posts/[[job.id]]">
-                  <paper-item>
-                    <paper-item-body two-line>
-                      <div>[[job.name]]</div>
-                      <div secondary>Date needed: [[_fromNow(job.date)]]</div>
-                      <paper-ripple></paper-ripple>
-                    </paper-item-body>
-                    <div class="time" data-time$="[[job.created_at]]">[[_fromNow(job.created_at)]]</div>
-                  </paper-item>
-                </a>
+          <iron-pages selected="{{ selected_tab }}">
+            <div>
+              <detail-text label="Bio" class="normal">
+                <p class="white">[[user.profile.bio]]</p>
+                <span class="red pointer" on-click="redirectAbout">Edit</span>
+              </detail-text>
+              <detail-text label="Tags" class="normal">
+                <div class="tags-container">
+                  <template is="dom-if" if="[[ isTagsLoading ]]">
+                    <div class="center">
+                      <paper-spinner class="white" active="[[ isTagsLoading ]]"></paper-spinner>
+                    </div> 
+                  </template>
+                  <template is="dom-repeat" items="[[ selected_tags ]]" as="tag">
+                    <div class="chip">
+                      <span>[[ tag.name ]]</span>
+                    </div>
+                  </template>
+                </div>
+                <span class="red pointer" on-click="redirectProfileSkills">Edit</span>
+              </detail-text>
+            </div>
+            <div>
+              <template is="dom-if" if="[[ isHiglightedBidLoading ]]">
+                <div class="overlay">
+                  <div class="align-center">
+                    <paper-spinner class="white" active="[[ isHiglightedBidLoading ]]"></paper-spinner>                      
+                  </div>
+                </div>
               </template>
-              <template is="dom-if" if="[[!recentPosts.length]]">
-                <paper-item>No recent posts</paper-item>
+              <template is="dom-repeat" items="[[ higlightedBids ]]" as="bid">
+                <highlighted-item data="[[ bid ]]"></highlighted-item>
               </template>
-            </template>
-          </div>
-        </div>
-
-        <div class="divider"><hr/></div>
-        
-        <div>
-          <div class="layout horizontal white section-title">
-            <span class="flex title">Completed Jobs</span>
-          </div>
-          <div class="white" role="listbox" style="margin: 0 -16px;">
-            <template is="dom-if" if="[[isCompletedJobsLoading]]">
-              <div class="center">
-                <paper-spinner class="white" active></paper-spinner>
-              </div> 
-            </template>
-            <template is="dom-if" if="[[!isCompletedJobsLoading]]">
-              <template is="dom-repeat" items="[[completedJobs]]" as="job" >
-                <a href$="/@[[user.username]]/posts/[[job.job.id]]">
-                  <paper-item>
-                    <paper-item-body two-line>
-                      <div>[[job.job.name]]</div>
-                      <div secondary>Date needed: [[_fromNow(job.job.date)]]</div>
-                      <paper-ripple></paper-ripple>
-                    </paper-item-body>
-                    <div class="time" data-time$="[[job.job.created_at]]">[[_fromNow(job.job.created_at)]]</div>
-                  </paper-item>
-                </a>
+            </div>
+            <div>
+              <template is="dom-if" if="[[ isReviewsLoading ]]">
+                <div class="overlay">
+                  <div class="align-center">
+                    <paper-spinner class="white" active="[[ isReviewsLoading ]]"></paper-spinner>                      
+                  </div>
+                </div>
               </template>
-              <template is="dom-if" if="[[!completedJobs.length]]">
-                <paper-item>No completed jobs</paper-item>
+              <template is="dom-if" if="[[ !isReviewsLoading]] ">
+                <template is="dom-repeat" items="[[reviews]]" as="review" >
+                  <a href$="/@[[ user.username ]]/posts/[[ review.job.id ]]">
+                    <paper-item>
+                      <paper-item-body two-line>
+                        <div><grid-ratings rate="[[review.stars]]"></grid-ratings></div>
+                        <div secondary>[[review.review]]</div>
+                        <paper-ripple></paper-ripple>
+                      </paper-item-body>
+                      <div class="time" data-time$="[[ review.created_at ]]">[[_fromNow(review.created_at)]]</div>
+                    </paper-item>
+                  </a>
+                </template>
+                <template is="dom-if" if="[[!reviews.length]]">
+                  <paper-item>No reviews</paper-item>
+                </template>
               </template>
-            </template>
-          </div>
-        </div>
-        
-        <div class="divider"><hr/></div>
-        
-        <div>
-          <div class="layout horizontal white section-title">
-            <span class="flex title">Reviews</span>
-          </div>
-          <div class="white" role="listbox" style="margin: 0 -16px;">
-            <template is="dom-if" if="[[isReviewsLoading]]">
-              <div class="center">
-                <paper-spinner class="white" active></paper-spinner>
-              </div> 
-            </template>
-            <template is="dom-if" if="[[!isReviewsLoading]]">
-              <template is="dom-repeat" items="[[reviews]]" as="review" >
-                <a href$="/@[[user.username]]/posts/[[review.job.id]]">
-                  <paper-item>
-                    <paper-item-body two-line>
-                      <div><grid-ratings rate="[[review.stars]]"></grid-ratings></div>
-                      <div secondary>[[review.review]]</div>
-                      <paper-ripple></paper-ripple>
-                    </paper-item-body>
-                    <div class="time" data-time$="[[review.created_at]]">[[_fromNow(review.created_at)]]</div>
-                  </paper-item>
-                </a>
-              </template>
-              <template is="dom-if" if="[[!reviews.length]]">
-                <paper-item>No completed jobs</paper-item>
-              </template>
-            </template>
-          </div>
+            </div>
+          </iron-pages>
+          
         </div>
 
       </section>
@@ -339,9 +288,10 @@
             type: Object,
             statePath: 'user'
           },
-          skills: {
+
+          selected_tags: {
             type: Object,
-            statePath: 'skills'
+            statePath: 'user.tags'
           }
         }
       }
@@ -367,141 +317,23 @@
       constructor() {
         super();
         
-        this.isSkillsLoading = true;
+        this.isTagsLoading = true;
         this.isRecentPostsLoading = true;
         this.isCompletedJobsLoading = true;
         this.isReviewsLoading = true;
+        this.selected_tab = 0;
+        this.isHiglightedBidLoading = true;
       }
 
 
       connectedCallback() {
         super.connectedCallback();
 
-        const getLiveData = (url) => {
-          return gAxios.get(url, {
-            headers: {}
-          }).catch(function(){
-            return null;
-          });
-        };
+        this.fetchData();
 
-        const getChachedData = (url) => {
-          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-            return gAxios.get(url, {
-              headers: { 'Cached': 'yes'}
-            }).catch(function(){
-              return null;
-            });
-          } else {
-            return Promise.resolve(null);
-          }
-        };
-
-        getLiveData(`/users/${this.user.id}/recent/jobs`).then(res => {
-          if(!res) return false;
-          if(res.data) {
-            this.recentPosts = res.data;
-            this.isRecentPostsLoading = false;
-            return true;
-          }
-          return false;   
-        });
-
-        getChachedData(`/users/${this.user.id}/recent/jobs`).then(res => {
-          if(!res) return false;
-          if(res.data) {
-            this.recentPosts = res.data;
-            this.isRecentPostsLoading = false;
-            return true;
-          }
-          return false;
-        });
+        this.tags = this.user.tags;
+        this.isTagsLoading = false;
         
-        getLiveData(`/users/${this.user.id}/skills`).then(res => {
-          if(!res) return false;
-          if(res.data) {
-            this.isSkillsLoading = false;
-            this.dispatch('setSkills', res.data);
-            return true;
-          }
-          return false;   
-        });
-
-        getChachedData(`/users/${this.user.id}/skills`).then(res => {
-          if(!res) return false;
-          if(res.data) {
-            this.isSkillsLoading = false;
-            this.dispatch('setSkills', res.data);
-            return true;
-          }
-          return false;
-        });
-        
-        getLiveData(`/users/${this.user.id}/completed/jobs`).then(res => {
-          if(!res) return false;
-          if(res.data) {
-            this.completedJobs = res.data.completed_jobs;
-            this.isCompletedJobsLoading = false;
-            return true;
-          }
-          return false;   
-        });
-
-        getChachedData(`/users/${this.user.id}/completed/jobs`).then(res => {
-          if(!res) return false;
-          if(res.data) {
-            this.completedJobs = res.data.completed_jobs;
-            this.isCompletedJobsLoading = false;
-            return true;
-          }
-          return false;
-        });
-        
-        getLiveData(`/users/${this.user.id}/reviews`).then(res => {
-          if(!res) return false;
-          if(res.data) {
-            this.reviews = res.data;
-            this.isReviewsLoading = false;
-            return true;
-          }
-          return false;   
-        });
-
-        getChachedData(`/users/${this.user.id}/reviews`).then(res => {
-          if(!res) return false;
-          if(res.data) {
-            this.reviews = res.data;
-            this.isReviewsLoading = false;
-            return true;
-          }
-          return false;
-        });
-
-        // gAxios.get(`/users/${this.user.id}/recent/jobs`)
-        // .then( res => {
-        //   // this.dispatch('setSkills', res.data);
-        //   this.recentPosts = res.data;
-        //   this.isRecentPostsLoading = false;
-        // });
-        
-        // gAxios.get(`/users/${this.user.id}/skills`)
-        // .then( res => {
-        //   this.isSkillsLoading = false;
-        //   this.dispatch('setSkills', res.data);
-        // });
-
-        // gAxios.get(`/users/${this.user.id}/completed/jobs`)
-        // .then( res => {
-        //   this.completedJobs = res.data.completed_jobs;
-        //   this.isCompletedJobsLoading = false;
-        // });
-        
-        // gAxios.get(`/users/${this.user.id}/reviews`)
-        // .then( res => {
-        //   // console.log(res.data);
-        //   this.reviews = res.data;
-        //   this.isReviewsLoading = false;
-        // });
 
         const main = this.shadowRoot.querySelector('main');
         
@@ -537,6 +369,92 @@
         }
 
 
+      }
+
+      fetchData() {
+        const getLiveData = (url) => {
+          return gAxios.get(url, {
+            headers: {}
+          }).catch(function(){
+            return null;
+          });
+        };
+
+        const getChachedData = (url) => {
+          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            return gAxios.get(url, {
+              headers: { 'Cached': 'yes'}
+            }).catch(function(){
+              return null;
+            });
+          } else {
+            return Promise.resolve(null);
+          }
+        };
+
+        const getReviews = () => {
+          const live = getLiveData(`/users/${this.user.id}/reviews`).then(res => {
+            if(!res) return false;
+            if(res.data) {
+              this.reviews = res.data;
+              this.isReviewsLoading = false;
+              return true;
+            }
+            return false;   
+          });
+
+          const cached = getChachedData(`/users/${this.user.id}/reviews`).then(res => {
+            if(!res) return false;
+            if(res.data) {
+              this.reviews = res.data;
+              this.isReviewsLoading = false;
+              return true;
+            }
+            return false;
+          });
+
+          live.then( fetched => {
+            return fetched || cacheData;
+          }).then( dataFetched => {
+            if( !dataFetched ) {
+              // do something
+            }
+
+          });
+        }
+
+        const getHighlighted = () => {
+          const live = getLiveData(`/users/${this.user.id}/bids/highlighted`).then(res => {
+            if(!res) return false;
+            if(res.data) {
+              this.higlightedBids = res.data;
+              this.isHiglightedBidLoading = false;
+              return true;
+            }
+            return false;   
+          });
+
+          const cached = getChachedData(`/users/${this.user.id}/bids/highlighted`).then(res => {
+            if(!res) return false;
+            if(res.data) {
+              this.recentPosts = res.data;
+              this.isRecentPostsLoading = false;
+              return true;
+            }
+            return false;
+          });
+
+          live.then( fetched => {
+            return fetched || cacheData;
+          }).then( dataFetched => {
+            if( !dataFetched ) {
+              // do something
+            }
+            getReviews();
+          });
+        };
+        
+        getHighlighted();
       }
 
       editProfile() {

@@ -159,7 +159,7 @@
                           </template>
                       </template>
                       <template is="dom-if" if="[[ bid.job.is_completed ]]">
-                        <paper-item class="item" on-click="openDeletePostDialog">
+                        <paper-item class="item" on-click="openHighlightDialog">
                           <span>Highlight</span>
                         </paper-item>
                       </template>
@@ -206,6 +206,19 @@
         <paper-button dialog-confirm on-tap="removeBid">Yes</paper-button>
       </div>
     </paper-dialog>
+   
+    <paper-dialog id="highlightDialog" class="dialog-dark">
+      <h2>Highlight</h2>
+      <div>
+        <p>Are you sure you want to highlight this bid?</p>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss autofocus>No</paper-button>
+        <paper-button dialog-confirm on-tap="highlightBid">Yes</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-toast id="genericToast" duration="3000" class="fit-bottom"></paper-toast>    
 
   </template>
 
@@ -275,6 +288,10 @@
       constructor() {
         super();
         this._initSocketEvents();
+      }
+
+      get genericToast() {
+        return this.shadowRoot.querySelector('#genericToast');
       }
 
       connectedCallback() {
@@ -445,6 +462,8 @@
           
         }).then( res => { 
           this.dispatch('removeBid', bid);
+          this.genericToast.text = 'Bid successfully deleted';
+          this.genericToast.open();
         }).catch( err => {
         }).then( () => {
           this.isLoading = false;
@@ -465,6 +484,27 @@
         this.search = '';
         const sb = this.shadowRoot.querySelector('.top-search-bar')
         sb.querySelector('input').focus();
+      }
+
+      openHighlightDialog(e) {
+        this.shadowRoot.querySelector('#highlightDialog').open();
+        this.bid_to_highlight = e.model.bid;
+      }
+
+      highlightBid() {
+        if( !this.bid_to_highlight ) return;
+        const bid = this.bid_to_highlight;
+        this.isLoading = true;
+        gAxios.post(`/users/${this.user.id}/bids/${bid.id}/highlight`)
+        .then( res => {
+          console.log(res.data);
+          this.dispatch('updateBid', res.data);
+          this.genericToast.text = 'Bid successfully highlighted';
+          this.genericToast.open();
+        }).catch( err => {})
+        .then( () => {
+          this.isLoading = false;
+        })
       }
 
       _search(search) {

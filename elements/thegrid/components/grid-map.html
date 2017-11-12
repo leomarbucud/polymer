@@ -331,6 +331,7 @@
       }
 
       locationDenied() {
+        console.log('location denied');
         axios.get(`${this.url.API_URL}/getlocationbyip`)
         .then( res => {
           const location = {
@@ -453,7 +454,7 @@
             
           }
 
-          if(bounded) {
+          if( bounded && data.length ) {
             this.map.fitBounds(bounds);
           }
 
