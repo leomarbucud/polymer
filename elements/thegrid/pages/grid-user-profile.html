@@ -154,17 +154,17 @@
         <div class="layout horizontal white">
           <div class="flex m-0">
             <span class="block" style="height: 28px;">
-               <grid-ratings rate="[[ rate ]]" class="white"></grid-ratings>
+                <grid-ratings rate="[[rate]]" class="white"></grid-ratings>
             </span>
-            <span class="block white-7">[[user.reviews.length]] Ratings</span>
+            <span class="block white-7">[[ user.reviews.length ]] [[ _pluralize('Rating', user.reviews.length) ]]</span>
           </div>
           <div class="stats">
             <span class="block num">[[user.jobs_count]]</span>
-            <span class="block white-7">Posts</span>
+            <span class="block white-7">[[ _pluralize('Post', user.job_count) ]]</span>
           </div>
           <div class="stats">
             <span class="block num">[[user.bids_count]]</span>
-            <span class="block white-7">Bids</span>
+            <span class="block white-7">[[ _pluralize('Bid', user.bid_count) ]]</span>
           </div>
         </div>
 
@@ -395,6 +395,12 @@
 
       _fromNow(date) {
         return moment(date).fromNow();
+      }
+
+      _pluralize(text, count) {
+        if( count == 1 ) return text;
+        
+        return `${text}s`;
       }
 
     }

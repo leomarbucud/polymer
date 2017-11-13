@@ -87,7 +87,7 @@
         opacity: 0.12;
       }
 
-			#previews {
+			#previews, #bid_previews {
 				display: -ms-flexbox;
         display: -webkit-flex;
         display: flex;
@@ -96,7 +96,7 @@
         flex-direction: column;
 			}
 
-			#previews .wrap {
+			#previews .wrap, #bid_previews .wrap {
 				margin: 5px 0;
 			}
 
@@ -254,7 +254,7 @@
 									<template is="dom-repeat" items="[[ files ]]" as="file">
 										<div class="wrap" on-click="viewFile">
 											<div class="file layout horizontal">
-												<img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
+												<img id="file-[[index]]" src$="[[_fileReader(file, index, '#previews')]]" />
 												<span class="flex">[[file.original_name]]</span>
 											</div>
 										</div>
@@ -378,7 +378,23 @@
 		<paper-dialog id="bidDialog" class="dialog-dark" >
 			<h2>Bid</h2>
 			<div>
-				<paper-input id="bidAmount" autofocus always-float-label label="Amout" class="red" value="{{ bidAmount::input }}"></paper-textarea>
+				<div id="bid_previews">
+					<template is="dom-repeat" items="[[ bid_files ]]" as="file">
+						<div class="wrap">
+							<div class="file layout horizontal">
+								<img id="file-[[index]]" src$="[[_fileReader(file, index, '#bid_previews')]]" />
+								<span class="flex">[[ file.name ]]</span>
+								<iron-icon icon="close" on-click="removeFile"></iron-icon>
+							</div>
+						</div>
+					</template>
+				</div>
+				<paper-input id="bidAmount" autofocus always-float-label label="Amout" class="red" value="{{ bidAmount::input }}">
+					<div slot="suffix">
+							<paper-icon-button class="red" icon="grid:attachment" on-click="selectFile"></paper-icon-button>
+					</div>
+				</paper-input>
+				<input type="file" id="files" on-change="previewFiles" multiple style="position: absolute; left: -99999px; top: -99999px;"/>
 			</div>
 			<div>[[ biddingMessage ]]</div>
 			<div class="buttons">
@@ -482,6 +498,7 @@
 				this.submitReportDisabled = true;
 				this.selected_tab = 0;
 				this.bidAmount =  '';
+				this.bid_files = [];
 			}
 
 			viewOnMap() {
@@ -522,8 +539,8 @@
 				formData.append('job_id', this.post.id);
 				formData.append('price_bid', this.bidAmount);
 
-				if( this.files.length ) {
-					this.files.forEach( file => {
+				if( this.bid_files.length ) {
+					this.bid_files.forEach( file => {
 						formData.append('files[]', file);
 					});
 				}
@@ -533,9 +550,8 @@
 					// dispatch event
 					window.dispatchEvent(new CustomEvent('user:bidded', { detail: res.data }) );
 					// this._userBidded(true);
-					let job = res.data.job;
-					job.bid = res.data;
-					this.renderPost(job);
+					console.log(res.data.job.bid);
+					this.renderPost(res.data.job);
 					// update the marker
 					this.updateMarker(this.post.id);
 
@@ -571,7 +587,6 @@
 			}
 
 			renderPost(post) {
-				this.post = post;
 				this.total_bidders = 0;
 				this.docs_count = 0;
 				this.image_count = 0;
@@ -583,7 +598,8 @@
 				this.userCanAsk = this._userCanAsk(this.user);
 				this.isMypost = this._isMypost(this.user);
 				this.canBid = this._canBid(post.bid, post.is_accepted, this.isMypost);
-        this._setFiles(post.files);
+				this._setFiles(post.files);
+				this.post = post;
 			}
 
 			populatePost(postId) {
@@ -734,7 +750,7 @@
 
 				for (var i = 0, f; f = files[i]; i++) {
 
-					if(this.files.length == 5) {
+					if(this.bid_files.length == 5) {
 						err.push('Only 5 files can be uploaded.');
 						break;
 					}
@@ -751,7 +767,7 @@
 
 					if(validTypes) {
 						if(f.size <= 1000000) {
-							this.push('files', f);
+							this.push('bid_files', f);
 						} else {
 							err.push(`${f.name} is greater than 1mb.`);
 						}
@@ -770,13 +786,13 @@
 			removeFile(e) {
 				// console.log(e.model.file);
 				const file = e.model.file;
-				const index = this.files.indexOf(file);
+				const index = this.bid_files.indexOf(file);
 
 				if(index == -1) return;
 
-				let files = this.files.slice(0);
+				let files = this.bid_files.slice(0);
 				files.splice(index, 1);
-				this.set('files', files);
+				this.set('bid_files', files);
 			}
 
 			openReportDialog() {
@@ -832,8 +848,8 @@
 				}
 			}
 
-			_fileReader(file, index) {
-				const previews = this.shadowRoot.querySelector('#previews');
+			_fileReader(file, index, preview = '#previews') {
+				const previews = this.shadowRoot.querySelector(preview);
 				if(file.id) {
 					if(file.type == 'jpeg' || file.type == 'png') {
 						setTimeout( () => {
@@ -843,6 +859,22 @@
 						setTimeout( () => {
 							previews.querySelector(`img#file-${index}`).src = `data:image/png;base64,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`;
 						}, 100);
+					}
+					return;
+				} else {
+					let reader  = new FileReader();
+					reader.onloadend = () => {
+						if(file.type.indexOf('pdf') != -1) {
+							previews.querySelector(`img#file-${index}`).src = `data:image/png;base64,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
+	`;
+						} else {
+							previews.querySelector(`img#file-${index}`).src = reader.result;
+						}
+					}
+					if (file) {
+						reader.readAsDataURL(file);
+					} else {
+						previews.querySelector(`img#file-${index}`).src = '';
 					}
 					return;
 				}
@@ -1017,6 +1049,7 @@
 			}
 
 			_canBid(bid, is_accepted, isMypost) {
+				console.log(bid, is_accepted, isMypost);
 				if( !bid && !is_accepted && !isMypost) return true;
 
 				return false;
