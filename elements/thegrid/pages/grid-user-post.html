@@ -305,8 +305,10 @@
 			</iron-pages>
 		</main>
 
-		<template is="dom-if" if="[[ canBid ]]">
-			<paper-button class="red block align-center" on-click="openBidDialog">Bid</paper-button>
+		<template is="dom-if" if="[[ !post.bid ]]">
+			<template is="dom-if" if="[[ canBid ]]">
+				<paper-button class="red block align-center" on-click="openBidDialog">Bid</paper-button>
+			</template>
 		</template>
 
 		<template is="dom-if" if="[[isLoading]]">
@@ -550,7 +552,6 @@
 					// dispatch event
 					window.dispatchEvent(new CustomEvent('user:bidded', { detail: res.data }) );
 					// this._userBidded(true);
-					console.log(res.data.job.bid);
 					this.renderPost(res.data.job);
 					// update the marker
 					this.updateMarker(this.post.id);
@@ -587,19 +588,21 @@
 			}
 
 			renderPost(post) {
-				this.total_bidders = 0;
-				this.docs_count = 0;
-				this.image_count = 0;
-				this.currency = post.user.country.currency_unit;
-				this.files = post.files;
-				this.tags = post.tags;
-				this.queries = post.questions;
-				this.bidders = post.only_bids;
-				this.userCanAsk = this._userCanAsk(this.user);
-				this.isMypost = this._isMypost(this.user);
-				this.canBid = this._canBid(post.bid, post.is_accepted, this.isMypost);
-				this._setFiles(post.files);
-				this.post = post;
+				this.set('post', post);
+				setTimeout( () => {
+					this.total_bidders = 0;
+					this.docs_count = 0;
+					this.image_count = 0;
+					this.currency = post.user.country.currency_unit;
+					this.files = post.files;
+					this.tags = post.tags;
+					this.queries = post.questions;
+					this.bidders = post.only_bids;
+					this.userCanAsk = this._userCanAsk(this.user);
+					this.isMypost = this._isMypost(this.user);
+					this.canBid = this._canBid(post.bid, post.is_accepted, this.isMypost);
+					this._setFiles(post.files);
+				}, 0);
 			}
 
 			populatePost(postId) {
