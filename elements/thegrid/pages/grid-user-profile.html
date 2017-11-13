@@ -1,20 +1,30 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../grid-icons.html?v=1.2.0">
-<link rel="import" href="../grid-styles.html?v=1.2.0">
-<link rel="import" href="../components/ratings.html?v=1.2.0">
+<link rel="import" href="../grid-icons.html?v=1.2.1">
+<link rel="import" href="../grid-styles.html?v=1.2.1">
+<link rel="import" href="../components/ratings.html?v=1.2.1">
+<link rel="import" href="../components/detail-text.html?v=1.2.1">
+<link rel="import" href="../components/highlighted-item.html?v=1.2.1">
+<link rel="import" href="../components/review-item.html?v=1.2.1">
 
 <dom-module id="grid-user-profile">
   <template>
-    <style include="grid iron-flex">
+    <style include="grid grid-tabs iron-flex">
 
       :host {
-        display: block;
         position: relative;
         width: 100%;
         height: 100%;
         margin: 0 auto;
         background: var(--dark-red);
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
       }
 
       .top-section {
@@ -27,7 +37,22 @@
 
       .lower-section {
         background: #303030;
-        padding: 16px;
+        padding-bottom: 16px;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+      }
+
+      main {
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
       }
 
       .section-title {
@@ -92,6 +117,10 @@
         opacity: 0.7;
       }
 
+      .tags-container {
+        padding: 16px 0;
+      }
+
     </style>
 
     <!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
@@ -106,7 +135,7 @@
       <span class="flex"></span>
     </div>
 
-    <main class="scroll-area flex layout vertical">
+    <main class="scroll-area flex">
       <section class="p-y-1 top-section dred-bg">
 
         <div class="layout horizontal avatar-name">
@@ -125,13 +154,7 @@
         <div class="layout horizontal white">
           <div class="flex m-0">
             <span class="block" style="height: 28px;">
-              <!-- <iron-icon icon="star"></iron-icon>
-              <iron-icon icon="star"></iron-icon>
-              <iron-icon icon="star"></iron-icon>
-              <iron-icon icon="star"></iron-icon>
-              <iron-icon icon="star"></iron-icon>
-               -->
-               <grid-ratings rate="[[rate]]"></grid-ratings>
+               <grid-ratings rate="[[ rate ]]" class="white"></grid-ratings>
             </span>
             <span class="block white-7">[[user.reviews.length]] Ratings</span>
           </div>
@@ -147,150 +170,85 @@
 
       </section>
 
-      <section class="p-y-1 lower-section flex">
+      <div>
+        <paper-tabs selected="{{ selected_tab }}" class="tabs-red">
+          <paper-tab>About</paper-tab>
+          <paper-tab>Highlights</paper-tab>
+          <paper-tab>Reviews</paper-tab>
+        </paper-tabs>
+      </div>
 
-        <div class="white">
-          <div class="layout horizontal white section-title">
-            <span class="flex title">About</span>
-          </div>
-          <p class="white">
-            [[user.profile.bio]]
-          </p>
-          <template is="dom-if" if="[[!user.profile.bio]]" >
-            Nothing to show...
-          </template>
+      <section class="lower-section flex">
+        <div class="p-y-1 flex relative" style="padding-top: 16px; background: #303030;">
+          <iron-pages selected="{{ selected_tab }}">
+            <div>
+              <detail-text label="Bio" class="normal">
+                <p class="white">[[user.profile.bio]]</p>
+              </detail-text>
+              <detail-text label="Tags" class="normal">
+                <div class="tags-container">
+                  <template is="dom-if" if="[[ isTagsLoading ]]">
+                    <div class="center">
+                      <paper-spinner class="white" active="[[ isTagsLoading ]]"></paper-spinner>
+                    </div> 
+                  </template>
+                  <template is="dom-if" if="[[ !user.tags.length ]]">
+                    <div class="center">
+                      No tags
+                    </div> 
+                  </template>
+                  <template is="dom-repeat" items="[[ user.tags ]]" as="tag">
+                    <div class="chip">
+                      <span>[[ tag.name ]]</span>
+                    </div>
+                  </template>
+                </div>
+              </detail-text>
+            </div>
+            <div>
+              <template is="dom-if" if="[[ isHiglightedBidsLoading ]]">
+                <div class="overlay">
+                  <div class="align-center">
+                    <paper-spinner class="white" active="[[ isHiglightedBidsLoading ]]"></paper-spinner>                      
+                  </div>
+                </div>
+              </template>
+              <template is="dom-if" if="[[ !isHiglightedBidsLoading ]]">
+                <template is="dom-if" if="[[ !higlightedBids.length ]]">
+                  <div class="overlay">
+                    <div class="align-center">
+                      No highlighted jobs
+                    </div>
+                  </div>
+                </template>
+                <template is="dom-repeat" items="[[ higlightedBids ]]" as="bid">
+                  <highlighted-item data="[[ bid ]]"></highlighted-item>
+                </template>
+              </template>
+            </div>
+            <div>
+              <template is="dom-if" if="[[isReviewsLoading]]">
+                <div class="overlay">
+                  <div class="align-center">
+                    <paper-spinner class="white" active></paper-spinner>
+                  </div>
+                </div>
+              </template>
+              <template is="dom-if" if="[[ !isReviewsLoading ]]">
+                <template is="dom-if" if="[[ !higlightedBids.length ]]">
+                  <div class="overlay">
+                    <div class="align-center">
+                      No reviews
+                    </div>
+                  </div>
+                </template>
+                <template is="dom-repeat" items="[[ reviews ]]" as="review">
+                  <review-item data="[[ review ]]"></review-item>
+                </template>
+              </template>
+            </div>
+          </iron-pages>
         </div>
-
-        <!-- <div class="divider"><hr/></div>
-
-        <div>
-          <div class="white section-title">
-            <span class="title">Metrics</span>
-          </div>
-          <p class="white">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-          </p>
-        </div> -->
-
-        <div class="divider"><hr/></div>
-
-        <div>
-          <div class="layout horizontal white section-title">
-            <span class="flex title">Skills</span>
-          </div>
-          <div class="skills-container">
-            <template is="dom-if" if="[[isSkillsLoading]]">
-              <div class="center">
-                <paper-spinner class="white" active></paper-spinner>
-              </div> 
-            </template>
-            <template is="dom-repeat" items="[[user.skills]]" as="skill">
-              <div class="chip">
-                <span>[[skill.skill]]</span>
-              </div>
-            </template>
-            <template is="dom-if" if="[[!user.skills.length]]">
-              No skills added yet.
-            </template>
-          </div>
-        </div>
-
-        <div class="divider"><hr/></div>
-        
-        <div>
-          <div class="layout horizontal white section-title">
-            <span class="flex title">Recent Posts</span>
-          </div>
-          <div class="white" role="listbox" style="margin: 0 -16px;">
-            <template is="dom-if" if="[[isRecentPostsLoading]]">
-              <div class="center">
-                <paper-spinner class="white" active></paper-spinner>
-              </div> 
-            </template>
-            <template is="dom-if" if="[[!isRecentPostsLoading]]">
-              <template is="dom-repeat" items="[[recentPosts]]" as="job" >
-                <a href$="/@[[user.username]]/posts/[[job.id]]">
-                  <paper-item>
-                    <paper-item-body two-line>
-                      <div>[[job.name]]</div>
-                      <div secondary>Date needed: [[_fromNow(job.date)]]</div>
-                      <paper-ripple></paper-ripple>
-                    </paper-item-body>
-                    <div class="time" data-time$="[[job.created_at]]">[[_fromNow(job.created_at)]]</div>
-                  </paper-item>
-                </a>
-              </template>
-              <template is="dom-if" if="[[!recentPosts.length]]">
-                <paper-item>No recent posts</paper-item>
-              </template>
-            </template>
-          </div>
-        </div>
-        
-        <div class="divider"><hr/></div>
-        
-        <div>
-          <div class="layout horizontal white section-title">
-            <span class="flex title">Completed Jobs</span>
-          </div>
-          <div class="white" role="listbox" style="margin: 0 -16px;">
-            <template is="dom-if" if="[[isCompletedJobsLoading]]">
-              <div class="center">
-                <paper-spinner class="white" active></paper-spinner>
-              </div> 
-            </template>
-            <template is="dom-if" if="[[!isCompletedJobsLoading]]">
-              <template is="dom-repeat" items="[[completedJobs]]" as="job" >
-                <a href$="/@[[user.username]]/posts/[[job.job.id]]">
-                  <paper-item>
-                    <paper-item-body two-line>
-                      <div>[[job.job.name]]</div>
-                      <div secondary>Date needed: [[_fromNow(job.job.date)]]</div>
-                      <paper-ripple></paper-ripple>
-                    </paper-item-body>
-                    <div class="time" data-time$="[[job.job.created_at]]">[[_fromNow(job.job.created_at)]]</div>
-                  </paper-item>
-                </a>
-              </template>
-              <template is="dom-if" if="[[!completedJobs.length]]">
-                <paper-item>No completed jobs</paper-item>
-              </template>
-            </template>
-          </div>
-        </div>
-
-        <div class="divider"><hr/></div>
-
-        <div>
-          <div class="layout horizontal white section-title">
-            <span class="flex title">Reviews</span>
-          </div>
-          <div class="white" role="listbox" style="margin: 0 -16px;">
-            <template is="dom-if" if="[[isReviewsLoading]]">
-              <div class="center">
-                <paper-spinner class="white" active></paper-spinner>
-              </div> 
-            </template>
-            <template is="dom-if" if="[[!isReviewsLoading]]">
-              <template is="dom-repeat" items="[[reviews]]" as="review" >
-                <a href$="/@[[user.username]]/posts/[[review.job.id]]">
-                  <paper-item>
-                    <paper-item-body two-line>
-                      <div><grid-ratings rate="[[review.stars]]"></grid-ratings></div>
-                      <div secondary>[[review.review]]</div>
-                      <paper-ripple></paper-ripple>
-                    </paper-item-body>
-                    <div class="time" data-time$="[[review.created_at]]">[[_fromNow(review.created_at)]]</div>
-                  </paper-item>
-                </a>
-              </template>
-              <template is="dom-if" if="[[!reviews.length]]">
-                <paper-item>No reviews</paper-item>
-              </template>
-            </template>
-          </div>
-        </div>
-
       </section>
     </main>
 
@@ -334,6 +292,7 @@
         this.isSkillsLoading = true;
         this.isRecentPostsLoading = true;
         this.isCompletedJobsLoading = true;
+        this.selected_tab = 0;
       }
 
       _usernameChange(username) {
@@ -343,29 +302,14 @@
           this.set('user', res.data);
 
           this.user_id = res.data.id;
-          this.isSkillsLoading = false;
 
           this.setRecentPosts(this.user_id);
-          this.setCompletedJobs(this.user_id);
+          this.setHighlightedBids(this.user_id);
           this.setReviews(this.user_id);
-
-          let sumStar = 0;
           
-          if(this.user.reviews) {
-            const totalNumReviews = this.user.reviews.length;
-            
-            this.user.reviews.forEach( review => {
-              sumStar += review.stars;
-            });
-  
-            if(sumStar == 0) {
-              this.rate = 0;
-            } else {
-              this.rate = Math.floor(sumStar/totalNumReviews);
-            }
-  
-          } else {
-            this.rate = 0;
+          this.rate = 0;
+          if( res.data.rating ) {
+            this.rate = res.data.rating.star;
           }
 
           this.isLoading = false;
@@ -394,6 +338,20 @@
           // console.log(res.data.completed_jobs);
           this.completedJobs = res.data.completed_jobs;
           this.isCompletedJobsLoading = false;
+        });
+      }
+      
+      setHighlightedBids(id) {
+        this.isHiglightedBidsLoading = true;
+        this.higlightedBids = [];
+
+        axios.get(`${this.url.API_URL}/highlighted/bids/${id}`)
+        .then( res => {
+          // this.dispatch('setSkills', res.data);
+          // console.log(res.data.completed_jobs);
+          this.higlightedBids = res.data;
+          console.log(res.data);
+          this.isHiglightedBidsLoading = false;
         });
       }
 

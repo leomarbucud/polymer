@@ -5,7 +5,7 @@
 <link rel="import" href="../grid-styles.html?v=1.2.1">
 <link rel="import" href="../components/ratings.html?v=1.2.1">
 
-<dom-module id="offer-item">
+<dom-module id="review-item">
   <template>
     <style include="grid iron-flex">
 
@@ -19,28 +19,14 @@
         padding: 16px;
         margin: 0px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      }
-
-      .card-list .avatar {
-        width: 40px;
-        height: 40px;
-        margin-right: 12px;
-        background: #C4C4C4;
-        border-radius: 50%;
-      }
-
-      .card-list .avatar img.circle {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
+        color: var(--white);
       }
 
       .card-list .name {
         font-size: 16px;
-        text-decoration: underline;
         line-height: 20px;
       }
-      .card-list .name a {
+      .card-list .name {
         color: var(--white);
       }
 
@@ -107,31 +93,13 @@
     </style>
     <paper-card class="card-list">
       <div class="layout horizontal">
-        <div class="avatar">
-          <img class="circle" src$="[[ _profileImage(data.user.profile.profile_image_url) ]] ">
-        </div>
         <div class="flex">
-          <div class="name" ><a href="/@[[ data.user.username ]]">[[ data.user.name ]]</a></div>
-          <grid-ratings rate="[[ rate ]]" class="white"></grid-ratings>
-          <div class="offer">[[ currency ]] [[ data.price_bid ]]</div>
+          <div class="name" >[[ data.review ]]</div>
+          <grid-ratings rate="[[ data.stars ]]" class="white"></grid-ratings>
           <div class="expanded">
-            <div class="date">[[ times ]] Offer made on [[ _formatDate(data.updated_at) ]]</div>
-            <div class="bio">[[ data.user.profile.bio ]]</div>
-            <template is="dom-if" if="[[ !awarded ]]">
-              <div class="button">
-                <paper-button class="red" on-click="openAwardJobDialog">Award Bid</paper-button>
-              </div>
-            </template>
-            <template is="dom-if" if="[[ _isAwarded(data.status) ]]">
-              <div class="message">
-                You have selected this person.
-              </div>
-            </template>
-            <template is="dom-if" if="[[ _isAwarded(data.status) ]]">
-              <div class="button">
-                <paper-button class="red" on-click="openCancelwardJobDialog">Cancel</paper-button>
-              </div>
-            </template>
+            <div class="date">Reviewed by [[ data.job.user.name ]] on [[ _formatDate(data.job.updated_at) ]]</div>
+            <div class="bio">[[ data.job.name ]]</div>
+            <div class="bio">[[ data.job.details ]]</div>
           </div>
         </div>
         <div class="actions">
@@ -144,9 +112,9 @@
 
   <script>
 
-    class OfferItem extends GridNavigation(Polymer.Element) {
+    class ReviewItem extends GridNavigation(Polymer.Element) {
 
-      static get is() { return 'offer-item'; }
+      static get is() { return 'review-item'; }
 
       static get properties() {
         return {
@@ -155,14 +123,7 @@
             type: Boolean,
             value: false,
             reflectToAttribute: true
-          },
-          inactive: {
-            type: Boolean,
-            value: false,
-            reflectToAttribute: true
-          },
-          awarded: Boolean,
-          currency: String
+          }
         }
       }
 
@@ -200,51 +161,9 @@
         this.expander = 'expand-more';
       }
 
-      openAwardJobDialog() {
-        window.dispatchEvent( new CustomEvent('post:award', {
-          detail: this.data
-        }));
-      }
-     
-      openCancelwardJobDialog() {
-        window.dispatchEvent( new CustomEvent('post:cancel_award', {
-          detail: this.data
-        }));
-      }
-
       _dataChange(dataRecord) {
         const data = dataRecord.base;
-        this.rate = 0;
-        
-        if( data.user.rating.length ) {
-          this.rate = data.user.rating[0].star;
-        }
-
-        const times = data.times;
-        this.times = '';
-
-        if( times > 1 ) {
-          if( times == 2 ) {
-            this.times = '2nd';
-          } else if ( times == 3 ) {
-            this.times = '3rd';
-          }
-        }
-
         this.close();
-
-        if( data.status == 1 ) {
-          this.open();
-          this.inactive = false;
-        }
-
-        if( this.awarded && data.status == 0 ) {
-          this.inactive = true;
-        } else {
-          this.inactive = false;
-        }
-
-
       }
 
       _formatDate(date) {
@@ -261,24 +180,8 @@
         }
       }
 
-      _profileImage(img) {
-        if( img ) {
-          return `${this.url.API_BASE_URL}/uploads/${img}`;
-        }
-        if(this.data.user) return LetterAvatar(this.data.user.name, '40');
-
-      }
-
-      _isAwarded(status) {
-        return status == 1 ? true : false;
-      }
-      
-      _isAccepted(status) {
-        return status == 2 ? true : false;
-      }
-
     }
 
-    customElements.define(OfferItem.is, OfferItem);
+    customElements.define(ReviewItem.is, ReviewItem);
 	</script>
 </dom-module>

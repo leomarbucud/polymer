@@ -2,8 +2,8 @@
 <link rel="import" href="../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../grid-styles.html?v=1.2.0">
-<link rel="import" href="../components/ratings.html?v=1.2.0">
+<link rel="import" href="../grid-styles.html?v=1.2.1">
+<link rel="import" href="../components/ratings.html?v=1.2.1">
 
 <dom-module id="highlighted-item">
   <template>
@@ -97,7 +97,7 @@
           <div class="name" >[[ data.job.name ]]</div>
           <div class="expanded">
             <div class="date">Posted by [[ data.job.user.name ]] on [[ _formatDate(data.job.created_at) ]]</div>
-            <div class="date">Completed by [[ user.name ]] on [[ _formatDate(data.job.updated_at) ]]</div>
+            <div class="date">Completed on [[ _formatDate(data.job.updated_at) ]]</div>
             <grid-ratings rate="[[ rate ]]" class="white"></grid-ratings>
             <div class="bio">[[ data.job.details ]]</div>
           </div>

@@ -3,11 +3,12 @@
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../grid-styles.html?v=1.2.0">
-<link rel="import" href="../grid-icons.html?v=1.2.0">
-<link rel="import" href="../components/ratings.html?v=1.2.0">
-<link rel="import" href="../components/detail-text.html?v=1.2.0">
-<link rel="import" href="../components/highlighted-item.html?v=1.2.0">
+<link rel="import" href="../grid-styles.html?v=1.2.1">
+<link rel="import" href="../grid-icons.html?v=1.2.1">
+<link rel="import" href="../components/ratings.html?v=1.2.1">
+<link rel="import" href="../components/detail-text.html?v=1.2.1">
+<link rel="import" href="../components/highlighted-item.html?v=1.2.1">
+<link rel="import" href="../components/review-item.html?v=1.2.1">
 
 <dom-module id="grid-profile">
   <template>
@@ -161,15 +162,15 @@
             <span class="block" style="height: 28px;">
                <grid-ratings rate="[[rate]]" class="white"></grid-ratings>
             </span>
-            <span class="block white-7">[[user.reviews.length]] Ratings</span>
+            <span class="block white-7">[[ user.reviews.length ]] [[ _pluralize('Rating', user.reviews.length) ]]</span>
           </div>
           <div class="stats">
             <span class="block num">[[user.jobs_count]]</span>
-            <span class="block white-7">Posts</span>
+            <span class="block white-7">[[ _pluralize('Post', user.job_count) ]]</span>
           </div>
           <div class="stats">
             <span class="block num">[[user.bids_count]]</span>
-            <span class="block white-7">Bids</span>
+            <span class="block white-7">[[ _pluralize('Bid', user.bid_count) ]]</span>
           </div>
         </div>
 
@@ -189,7 +190,9 @@
             <div>
               <detail-text label="Bio" class="normal">
                 <p class="white">[[user.profile.bio]]</p>
-                <span class="red pointer" on-click="redirectAbout">Edit</span>
+                <div class="align-right">
+                  <a class="red pointer" href="/profile/about">Edit</a>
+                </div>
               </detail-text>
               <detail-text label="Tags" class="normal">
                 <div class="tags-container">
@@ -204,7 +207,9 @@
                     </div>
                   </template>
                 </div>
-                <span class="red pointer" on-click="redirectProfileTags">Edit</span>
+                <div class="align-right">
+                  <a class="red pointer" href="/profile/tags">Edit</a>
+                </div>
               </detail-text>
             </div>
             <div>
@@ -220,28 +225,23 @@
               </template>
             </div>
             <div>
-              <template is="dom-if" if="[[ isReviewsLoading ]]">
+              <template is="dom-if" if="[[isReviewsLoading]]">
                 <div class="overlay">
                   <div class="align-center">
-                    <paper-spinner class="white" active="[[ isReviewsLoading ]]"></paper-spinner>                      
+                    <paper-spinner class="white" active></paper-spinner>
                   </div>
                 </div>
               </template>
-              <template is="dom-if" if="[[ !isReviewsLoading]] ">
-                <template is="dom-repeat" items="[[reviews]]" as="review" >
-                  <a href$="/@[[ user.username ]]/posts/[[ review.job.id ]]">
-                    <paper-item>
-                      <paper-item-body two-line>
-                        <div><grid-ratings rate="[[review.stars]]"></grid-ratings></div>
-                        <div secondary>[[review.review]]</div>
-                        <paper-ripple></paper-ripple>
-                      </paper-item-body>
-                      <div class="time" data-time$="[[ review.created_at ]]">[[_fromNow(review.created_at)]]</div>
-                    </paper-item>
-                  </a>
+              <template is="dom-if" if="[[ !isReviewsLoading ]]">
+                <template is="dom-if" if="[[ !higlightedBids.length ]]">
+                  <div class="overlay">
+                    <div class="align-center">
+                      No reviews
+                    </div>
+                  </div>
                 </template>
-                <template is="dom-if" if="[[!reviews.length]]">
-                  <paper-item>No reviews</paper-item>
+                <template is="dom-repeat" items="[[ reviews ]]" as="review">
+                  <review-item data="[[ review ]]"></review-item>
                 </template>
               </template>
             </div>
@@ -302,17 +302,6 @@
           '_subrouteDataChange(subrouteData)',
         ]
       }
-
-      static get actions() {
-  			return {
-  				setSkills(skills) {
-  					return {
-  						type: 'SET_SKILLS',
-  						skills: skills
-  					}
-  				}
-  			};
-  		}
 
       constructor() {
         super();
@@ -501,6 +490,12 @@
 
       _fromNow(date) {
         return moment(date).fromNow();
+      }
+
+      _pluralize(text, count) {
+        if( count == 1 ) return text;
+        
+        return `${text}s`;
       }
 
     }
