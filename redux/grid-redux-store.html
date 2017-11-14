@@ -255,23 +255,23 @@
         let inbox = state.inbox.slice(0);
         // console.log('updating conversation');
         
-        var conversation = inbox.find(item => {
-          return item.id == action.id;
-        });
+        // var conversation = inbox.find(item => {
+        //   return item.id == action.id;
+        // });
 
-        const _conversation = action.conversation;
+        // const _conversation = action.conversation;
 
-        if(_conversation && conversation) {
+        // if(_conversation && conversation) {
 
-          conversation.last_updated_by = Number(_conversation.last_updated_by);
-          conversation.unread_count = Number(_conversation.unread_count);
-          conversation.updated_at = _conversation.updated_at;
+        //   conversation.last_updated_by = Number(_conversation.last_updated_by);
+        //   conversation.unread_count = Number(_conversation.unread_count);
+        //   conversation.updated_at = _conversation.updated_at;
 
-        }
+        // }
 
         const updatedInbox = inbox.map(item => {
           if(item.id == action.id){
-            return conversation;
+            return action.conversation;
           }
           return item
         });

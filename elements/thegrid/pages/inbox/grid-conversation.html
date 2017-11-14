@@ -414,6 +414,7 @@
         this._hasTmpMessage = false;
         this._recipientProfileImage = this._profileImage(null, 'Grid');
         this.isTyping = false;
+        this.hasUnread = false;
 
         this._initSocketEvents();
       }
@@ -430,7 +431,14 @@
         // this.conversation = conversation;
 
         let index = null;
+        this.hasUnread = false;
         conversation.messages.map( (c, i) => {
+
+          if( c.recipient_id == this.user.id ) {
+            if( c.status == 0 ) {
+              this.hasUnread = true;
+            }
+          }
 
           if(c.author_id == this.user.id) {
             c.type = 'sent';
@@ -494,6 +502,11 @@
         this._getRecipientName = this._getRecipient().name;
 
         this._onlineUsersChange(this.online_users);
+        
+        if( this.hasUnread ) {
+          this.readMessage();
+          this.hasUnread = false;
+        }
 
         // const chats = this.$.chat.querySelectorAll('li[data-index]');
         
@@ -591,22 +604,23 @@
 
       readMessage(e) {
         if (!this.auth) return;
+        console.log('this.hasUnread', this.hasUnread);
+        // if (this.conversation.last_updated_by == this.user.id || this.conversation.unread_count == 0) return;
 
-        if (this.conversation.last_updated_by == this.user.id || this.conversation.unread_count == 0) return;
+        if( !this.hasUnread ) return;
 
-        gAxios.post('/users/' + this.user.id + '/conversations/' + this.conversationId + '/read', {
+        gAxios.post(`/users/${this.user.id}/conversations/${this.conversationId}/read`, {
 
-        })
-          .then(res => {
-            var data = res.data;
-            console.log(data);
-            this.dispatch('updateConversation', this.conversationId, data);
-            //this.message = '';
-            //window.dispatchEvent(new CustomEvent('user:send_message', { detail: data }));
-          })
-          .catch(err => {
+        }).then(res => {
+          this.hasUnread = false;
+          // console.log(data);
+          this.dispatch('updateConversation', this.conversationId, res.data);
+          console.log('after request this.hasUnread', this.hasUnread);
+          //this.message = '';
+          //window.dispatchEvent(new CustomEvent('user:send_message', { detail: data }));
+        }).catch(err => {
 
-          });
+        });
       }
 
       toggleTime(e) {
@@ -663,7 +677,7 @@
         this.inbox.map(conversation => {
           if (parseInt(conversation.id) === parseInt(conversationId)) {
             this.renderConversation(conversation, false);
-            this.readMessage();
+            // this.readMessage();
             this.isLoading = false;
           }
         });
@@ -679,7 +693,7 @@
         this.inbox.map(conversation => {
           if (parseInt(conversation.id) === parseInt(this.conversationId)) {
             this.renderConversation(conversation);
-            this.readMessage();
+            // this.readMessage();
             this.isLoading = false;
           }
         });
