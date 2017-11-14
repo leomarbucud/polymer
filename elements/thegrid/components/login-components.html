@@ -1,11 +1,13 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
-<link rel="import" href="../../../behaviors/navigation-behavior.html?v=1.2.1">
-<link rel="import" href="../../../redux/grid-redux-store.html?v=1.2.1">
-<link rel="import" href="../grid-styles.html?v=1.2.1">
-<link rel="import" href="divider-text.html?v=1.2.1">
-<link rel="import" href="social-button.html?v=1.2.1">
+<link rel="import" href="../../../behaviors/navigation-behavior.html?v=1.2.2">
+<link rel="import" href="../../../redux/grid-redux-store.html?v=1.2.2">
+<link rel="import" href="../grid-styles.html?v=1.2.2">
+<link rel="import" href="divider-text.html?v=1.2.2">
+<link rel="import" href="social-button.html?v=1.2.2">
 
 <dom-module id="login-components">
   <template>
@@ -33,6 +35,8 @@
       }
 
     </style>
+    <app-location route="{{ route }}"></app-location>
+    <app-route route="{{ route }}" pattern="/login/:social" data="{{ routeData }}"></app-route>
 
     <div class="h-100 p-y-1 flex layout vertical">
       <div class="logo-container">
@@ -143,7 +147,8 @@
 
       static get observers() {
         return [
-          '_passwordState(isPasswordHidden)'
+          '_passwordState(isPasswordHidden)',
+          '_routeDataChange(routeData)'
         ];
       }
 
@@ -323,17 +328,25 @@
               };
 
               if ( res.status === 'connected' ) {
+                if( this.routeData.social == 'redirectfromfacebook' ) {
+                  getInfo();
+                }
                 this.fbConnected = true;
                 fbButton.addEventListener('click', () => {
                   getInfo();
                 });
               } else {
                 fbButton.addEventListener('click', () => {
+                  if ("standalone" in navigator && navigator.standalone) {
+                    var permissionUrl = `https://m.facebook.com/dialog/oauth?client_id=1451318644890504&response_type=code&redirect_uri=${window.location.href + '/redirectfromfacebook'}&scope=email`;
+                    window.location = permissionUrl;
+                    return;
+                  }
                   FB.login( res => {
                     if ( res.status === 'connected' ) {
                       getInfo();
                     }
-                  }, { scope: 'email' })
+                  }, { scope: 'email' });
                 });
               }
 
@@ -369,7 +382,7 @@
           this.isLoggedIn = false;
 
           if (err.response) {
-            console.log(err.response.data);
+            // console.log(err.response.data);
             var data = err.response.data;
             var loginAttempt = this.loginAttempt + 1;
             this.loginAttempt = loginAttempt;
@@ -378,6 +391,12 @@
           }
 
         });
+      }
+
+      _routeDataChange(routeData) {
+        if( routeData.social == 'redirectfromfacebook' ) {
+          this.isLoggingIn = true;
+        }
       }
 
     }
