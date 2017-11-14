@@ -67,10 +67,8 @@
 				<paper-icon-button icon="chevron-left" class="white pointer" on-click="redirectBack"></paper-icon-button>
 			<!-- </div> -->
 			<div class="flex"></div>
-			<!-- <div class="flex align-right"> -->
-				<!-- <span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span> -->
-				<paper-button id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</paper-button>
-			<!-- </div> -->
+			<paper-button id="next" class="white pointer" on-click="skip" hidden$="[[readyPost]]">Skip</paper-button>
+			<paper-button id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</paper-button>
 		</div>
 
 		<div class="p-y-1">
@@ -289,6 +287,10 @@
 			goBack() {
 				if(!this.data) return;
 				this.redirect(`/posts/edit/${this.data.id}#2`);
+			}
+
+			skip() {
+				this.redirect(`/posts/edit/${this.data.id}#4`);
 			}
 
 			submit() {

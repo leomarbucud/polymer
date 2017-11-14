@@ -268,7 +268,6 @@
       getRelatedJobs() {
         gAxios.get(`/users/${this.user.id}/related/jobs`)
         .then( res => {
-          console.log(res.data);
           this.recommended_jobs = res.data;
         });
       }

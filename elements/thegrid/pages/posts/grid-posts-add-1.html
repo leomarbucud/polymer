@@ -1,6 +1,9 @@
 <link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../../../../behaviors/form-slider-behavior.html?v=1.2.1">
@@ -8,6 +11,7 @@
 <link rel="import" href="../../components/datepicker.html?v=1.2.1">
 <link rel="import" href="../../components/gmap-search.html?v=1.2.1">
 <link rel="import" href="../../grid-styles.html?v=1.2.1">
+<link rel="import" href="../../grid-icons.html?v=1.2.1">
 
 <dom-module id="grid-posts-add-1">
   <template>
@@ -115,6 +119,9 @@
                 on-click="showMap"/>
             <div class="addon-suffix has-icon">
               <!-- <paper-icon-button icon="maps:pin-drop" class="red" hidden$="[[!gmap.map]]" on-tap="showMap"></paper-icon-button> -->
+              <template is="dom-if" if="[[ user.locations.length ]]">
+                <paper-icon-button id="mylocationsButton" class="red" icon="grid:location" hidden$="[[!gmap.map]]" on-tap="openMyLocationsDialog"></paper-icon-button>
+              </template>
               <paper-icon-button id="locationButton" class="red" icon="maps:my-location" hidden$="[[!gmap.map]]" on-tap="myLocation"></paper-icon-button>
               <!-- <span id="locationButton" on-click="myLocation" class="pointer inactive" hidden$="[[!map]]">
                 <iron-icon icon="maps:my-location" class="red" title="Press for current location"></iron-icon>
@@ -150,13 +157,23 @@
       </div>
     </div>
 
-    <iron-icon class="map-control map-control-marker" src="/assets/images/icons/related-marker.svg"></iron-icon>
-
-    <paper-button class="map-control map-control-button" on-tap="hideMap">Done</paper-button>
-
-
     <grid-date-picker id="date-picker" date-time="{{when}}" time="{{time}}" no-range="true" has-time="true"></grid-date-picker>
     <gmap-search id="gmap-search" location="{{location}}"></gmap-search>
+    <paper-dialog id="myLocationsDialog" class="dialog-dark" >
+			<h2>Select from your locations</h2>
+			<div>
+        <paper-radio-group selected="{{ selected_from_locations }}">
+          <template is="dom-repeat" items="[[ user.locations ]]" as="location">
+            <paper-radio-button class="block" on-click="selectMyLocation" name="[[ location.alias ]]">[[ location.alias ]]</paper-radio-button>
+          </template>
+        </paper-radio-group>
+			</div>
+			<div class="buttons">
+				<paper-button dialog-dismiss class="white">Cancel</paper-button>
+				<paper-button dialog-dismiss class="white" on-click="confirmMyLocation" disabled="[[ noSelectedLocation ]]">Ok</paper-button>
+      </div>
+    </paper-dialog>
+    
   </template>
 
   <script>
@@ -214,6 +231,7 @@
         super();
         this.readyPost = false;
         this.map = null;
+        this.noSelectedLocation = true;
       }
 
       connectedCallback() {
@@ -362,6 +380,22 @@
       }
 
       */
+
+      openMyLocationsDialog() {
+        this.shadowRoot.querySelector('#myLocationsDialog').open();
+      }
+
+      selectMyLocation(e) {
+        this.selectedMyLocation = e.model.location;
+        this.noSelectedLocation = false;
+      }
+
+      confirmMyLocation() {
+        if( !this.selectedMyLocation ) return;
+        this.where = this.selectedMyLocation.location;
+        this.lat = this.selectedMyLocation.lat;
+        this.lng = this.selectedMyLocation.lng;
+      }
 
       myLocation() {
         const self = this;

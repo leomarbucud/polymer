@@ -604,20 +604,14 @@
 
       readMessage(e) {
         if (!this.auth) return;
-        console.log('this.hasUnread', this.hasUnread);
         // if (this.conversation.last_updated_by == this.user.id || this.conversation.unread_count == 0) return;
 
         if( !this.hasUnread ) return;
 
-        gAxios.post(`/users/${this.user.id}/conversations/${this.conversationId}/read`, {
-
-        }).then(res => {
+        gAxios.post(`/users/${this.user.id}/conversations/${this.conversationId}/read`)
+        .then(res => {
           this.hasUnread = false;
-          // console.log(data);
           this.dispatch('updateConversation', this.conversationId, res.data);
-          console.log('after request this.hasUnread', this.hasUnread);
-          //this.message = '';
-          //window.dispatchEvent(new CustomEvent('user:send_message', { detail: data }));
         }).catch(err => {
 
         });
