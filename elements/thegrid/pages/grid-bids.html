@@ -127,19 +127,19 @@
         <h1 id="main-title" class="white m-0">Bids</h1>
       </section>
       <div id="post-list" class="white p-y-1" role="listbox">
-        <template is="dom-repeat" items="[[bids]]" as="bid" filter="{{_filterBids(query)}}">
+        <template is="dom-repeat" items="[[ bids ]]" as="bid" filter="{{ _filterBids(query) }}">
           <template is="dom-if" if="[[bid.job]]">
-            <paper-card class="card-list" id$="[[bi.job.id]]">
+            <paper-card class="card-list" id$="[[ bid.job.id ]]">
               <div class="layout horizontal w-100">
                 <div class="card-content" on-click="viewBid">
                   <div class="header-date">
                     [[ _getStatus(bid) ]]
                   </div>
                   <div class="header-title">
-                    [[bid.job.name]]
+                    [[ bid.job.name ]]
                   </div>
                   <div class="description">
-                    [[bid.job.details]]
+                    [[ bid.job.details ]]
                   </div>
                 </div>
                 <paper-menu-button horizontal-align="right" vertical-align="top">
@@ -170,7 +170,7 @@
             </paper-card>
           </template>
         </template>
-        <template is="dom-if" if="[[!bids.length]]">
+        <template is="dom-if" if="[[ !bids.length]] ">
           <paper-item>
             <paper-item-body>
               <div>You don't have any bids</div>
@@ -487,6 +487,11 @@
       }
 
       openHighlightDialog(e) {
+        if( e.model.bid.is_highlighted ) {
+          this.genericToast.text = 'Bid is already highlighted';
+          this.genericToast.open();
+          return;
+        }
         this.shadowRoot.querySelector('#highlightDialog').open();
         this.bid_to_highlight = e.model.bid;
       }
@@ -764,19 +769,26 @@
       }
 
       _getStatus(bid) {
-        if( bid.job.is_completed ) {
-          return `Completed ${this._fromNow(bid.job.updated_at)}`;
-        }
-        
-        if( bid.job.is_moving ) {
-          return `In Progress ${this._fromNow(bid.job.updated_at)}`;
-        }
-        
-        if( bid.job.is_awarded ) {
-          return `Awarded ${this._fromNow(bid.job.updated_at)}`;
+        if( bid.winner ) {
+          if( bid.job.is_completed ) {
+            return `Completed ${this._fromNow(bid.job.updated_at)}`;
+          }
+          
+          if( bid.job.is_moving ) {
+            return `In Progress ${this._fromNow(bid.job.updated_at)}`;
+          }
+          
+          if( bid.job.is_awarded ) {
+            return `Awarded ${this._fromNow(bid.job.updated_at)}`;
+          }
         }
 
+        if( !bid.winner && bid.job.is_awarded ) {
+          return `Awarded to other ${this._fromNow(bid.job.updated_at)}`;
+        }
+        
         return `Waiting since ${this._fromNow(bid.created_at)}`;
+        
       }
 
       _isUserAccepted(status) {

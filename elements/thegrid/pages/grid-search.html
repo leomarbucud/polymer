@@ -147,6 +147,27 @@
             </div>
           </template>
         </template>
+        <template is="dom-if" if="[[ popular_jobs.length ]]">
+          <br/>
+          <div class="flex layout horizontal recent-searches-title">
+            <div class="flex white">
+              Popular
+            </div>
+          </div>
+          <template is="dom-repeat" items="[[ popular_jobs ]]" as="job">
+            <div class="search-result flex layout horizontal pointer" on-click="viewJob">
+              <div class="flex job-info">
+                <div class="job-name">[[job.name]]</div>
+                <div class="job-date">[[_fromNow(job.date)]]</div>
+              </div>
+              <template is="dom-if" if="[[job.files.length]]">
+                <div class="job-avatar" style$="background-image: url([[_getFilePath(job.files.0.path)]]); background-size: cover; background-position: center;">
+
+                </div>
+              </template>
+            </div>
+          </template>
+        </template>
       </div>
     </main>
     <template is="dom-if" if="[[search_results.length]]">
@@ -232,7 +253,9 @@
 
         if( this.user ) {
           this.getRelatedJobs();
+          this.getPopularJobs();
         }
+
 
         var search = function(e) {
           if ( e.keyCode == 13 ) {
@@ -269,6 +292,13 @@
         gAxios.get(`/users/${this.user.id}/related/jobs`)
         .then( res => {
           this.recommended_jobs = res.data;
+        });
+      }
+      
+      getPopularJobs() {
+        gAxios.get(`/users/${this.user.id}/popular/jobs`)
+        .then( res => {
+          this.popular_jobs = res.data;
         });
       }
 

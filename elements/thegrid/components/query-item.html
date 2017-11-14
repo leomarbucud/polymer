@@ -253,6 +253,9 @@
       setState() {
         this.like = this.data.likes.length;
         this.dislike = this.data.dislikes.length;
+        this.isAbleToLike = false;
+        this.isLiked = false;
+        this.isDisliked = false;
 
         if( this.user ) {
           if( this.user.id == this.data.user.id ) {
@@ -270,8 +273,6 @@
               this.isAbleToLike = true;
             }
           }
-        } else {
-          this.isAbleToLike = false;
         }
       }
 
