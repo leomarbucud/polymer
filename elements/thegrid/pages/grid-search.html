@@ -346,6 +346,7 @@
 
       viewJob(e) {
         const job = e.model.job;
+        console.log(job);
 
         if( !job ) return;
 
@@ -353,6 +354,12 @@
 
         this.gmap.map.setCenter(position);
         this.gmap.map.setZoom(20);
+        const isOnMap = this.gmap.findBy( m => {
+          return m.id == job.id;
+        });
+        if( !isOnMap.length ) {
+          this.gmap.newMarker(job);
+        }
         this.redirectHome();
 
       }

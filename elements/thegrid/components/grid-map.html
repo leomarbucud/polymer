@@ -391,76 +391,30 @@
 
         this.removeAllMarkers();
 
-        // setTimeout(() => {
-          let markerType = this.markerType.newJob;
+        let markerType = this.markerType.newJob;
 
-          let bounds = null;
+        let bounds = null;
+
+        if(bounded) {
+          bounds = new google.maps.LatLngBounds();
+        }
+
+        for(var i = 0; i < data.length; i++) {
+        
+          if( !this.newMarker(data[i]) ) return;
 
           if(bounded) {
-            bounds = new google.maps.LatLngBounds();
-          }
-
-          for(var i = 0; i < data.length; i++) {
-            markerType = this.markerType.newJob;
-            data[i].fillColor = markerType.color;
-            data[i].isMyPost = false;
-            data[i].isBidded = false;
-            data[i].isAwarded = false;
-            data[i].hasWinner = false;
-            var bids = data[i].bids;
-
-            if(this.auth) {
-              if(this.user.id == data[i].user_id) {
-                markerType = this.markerType.myJob;
-                data[i].fillColor = markerType.color;
-                data[i].isMyPost = true;
-              }
-              if(data[i].winner) {
-                data[i].hasWinner = true;
-                if(this.user.id == data[i].winner.user_id) {
-                  data[i].isAwarded = true;
-                }
-              }
-              for(var j = 0; j < bids.length; j++) {
-                // Check if user is already bidded
-                if(this.user.id == bids[j].user_id) {
-                  markerType = this.markerType.biddedJob;
-                  data[i].fillColor = markerType.color;
-                  data[i].isBidded = true;
-                }
-              }
-            }
-
-            if( data[i].hasWinner && !data[i].isAwarded && !data[i].isMyPost) {
-              continue;
-            }
-
-            const duplicateMarker = this.findBy( m => {
-              return (m.lat == data[i].lat && m.lng == data[i].lng);
-            });
-
-            if(duplicateMarker.length) {
-              const offsetPositon = this.offsetMarker(data[i].lat, data[i].lng, 2);
-              data[i].lat = offsetPositon.lat;
-              data[i].lng = offsetPositon.lng;
-            }
- 
-            this._newMarker(data[i]);
-
-            if(bounded) {
-              let position = new google.maps.LatLng(data[i].lat, data[i].lng);
-              bounds.extend(position);
-            }  
-            
-          }
-
-          if( bounded && data.length ) {
-            this.map.fitBounds(bounds);
-          }
-
-          this.markerClusterer.repaint();
+            let position = new google.maps.LatLng(data[i].lat, data[i].lng);
+            bounds.extend(position);
+          }  
           
-        // }, 1000);
+        }
+
+        if( bounded && data.length ) {
+          this.map.fitBounds(bounds);
+        }
+
+        this.markerClusterer.repaint();
         
       }
 
@@ -540,7 +494,52 @@
       }
 
       newMarker(data) {
+        let markerType = this.markerType.newJob;
+        data.isMyPost = false;
+        data.isBidded = false;
+        data.isAwarded = false;
+        data.hasWinner = false;
+        var bids = data.bids;
+
+        if(this.auth) {
+          if(this.user.id == data.user_id) {
+            markerType = this.markerType.myJob;
+            data.fillColor = markerType.color;
+            data.isMyPost = true;
+          }
+          if(data.winner) {
+            data.hasWinner = true;
+            if(this.user.id == data.winner.user_id) {
+              data.isAwarded = true;
+            }
+          }
+          for(var j = 0; j < bids.length; j++) {
+            // Check if user is already bidded
+            if(this.user.id == bids[j].user_id) {
+              markerType = this.markerType.biddedJob;
+              data.fillColor = markerType.color;
+              data.isBidded = true;
+            }
+          }
+        }
+
+        if( data.hasWinner && !data.isAwarded && !data.isMyPost) {
+          return false;
+        }
+
+        const duplicateMarker = this.findBy( m => {
+          return (m.lat == data.lat && m.lng == data.lng);
+        });
+
+        if(duplicateMarker.length) {
+          const offsetPositon = this.offsetMarker(data.lat, data.lng, 2);
+          data.lat = offsetPositon.lat;
+          data.lng = offsetPositon.lng;
+        }
+
         this._newMarker(data);
+
+        return true;
       }
 
       offsetMarker(lat, lng, m = 2) {
