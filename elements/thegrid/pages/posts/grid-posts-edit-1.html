@@ -75,13 +75,13 @@
                 placeholder="Where?"
                 value="{{where::input}}"
                 data-validate="required"
-                data-message-required="Please tell us where." />
+                data-message-required="Please tell us where."
+                on-click="showMap"/>
             <div class="addon-suffix has-icon">
-              <paper-icon-button icon="maps:pin-drop" class="red" hidden$="[[!gmap.map]]" on-tap="showMap"></paper-icon-button>
+              <template is="dom-if" if="[[ user.locations.length ]]">
+                <paper-icon-button id="mylocationsButton" class="red" icon="grid:location" hidden$="[[!gmap.map]]" on-tap="openMyLocationsDialog"></paper-icon-button>
+              </template>
               <paper-icon-button id="locationButton" class="red" icon="maps:my-location" hidden$="[[!gmap.map]]" on-tap="myLocation"></paper-icon-button>
-              <!-- <span id="locationButton" on-click="myLocation" class="pointer inactive" hidden$="[[!map]]">
-                <iron-icon icon="maps:my-location" class="red" title="Press for current location"></iron-icon>
-              </span> -->
             </div>
           </div>
 
@@ -99,8 +99,21 @@
     </div>
 
     <grid-date-picker id="date-picker" date-time="{{when}}" time="{{time}}" no-range="true" has-time="true"></grid-date-picker>
-    
     <gmap-search id="gmap-search" location="{{location}}"></gmap-search>
+    <paper-dialog id="myLocationsDialog" class="dialog-dark" >
+      <h2>Select from your locations</h2>
+      <div>
+        <paper-radio-group selected="{{ selected_from_locations }}">
+          <template is="dom-repeat" items="[[ user.locations ]]" as="location">
+            <paper-radio-button class="block" on-click="selectMyLocation" name="[[ location.alias ]]">[[ location.alias ]]</paper-radio-button>
+          </template>
+        </paper-radio-group>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss class="white">Cancel</paper-button>
+        <paper-button dialog-confirm class="white" on-click="confirmMyLocation" disabled="[[ noSelectedLocation ]]">Ok</paper-button>
+      </div>
+    </paper-dialog>
 
   </template>
 
@@ -155,6 +168,7 @@
         super();
         this.readyPost = false;
         this.map = null;
+        this.noSelectedLocation = true;
       }
 
       connectedCallback() {
@@ -273,6 +287,22 @@
             });
           });
         }
+      }
+
+      openMyLocationsDialog() {
+        this.shadowRoot.querySelector('#myLocationsDialog').open();
+      }
+
+      selectMyLocation(e) {
+        this.selectedMyLocation = e.model.location;
+        this.noSelectedLocation = false;
+      }
+
+      confirmMyLocation() {
+        if( !this.selectedMyLocation ) return;
+        this.where = this.selectedMyLocation.location;
+        this.lat = this.selectedMyLocation.lat;
+        this.lng = this.selectedMyLocation.lng;
       }
 
       submit() {
