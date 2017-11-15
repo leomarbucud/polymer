@@ -213,15 +213,22 @@
               </detail-text>
             </div>
             <div>
-              <template is="dom-if" if="[[ isHiglightedBidLoading ]]">
+              <template is="dom-if" if="[[ isHighlightedBidsLoading ]]">
                 <div class="overlay">
                   <div class="align-center">
-                    <paper-spinner class="white" active="[[ isHiglightedBidLoading ]]"></paper-spinner>                      
+                    <paper-spinner class="white" active="[[ isHighlightedBidsLoading ]]"></paper-spinner>                      
                   </div>
                 </div>
               </template>
-              <template is="dom-repeat" items="[[ higlightedBids ]]" as="bid">
-                <highlighted-item data="[[ bid ]]"></highlighted-item>
+              <template is="dom-if" if="[[ !higlightedBids.length ]]">
+                <div class="overlay">
+                  <div class="align-center">
+                    No highlighted jobs
+                  </div>
+                </div>
+                <template is="dom-repeat" items="[[ higlightedBids ]]" as="bid">
+                  <highlighted-item data="[[ bid ]]"></highlighted-item>
+                </template>
               </template>
             </div>
             <div>
@@ -233,7 +240,7 @@
                 </div>
               </template>
               <template is="dom-if" if="[[ !isReviewsLoading ]]">
-                <template is="dom-if" if="[[ !higlightedBids.length ]]">
+                <template is="dom-if" if="[[ !reviews.length ]]">
                   <div class="overlay">
                     <div class="align-center">
                       No reviews
@@ -311,7 +318,7 @@
         this.isCompletedJobsLoading = true;
         this.isReviewsLoading = true;
         this.selected_tab = 0;
-        this.isHiglightedBidLoading = true;
+        this.isHighlightedBidsLoading = true;
       }
 
 
@@ -417,7 +424,7 @@
             if(!res) return false;
             if(res.data) {
               this.higlightedBids = res.data;
-              this.isHiglightedBidLoading = false;
+              this.isHighlightedBidsLoading = false;
               return true;
             }
             return false;   

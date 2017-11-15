@@ -82,7 +82,7 @@
 
           <div class="input-group prefix" data-step="3" data-question="Phone Number">
             <div class="addon-prefix flex layout horizontal">
-              <span>AE +971</span>
+              <span>[[ phone_code_text ]]</span>
             </div>
             <input id="phone_number" type="text" class="input"
                 autocomplete="off"
@@ -216,6 +216,8 @@
           this.email = user.email;
           this.user_id = user.id;
         }
+        this.phone_code_text = '...';
+        this.phone_code = '';
       }
 
       connectedCallback() {
@@ -226,6 +228,18 @@
         this.initForm();
         // IDEA: Initialize some properties
         this.set('step.message', 'The Grid Registration');
+
+        this.getPhoneCode();
+      }
+
+      getPhoneCode() {
+        axios.get(`${this.url.API_URL}/getCountryDetails`)
+        .then( res => {
+          this.phone_code_text = `${res.data.iso} +${res.data.phonecode}`;
+          this.phone_code = `+${res.data.phonecode}`;
+        }).catch( err => {
+
+        });
       }
 
       submit() {
@@ -234,7 +248,8 @@
           name: this.name,
           email: this.email,
           phone_number: this.phone_number,
-          password: this.password
+          password: this.password,
+          phone_code: this.phone_code
         };
 
         if( this.user_id ) {

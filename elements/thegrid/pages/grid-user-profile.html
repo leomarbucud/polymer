@@ -206,14 +206,14 @@
               </detail-text>
             </div>
             <div>
-              <template is="dom-if" if="[[ isHiglightedBidsLoading ]]">
+              <template is="dom-if" if="[[ isHighlightedBidsLoading ]]">
                 <div class="overlay">
                   <div class="align-center">
-                    <paper-spinner class="white" active="[[ isHiglightedBidsLoading ]]"></paper-spinner>                      
+                    <paper-spinner class="white" active="[[ isHighlightedBidsLoading ]]"></paper-spinner>                      
                   </div>
                 </div>
               </template>
-              <template is="dom-if" if="[[ !isHiglightedBidsLoading ]]">
+              <template is="dom-if" if="[[ !isHighlightedBidsLoading ]]">
                 <template is="dom-if" if="[[ !higlightedBids.length ]]">
                   <div class="overlay">
                     <div class="align-center">
@@ -235,7 +235,7 @@
                 </div>
               </template>
               <template is="dom-if" if="[[ !isReviewsLoading ]]">
-                <template is="dom-if" if="[[ !higlightedBids.length ]]">
+                <template is="dom-if" if="[[ !reviews.length ]]">
                   <div class="overlay">
                     <div class="align-center">
                       No reviews
@@ -342,7 +342,7 @@
       }
       
       setHighlightedBids(id) {
-        this.isHiglightedBidsLoading = true;
+        this.isHighlightedBidsLoading = true;
         this.higlightedBids = [];
 
         axios.get(`${this.url.API_URL}/highlighted/bids/${id}`)
@@ -351,7 +351,7 @@
           // console.log(res.data.completed_jobs);
           this.higlightedBids = res.data;
           console.log(res.data);
-          this.isHiglightedBidsLoading = false;
+          this.isHighlightedBidsLoading = false;
         });
       }
 

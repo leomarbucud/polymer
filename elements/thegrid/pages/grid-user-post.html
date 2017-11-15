@@ -211,7 +211,7 @@
 						</div>
 					</template>
 					<div class="details">
-						<detail-text label="Posted by" details="[[ _personName(post.user) ]]"></detail-text>
+						<detail-text label="Posted by" details="[[ _personName(post.user) ]]" on-click="viewProfile"></detail-text>
 					</div>
 					<div class="details">
 						<time-remaining date="[[ post.date ]]" time-remaining="{{ time_remaining }}"></time-remaining>
@@ -501,6 +501,11 @@
 				this.selected_tab = 0;
 				this.bidAmount =  '';
 				this.bid_files = [];
+			}
+
+			viewProfile() {
+				if( !this.post ) return;
+				this.redirect(`/@${this.post.user.username}`);
 			}
 
 			viewOnMap() {
