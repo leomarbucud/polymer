@@ -391,8 +391,6 @@
 
         this.removeAllMarkers();
 
-        let markerType = this.markerType.newJob;
-
         let bounds = null;
 
         if(bounded) {
@@ -401,7 +399,7 @@
 
         for(var i = 0; i < data.length; i++) {
         
-          if( !this.newMarker(data[i]) ) return;
+          if( !this.newMarker(data[i]) ) continue;
 
           if(bounded) {
             let position = new google.maps.LatLng(data[i].lat, data[i].lng);
@@ -499,7 +497,11 @@
         data.isBidded = false;
         data.isAwarded = false;
         data.hasWinner = false;
-        let bids = data.bids || [];
+        let bids = [];
+
+        if( data.bids ) {
+          bids = data.bids;
+        }
 
         if(this.auth) {
           if(this.user.id == data.user_id) {
@@ -570,7 +572,7 @@
         if(markers.length) {
           markers[0].setPosition(new_marker_position);
         } else {
-          this._newMarker(data);
+          this.newMarker(data);
         }
         
       }
