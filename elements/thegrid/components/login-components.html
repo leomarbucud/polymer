@@ -3,11 +3,11 @@
 <link rel="import" href="../../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
-<link rel="import" href="../../../behaviors/navigation-behavior.html?v=1.2.3">
-<link rel="import" href="../../../redux/grid-redux-store.html?v=1.2.3">
-<link rel="import" href="../grid-styles.html?v=1.2.3">
-<link rel="import" href="divider-text.html?v=1.2.3">
-<link rel="import" href="social-button.html?v=1.2.3">
+<link rel="import" href="../../../behaviors/navigation-behavior.html?v=1.2.4">
+<link rel="import" href="../../../redux/grid-redux-store.html?v=1.2.4">
+<link rel="import" href="../grid-styles.html?v=1.2.4">
+<link rel="import" href="divider-text.html?v=1.2.4">
+<link rel="import" href="social-button.html?v=1.2.4">
 
 <dom-module id="login-components">
   <template>
@@ -70,7 +70,7 @@
       <div class="form-control">
         <social-button class="facebook" id="loginFacebook" >
           <iron-icon class="icon" src="/assets/images/facebook.svg"></iron-icon>
-          <span>Continue with Facebook</spa>
+          <span>[[ facebook_login_text ]]</spa>
         </social-button>
       </div>
 
@@ -178,6 +178,7 @@
 
         this.fbConnected = true;
         this.googleConnected = true;
+        this.facebook_login_text = 'Please wait...';
       }
 
       _passwordState(isPasswordHidden) {
@@ -294,6 +295,8 @@
 
         this.loadJsAPI('//connect.facebook.net/en_US/sdk.js', () => {
 
+          this.facebook_login_text = 'Continue with Facebook';
+
           window.fbAsyncInit = () => {
 
             FB.init({
@@ -327,7 +330,18 @@
                 });
               };
 
+              const setButtonName = () => {
+                FB.api('/me', 'GET', {
+                  fields: 'first_name, last_name, email'
+                }, res => {
+
+                  this.facebook_login_text = `Continue as ${res.first_name}`;
+
+                });
+              };
+
               if ( res.status === 'connected' ) {
+                setButtonName();
                 if( this.routeData.social == 'redirectfromfacebook' ) {
                   getInfo();
                 }
