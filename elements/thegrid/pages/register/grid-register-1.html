@@ -218,6 +218,7 @@
         }
         this.phone_code_text = '...';
         this.phone_code = '';
+        this.country_id = null;
       }
 
       connectedCallback() {
@@ -237,6 +238,7 @@
         .then( res => {
           this.phone_code_text = `${res.data.iso} +${res.data.phonecode}`;
           this.phone_code = `+${res.data.phonecode}`;
+          this.country_id = res.data.id;
         }).catch( err => {
 
         });
@@ -249,7 +251,8 @@
           email: this.email,
           phone_number: this.phone_number,
           password: this.password,
-          phone_code: this.phone_code
+          phone_code: this.phone_code,
+          country_id: this.country_id
         };
 
         if( this.user_id ) {

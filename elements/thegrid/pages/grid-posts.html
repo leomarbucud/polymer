@@ -141,7 +141,7 @@
       </div>
     </div>
 
-    <main class="flex">
+    <main class="flex relative">
       <section class="p-y-1 title">
         <h1 id="main-title" class="white m-0">Posts</h1>
       </section>
@@ -184,11 +184,11 @@
           </template>
         <!-- </iron-selector> -->
         <template is="dom-if" if="[[!posts.length]]">
-          <paper-item>
-            <paper-item-body>
-              <div>You don't have any posts</div>
-            </paper-item-body>
-          </paper-item>
+          <div class="overlay">
+            <div class="align-center">
+              <p>You don't have any posts</p>
+            </div>
+          </div>
         </template>
       </div>
     </main>

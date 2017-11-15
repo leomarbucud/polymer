@@ -122,7 +122,7 @@
       </div>
     </div>
 
-    <main class="flex">
+    <main class="flex relative">
       <section class="p-y-1 title">
         <h1 id="main-title" class="white m-0">Bids</h1>
       </section>
@@ -171,11 +171,11 @@
           </template>
         </template>
         <template is="dom-if" if="[[ !bids.length]] ">
-          <paper-item>
-            <paper-item-body>
-              <div>You don't have any bids</div>
-            </paper-item-body>
-          </paper-item>
+          <div class="overlay">
+            <div class="align-center">
+              <p>You don't have any bids</p>
+            </div>
+          </div>
         </template>
       </div>
     </main>

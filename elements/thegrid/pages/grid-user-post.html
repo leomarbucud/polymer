@@ -414,6 +414,17 @@
 				<paper-button dialog-confirm autofocus class="white">Ok</paper-button>
 			</div>
 		</paper-dialog>
+		
+		<paper-dialog id="loginDialog" class="dialog-dark" >
+			<h2>Bid</h2>
+			<div>
+				Please log in to bid on this post.
+			</div>
+			<div class="buttons">
+				<paper-button dialog-dismiss class="white">Cancel</paper-button>
+				<paper-button dialog-confirm autofocus class="white" on-tap="goToLogin">Login</paper-button>
+			</div>
+		</paper-dialog>
 
 	</template>
 
@@ -476,7 +487,11 @@
 
 			goToQueries() {
         this.selected_tab = 1;
-      }
+			}
+			
+			goToLogin() {
+				this.redirectLogin();
+			}
 
 			priceBidEvent(e) {
 				if( e.keyCode == 13 ) {
@@ -518,6 +533,10 @@
 			}
 
 			openBidDialog() {
+				if( !this.user ) {
+					this.shadowRoot.querySelector('#loginDialog').open();
+					return;
+				}
 				this.shadowRoot.querySelector('#bidDialog').open();
 				this.shadowRoot.querySelector('#bidAmount').focus();
 			}

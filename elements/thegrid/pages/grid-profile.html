@@ -220,14 +220,17 @@
                   </div>
                 </div>
               </template>
-              <template is="dom-if" if="[[ !higlightedBids.length ]]">
-                <div class="overlay">
-                  <div class="align-center">
-                    No highlighted jobs
+              <template is="dom-if" if="[[ !isHighlightedBidsLoading ]]">
+                <template is="dom-if" if="[[ !higlightedBids.length ]]">
+                  <div class="overlay">
+                    <div class="align-center">
+                      No highlighted jobs
+                    </div>
                   </div>
-                </div>
-                <template is="dom-repeat" items="[[ higlightedBids ]]" as="bid">
-                  <highlighted-item data="[[ bid ]]"></highlighted-item>
+                </template>
+                  <template is="dom-repeat" items="[[ higlightedBids ]]" as="bid">
+                    <highlighted-item data="[[ bid ]]"></highlighted-item>
+                  </template>
                 </template>
               </template>
             </div>

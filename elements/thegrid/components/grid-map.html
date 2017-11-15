@@ -499,7 +499,7 @@
         data.isBidded = false;
         data.isAwarded = false;
         data.hasWinner = false;
-        var bids = data.bids;
+        let bids = data.bids || [];
 
         if(this.auth) {
           if(this.user.id == data.user_id) {
@@ -513,7 +513,7 @@
               data.isAwarded = true;
             }
           }
-          for(var j = 0; j < bids.length; j++) {
+          for(let j = 0; j < bids.length; j++) {
             // Check if user is already bidded
             if(this.user.id == bids[j].user_id) {
               markerType = this.markerType.biddedJob;
