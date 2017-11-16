@@ -14,7 +14,7 @@
 //   'Service worker disabled for development, will be generated at build time.'
 // );
 // Set a name for the current cache
-var cacheName = '1.2.5';
+var cacheName = '1.2.5.1';
 
 // Default files to always cache
 var cacheFiles = [

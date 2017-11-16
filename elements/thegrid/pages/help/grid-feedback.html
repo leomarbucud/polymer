@@ -1,6 +1,6 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../../grid-styles.html?v=1.2.5">
+<link rel="import" href="../../grid-styles.html?v=1.2.5.1">
 
 <dom-module id="grid-feedback">
   <template>
@@ -155,7 +155,7 @@
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector('#help-' + subrouteData.id) ) {
             Polymer.Base.importHref(
-  						'/elements/thegrid/pages/help/grid-' + subrouteData.id + '.html?v=1.2.5',
+  						'/elements/thegrid/pages/help/grid-' + subrouteData.id + '.html?v=1.2.5.1',
   						() => {
                 this.subPage = subrouteData.id;
   						}
