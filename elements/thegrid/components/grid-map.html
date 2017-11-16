@@ -2,7 +2,7 @@
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../behaviors/map-behavior.html">
 <link rel="import" href="../../../behaviors/navigation-behavior.html">
-<link rel="import" href="../grid-styles.html?v=1.2.4.1">
+<link rel="import" href="../grid-styles.html?v=1.2.5">
 
 <dom-module id="grid-map">
   <template>
@@ -236,13 +236,18 @@
           }
         };
 
-        navigator.permissions.query({name:'geolocation'}).then( result => {
-          handleResult(result);
-          result.onchange = () => {
-            // handleResult(result);
-            window.location.reload();
-          }
-        });
+        if( navigator.permissions ) {
+          navigator.permissions.query({name:'geolocation'}).then( result => {
+            handleResult(result);
+            result.onchange = () => {
+              // handleResult(result);
+              window.location.reload();
+            }
+          });
+        } else {
+          this.locationGranted();
+        }
+
       }
 
       connectedCallback() {
@@ -327,6 +332,8 @@
         this.getCurrentPosition()
           .then( res => {
             this.loadMapCanvas();
+          }).catch( () => {
+            this.locationDenied();
           });
       }
 
