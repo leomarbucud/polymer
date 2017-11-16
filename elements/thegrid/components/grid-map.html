@@ -262,6 +262,8 @@
             });
         }
 
+        this.loadMapCanvas();
+
       }
 
       openClearSearch() {
@@ -311,7 +313,7 @@
         
         this.listenMapEvents();
 
-        this.populateJobMarkers();
+        // this.populateJobMarkers();
 
         if( this.cluster ) {
           if(window.MarkerClusterer){
@@ -335,7 +337,7 @@
               this.locationDenied();
               return;
             }
-            this.loadMapCanvas();
+            this.populateJobMarkers();
           });
       }
 
@@ -358,7 +360,7 @@
             lng: location.lng
           };
 
-          this.loadMapCanvas();
+          this.populateJobMarkers();
         });
       }
 
