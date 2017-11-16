@@ -580,12 +580,15 @@
 						if(self.new_version) {
 							localStorage.setItem('app_version', self.new_version);
 						}
-						// setTimeout( () => {
-							window.location.href = HOME_URL + `?${moment().unix()}`;
-						// }, 500)
+						window.location.href = `${HOME_URL}?${moment().unix()}`;
 						
           });
-        }
+        } else {
+					if(self.new_version) {
+							localStorage.setItem('app_version', self.new_version);
+						}
+						window.location.href = `${HOME_URL}?${moment().unix()}`;
+				}
 			}
 
 			_checkLogin() {
