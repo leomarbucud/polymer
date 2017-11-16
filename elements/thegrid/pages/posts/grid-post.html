@@ -978,7 +978,7 @@
         }
         
         for( let i = days; i >= 0; i-- ) {
-          labels.push(moment().subtract(1, 'days').format('MM/DD'));
+          labels.push(moment().subtract(i, 'days').format('MM/DD'));
         }
   
         labels.forEach( label => {
