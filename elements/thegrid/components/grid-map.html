@@ -331,9 +331,11 @@
       locationGranted() {
         this.getCurrentPosition()
           .then( res => {
+            if( !res ) {
+              this.locationDenied();
+              return;
+            }
             this.loadMapCanvas();
-          }).catch( () => {
-            this.locationDenied();
           });
       }
 

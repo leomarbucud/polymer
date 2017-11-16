@@ -597,6 +597,8 @@
               
               resolve(self.currentLocation);
 
+            }, function() {
+              resolve(null);
             });
 
           }
