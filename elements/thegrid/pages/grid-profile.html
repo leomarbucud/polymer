@@ -1,4 +1,5 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tab.html">
@@ -139,7 +140,7 @@
     <div id="toolbar" class="toolbar dred-bg">
       <paper-icon-button icon="first-page" class="white pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
-   </div>
+   </div> 
 
     <main class="scroll-area flex">
       <section class="p-y-1 top-section dred-bg">
@@ -228,9 +229,8 @@
                     </div>
                   </div>
                 </template>
-                  <template is="dom-repeat" items="[[ higlightedBids ]]" as="bid">
-                    <highlighted-item data="[[ bid ]]"></highlighted-item>
-                  </template>
+                <template is="dom-repeat" items="[[ higlightedBids ]]" as="bid">
+                  <highlighted-item data="[[ bid ]]"></highlighted-item>
                 </template>
               </template>
             </div>
@@ -262,27 +262,25 @@
       </section>
     </main>
 
-    <!-- <a href="/profile/skills">Skills</a> -->
-
     <iron-pages attr-for-selected="data-page" selected="[[ subPage ]]">
-
-      <section data-page="setup" class="sub-page">
-        <grid-setup id="setup"></grid-setup>
-      </section>
-
-      <section data-page="tags" class="sub-page">
-        <grid-profile-skills id="tags"></grid-profile-skills>
-      </section>
-
-      <section data-page="edit" class="sub-page">
-        <grid-profile-edit id="edit"></grid-profile-edit>
-      </section>
-
-      <section data-page="about" class="sub-page">
-        <grid-profile-about id="about"></grid-profile-about>
-      </section>
-
-    </iron-pages>
+      
+        <section data-page="setup" class="sub-page">
+          <grid-setup id="setup"></grid-setup>
+        </section>
+  
+        <section data-page="tags" class="sub-page">
+          <grid-profile-skills id="tags"></grid-profile-skills>
+        </section>
+  
+        <section data-page="edit" class="sub-page">
+          <grid-profile-edit id="edit"></grid-profile-edit>
+        </section>
+  
+        <section data-page="about" class="sub-page">
+          <grid-profile-about id="about"></grid-profile-about>
+        </section>
+  
+      </iron-pages>
 
   </template>
 
@@ -490,7 +488,7 @@
 
       _profileImage(img) {
         if( img ) {
-          return this.url.API_BASE_URL + '/uploads/' + img;
+          return `${this.url.API_BASE_URL}/uploads/${img}`;
         }
         if(this.user) return LetterAvatar(this.user.name, '64');//return this.url.API_BASE_URL + '/storage/avatars/profile_avatar_placeholder_large.png';
 

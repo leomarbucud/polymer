@@ -114,7 +114,7 @@
 
           self.isSending = true;
 
-          axios.post('https://api.thegrid.com/api/password/email', {
+          axios.post(`${this.url.API_URL}/password/email`, {
 
   					email: email,
             phone_number: phone

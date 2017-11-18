@@ -110,6 +110,7 @@
 
           this.isLoading = false;
           this.dispatch('updateUser', res.data);
+          this.redirectProfile();
 
         }).catch(err => {
           if (err.response) {
