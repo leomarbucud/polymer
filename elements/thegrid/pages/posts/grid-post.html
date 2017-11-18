@@ -10,16 +10,16 @@
 <link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../grid-styles.html?v=1.2.5.1">
-<link rel="import" href="../../grid-icons.html?v=1.2.5.1">
-<link rel="import" href="../../components/ratings.html?v=1.2.5.1">
-<link rel="import" href="../../components/carousel.html?v=1.2.5.1">
-<link rel="import" href="../../components/detail-text.html?v=1.2.5.1">
-<link rel="import" href="../../components/time-remaining.html?v=1.2.5.1">
-<link rel="import" href="../../components/line-chart.html?v=1.2.5.1">
-<link rel="import" href="../../components/offer-item.html?v=1.2.5.1">
-<link rel="import" href="../../components/status-check.html?v=1.2.5.1">
-<link rel="import" href="../../components/query-item.html?v=1.2.5.1">
+<link rel="import" href="../../grid-styles.html?v=1.2.6">
+<link rel="import" href="../../grid-icons.html?v=1.2.6">
+<link rel="import" href="../../components/ratings.html?v=1.2.6">
+<link rel="import" href="../../components/carousel.html?v=1.2.6">
+<link rel="import" href="../../components/detail-text.html?v=1.2.6">
+<link rel="import" href="../../components/time-remaining.html?v=1.2.6">
+<link rel="import" href="../../components/line-chart.html?v=1.2.6">
+<link rel="import" href="../../components/offer-item.html?v=1.2.6">
+<link rel="import" href="../../components/status-check.html?v=1.2.6">
+<link rel="import" href="../../components/query-item.html?v=1.2.6">
 
 <dom-module id="grid-post">
   <template>
@@ -201,7 +201,7 @@
                 </div>
                 <div class="flex">
                   <div class="details">
-                    <detail-text label="You Pay" details="[[ post.user.country.currency_unit ]] [[ post.winner.bid.price_bid ]]"></detail-text>
+                    <detail-text label="You Pay" details="[[ post.country.currency_unit ]] [[ post.winner.bid.price_bid ]]"></detail-text>
                   </div>
                 </div>
               </div>
@@ -217,7 +217,7 @@
                   <detail-text label="Offers" details="[[ total_bidders ]] [[ _pluralize('Bid', total_bidders) ]]" on-click="goToOffers"></detail-text>
                 </div>
                 <div class="details">
-                  <detail-text label="Highest Amount" details="[[ post.user.country.currency_unit ]] [[ highest_bidder.price_bid ]]" on-click="goToOffersWithHighestAmount"></detail-text>
+                  <detail-text label="Highest Amount" details="[[ post.country.currency_unit ]] [[ highest_bidder.price_bid ]]" on-click="goToOffersWithHighestAmount"></detail-text>
                 </div>
               </div>
               <div class="flex">
@@ -225,10 +225,10 @@
                   <detail-text label="Queries" details="[[ queries_count ]] [[ _pluralize('Question', queries_count) ]]" on-click="goToQueries"></detail-text>
                 </div>
                 <div class="details">
-                  <detail-text label="Expected Amount" details="[[ post.user.country.currency_unit ]] [[ post.price ]]"></detail-text>
+                  <detail-text label="Expected Amount" details="[[ post.country.currency_unit ]] [[ post.price ]]"></detail-text>
                 </div>
                 <div class="details">
-                  <detail-text label="Lowest Amount" details="[[ post.user.country.currency_unit ]] [[ lowest_bidder.price_bid ]]" on-click="goToOffersWithLowestAmount"></detail-text>
+                  <detail-text label="Lowest Amount" details="[[ post.country.currency_unit ]] [[ lowest_bidder.price_bid ]]" on-click="goToOffersWithLowestAmount"></detail-text>
                 </div>
               </div>
             </div>
@@ -304,7 +304,7 @@
               </paper-menu-button>
             </div>
             <template id="offerList" is="dom-repeat" items="[[ bidders ]]" as="bidder" sort="_sortByMostRecent">
-              <offer-item data="[[ bidder ]]" awarded="[[ post.is_awarded ]]" currency="[[ post.user.country.currency_unit ]]" ></offer-item>
+              <offer-item data="[[ bidder ]]" awarded="[[ post.is_awarded ]]" currency="[[ post.country.currency_unit ]]" ></offer-item>
             </template>
           </template>
           <template is="dom-if" if="[[ !bidders.length ]]">

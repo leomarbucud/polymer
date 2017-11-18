@@ -10,12 +10,12 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../grid-styles.html?v=1.2.5.1">
-<link rel="import" href="../grid-icons.html?v=1.2.5.1">
-<link rel="import" href="../components/detail-text.html?v=1.2.5.1">
-<link rel="import" href="../components/time-remaining.html?v=1.2.5.1">
-<link rel="import" href="../components/status-check.html?v=1.2.5.1">
-<link rel="import" href="../components/query-item.html?v=1.2.5.1">
+<link rel="import" href="../grid-styles.html?v=1.2.6">
+<link rel="import" href="../grid-icons.html?v=1.2.6">
+<link rel="import" href="../components/detail-text.html?v=1.2.6">
+<link rel="import" href="../components/time-remaining.html?v=1.2.6">
+<link rel="import" href="../components/status-check.html?v=1.2.6">
+<link rel="import" href="../components/query-item.html?v=1.2.6">
 
 
 <dom-module id="grid-user-post">
@@ -617,7 +617,7 @@
 					this.total_bidders = 0;
 					this.docs_count = 0;
 					this.image_count = 0;
-					this.currency = post.user.country.currency_unit;
+					this.currency = post.country.currency_unit;
 					this.files = post.files;
 					this.tags = post.tags;
 					this.queries = post.questions;

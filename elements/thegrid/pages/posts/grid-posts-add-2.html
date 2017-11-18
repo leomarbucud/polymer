@@ -1,11 +1,15 @@
 <link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
-<link rel="import" href="../../../../../behaviors/form-slider-behavior.html?v=1.2.5.1">
-<link rel="import" href="../../../../../behaviors/map-behavior.html?v=1.2.5.1">
-<link rel="import" href="../../grid-styles.html?v=1.2.5.1">
+<link rel="import" href="../../../../../behaviors/form-slider-behavior.html?v=1.2.6">
+<link rel="import" href="../../../../../behaviors/map-behavior.html?v=1.2.6">
+<link rel="import" href="../../grid-styles.html?v=1.2.6">
 
 <dom-module id="grid-posts-add-2">
 	<template>
@@ -41,7 +45,7 @@
 
 					<div class="input-group prefix" data-step="1" data-question="How much is your budget?">
 						<div class="addon-prefix flex layout horizontal">
-							<span>AED </span>
+							<span on-click="openCurrencyDialog">[[ currency_unit ]] </span>
 						</div>
 						<input id="price" type="number" class="input" autocomplete="off" placeholder="Price" value="{{price::input}}" data-validate="required"
 						 data-message-required="Please tell us our budget." />
@@ -50,6 +54,26 @@
 				</form>
 			</div>
 		</div>
+
+		<paper-dialog id="currencyDialog" class="dialog-dark" >
+			<h2>Select Currency</h2>
+			<paper-dialog-scrollable>
+				<template is="dom-if" if="[[ !countries.length ]]">
+					Loading...
+				</template>
+        <paper-radio-group selected="{{ selected_currency }}">
+          <template is="dom-repeat" items="[[ countries ]]" as="country">
+            <paper-radio-button class="block" name="[[ country.currency_unit ]]" on-click="setCurrency">[[ country.currency_unit ]] ( [[ country.nicename ]] )</paper-radio-button>
+          </template>
+        </paper-radio-group>
+			</paper-dialog-scrollable>
+			<div class="buttons">
+				<paper-button dialog-dismiss class="white">Cancel</paper-button>
+				<template is="dom-if" if="[[ countries.length ]]">
+					<paper-button dialog-confirm class="white" on-click="confirmCurrency">Ok</paper-button>
+				</template>
+      </div>
+    </paper-dialog>
 
 	</template>
 
@@ -97,6 +121,8 @@
 				super();
 				this.readyPost = false;
 				this.map = null;
+				this.countries = [];
+				this.selected_country = null;
 			}
 
 			connectedCallback() {
@@ -122,11 +148,39 @@
           });
         });
 
+				this.currency_unit = this.user.country.currency_unit;
+				this.data.country_id = this.user.country.id;
+
+				this.getCountries();
+
+			}
+
+			getCountries() {
+				axios.get(`${this.url.API_URL}/getCountries`)
+				.then( res => {
+					this.countries = res.data;
+					this.shadowRoot.querySelector('#currencyDialog').attached();
+				});
+			}
+
+			setCurrency(e) {
+				this.country = e.model.country;
+			}
+
+			confirmCurrency() {
+				if( !this.country ) return;
+				this.currency_unit = this.country.currency_unit;
+				this.selected_country = this.country;
+			}
+
+			openCurrencyDialog() {
+				this.shadowRoot.querySelector('#currencyDialog').open();
 			}
 
 			goBack() {
 				this.redirect('/add/#1');
 			}
+
 
 			submit() {
 				const data = {
@@ -142,6 +196,11 @@
 				};
 
 				this.data.price = this.price;
+				if( !this.selected_country ) {
+					this.data.country_id = this.user.country.id;
+				} else {
+					this.data.country_id = this.country.id;
+				}
 
 				this.redirect('/add/#3');
 				return;

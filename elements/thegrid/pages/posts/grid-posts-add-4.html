@@ -3,10 +3,10 @@
 <link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
-<link rel="import" href="../../../../../behaviors/form-slider-behavior.html?v=1.2.5.1">
-<link rel="import" href="../../../../../behaviors/map-behavior.html?v=1.2.5.1">
-<link rel="import" href="../../grid-styles.html?v=1.2.5.1">
-<link rel="import" href="../../grid-icons.html?v=1.2.5.1">
+<link rel="import" href="../../../../../behaviors/form-slider-behavior.html?v=1.2.6">
+<link rel="import" href="../../../../../behaviors/map-behavior.html?v=1.2.6">
+<link rel="import" href="../../grid-styles.html?v=1.2.6">
+<link rel="import" href="../../grid-icons.html?v=1.2.6">
 
 <dom-module id="grid-posts-add-4">
 	<template>
@@ -219,6 +219,7 @@
 				this.formData.append('location', this.data.where);
 				this.formData.append('date', this.data.when);
 				this.formData.append('category_id', this.data.category);
+				this.formData.append('country_id', this.data.country_id);
 				if(this.data.tags) {
 					// if(this.data.skills.length) {
 						this.formData.append('tags', JSON.stringify(this.data.tags));
