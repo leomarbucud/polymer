@@ -5,8 +5,8 @@
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/iron-list/iron-list.html">
-<link rel="import" href="../grid-styles.html?v=1.2.6">
-<link rel="import" href="transactions/grid-transaction.html?v=1.2.6">
+<link rel="import" href="../grid-styles.html?v=1.2.7">
+<link rel="import" href="transactions/grid-transaction.html?v=1.2.7">
 
 <dom-module id="grid-transactions">
   <template>
@@ -112,7 +112,7 @@
           <div class="addon-prefix has-button">
             <paper-icon-button icon="chevron-left" class="pointer" on-click="closeSearchBar"></paper-icon-button>
           </div>
-          <input type="text" class="input" value="{{search::input}}" placeholder="Search..."/>
+          <input type="text" class="input" value="{{ search::input }}" placeholder="Search..."/>
           <div class="addon-suffix has-button">
             <paper-icon-button icon="close" class="pointer" on-click="clearSearchBar"></paper-icon-button>
           </div>
@@ -126,21 +126,21 @@
       </section>
       <div class="white" role="listbox">
         <!-- <iron-selector attr-for-selected="id" selected="[[post.id]]" > -->
-          <template is="dom-repeat" items="[[transactions]]" as="trans" filter="{{_filterTransactions(query)}}">
-            <paper-item id$="[[trans.id]]" on-click="viewTransaction">
+          <template is="dom-repeat" items="[[ transactions ]]" as="trans" filter="{{ _filterTransactions(query) }}">
+            <paper-item id$="[[ trans.id ]]" on-click="viewTransaction">
               <paper-item-body two-line>
-                <div>[[trans.job.name]]</div>
+                <div>[[ trans.job.name ]]</div>
                 <div secondary>
-                  AED [[trans.amount]]
-                  [[_transactionType(trans.customer, trans.supplier)]]
+                  [[ trans.job.country.currency_unit ]] [[ trans.amount ]]
+                  [[ _transactionType(trans.customer, trans.supplier) ]]
                 </div>
                 <paper-ripple></paper-ripple>
               </paper-item-body>
-              <div class="time" data-time$="[[trans.created_at]]">[[_fromNow(trans.created_at)]]</div>
+              <div class="time" data-time$="[[ trans.created_at ]]">[[ _fromNow(trans.created_at) ]]</div>
             </paper-item>
           </template>
         <!-- </iron-selector> -->
-        <template is="dom-if" if="[[!transactions.length]]">
+        <template is="dom-if" if="[[ !transactions.length ]]">
           <div class="overlay">
             <div class="align-center">
               <p>You don't have any transactions</p>
@@ -155,13 +155,13 @@
         <div class="expenses">
           Total expenses
           <span class="amount">
-            AED [[totalExpenses]]
+            AED [[ totalExpenses ]]
           </span>
         </div>
         <div class="earnings">
           Total earnings
           <span class="amount">
-            AED [[totalEarnings]]
+            AED [[ totalEarnings ]]
           </span>
         </div>
       </div>
@@ -493,7 +493,7 @@
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector('#transactions-' + subrouteData.id) ) {
             Polymer.Base.importHref(
-  						'/elements/thegrid/pages/transactions/grid-transactions-' + subrouteData.id + '.html?v=1.2.6',
+  						'/elements/thegrid/pages/transactions/grid-transactions-' + subrouteData.id + '.html?v=1.2.7',
   						() => {
                 self.subPage = subrouteData.id;
   						}

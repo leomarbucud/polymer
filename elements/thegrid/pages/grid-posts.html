@@ -10,8 +10,8 @@
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/iron-list/iron-list.html">
-<link rel="import" href="../grid-styles.html?v=1.2.6">
-<link rel="import" href="posts/grid-post.html?v=1.2.6">
+<link rel="import" href="../grid-styles.html?v=1.2.7">
+<link rel="import" href="posts/grid-post.html?v=1.2.7">
 
 <dom-module id="grid-posts">
   <template>
@@ -172,9 +172,16 @@
                           <span>Remove</span>
                         </paper-item>
                       </template>
-                      <template is="dom-if" if="[[ job.is_accepted ]]">
+                      <template is="dom-if" if="[[ !job.is_completed ]]">
+                        <template is="dom-if" if="[[ job.is_accepted ]]">
+                          <paper-item class="item" on-click="openDeletePostDialog">
+                            <span>Cancel</span>
+                          </paper-item>
+                        </template>
+                      </template>
+                      <template is="dom-if" if="[[ job.completed ]]">
                         <paper-item class="item" on-click="openDeletePostDialog">
-                          <span>Cancel</span>
+                          <span>Remove</span>
                         </paper-item>
                       </template>
                     </paper-listbox>
@@ -391,55 +398,7 @@
 
       populateJobs() {
         if(!this.user) return;
-/*
-        let postsLoaded = false;
 
-        gAxios.get(`/users/${this.user.id}/jobs`, {
-          headers: {
-            'Cached': 'yes'
-          }
-        })
-				.then( res => {
-					var data = res.data;
-					this.dispatch('setPosts', data.data);
-					this.pagination = {
-						total: data.total,
-						per_page: data.per_page,
-						current_page: data.current_page,
-						last_page: data.last_page,
-						next_page_url: data.next_page_url,
-						prev_page_url: data.prev_page_url,
-						from: data.from,
-						to: data.to
-          };
-          // handleFetchCompletion(res);
-				}).then( () => {
-          this.isLoading = false;
-        });
-
-        gAxios.get(`/users/${this.user.id}/jobs`, {
-          headers: {
-            'Cached': 'no'
-          }
-        })
-				.then( res => {
-					var data = res.data;
-					this.dispatch('setPosts', data.data);
-					this.pagination = {
-						total: data.total,
-						per_page: data.per_page,
-						current_page: data.current_page,
-						last_page: data.last_page,
-						next_page_url: data.next_page_url,
-						prev_page_url: data.prev_page_url,
-						from: data.from,
-						to: data.to
-          };
-          // handleFetchCompletion(res);
-				}).then( () => {
-          this.isLoading = false;
-        });
-*/
         const setPosts = (data) => {
 					this.pagination = {
 						total: data.total,
@@ -453,33 +412,6 @@
           };
           this.isLoading = false;
           this.dispatch('setPosts', data.data);
-          /*setTimeout( () => {
-            const list = this.shadowRoot.querySelector('#post-list');
-            const cards = list.querySelectorAll('paper-card');
-            list.animate([
-              { opacity: 0 },
-              { opacity: 1 },
-            ], 350);
-            cards.forEach( (card, i) => {
-              card.animate([
-                  
-                { transform: 'translateY(40px)' }
-              ], {
-                duration: 0,
-                fill: 'both'
-              });
-
-              card.animate([
-                  { transform: 'translateY(40px)' },
-                  { transform: 'translateY(0)' }
-              ], {
-                duration: 195,
-                delay: i * 50,
-                fill: 'both',
-                ease: 'ease-in'
-              });
-            });
-          }, 0);*/
         };
 
         const url = `/users/${this.user.id}/jobs`;
@@ -681,7 +613,7 @@
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector(`#posts-${subrouteData.id}`) ) {
             Polymer.Base.importHref(
-  						`/elements/thegrid/pages/posts/grid-posts-${subrouteData.id}.html?v=1.2.6`,
+  						`/elements/thegrid/pages/posts/grid-posts-${subrouteData.id}.html?v=1.2.7`,
   						() => {
                 self.subPage = subrouteData.id;
   						}

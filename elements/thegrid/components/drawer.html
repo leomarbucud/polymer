@@ -6,8 +6,8 @@
 <link rel="import" href="../../../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../grid-icons.html?v=1.2.6">
-<link rel="import" href="../grid-styles.html?v=1.2.6">
+<link rel="import" href="../grid-icons.html?v=1.2.7">
+<link rel="import" href="../grid-styles.html?v=1.2.7">
 
 <dom-module id="grid-drawer">
   <template>
@@ -154,103 +154,106 @@
     <iron-pages id="drawerOptions" selected="[[option]]" class="flex">
 
       <div role="list" class="h-100 layout vertical flex" data-option="1">
-            
-        <iron-selector attr-for-selected="data-page" selected="[[page]]">
+        <div>
+          <iron-selector attr-for-selected="data-page" selected="[[page]]">
 
-          <a href="/posts" data-page="posts">
-            <paper-icon-item>
-              <iron-icon icon="grid:posts" class="white" slot="item-icon"></iron-icon>
-              <paper-item-body>
-                <div>Posts</div>
-              </paper-item-body>
-              <paper-ripple></paper-ripple>
-            </paper-icon-item>
-          </a>
+            <a href="/posts" data-page="posts">
+              <paper-icon-item>
+                <iron-icon icon="grid:posts" class="white" slot="item-icon"></iron-icon>
+                <paper-item-body>
+                  <div>Posts</div>
+                </paper-item-body>
+                <paper-ripple></paper-ripple>
+              </paper-icon-item>
+            </a>
 
-          <a href="/bids" data-page="bids">
-            <paper-icon-item>
-              <iron-icon icon="grid:bids" class="white" slot="item-icon"></iron-icon>
-              <paper-item-body>
-                <div>Bids</div>
-              </paper-item-body>
-              <paper-ripple></paper-ripple>
-            </paper-icon-item>
-          </a>
+            <a href="/bids" data-page="bids">
+              <paper-icon-item>
+                <iron-icon icon="grid:bids" class="white" slot="item-icon"></iron-icon>
+                <paper-item-body>
+                  <div>Bids</div>
+                </paper-item-body>
+                <paper-ripple></paper-ripple>
+              </paper-icon-item>
+            </a>
 
-          <a href="/inbox" data-page="inbox">
-            <paper-icon-item>
-              <iron-icon icon="grid:inbox" class="white" slot="item-icon"></iron-icon>
-              <paper-item-body>
-                <div>Inbox </div>
-              </paper-item-body>
-              <template is="dom-if" if="[[user.unread_messages_count]]">
-                <span class="badge unread">[[user.unread_messages_count]]</span>
-              </template>
-              <paper-ripple></paper-ripple>
-            </paper-icon-item>
-          </a>
+            <a href="/inbox" data-page="inbox">
+              <paper-icon-item>
+                <iron-icon icon="grid:inbox" class="white" slot="item-icon"></iron-icon>
+                <paper-item-body>
+                  <div>Inbox </div>
+                </paper-item-body>
+                <template is="dom-if" if="[[user.unread_messages_count]]">
+                  <span class="badge unread">[[user.unread_messages_count]]</span>
+                </template>
+                <paper-ripple></paper-ripple>
+              </paper-icon-item>
+            </a>
 
-          <a href="/transactions" data-page="transactions">
-            <paper-icon-item>
-              <iron-icon icon="grid:transactions" class="white" slot="item-icon"></iron-icon>
-              <paper-item-body>
-                <div>Transactions</div>
-              </paper-item-body>
-              <paper-ripple></paper-ripple>
-            </paper-icon-item>
-          </a>
+            <a href="/transactions" data-page="transactions">
+              <paper-icon-item>
+                <iron-icon icon="grid:transactions" class="white" slot="item-icon"></iron-icon>
+                <paper-item-body>
+                  <div>Transactions</div>
+                </paper-item-body>
+                <paper-ripple></paper-ripple>
+              </paper-icon-item>
+            </a>
 
-          <div class="divider">
-            <hr/>
-          </div>
+            <div class="divider">
+              <hr/>
+            </div>
 
-          <a href="/settings" data-page="settings">
-            <paper-icon-item>
-              <iron-icon icon="grid:settings" class="white" slot="item-icon"></iron-icon>
-              <paper-item-body>
-                <div>Settings</div>
-              </paper-item-body>
-              <paper-ripple></paper-ripple>
-            </paper-icon-item>
-          </a>
+            <a href="/settings" data-page="settings">
+              <paper-icon-item>
+                <iron-icon icon="grid:settings" class="white" slot="item-icon"></iron-icon>
+                <paper-item-body>
+                  <div>Settings</div>
+                </paper-item-body>
+                <paper-ripple></paper-ripple>
+              </paper-icon-item>
+            </a>
 
-          <a href="/help-feedback" data-page="help-feedback">
-            <paper-icon-item>
-              <iron-icon icon="grid:help-feedback" class="white" slot="item-icon"></iron-icon>
-              <paper-item-body>
-                <div>Help &amp; Feedback</div>
-              </paper-item-body>
-              <paper-ripple></paper-ripple>
-            </paper-icon-item>
-          </a>
+            <a href="/help-feedback" data-page="help-feedback">
+              <paper-icon-item>
+                <iron-icon icon="grid:help-feedback" class="white" slot="item-icon"></iron-icon>
+                <paper-item-body>
+                  <div>Help &amp; Feedback</div>
+                </paper-item-body>
+                <paper-ripple></paper-ripple>
+              </paper-icon-item>
+            </a>
 
-        </iron-selector>
+          </iron-selector>
+        </div>
         <div class="flex"></div>
         <paper-icon-item>
           <iron-icon icon="grid:circle-uncheck" class="white" slot="item-icon"></iron-icon>
           <paper-item-body>
-            <div>Version 1.2.6</div>
+            <div>Version 1.2.7</div>
           </paper-item-body>
         </paper-icon-item>
       </div>
 
       <div role="list" class="h-100 layout vertical flex" data-option="2">
-        <paper-icon-item on-click="toggleNotifications">
-          <iron-icon icon="grid:notifications" class="white" slot="item-icon"></iron-icon>
-          <paper-item-body>
-            <div>[[mute]] Notifications</div>
-          </paper-item-body>
-          <paper-ripple></paper-ripple>
-        </paper-icon-item>
-        <a href="/logout">
-          <paper-icon-item>
-            <iron-icon icon="grid:share" class="white" slot="item-icon"></iron-icon>
+        <div>
+          <paper-icon-item on-click="toggleNotifications">
+            <iron-icon icon="grid:notifications" class="white" slot="item-icon"></iron-icon>
             <paper-item-body>
-              <div>Logout</div>
+              <div>[[mute]] Notifications</div>
             </paper-item-body>
             <paper-ripple></paper-ripple>
           </paper-icon-item>
-        </a>
+          <a href="/logout">
+            <paper-icon-item>
+              <iron-icon icon="grid:share" class="white" slot="item-icon"></iron-icon>
+              <paper-item-body>
+                <div>Logout</div>
+              </paper-item-body>
+              <paper-ripple></paper-ripple>
+            </paper-icon-item>
+          </a>
+        </div>
         <div class="flex"></div>
         <paper-icon-item on-click="updateApp">
           <iron-icon icon="grid:update" class="white" slot="item-icon"></iron-icon>

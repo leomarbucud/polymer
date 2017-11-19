@@ -3,11 +3,11 @@
 <link rel="import" href="../../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
-<link rel="import" href="../../../behaviors/navigation-behavior.html?v=1.2.6">
-<link rel="import" href="../../../redux/grid-redux-store.html?v=1.2.6">
-<link rel="import" href="../grid-styles.html?v=1.2.6">
-<link rel="import" href="divider-text.html?v=1.2.6">
-<link rel="import" href="social-button.html?v=1.2.6">
+<link rel="import" href="../../../behaviors/navigation-behavior.html?v=1.2.7">
+<link rel="import" href="../../../redux/grid-redux-store.html?v=1.2.7">
+<link rel="import" href="../grid-styles.html?v=1.2.7">
+<link rel="import" href="divider-text.html?v=1.2.7">
+<link rel="import" href="social-button.html?v=1.2.7">
 
 <dom-module id="login-components">
   <template>
@@ -70,14 +70,14 @@
       <div class="form-control">
         <social-button class="facebook" id="loginFacebook" >
           <iron-icon class="icon" src="/assets/images/facebook.svg"></iron-icon>
-          <span>[[ facebook_login_text ]]</spa>
+          <span>[[ facebook_login_text ]]</span>
         </social-button>
       </div>
 
       <div class="form-control">
         <social-button id="loginGoogle" class="google" on-tap="loginGoogle">
           <iron-icon class="icon" src="/assets/images/google.svg"></iron-icon>
-          <span>Continue with Google</spa>
+          <span>Continue with Google</span>
         </social-button>
       </div>
 
@@ -351,17 +351,17 @@
                 });
               } else {
                 fbButton.addEventListener('click', () => {
-                  navigator.standalone = navigator.standalone || (screen.height-document.documentElement.clientHeight < 80);
-                  if ( navigator.standalone ) {
+                  //navigator.standalone = navigator.standalone || (screen.height-document.documentElement.clientHeight < 80);
+                  //if ( navigator.standalone ) {
                     var permissionUrl = `https://m.facebook.com/dialog/oauth?client_id=1451318644890504&response_type=code&redirect_uri=${window.location.href + '/redirectfromfacebook'}&scope=email`;
                     window.location = permissionUrl;
                     return;
-                  }
-                  FB.login( res => {
+                  //}
+                  /*FB.login( res => {
                     if ( res.status === 'connected' ) {
                       getInfo();
                     }
-                  }, { scope: 'email' });
+                  }, { scope: 'email' });*/
                 });
               }
 

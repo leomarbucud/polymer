@@ -91,6 +91,7 @@
         font-family: museo-sans, 'Roboto', sans-serif;
         font-weight: 100;
         height: 100%;
+        width: 100%;
         margin: 0;
         padding: 0;
         overflow: hidden;
@@ -162,7 +163,7 @@
     <link rel="icon" href="assets/images/favicon.ico">
 
     <!-- See https://goo.gl/OOhYW5 -->
-    <link rel="manifest" href="manifest.json?v=1.2.6">
+    <link rel="manifest" href="manifest.json?v=1.2.7">
 
     <!-- See https://goo.gl/qRE0vM -->
     <meta name="theme-color" content="#303030">
@@ -217,9 +218,9 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJyuWvZ03O18yHTvC1t3Mlj22VY73hJWc&libraries=places"></script>
     <script src="assets/js/markerclusterer.js" async></script>
     <script src="assets/js/oms.min.js" async></script>
-    <script src="assets/js/grid.js?v=1.2.6" async></script>
+    <script src="assets/js/grid.js?v=1.2.7" async></script>
 
-    <link rel="import" href="elements/thegrid/grid-app.html?v=1.2.6" async>
+    <link rel="import" href="elements/thegrid/grid-app.html?v=1.2.7" async>
 
   </body>
 </html>

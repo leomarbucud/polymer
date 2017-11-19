@@ -5,8 +5,8 @@
 <link rel="import" href="../../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../grid-styles.html?v=1.2.6">
-<link rel="import" href="../../grid-icons.html?v=1.2.6">
+<link rel="import" href="../../grid-styles.html?v=1.2.7">
+<link rel="import" href="../../grid-icons.html?v=1.2.7">
 
 <dom-module id="grid-transaction">
   <template>
@@ -68,7 +68,7 @@
 
         <div class="section-title">
           <div class="flex">
-            <span class="title">[[_transactionType(transaction.customer, transaction.supplier)]]</span>
+            <span class="title">[[ _transactionType(transaction.customer, transaction.supplier) ]]</span>
           </div>
           
         </div>
@@ -77,14 +77,14 @@
           <div class="flex">
             <span class="title">Amount</span>
           </div>
-          <span>AED [[transaction.amount]]</span>
+          <span>[[ transaction.job.country.currency_unit ]] [[ transaction.amount ]]</span>
         </div>
         
         <div class="section-details">
           <div class="flex">
             <span class="title">Status</span>
           </div>
-          <span>[[_getStatus(transaction.status)]]</span>
+          <span>[[ _getStatus(transaction.status) ]]</span>
         </div>
 
         <div class="divider"><hr/></div>
@@ -99,28 +99,28 @@
           <div class="flex">
             <span class="title">Title</span>
           </div>
-          <span>[[transaction.job.name]]</span>
+          <span>[[ transaction.job.name ]]</span>
         </div>
         
         <div class="section-details">
           <div class="flex">
             <span class="title">Category</span>
           </div>
-          <span>[[transaction.job.category.category]]</span>
+          <span>[[ transaction.job.category.category ]]</span>
         </div>
         
         <div class="section-details">
           <div class="flex">
             <span class="title">Amount</span>
           </div>
-          <span>AED [[transaction.job.price]]</span>
+          <span>[[ transaction.job.country.currency_unit ]] [[ transaction.job.price ]]</span>
         </div>
         
         <div class="section-details">
           <div class="flex">
             <span class="title">Needed</span>
           </div>
-          <span>[[_fromNow(transaction.job.date)]]</span>
+          <span>[[ _fromNow(transaction.job.date) ]]</span>
         </div>
 
         <div class="divider"><hr/></div>
@@ -135,14 +135,14 @@
           <div class="flex">
             <span class="title">Name</span>
           </div>
-          <span>[[transaction.supplier.name]]</span>
+          <span>[[ transaction.supplier.name ]]</span>
         </div>
         
         <div class="section-details">
           <div class="flex">
             <span class="title">Email</span>
           </div>
-          <span>[[transaction.supplier.email]]</span>
+          <span>[[ transaction.supplier.email ]]</span>
         </div>
 
 
@@ -151,10 +151,10 @@
 
     </main>
 
-    <template is="dom-if" if="[[isLoading]]">
+    <template is="dom-if" if="[[ isLoading ]]">
       <div class="overlay lgrey-bg" style="margin-top: 64px;">
         <div class="align-center">
-          <paper-spinner active$="[[isLoading]]"></paper-spinner>
+          <paper-spinner active$="[[ isLoading ]]"></paper-spinner>
         </div>
       </div>
     </template>
