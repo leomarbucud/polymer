@@ -161,7 +161,7 @@
 				</template>
 			</div>
 		</div>
-		<div class="flex"></div>
+		<div id="flexer"></div>
 		<div id="puller">
 			<iron-icon id="toggleIcon" icon="expand-more" class="pointer red" on-click="toggleNotification"></iron-icon>
 		</div>
@@ -507,18 +507,21 @@
 			toggleNotification(e) {
 				// const puller = this.shadowRoot.querySelector('#puller');
 				const notif = this.shadowRoot.querySelector('#notifications');
+				const flexer = this.shadowRoot.querySelector('#flexer');
 				if(this.expanded) {
 					notif.style.display = 'none';
 					// this.style.height = 'auto';
 					// this.style.height = '130px';
 					// puller.style.bottom = 0;
 					e.target.icon = 'expand-more';
+					flexer.classList.remove('flex');
 				} else {
 					notif.style.display = 'block';
 					// this.style.height = '100%';
 					// this.style.height = `${window.outerHeight}px`;
 					// puller.style.bottom = '20px';
 					e.target.icon = 'expand-less';
+					flexer.classList.add('flex');
 				}
 				this.expanded = !this.expanded;
 			}
