@@ -37,7 +37,7 @@
     "elements/thegrid/pages/posts/grid-posts-edit.html",
     "elements/thegrid/pages/profile/grid-profile-about.html",
     "elements/thegrid/pages/profile/grid-profile-edit.html",
-    "elements/thegrid/pages/profile/grid-profile-skills.html",
+    "elements/thegrid/pages/profile/grid-profile-tags.html",
     "elements/thegrid/pages/register/grid-register-1.html",
     "elements/thegrid/pages/register/grid-register-2.html",
     "elements/thegrid/pages/register/grid-verify.html",

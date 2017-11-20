@@ -187,11 +187,6 @@
 					<paper-item class="item" on-click="shareOnFacebook">
 						<span>Share on Facebook</span>	
 					</paper-item>
-					<template is="dom-if" if="[[ userCanAsk ]]">
-						<paper-item class="item" on-click="openQueryDialog">
-							<span>Ask Question</span>	
-						</paper-item>
-					</template>
 				</paper-listbox>
 			</paper-menu-button>
 		</div>
@@ -218,7 +213,7 @@
 						<detail-text label="Time Remaining" details="[[ time_remaining ]]"></detail-text>
 					</div>
 					<div class="details">
-						<detail-text label="Location" details="[[ post.location ]]" on-click="viewOnMap"></detail-text>
+						<detail-text class="pointer" label="Location" details="[[ post.location ]]" on-click="viewOnMap"></detail-text>
 					</div>
 					<div class="details">
 						<detail-text label="Attachments" details="[[ docs_count ]] [[ _pluralize('file', docs_count) ]], [[ image_count ]] [[ _pluralize('image', image_count) ]]"></detail-text>
@@ -295,9 +290,6 @@
 						<div class="overlay">
 							<div class="align-center">
 								<p>No question has been asked in this post.</p>
-								<template is="dom-if" if="[[ userCanAsk ]]">
-									<paper-button class="white" on-click="openQueryDialog">Ask now</paper-button>
-								</template>
 							</div>
 						</div>
 					</template>
@@ -305,11 +297,21 @@
 			</iron-pages>
 		</main>
 
-		<template is="dom-if" if="[[ !post.bid ]]">
-			<template is="dom-if" if="[[ canBid ]]">
-				<paper-button class="red block align-center" on-click="openBidDialog">Bid</paper-button>
-			</template>
-		</template>
+		<iron-pages selected="{{selected_tab}}">
+			<div>
+				<template is="dom-if" if="[[ !post.bid ]]">
+					<template is="dom-if" if="[[ canBid ]]">
+						<paper-button class="red block align-center" on-click="openBidDialog">Bid</paper-button>
+					</template>
+				</template>
+			</div>
+			<div>
+				<template is="dom-if" if="[[ userCanAsk ]]">
+					<paper-button class="red block align-center" on-click="openQueryDialog">Ask</paper-button>
+				</template>
+			</div>
+		</iron-pages>
+
 
 		<template is="dom-if" if="[[isLoading]]">
 			<div class="overlay lgrey-bg" style="margin-top: 63px;">
@@ -573,14 +575,15 @@
 
 				gAxios.post(`/users/${this.user.id}/bids`, formData)
 				.then(res => {
+					console.log('add bid', res.data);
+					this.dispatch('addBid', res.data);
 					// dispatch event
 					window.dispatchEvent(new CustomEvent('user:bidded', { detail: res.data }) );
 					// this._userBidded(true);
-					this.renderPost(res.data.job);
 					// update the marker
-					this.updateMarker(this.post.id);
+					this.updateMarker(res.data.job);
 
-					this.dispatch('addBid', res.data);
+					this.renderPost(res.data.job);
 				}).catch(err => {
 					if( err.response ) {
             this.shadowRoot.querySelector('#errorBidDialog').open();
@@ -593,21 +596,21 @@
 
 			}
 
-			updateMarker(id) {
-				const marker = this.gmap.findBy( marker => {
-					return marker.id == id;
+			updateMarker(post) {
+				if( !this.gmap ) return;
+				if( !this.gmap.map ) return;
+				const f_marker = this.gmap.findBy( marker => {
+					return marker.id == post.id;
 				});
-				if(marker){
-					const _marker = marker[0];
-					_marker.isBidded = true;
+				if(f_marker.length){
 
 					// remove marker
 					this.gmap.removeBy( marker => {
-						return marker.id == id;
+						return marker.id == post.id;
 					});
 
 					// add the updated marker
-					this.gmap.newMarker(_marker);
+					this.gmap.newMarker(post);
 				}
 			}
 
@@ -626,7 +629,7 @@
 					this.isMypost = this._isMypost(this.user);
 					this.canBid = this._canBid(post.bid, post.is_accepted, this.isMypost);
 					this._setFiles(post.files);
-				}, 0);
+				}, 50);
 			}
 
 			populatePost(postId) {
@@ -1076,7 +1079,7 @@
 			}
 
 			_canBid(bid, is_accepted, isMypost) {
-				console.log(bid, is_accepted, isMypost);
+				// console.log(bid, is_accepted, isMypost);
 				if( !bid && !is_accepted && !isMypost) return true;
 
 				return false;
