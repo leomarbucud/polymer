@@ -130,32 +130,26 @@
         }
       }
 
-      .pac-card {
-        margin: 10px 10px 0 0;
-        border-radius: 2px 0 0 2px;
-        box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        outline: none;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      .pac-container {
+        font-family: museo-sans, 'Roboto', sans-serif; 
         background-color: #303030;
-        font-family: museo-sans, 'Roboto', sans-serif;
       }
 
-      #pac-container {
-        padding-bottom: 12px;
-        margin-right: 12px;
+      .pac-item {
+        background-color: #303030;
+        color: #FFFFFF;
+        border-top: 1px solid #424242;
       }
 
-      .pac-controls {
-        display: inline-block;
-        padding: 5px 11px;
+      .pac-item.pac-item-selected {
+        background-color: #424242;
       }
 
-      .pac-controls label {
-        font-family: museo-sans, 'Roboto', sans-serif;
-        font-size: 13px;
-        font-weight: 300;
+      .pac-item-query {
+        color: #FF3B30;
       }
+      
+
 
     </style>
     <base href="/">

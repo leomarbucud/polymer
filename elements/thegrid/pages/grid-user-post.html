@@ -199,8 +199,9 @@
 				<section class="p-y-1 white">
 					<template is="dom-if" if="[[ post.bid ]]">
 						<div class="red-box">
-							<p>You bid [[ currency ]] [[ post.bid.price_bid ]]</p>
+							<p>Your bid is [[ currency ]] [[ post.bid.price_bid ]] [[ times ]]</p>
 							<div class="action">
+								<paper-button class="white" on-click="openBidDialog">Bid Again</paper-button>
 								<paper-button class="white" on-click="viewDetails">View Details</paper-button>
 							</div>
 						</div>
@@ -394,9 +395,11 @@
 					</template>
 				</div>
 				<paper-input id="bidAmount" autofocus always-float-label label="Amout" class="red" value="{{ bidAmount::input }}">
-					<div slot="suffix">
+					<template is="dom-if" if="[[ !times ]]">
+						<div slot="suffix">
 							<paper-icon-button class="red" icon="grid:attachment" on-click="selectFile"></paper-icon-button>
-					</div>
+						</div>
+					</template>
 				</paper-input>
 				<input type="file" id="files" on-change="previewFiles" multiple style="position: absolute; left: -99999px; top: -99999px;"/>
 			</div>
@@ -629,6 +632,18 @@
 					this.isMypost = this._isMypost(this.user);
 					this.canBid = this._canBid(post.bid, post.is_accepted, this.isMypost);
 					this._setFiles(post.files);
+
+					if( post.bid ) {
+						if( post.bid.times == 2 ) {
+							this.times = '(2nd Offer)';
+						} else if( post.bid.times == 2 ) {
+							this.times == '(2nd Offer)';
+						} else if ( post.bid.times == 3 ) {
+							this.times = '(3rd Offer)';
+						} else { 
+							this.times = '';
+						}
+					}
 				}, 50);
 			}
 

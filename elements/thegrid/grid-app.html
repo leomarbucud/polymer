@@ -642,7 +642,7 @@
 									console.log('error', err.response);
 								}
 
-								//this.redirectLogout();
+								this.redirectLogout();
 
 							});
 
@@ -655,6 +655,7 @@
 			}
 
 			getNotifications() {
+				if( !this.user ) return;
 				gAxios.get(`/users/${this.user.id}/notifications`)
 				.then( res => {
 					this.dispatch('setNotifications', res.data);
@@ -931,7 +932,7 @@
 				} else {
 					this.page = null;
 					Polymer.Base.importHref(
-						'/elements/thegrid/components/grid-map.html?v=1.2.7.1',
+						this.resolveUrl('components/grid-map.html?v=1.2.7.1'),
 						() => {
 							// do something after elements has been imported
 						}

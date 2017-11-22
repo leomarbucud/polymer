@@ -18,6 +18,12 @@
         height: 100%;
         margin: 0 auto;
         background: var(--gradient-red);
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
       }
       .header-action {
         height: 56px;
@@ -33,16 +39,17 @@
 		    pattern="/login/:provider/:token/:secret/:setup"
 		    data="{{loginData}}"></app-route>
 
-    <div class="toolbar">
+    <div id="toolbar" class="toolbar">
       <paper-icon-button icon="close" class="white pointer" on-click="redirectHome"></paper-icon-button>
       <span class="flex"></span>
       <paper-button class="white pointer" on-click="redirectRegister">SIGN UP</paper-button>
     </div>
-
-     <login-components is-logging-in="{{isLoggingIn}}"
-                       is-logged-in="{{isLoggedIn}}"
-                       login-attempt="{{loginAttempt}}"
-                       login-error="{{loginError}}" ></login-components> 
+    <main class="scroll-area flex">
+      <login-components is-logging-in="{{isLoggingIn}}"
+        is-logged-in="{{isLoggedIn}}"
+        login-attempt="{{loginAttempt}}"
+        login-error="{{loginError}}" ></login-components>
+    </main>
 
     <paper-toast id="loginErrToast" duration="5000" class="fit-bottom">
       <div class="flex layout horizontal">
@@ -115,7 +122,29 @@
               }
             }
     			};
-    		}
+        }
+
+        connectedCallback() {
+          super.connectedCallback();
+          this.headerAnimate();
+        }
+
+        headerAnimate() {
+          const toolbar = this.shadowRoot.querySelector('#toolbar');
+          const main = this.shadowRoot.querySelector('main');
+
+          const scroll = () => {
+            let _st = main.scrollTop;
+            
+            if( _st > 0 ) {
+              toolbar.classList.add('shadow');
+            } else {
+              toolbar.classList.remove('shadow');
+            }
+          };
+
+          main.addEventListener('scroll', scroll);
+       }
 
         register() {
           window.location.href = REGISTER_URL;

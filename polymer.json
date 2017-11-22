@@ -2,8 +2,8 @@
   "entrypoint": "index.html",
   "shell": "elements/thegrid/grid-app.html",
   "fragments": [
+    "elements/thegrid/components/grid-map.html",
     "elements/thegrid/pages/grid-404.html",
-    "elements/thegrid/pages/grid-bids.html",
     "elements/thegrid/pages/grid-bids.html",
     "elements/thegrid/pages/grid-forgot.html",
     "elements/thegrid/pages/grid-register.html",
@@ -41,8 +41,7 @@
     "elements/thegrid/pages/register/grid-register-1.html",
     "elements/thegrid/pages/register/grid-register-2.html",
     "elements/thegrid/pages/register/grid-verify.html",
-    "elements/thegrid/pages/transactions/grid-transaction.html",
-    "elements/thegrid/components/grid-map.html"
+    "elements/thegrid/pages/transactions/grid-transaction.html"
   ],
   "sources": [
     "assets/**/*",
@@ -58,12 +57,19 @@
     "rules": ["polymer-2"]
   },
 
-  "builds": [{
-    "name": "unbundled",
-    "bundle": false,
-    "js": {"minify": true, "compile": true},
-    "css": {"minify": true},
-    "html": {"minify": true},
-    "addServiceWorker": true
-  }]
+  "builds": [
+    {
+      "name": "bundled",
+      "bundle": true,
+      "js": {"minify": true},
+      "css": {"minify": true},
+      "html": {"minify": true}
+    },
+    {
+      "name": "unbundled",
+      "js": {"minify": true},
+      "css": {"minify": true},
+      "html": {"minify": true}
+    }
+  ]
 }
