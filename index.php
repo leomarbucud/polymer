@@ -35,6 +35,40 @@
       echo '<meta property="'.$property.'" content="'.$content.'" name="'.$name.'" />';
     }
 
+    function getApiBaseUrl() {
+      switch( $_SERVER['HTTP_HOST'] ) {
+        case 'www.the-grid.co':
+          return 'https://api.the-grid.co';
+          break;
+        case 'dev.thegrid.com':
+          return 'https://api.thegrid.com';
+          break;
+        case 'thegridpolymer.azurewebsites.net':
+          return 'https://dev-thegrid.scm.azurewebsites.net';
+          break;
+        default:
+          return 'https://api.the-grid.co';
+          break;
+      }
+    }
+
+    function getSocketUrl() {
+      switch( $_SERVER['HTTP_HOST'] ) {
+        case 'www.the-grid.co':
+          return 'https://socket.the-grid.co';
+          break;
+        case 'dev.thegrid.com':
+          return 'http://127.0.0.1:3000';
+          break;
+        case 'thegridpolymer.azurewebsites.net':
+          return 'https://thegridsocket.azurewebsites.net';
+          break;
+        default:
+          return 'https://socket.the-grid.co';
+          break;
+      }
+    }
+
     
     $url = explode('/', $url);
 
@@ -60,27 +94,8 @@
     ?>
 
 
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <!-- <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> -->
     <style>
-      @font-face {
-        font-family: 'Museo 500';
-        src: url('assets/fonts/Museo500-Regular.eot');
-        src: url('assets/fonts/Museo500-Regular.eot?#iefix') format('embedded-opentype'),
-          url('assets/fonts/Museo500-Regular.woff') format('woff'),
-          url('assets/fonts/Museo500-Regular.ttf') format('truetype');
-        font-weight: 500;
-        font-style: normal;
-      }
-
-      @font-face {
-        font-family: 'Museo Sans 500';
-        src: url('assets/fonts/MuseoSans-500.eot');
-        src: url('assets/fonts/MuseoSans-500.eot?#iefix') format('embedded-opentype'),
-          url('assets/fonts/MuseoSans-500.woff') format('woff'),
-          url('assets/fonts/MuseoSans-500.ttf') format('truetype');
-        font-weight: normal;
-        font-style: normal;
-      }
       * {
         box-sizing: border-box;
         font-family: museo-sans, 'Roboto', sans-serif;
@@ -157,7 +172,7 @@
     <link rel="icon" href="assets/images/favicon.ico">
 
     <!-- See https://goo.gl/OOhYW5 -->
-    <link rel="manifest" href="manifest.json?v=1.2.7.1">
+    <link rel="manifest" href="manifest.json?v=1.0.1">
 
     <!-- See https://goo.gl/qRE0vM -->
     <meta name="theme-color" content="#303030">
@@ -186,10 +201,20 @@
     <script>
       // Register the base URL
       const baseUrl = document.querySelector('base').href;
-
+      const API_BASE_URL = '<?=getApiBaseUrl()?>';
+      const SOCKET_URL = '<?=getSocketUrl()?>';
     </script>
     <script src="https://use.typekit.net/nan8fpy.js"></script>
     <script>try{Typekit.load({ async: true });}catch(e){}</script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-110083465-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-110083465-1');
+    </script>
   </head>
 
   <body>
@@ -212,9 +237,9 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJyuWvZ03O18yHTvC1t3Mlj22VY73hJWc&libraries=places"></script>
     <script src="assets/js/markerclusterer.js" async></script>
     <script src="assets/js/oms.min.js" async></script>
-    <script src="assets/js/grid.js?v=1.2.7.1" async></script>
+    <script src="assets/js/grid.js?v=1.0.1" async></script>
 
-    <link rel="import" href="elements/thegrid/grid-app.html?v=1.2.7.1" async>
+    <link rel="import" href="elements/thegrid/grid-app.html?v=1.0.1" async>
 
   </body>
 </html>

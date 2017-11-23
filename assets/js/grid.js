@@ -1,5 +1,3 @@
-// var socket = new io.connect('http://127.0.0.1:3000');
-const SOCKET_URL = (location.hostname == 'dev.thegrid.com') ? 'http://127.0.0.1:3000' : 'https://thegridsocket.azurewebsites.net';
 var socket = new io.connect(SOCKET_URL);
 
 const _log = l => {

@@ -1,10 +1,11 @@
 {
-  "entrypoint": "index.html",
+  "entrypoint": "index.php",
   "shell": "elements/thegrid/grid-app.html",
   "fragments": [
     "elements/thegrid/components/grid-map.html",
     "elements/thegrid/pages/grid-404.html",
     "elements/thegrid/pages/grid-bids.html",
+    "elements/thegrid/pages/grid-filter.html",
     "elements/thegrid/pages/grid-forgot.html",
     "elements/thegrid/pages/grid-register.html",
     "elements/thegrid/pages/grid-help-feedback.html",
@@ -14,6 +15,7 @@
     "elements/thegrid/pages/grid-profile.html",
     "elements/thegrid/pages/grid-register.html",
     "elements/thegrid/pages/grid-reset-password.html",
+    "elements/thegrid/pages/grid-search.html",
     "elements/thegrid/pages/grid-transactions.html",
     "elements/thegrid/pages/bids/grid-bid.html",
     "elements/thegrid/pages/help/grid-about.html",
@@ -46,8 +48,17 @@
   "sources": [
     "assets/**/*",
     "node_modules/redux/dist/redux.js",
+    "node_modules/redux-thunk/dist/redux-thunk.js",
+    "node_modules/socket.io-client/dist/socket.io.js",
     "node_modules/axios/dist/axios.js",
     "node_modules/moment/moment.js",
+    "OneSignalSDKUpdaterWorker.js",
+    "OneSignalSDKWorker.js",
+    "service-worker-bak.js",
+    "index.php",
+    ".htaccess",
+    "web.config",
+    "manifest.json",
     "bower.json"
   ],
   "extraDependencies": [

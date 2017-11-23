@@ -3,10 +3,10 @@
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../bower_components/iron-icons/maps-icons.html">
-<link rel="import" href="../../../../behaviors/form-slider-behavior.html?v=1.2.7.1">
-<link rel="import" href="../../../../behaviors/map-behavior.html?v=1.2.7.1">
-<link rel="import" href="../../grid-styles.html?v=1.2.7.1">
-<link rel="import" href="../../grid-icons.html?v=1.2.7.1">
+<link rel="import" href="../../../../behaviors/form-slider-behavior.html?v=1.0.1">
+<link rel="import" href="../../../../behaviors/map-behavior.html?v=1.0.1">
+<link rel="import" href="../../grid-styles.html?v=1.0.1">
+<link rel="import" href="../../grid-icons.html?v=1.0.1">
 
 <dom-module id="grid-posts-edit-4">
 	<template>
@@ -137,7 +137,7 @@
 						statePath: 'auth'
 					},
 					posts: {
-						type: Object,
+						type: Array,
 						statePath: 'posts'
 					},
 					data: {
@@ -269,11 +269,10 @@
 
 				let err = [];
 
-				for (var i = 0, f; f = files[i]; i++) {
-
+				file.forEach( f => {
 					if(this.files.length == 5) {
 						err.push('Only 5 files can be uploaded.');
-						break;
+						return;
 					}
 
 					let validTypes = false;
@@ -295,8 +294,7 @@
 					} else {
 						err.push(`${f.name} is not allowed to upload.`);
 					}
-					
-				}
+				});
 
 				if(err.length) {
 					alert(err.join('\n'));

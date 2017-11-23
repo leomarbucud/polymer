@@ -10,12 +10,12 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../grid-styles.html?v=1.2.7.1">
-<link rel="import" href="../grid-icons.html?v=1.2.7.1">
-<link rel="import" href="../components/detail-text.html?v=1.2.7.1">
-<link rel="import" href="../components/time-remaining.html?v=1.2.7.1">
-<link rel="import" href="../components/status-check.html?v=1.2.7.1">
-<link rel="import" href="../components/query-item.html?v=1.2.7.1">
+<link rel="import" href="../grid-styles.html?v=1.0.1">
+<link rel="import" href="../grid-icons.html?v=1.0.1">
+<link rel="import" href="../components/detail-text.html?v=1.0.1">
+<link rel="import" href="../components/time-remaining.html?v=1.0.1">
+<link rel="import" href="../components/status-check.html?v=1.0.1">
+<link rel="import" href="../components/query-item.html?v=1.0.1">
 
 
 <dom-module id="grid-user-post">
@@ -451,8 +451,14 @@
 						type: Boolean,
 						statePath: 'auth'
 					},
-					post: Object,
-					gmap: Object,
+					post: {
+						type: Object,
+						value: () => {}
+					},
+					gmap: {
+						type: Object,
+						value: () => {}
+					},
 					reason: {
 						type: String,
 						observer: '_reasonChange'
@@ -483,10 +489,10 @@
 				this._initSocketEvents();
 
 				window.addEventListener('location:back', () => {
-          const inputs = this.shadowRoot.querySelectorAll('input');
-          inputs.forEach( input => {
-            input.blur();
-          });
+          // const inputs = this.shadowRoot.querySelectorAll('input');
+          // inputs.forEach( input => {
+          //   input.blur();
+          // });
         });
 			}
 
@@ -506,7 +512,7 @@
 			}
 
 			_initValue() {
-				this.post = null;
+				this.post = {};
 				this.isLoading = true;
 				this.canBid = false;
 				this.bidded = false;
@@ -793,11 +799,10 @@
 
 				let err = [];
 
-				for (var i = 0, f; f = files[i]; i++) {
-
+				files.forEach( f => {
 					if(this.bid_files.length == 5) {
 						err.push('Only 5 files can be uploaded.');
-						break;
+						return;
 					}
 
 					let validTypes = false;
@@ -819,8 +824,7 @@
 					} else {
 						err.push(`${f.name} is not allowed to upload.`);
 					}
-					
-				}
+				});
 
 				if(err.length) {
 					alert(err.join('\n'));
@@ -882,12 +886,14 @@
 			_postChange(post) {
 				if(!post || !this.user) return;
 
-				const flags = post.flags;
-				if(flags.length) {
-					for(let flag of flags) {
-						if(flag.user_id == this.user.id) {
-							this.reported = true;
-							break;
+				if( post.flags ) {
+					const flags = post.flags;
+					if(flags.length) {
+						for(let flag of flags) {
+							if(flag.user_id == this.user.id) {
+								this.reported = true;
+								break;
+							}
 						}
 					}
 				}

@@ -11,18 +11,19 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <!-- <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> -->
     <style>
       * {
         box-sizing: border-box;
-        font-family: museo-sans, 'Roboto', sans-serif !important; 
+        font-family: museo-sans, 'Roboto', sans-serif;
       }
       html, body {
         background-color: #fff;
         color: #636b6f;
-        font-family: museo-sans, 'Roboto', sans-serif !important; 
+        font-family: museo-sans, 'Roboto', sans-serif;
         font-weight: 100;
         height: 100%;
+        width: 100%;
         margin: 0;
         padding: 0;
         overflow: hidden;
@@ -61,16 +62,26 @@
         }
       }
 
-      .pac-item {
-        margin: 10px 10px 0 0;
-        border-radius: 2px 0 0 2px;
-        box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        outline: none;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      .pac-container {
+        font-family: museo-sans, 'Roboto', sans-serif; 
         background-color: #303030;
-        font-family: museo-sans, 'Roboto', sans-serif;
       }
+
+      .pac-item {
+        background-color: #303030;
+        color: #FFFFFF;
+        border-top: 1px solid #424242;
+      }
+
+      .pac-item.pac-item-selected {
+        background-color: #424242;
+      }
+
+      .pac-item-query {
+        color: #FF3B30;
+      }
+      
+
 
     </style>
     <base href="/">
@@ -78,7 +89,7 @@
     <link rel="icon" href="assets/images/favicon.ico">
 
     <!-- See https://goo.gl/OOhYW5 -->
-    <link rel="manifest" href="manifest.json?v=1.2.7.1">
+    <link rel="manifest" href="manifest.json?v=1.0.1">
 
     <!-- See https://goo.gl/qRE0vM -->
     <meta name="theme-color" content="#303030">
@@ -111,6 +122,15 @@
     </script>
     <script src="https://use.typekit.net/nan8fpy.js"></script>
     <script>try{Typekit.load({ async: true });}catch(e){}</script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-110083465-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-110083465-1');
+    </script>
   </head>
 
   <body>
@@ -133,9 +153,9 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJyuWvZ03O18yHTvC1t3Mlj22VY73hJWc&libraries=places"></script>
     <script src="assets/js/markerclusterer.js" async></script>
     <script src="assets/js/oms.min.js" async></script>
-    <script src="assets/js/grid.js?v=1.2.7.1" async></script>
+    <script src="assets/js/grid.js?v=1.0.1" async></script>
 
-    <link rel="import" href="elements/thegrid/grid-app.html?v=1.2.7.1" async>
+    <link rel="import" href="elements/thegrid/grid-app.html?v=1.0.1" async>
 
   </body>
 </html>

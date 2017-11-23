@@ -11,8 +11,8 @@
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../../bower_components/app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../../../redux/grid-redux-store.html?v=1.2.7.1">
-<link rel="import" href="../grid-styles.html?v=1.2.7.1">
+<link rel="import" href="../../../redux/grid-redux-store.html?v=1.0.1">
+<link rel="import" href="../grid-styles.html?v=1.0.1">
 
 <dom-module id="mobile-header">
 	<template>
@@ -232,11 +232,7 @@
 
 					_filters: {
 						type: Array,
-						value: function() {
-							return [
-								
-							];
-						}
+						value: () => []
 					},
 
 					visiblePins: {
@@ -808,7 +804,7 @@
 				if(notifications) {
 					//fNotifications
 					let _notifs = []
-					for (var [key, value] of Object.entries(notifications)) {
+					for (let [key, value] of Object.entries(notifications)) {
 							// console.log(key + ' ' + value); // "a 5", "b 7", "c 9"
 							
 							if(value[0]) {

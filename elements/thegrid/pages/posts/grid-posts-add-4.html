@@ -3,10 +3,10 @@
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../bower_components/iron-icons/maps-icons.html">
-<link rel="import" href="../../../../behaviors/form-slider-behavior.html?v=1.2.7.1">
-<link rel="import" href="../../../../behaviors/map-behavior.html?v=1.2.7.1">
-<link rel="import" href="../../grid-styles.html?v=1.2.7.1">
-<link rel="import" href="../../grid-icons.html?v=1.2.7.1">
+<link rel="import" href="../../../../behaviors/form-slider-behavior.html?v=1.0.1">
+<link rel="import" href="../../../../behaviors/map-behavior.html?v=1.0.1">
+<link rel="import" href="../../grid-styles.html?v=1.0.1">
+<link rel="import" href="../../grid-icons.html?v=1.0.1">
 
 <dom-module id="grid-posts-add-4">
 	<template>
@@ -135,7 +135,7 @@
 						statePath: 'auth'
 					},
 					posts: {
-						type: Object,
+						type: Array,
 						statePath: 'posts'
 					},
 					data: {
@@ -167,10 +167,8 @@
 			constructor() {
 				super();
 				this.readyPost = false;
-				this.map = null;
 
 				this.files = [];//new FormData();
-				this.formData = new FormData();
 			}
 
 			connectedCallback() {
@@ -193,51 +191,37 @@
 			}
 
 			submit() {
-        this.data.details = this.details;
-
-				// var files    = this.shadowRoot.querySelector('#files').files;
-
-
-				// const data = {
-				// 	user_id: this.user.id,
-				// 	name: this.data.what,
-				// 	price: this.data.price,
-				// 	lat: this.data.lat,
-				// 	lng: this.data.lng,
-				// 	location: this.data.where,
-				// 	date: this.data.when,
-				// 	category_id: this.data.category,
-				// 	skills: this.data.skills,
-				// 	details: this.details
-				// };
+				this.data.details = this.details;
 				
-				this.formData.append('user_id', this.user.id);
-				this.formData.append('name', this.data.what);
-				this.formData.append('price', this.data.price);
-				this.formData.append('lat', this.data.lat);
-				this.formData.append('lng', this.data.lng);
-				this.formData.append('location', this.data.where);
-				this.formData.append('date', this.data.when);
-				this.formData.append('category_id', this.data.category);
-				this.formData.append('country_id', this.data.country_id);
+				let formData = new FormData();
+				
+				formData.append('user_id', this.user.id);
+				formData.append('name', this.data.what);
+				formData.append('price', this.data.price);
+				formData.append('lat', this.data.lat);
+				formData.append('lng', this.data.lng);
+				formData.append('location', this.data.where);
+				formData.append('date', this.data.when);
+				formData.append('category_id', this.data.category);
+				formData.append('country_id', this.data.country_id);
 				if(this.data.tags) {
 					// if(this.data.skills.length) {
-						this.formData.append('tags', JSON.stringify(this.data.tags));
+						formData.append('tags', JSON.stringify(this.data.tags));
 					// }
 				}
-				this.formData.append('details', this.details);
+				formData.append('details', this.details);
 
 				if(this.files.length) {
 					this.files.forEach( file => {
-						this.formData.append('files[]', file);
+						formData.append('files[]', file);
 					});
 				}
-				// this.formData.append('files', files);
+				// formData.append('files', files);
 
 				// dispatch posting event
 				window.dispatchEvent(new CustomEvent('posting'));
 
-				gAxios.post(`/users/${this.user.id}/jobs`, this.formData)
+				gAxios.post(`/users/${this.user.id}/jobs`, formData)
 					.then(res => {
 						var data = res.data;
 
@@ -278,11 +262,10 @@
 
 				let err = [];
 
-				for (var i = 0, f; f = files[i]; i++) {
-
+				files.forEach( f => {
 					if(this.files.length == 5) {
 						err.push('Only 5 files can be uploaded.');
-						break;
+						return;
 					}
 
 					let validTypes = false;
@@ -304,8 +287,8 @@
 					} else {
 						err.push(`${f.name} is not allowed to upload.`);
 					}
-					
-				}
+
+				});
 
 				if(err.length) {
 					alert(err.join('\n'));
