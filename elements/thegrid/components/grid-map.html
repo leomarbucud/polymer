@@ -408,6 +408,8 @@
           bounds = new google.maps.LatLngBounds();
         }
 
+        let focus_to_bounds = false;
+
         for(var i = 0; i < data.length; i++) {
         
           if( !this.newMarker(data[i]) ) continue;
@@ -415,11 +417,11 @@
           if(bounded) {
             let position = new google.maps.LatLng(data[i].lat, data[i].lng);
             bounds.extend(position);
+            focus_to_bounds = true;
           }  
           
         }
-
-        if( bounded && data.length ) {
+        if( bounded && focus_to_bounds ) {
           this.map.fitBounds(bounds);
         }
 
