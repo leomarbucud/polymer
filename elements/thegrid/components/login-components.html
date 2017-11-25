@@ -383,14 +383,14 @@
             let user = res.data.user;
             window.localStorage.setItem('social_user', JSON.stringify(user));
             
-            this.redirectRegister();
+            this.redirect(`/register/#1`);
+            this.isLoggedIn = false;
 
           } else {
             this.dispatch('giveAccess', res.data);
+            this.isLoggedIn = true;
           }
-        }).then( () => {
           this.isLoggingIn = false;
-          this.isLoggedIn = true;
         }).catch( err => {
           
           this.isLoggingIn = false;

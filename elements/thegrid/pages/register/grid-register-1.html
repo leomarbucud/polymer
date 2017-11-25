@@ -279,7 +279,7 @@
             let s = this.fc.querySelector('#'+fkey).parentNode.getAttribute('data-step');
             this.arrangeSteps(s);
           }
-          window.dispatchEvent(new CustomEvent('done-registering-step1'));
+          window.dispatchEvent(new CustomEvent('error-register'));
         })
       }
 

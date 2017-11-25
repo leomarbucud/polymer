@@ -42,6 +42,20 @@
         background-color: #2b2b2b;
       }
 
+      #map-canvas-search:after {
+        width: 22px;
+        height: 40px;
+        display: block;
+        content: ' ';
+        position: absolute;
+        top: 50%; 
+        left: 50%;
+        margin: -40px 0 0 -11px;
+        background: url('/assets/images/icons/related-marker.svg');
+        background-size: 22px 40px;
+        pointer-events: none;
+      }
+
       .gmnoprint:not(.gm-bundled-control), .gmnoscreen {
           display: none;
       }
@@ -104,7 +118,7 @@
 
       <main class="flex p-0 relative">
         <div id="map-canvas-search"></div>
-        <iron-icon class="map-control map-control-marker active" src="/assets/images/icons/related-marker.svg"></iron-icon>
+        <!-- <iron-icon class="map-control map-control-marker active" src="/assets/images/icons/related-marker.svg"></iron-icon> -->
       </main>
 
     </div>
@@ -226,12 +240,15 @@
               // console.log(place.geometry.location);
 						}
 						this.map.fitBounds(bounds);
+            const zoom = this.map.getZoom();
+            this.map.setZoom(zoom > 10 ? 10 : zoom);
 					});
 
 					google.maps.event.addListener(this.map, 'bounds_changed', () => {
 						var bounds = this.map.getBounds();
 						_searchLoc.setBounds(bounds);
 					});
+          
         }
       }
 

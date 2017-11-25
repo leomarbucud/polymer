@@ -227,7 +227,7 @@
             let s = self.fc.querySelector('#'+fkey).parentNode.getAttribute('data-step');
             self.arrangeSteps(s);
           }
-          window.dispatchEvent(new CustomEvent('done-registering'));
+          window.dispatchEvent(new CustomEvent('error-register'));
         });
       }
 

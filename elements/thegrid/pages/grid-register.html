@@ -124,12 +124,18 @@
 
           window.addEventListener('done-registering', () => {
             // this.set('step.id', 1);
+            console.log('done-registering');
             this.isRegistering = false;
             this.redirectHome();
+          });
+
+          window.addEventListener('error-register', () => {
+            this.isRegistering = false;
           });
         }
 
         _registered(isRegistered) {
+          console.log('isReg', isRegistered);
           if( isRegistered ) {
             // this.$.registerMessageToast.text = this.signUpData.message || 'Successfull Registered!';
             this.$.registerMessageToast.fitInto = this;
