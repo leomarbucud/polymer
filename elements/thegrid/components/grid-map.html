@@ -518,24 +518,33 @@
 
         if(this.auth) {
           if(this.user.id == data.user_id) {
-            markerType = this.markerType.myJob;
-            data.fillColor = markerType.color;
+            // markerType = this.markerType.myJob;
+            // data.fillColor = markerType.color;
             data.isMyPost = true;
           }
-          if(data.winner) {
-            data.hasWinner = true;
-            if(this.user.id == data.winner.user_id) {
+          // if(data.winner) {
+          //   data.hasWinner = true;
+          //   if(this.user.id == data.winner.user_id) {
+          //     data.isAwarded = true;
+          //   }
+          // }
+          if( data.bid ) {
+            data.isBidded = true;
+            if( data.bid.status >= 1 ) {
               data.isAwarded = true;
             }
-          }
-          for(let j = 0; j < bids.length; j++) {
-            // Check if user is already bidded
-            if(this.user.id == bids[j].user_id) {
-              markerType = this.markerType.biddedJob;
-              data.fillColor = markerType.color;
-              data.isBidded = true;
+            if( data.bid.status == 2 ) {
+              data.hasWinner = true;
             }
           }
+          // for(let j = 0; j < bids.length; j++) {
+          //   // Check if user is already bidded
+          //   if(this.user.id == bids[j].user_id) {
+          //     markerType = this.markerType.biddedJob;
+          //     data.fillColor = markerType.color;
+          //     data.isBidded = true;
+          //   }
+          // }
         }
 
         if( data.hasWinner && !data.isAwarded && !data.isMyPost) {
@@ -573,22 +582,39 @@
         };
       }
 
-      updateMarker(data) {
-        if(!window.google || !data) return;
+      updateMarker(post) {
+        console.log('updating marker', post);
+				const f_marker = this.gmap.findBy( marker => {
+					return marker.id == post.id;
+				});
+				if(f_marker.length){
 
-        var new_marker_position = new google.maps.LatLng(data.lat, data.lng);
+					// remove marker
+					this.gmap.removeBy( marker => {
+						return marker.id == post.id;
+					});
 
-        const markers = this.findBy( marker => {
-          return marker.id == data.id;
-        });
+					// add the updated marker
+					this.gmap.newMarker(post);
+				}
+			}
 
-        if(markers.length) {
-          markers[0].setPosition(new_marker_position);
-        } else {
-          this.newMarker(data);
-        }
+      // updateMarker(data) {
+      //   if(!window.google || !data) return;
+
+      //   var new_marker_position = new google.maps.LatLng(data.lat, data.lng);
+
+      //   const markers = this.findBy( marker => {
+      //     return marker.id == data.id;
+      //   });
+
+      //   if(markers.length) {
+      //     markers[0].setPosition(new_marker_position);
+      //   } else {
+      //     this.newMarker(data);
+      //   }
         
-      }
+      // }
 
       _newMarker(data) {
         
@@ -646,9 +672,17 @@
 
       _initSocketEvents() {
 
+        const updateMarker = id => {
+          console.log('updating marker', id);
+          gAxios.get(`/users/${this.user.id}/marker/${id}`)
+          .then(res => {
+            this.updateMarker(res.data);
+          });
+        };
+
         // when new post is posted
         socket.on('user:posted', data => {
-          const _data = data;
+          let _data = data;
 
           // assume that the post is not posted by the user connected
           _data.isMyPost = false;
@@ -660,9 +694,26 @@
             }
           }
 
-          this._newMarker(_data);
+          this.newMarker(_data);
 
         });
+
+        socket.on('user:bidded', data => {
+          if(!this.auth) return;
+          updateMarker(data.job.id);
+        });
+
+        socket.on('user:grant_job', data => {
+          console.log(data);
+          if(!this.auth) return;
+          updateMarker(data.job_id);
+        });
+       
+        socket.on('user:cancel_grant_job', data => {
+          if(!this.auth) return;
+          updateMarker(data.job_id);
+        });
+
       }
 
 

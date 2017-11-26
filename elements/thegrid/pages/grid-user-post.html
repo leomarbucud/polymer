@@ -201,7 +201,9 @@
 						<div class="red-box">
 							<p>Your bid is [[ currency ]] [[ post.bid.price_bid ]] [[ times ]]</p>
 							<div class="action">
-								<paper-button class="white" on-click="openBidDialog">Bid Again</paper-button>
+								<template is="dom-if" if="[[ !post.is_awarded ]]">
+									<paper-button class="white" on-click="openBidDialog">Bid Again</paper-button>
+								</template>
 								<paper-button class="white" on-click="viewDetails">View Details</paper-button>
 							</div>
 						</div>
@@ -585,12 +587,12 @@
 				gAxios.post(`/users/${this.user.id}/bids`, formData)
 				.then(res => {
 					// console.log('add bid', res.data);
-					this.dispatch('addBid', res.data);
+					// this.dispatch('addBid', res.data);
 					// dispatch event
 					window.dispatchEvent(new CustomEvent('user:bidded', { detail: res.data }) );
 					// this._userBidded(true);
 					// update the marker
-					this.updateMarker(res.data.job);
+					// this.updateMarker(res.data.job);
 
 					this.renderPost(res.data.job);
 				}).catch(err => {
