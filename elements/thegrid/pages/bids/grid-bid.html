@@ -514,6 +514,9 @@
         }).then( res => { 
           this.dispatch('updateBid', res.data);
           window.dispatchEvent( new CustomEvent('bidder:decline_job', { detail: res.data.job }));
+          if( this.gmap ) {
+            this.gmap.updateMarkerById(res.data.job.id);
+          }
         }).catch( err => {
         }).then( () => {
           this.isLoading = false;

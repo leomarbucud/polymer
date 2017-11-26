@@ -317,7 +317,7 @@
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector('#help-' + subrouteData.id) ) {
             Polymer.Base.importHref(
-  						'/elements/thegrid/pages/help/grid-' + subrouteData.id + '.html',
+  						`/elements/thegrid/pages/help/grid-${subrouteData.id}.html?v=${window.VERSION}`,
   						() => {
                 this.subPage = subrouteData.id;
   						}

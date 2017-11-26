@@ -12,9 +12,21 @@
     <meta http-equiv="Expires" content="0" />
     <?php
 
+    $APP_VERSION = '1.0.1';
+
     // error_reporting( E_ALL ); 
     // error_reporting(~0);
     // ini_set('display_errors', 1);
+
+    // if( isset($_GET) ) {
+    //   if( isset($_GET['v']) ) {
+    //     if( $_GET['v'] != $APP_VERSION ) {
+    //       header('location: /?v='.$APP_VERSION);
+    //     }
+    //   } else {
+    //     header('location: /?v='.$APP_VERSION);
+    //   }
+    // }
 
     $url = $_GET['url'];
 
@@ -44,7 +56,7 @@
           return 'https://api.thegrid.com';
           break;
         case 'thegridpolymer.azurewebsites.net':
-          return 'https://dev-thegrid.scm.azurewebsites.net';
+          return 'https://dev-thegrid.azurewebsites.net';
           break;
         default:
           return 'https://api.the-grid.co';
@@ -67,6 +79,16 @@
           return 'https://socket.the-grid.co';
           break;
       }
+    }
+
+    function generateRandomString($length = 10) {
+      $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      $charactersLength = strlen($characters);
+      $randomString = '';
+      for ($i = 0; $i < $length; $i++) {
+          $randomString .= $characters[rand(0, $charactersLength - 1)];
+      }
+      return $randomString;
     }
 
     
@@ -203,6 +225,7 @@
       const baseUrl = document.querySelector('base').href;
       const API_BASE_URL = '<?=getApiBaseUrl()?>';
       const SOCKET_URL = '<?=getSocketUrl()?>';
+      window.VERSION = '<?=$APP_VERSION?>';
     </script>
     <script src="https://use.typekit.net/nan8fpy.js"></script>
     <script>try{Typekit.load({ async: true });}catch(e){}</script>
@@ -237,9 +260,9 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJyuWvZ03O18yHTvC1t3Mlj22VY73hJWc&libraries=places"></script>
     <script src="assets/js/markerclusterer.js" async></script>
     <script src="assets/js/oms.min.js" async></script>
-    <script src="assets/js/grid.js?v=1.0.1" async></script>
+    <script src="assets/js/grid.js?v=<?=$APP_VERSION?>" async></script>
 
-    <link rel="import" href="elements/thegrid/grid-app.html?v=1.0.1" async>
+    <link rel="import" href="elements/thegrid/grid-app.html?v=<?=$APP_VERSION?>" async>
 
   </body>
 </html>

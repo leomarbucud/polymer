@@ -195,7 +195,7 @@
           }
           self.subPage = register.step;
           Polymer.Base.importHref(
-						'/elements/thegrid/pages/register/grid-' + register.step + '.html',
+						`/elements/thegrid/pages/register/grid-${register.step}.html?v=${window.VERSION}`,
 						() => {
 
 						}
@@ -217,7 +217,7 @@
           }
           if( subrouteData.id ) {
             Polymer.Base.importHref(
-  						'/elements/thegrid/pages/register/grid-' + subrouteData.id + '.html?v=1.0.1',
+  						`/elements/thegrid/pages/register/grid-${subrouteData.id}.html?v=${window.VERSION}`,
   						() => {
                 self.subPage = subrouteData.id;
   						}

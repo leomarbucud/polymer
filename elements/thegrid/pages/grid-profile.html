@@ -476,7 +476,7 @@
             self.subPage = null;
           }
           Polymer.Base.importHref(
-						`/elements/thegrid/pages/profile/grid-profile-${subrouteData.id}.html`,
+						`/elements/thegrid/pages/profile/grid-profile-${subrouteData.id}.html?v=${window.VERSION}`,
 						() => {
               self.subPage = subrouteData.id;
 						}

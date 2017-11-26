@@ -493,7 +493,7 @@
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector('#transactions-' + subrouteData.id) ) {
             Polymer.Base.importHref(
-  						'/elements/thegrid/pages/transactions/grid-transactions-' + subrouteData.id + '.html?v=1.0.1',
+  						`/elements/thegrid/pages/transactions/grid-transactions-${subrouteData.id}.html?v=${window.VERSION}`,
   						() => {
                 self.subPage = subrouteData.id;
   						}

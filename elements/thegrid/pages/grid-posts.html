@@ -207,7 +207,7 @@
       </section>
 
       <section data-page="post" class="sub-page">
-        <grid-post map="{{map}}" post="[[_post]]" post-id="[[post.id]]"></grid-post>
+        <grid-post gmap="[[gmap]]" post="[[_post]]" post-id="[[post.id]]"></grid-post>
       </section>
 
     </iron-pages>
@@ -491,6 +491,9 @@
               const deleteToast = this.shadowRoot.querySelector('#deleteToast');
               deleteToast.open();
               this.dispatch('removePost', this.post_to_delete);
+              if( this.gmap ) {
+                this.gmap.removePostById(this.post_to_delete.id);
+              }
             }).catch( err => {
 
             }).then( () => {
@@ -613,7 +616,7 @@
         if( subrouteData.id ) {
           if( this.shadowRoot.querySelector(`#posts-${subrouteData.id}`) ) {
             Polymer.Base.importHref(
-  						`/elements/thegrid/pages/posts/grid-posts-${subrouteData.id}.html?v=1.0.1`,
+  						`/elements/thegrid/pages/posts/grid-posts-${subrouteData.id}.html?v=${window.VERSION}`,
   						() => {
                 self.subPage = subrouteData.id;
   						}

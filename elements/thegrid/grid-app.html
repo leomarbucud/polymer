@@ -407,9 +407,21 @@
 				this.isPageLoading = false;
 			}
 
+			_setCategories() {
+				axios.get(`${this.url.API_URL}/jobs/categories`)
+				.then(res => {
+					this.dispatch('setCategories', res.data);
+				}).catch(err => {
+					if (err.response) {
+
+					}
+				});
+			}
+
 			constructor() {
 				super();
 				this._checkLogin();
+				this._setCategories();
 				this._initSocketEvents();
 				this.checkAppVersion();
 
@@ -885,7 +897,7 @@
 						this.page = 'add';
 						
 						Polymer.Base.importHref(
-							this.resolveUrl(`pages/posts/grid-posts-add.html?v=1.0.1`),
+							this.resolveUrl(`pages/posts/grid-posts-add.html?v=${window.VERSION}`),
 							() => {
 								this.isPageLoading = false;
 							},
@@ -921,7 +933,7 @@
 					this.page = routeData.page;
 
 					Polymer.Base.importHref(
-						this.resolveUrl(`pages/grid-${routeData.page}.html?v=1.0.1`),
+						this.resolveUrl(`pages/grid-${routeData.page}.html?v=${window.VERSION}`),
 						() => {
 							this.isPageLoading = false;
 						},
@@ -932,7 +944,7 @@
 				} else {
 					this.page = null;
 					Polymer.Base.importHref(
-						this.resolveUrl('components/grid-map.html?v=1.0.1'),
+						this.resolveUrl(`components/grid-map.html?v=${window.VERSION}`),
 						() => {
 							// do something after elements has been imported
 						}
@@ -944,7 +956,7 @@
 				this.isPageLoading = false;
 				this.page = '404';
 				Polymer.Base.importHref(
-					this.resolveUrl('pages/grid-404.html?v=1.0.1'),
+					this.resolveUrl(`pages/grid-404.html?v=${window.VERSION}`),
 					() => {
 						// do something after elements has been imported
 					}

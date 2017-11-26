@@ -597,7 +597,26 @@
 					// add the updated marker
 					this.gmap.newMarker(post);
 				}
-			}
+      }
+      
+      updateMarkerById(id) {
+        gAxios.get(`/users/${this.user.id}/marker/${id}`)
+        .then(res => {
+          this.updateMarker(res.data);
+        });
+      }
+
+      removePostById(id) {
+        const f_marker = this.gmap.findBy( marker => {
+					return marker.id == id;
+				});
+				if(f_marker.length){
+					// remove marker
+					this.gmap.removeBy( marker => {
+						return marker.id == id;
+					});
+				}
+      }
 
       // updateMarker(data) {
       //   if(!window.google || !data) return;
@@ -672,14 +691,6 @@
 
       _initSocketEvents() {
 
-        const updateMarker = id => {
-          console.log('updating marker', id);
-          gAxios.get(`/users/${this.user.id}/marker/${id}`)
-          .then(res => {
-            this.updateMarker(res.data);
-          });
-        };
-
         // when new post is posted
         socket.on('user:posted', data => {
           let _data = data;
@@ -700,18 +711,17 @@
 
         socket.on('user:bidded', data => {
           if(!this.auth) return;
-          updateMarker(data.job.id);
+          this.updateMarkerById(data.job.id);
         });
 
-        socket.on('user:grant_job', data => {
-          console.log(data);
+        socket.on('user:grant_job', data => { 
           if(!this.auth) return;
-          updateMarker(data.job_id);
+          this.updateMarkerById(data.job_id);
         });
        
         socket.on('user:cancel_grant_job', data => {
           if(!this.auth) return;
-          updateMarker(data.job_id);
+          this.updateMarkerById(data.job_id);
         });
 
       }
