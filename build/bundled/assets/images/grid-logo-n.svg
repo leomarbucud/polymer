@@ -1,0 +1,33 @@
+<svg width="144" height="144" viewBox="0 0 144 144" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<title>Background</title>
+<desc>Created using Figma</desc>
+<g id="Canvas" transform="translate(-273 102)">
+<rect x="273" y="-102" width="144" height="144" fill="#1A1A1A"/>
+<clipPath id="clip-0" clip-rule="evenodd">
+<path d="M 273 -102L 417 -102L 417 42L 273 42L 273 -102Z" fill="#FFFFFF"/>
+</clipPath>
+<g id="icon/square/144x144" clip-path="url(#clip-0)">
+<g id="Background">
+<use xlink:href="#path0_fill" transform="translate(273 -102)" fill="url(#paint0_linear)"/>
+</g>
+<g id="Background">
+<use xlink:href="#path0_fill" transform="translate(273 -102)" fill="url(#paint1_radial)"/>
+</g>
+<g id="logo/TheGrid">
+<use xlink:href="#path1_fill" transform="translate(303 -80)" fill="#FFFFFF"/>
+</g>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-144 144 -144 -45.5625 216 22.7813)">
+<stop offset="0" stop-color="#FF3B30"/>
+<stop offset="1" stop-color="#FF2D55"/>
+</linearGradient>
+<radialGradient id="paint1_radial" cx="0.5" cy="0.5" r="0.5" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-144 144 -144 -45.5625 216 22.7813)">
+<stop offset="0" stop-color="#FFFFFF" stop-opacity="0.1"/>
+<stop offset="1" stop-color="#FFFFFF" stop-opacity="0.05"/>
+</radialGradient>
+<path id="path0_fill" d="M 0 0L 144 0L 144 144L 0 144L 0 0Z"/>
+<path id="path1_fill" d="M 84 83.687L 83.3 84.3993C 74.2 93.6583 61.95 99 48.65 99C 35.7 99 23.45 94.0144 14.35 84.3993C 4.9 75.1403 0 62.6763 0 49.5C 0 36.3237 4.9 23.8597 14.35 14.6007C 23.45 4.98561 35.7 0 48.65 0L 48.65 9.25899C 26.95 9.25899 9.1 27.4209 9.1 49.5C 9.1 71.5791 26.95 90.0971 49 90.0971C 57.05 90.0971 64.4 87.6043 71.05 83.3309L 42 54L 48.6316 47.25L 84 83.687Z"/>
+</defs>
+</svg>
