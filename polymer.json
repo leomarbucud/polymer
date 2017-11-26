@@ -16,6 +16,7 @@
     "elements/thegrid/pages/grid-register.html",
     "elements/thegrid/pages/grid-reset-password.html",
     "elements/thegrid/pages/grid-search.html",
+    "elements/thegrid/pages/grid-settings.html",
     "elements/thegrid/pages/grid-transactions.html",
     "elements/thegrid/pages/bids/grid-bid.html",
     "elements/thegrid/pages/help/grid-about.html",
