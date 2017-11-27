@@ -138,7 +138,7 @@
 		    data="{{subrouteData}}"></app-route>
 
     <div id="toolbar" class="toolbar dred-bg">
-      <paper-icon-button icon="first-page" class="white pointer" on-click="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="first-page" class="white pointer" on-tap="redirectHome"></paper-icon-button>
       <span class="flex"></span>
    </div> 
 
@@ -155,7 +155,7 @@
               </template>
             </span>
           </div>
-          <img on-click="editProfile" class="circle" src$="[[_profileImage(user.profile.profile_image_url)]]" avatar$="[[user.name]]">
+          <img on-tap="editProfile" class="circle" src$="[[_profileImage(user.profile.profile_image_url)]]" avatar$="[[user.name]]">
         </div>
 
         <div class="layout horizontal white">

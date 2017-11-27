@@ -264,7 +264,7 @@
     </style>
 
     <div id="toolbar" class="toolbar dgrey-bg shadow">
-      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectInbox"></paper-icon-button>
+      <paper-icon-button icon="chevron-left" class="red pointer" on-tap="redirectInbox"></paper-icon-button>
       <div class="flex">
         <div class="conversation-header">
           <template is="dom-if" if="[[conversation.messages]]">
@@ -294,7 +294,7 @@
               </div>
             </template>
            
-            <div class$="chat-bubble-holder [[message.type]]" id$="chat-[[message.id]]" title="[[message.created_at]]" data-index$="[[index]]" data-author$="[[message.author_id]]" on-click="toggleTime">
+            <div class$="chat-bubble-holder [[message.type]]" id$="chat-[[message.id]]" title="[[message.created_at]]" data-index$="[[index]]" data-author$="[[message.author_id]]" on-tap="toggleTime">
               <span class$="chat-bubble chat-bubble-[[message.type]]">
                 <span>[[message.message]]</span>
               </span>
@@ -338,7 +338,7 @@
         <form class="form">
           <div class="input-group suffix dgrey-bg">
             <input id="message" type="text" class="input dgrey-bg white" autocomplete="off" placeholder="Type a message..." value="{{message::input}}"
-              on-keydown="messageEvent" on-click="readMessage" />
+              on-keydown="messageEvent" on-tap="readMessage" />
 
             <div class="addon-suffix has-button dgrey-bg">
               <paper-icon-button icon="grid:send" class="red" on-tap="send"></paper-icon-button>

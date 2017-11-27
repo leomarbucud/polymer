@@ -85,7 +85,7 @@
 
       <div role="list" class="white">
         <template is="dom-repeat" items="[[user.locations]]" as="loc">
-          <paper-item on-click="openActionDialog">
+          <paper-item on-tap="openActionDialog">
             <paper-item-body two-line>
               <div>[[loc.alias]]</div>
               <div secondary>[[loc.location]]</div>
@@ -122,7 +122,7 @@
             <paper-icon-button id="locationButton" class="red" icon="maps:my-location" hidden$="[[!gmap.map]]" on-tap="myLocation" data-location="work"></paper-icon-button>
           </div>
         </div>
-        <button on-click="saveLocations">Save</button>
+        <button on-tap="saveLocations">Save</button>
 
       </section> -->
 

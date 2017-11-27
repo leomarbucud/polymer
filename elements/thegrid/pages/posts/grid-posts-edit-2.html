@@ -21,13 +21,13 @@
 
 		<div id="toolbar" class="toolbar lgrey-bg">
 			<!-- <div class="flex"> -->
-				<paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectBack"></paper-icon-button>
+				<paper-icon-button icon="chevron-left" class="red pointer" on-tap="redirectBack"></paper-icon-button>
 			<!-- </div> -->
 			<div class="flex"></div>
 			<!-- <div class="flex align-right" style="padding-right: 8px;">
-				<span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span>
+				<span id="next" class="white pointer" on-tap="submit" hidden$="[[!readyPost]]">Next</span>
 			</div> -->
-			<paper-button id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</paper-button>
+			<paper-button id="next" class="white pointer" on-tap="submit" hidden$="[[!readyPost]]">Next</paper-button>
 		</div>
 
 		<div class="p-y-1">
@@ -43,7 +43,7 @@
 
 					<div class="input-group prefix" data-step="1" data-question="How much is your budget?">
 						<div class="addon-prefix flex layout horizontal">
-							<span on-click="openCurrencyDialog">[[ currency_unit ]] </span>
+							<span on-tap="openCurrencyDialog">[[ currency_unit ]] </span>
 						</div>
 						<input id="price" type="number" class="input" autocomplete="off" placeholder="Price" value="{{price::input}}" data-validate="required"
 						 data-message-required="Please tell us our budget." />
@@ -61,14 +61,14 @@
 				</template>
 				<paper-radio-group selected="{{ selected_currency }}">
 					<template is="dom-repeat" items="[[ countries ]]" as="country">
-						<paper-radio-button class="block" name="[[ country.currency_unit ]]" on-click="setCurrency">[[ country.currency_unit ]] ( [[ country.nicename ]] )</paper-radio-button>
+						<paper-radio-button class="block" name="[[ country.currency_unit ]]" on-tap="setCurrency">[[ country.currency_unit ]] ( [[ country.nicename ]] )</paper-radio-button>
 					</template>
 				</paper-radio-group>
 			</paper-dialog-scrollable>
 			<div class="buttons">
 				<paper-button dialog-dismiss class="white">Cancel</paper-button>
 				<template is="dom-if" if="[[ countries.length ]]">
-					<paper-button dialog-confirm class="white" on-click="confirmCurrency">Ok</paper-button>
+					<paper-button dialog-confirm class="white" on-tap="confirmCurrency">Ok</paper-button>
 				</template>
 			</div>
 		</paper-dialog>

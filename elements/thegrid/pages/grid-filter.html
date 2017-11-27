@@ -65,21 +65,21 @@
     </style>
 
     <div class="toolbar">
-      <paper-icon-button icon="close" class="white pointer" on-click="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="close" class="white pointer" on-tap="redirectHome"></paper-icon-button>
       <span class="flex"></span>
-      <paper-button on-click="filter" class="white">Done</paper-button>
+      <paper-button on-tap="filter" class="white">Done</paper-button>
     </div>
     
     <main class="flex">
       <section class="p-y-1 title layout horizontal">
         <h1 class="white m-0 flex">Filters</h1>
-        <span class="red pointer" on-click="initValue">Reset</span>
+        <span class="red pointer" on-tap="initValue">Reset</span>
       </section>
 
       <section class="p-y-1">
 
         <div class="fil layout horizontal">
-          <paper-input label="Date" value="[[dateText]]" on-click="openCalendar" readonly class="flex grid" style="margin-right: 16px;">
+          <paper-input label="Date" value="[[dateText]]" on-tap="openCalendar" readonly class="flex grid" style="margin-right: 16px;">
             <div slot="suffix">
               <iron-icon class="white" icon="arrow-drop-down"></iron-icon>
             </div>
@@ -92,9 +92,9 @@
                 </div>
               </paper-input>
               <paper-listbox slot="dropdown-content" class="dropdown-menu">
-                <paper-item class="item" on-click="updateShow" data-show="0">Any</paper-item>
-                <paper-item class="item" on-click="updateShow" data-show="m_p">My Posts</paper-item>
-                <paper-item class="item" on-click="updateShow" data-show="m_b" >My Bids</paper-item>
+                <paper-item class="item" on-tap="updateShow" data-show="0">Any</paper-item>
+                <paper-item class="item" on-tap="updateShow" data-show="m_p">My Posts</paper-item>
+                <paper-item class="item" on-tap="updateShow" data-show="m_b" >My Bids</paper-item>
               </paper-listbox>
             </paper-menu-button>
           </template>
@@ -109,9 +109,9 @@
               </div>
             </paper-input>
             <paper-listbox slot="dropdown-content" class="dropdown-menu">
-              <paper-item class="item"  on-click="updateCategory" data-category="0">Any</paper-item>
+              <paper-item class="item"  on-tap="updateCategory" data-category="0">Any</paper-item>
               <template is="dom-repeat" items="[[ categories ]]" as="cat">
-                <paper-item class="item" on-click="updateCategory" data-category$="[[cat.id]]">[[cat.category]]</paper-item>
+                <paper-item class="item" on-tap="updateCategory" data-category$="[[cat.id]]">[[cat.category]]</paper-item>
               </template>
             </paper-listbox>
           </paper-menu-button>
@@ -136,7 +136,7 @@
       <range-datepicker date-format="MM/DD/YYYY" force-narrow date-from="{{dateFrom}}" date-to="{{dateTo}}"></range-datepicker>
       <div class="buttons">
         <paper-button dialog-dismiss class="white">Cancel</paper-button>
-        <paper-button dialog-confirm autofocus on-click="updateDate" class="white">Ok</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="updateDate" class="white">Ok</paper-button>
       </div>
     </paper-dialog>
 

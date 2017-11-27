@@ -81,15 +81,15 @@
 
 
     <div id="toolbar" class="toolbar">
-      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="first-page" class="red pointer" on-tap="redirectHome"></paper-icon-button>
       <div class="flex" style="overflow: hidden;">
         <span id="toolbar-title">Transactions</span>
       </div>
-      <paper-icon-button icon="search" class="red pointer" on-click="openSearchBar"></paper-icon-button>
+      <paper-icon-button icon="search" class="red pointer" on-tap="openSearchBar"></paper-icon-button>
       <paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
         <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
         <div slot="dropdown-content" class="dropdown-menu">
-          <div class="item" on-click="refreshTransactions">
+          <div class="item" on-tap="refreshTransactions">
             <span>Refresh</span>
             <paper-ripple></paper-ripple>
           </div>
@@ -110,11 +110,11 @@
       <div class="toolbar">
         <div class="input-group suffix prefix">
           <div class="addon-prefix has-button">
-            <paper-icon-button icon="chevron-left" class="pointer" on-click="closeSearchBar"></paper-icon-button>
+            <paper-icon-button icon="chevron-left" class="pointer" on-tap="closeSearchBar"></paper-icon-button>
           </div>
           <input type="text" class="input" value="{{ search::input }}" placeholder="Search..."/>
           <div class="addon-suffix has-button">
-            <paper-icon-button icon="close" class="pointer" on-click="clearSearchBar"></paper-icon-button>
+            <paper-icon-button icon="close" class="pointer" on-tap="clearSearchBar"></paper-icon-button>
           </div>
         </div>
       </div>
@@ -127,7 +127,7 @@
       <div class="white" role="listbox">
         <!-- <iron-selector attr-for-selected="id" selected="[[post.id]]" > -->
           <template is="dom-repeat" items="[[ transactions ]]" as="trans" filter="{{ _filterTransactions(query) }}">
-            <paper-item id$="[[ trans.id ]]" on-click="viewTransaction">
+            <paper-item id$="[[ trans.id ]]" on-tap="viewTransaction">
               <paper-item-body two-line>
                 <div>[[ trans.job.name ]]</div>
                 <div secondary>

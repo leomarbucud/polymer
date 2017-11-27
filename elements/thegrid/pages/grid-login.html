@@ -40,9 +40,9 @@
 		    data="{{loginData}}"></app-route>
 
     <div id="toolbar" class="toolbar">
-      <paper-icon-button icon="close" class="white pointer" on-click="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="close" class="white pointer" on-tap="redirectHome"></paper-icon-button>
       <span class="flex"></span>
-      <paper-button class="white pointer" on-click="redirectRegister">SIGN UP</paper-button>
+      <paper-button class="white pointer" on-tap="redirectRegister">SIGN UP</paper-button>
     </div>
     <main class="scroll-area flex">
       <login-components is-logging-in="{{isLoggingIn}}"

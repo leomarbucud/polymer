@@ -122,15 +122,15 @@
         data="{{conversation}}"></app-route>
 
     <div id="toolbar" class="toolbar">
-      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="first-page" class="red pointer" on-tap="redirectHome"></paper-icon-button>
       <div class="flex" style="overflow: hidden;">
         <span id="toolbar-title">Inbox</span>
       </div>
-      <paper-icon-button icon="search" class="red pointer" on-click="openSearchBar"></paper-icon-button>
+      <paper-icon-button icon="search" class="red pointer" on-tap="openSearchBar"></paper-icon-button>
       <paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
         <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
         <div slot="dropdown-content" class="dropdown-menu">
-          <div class="item" on-click="refreshInbox">
+          <div class="item" on-tap="refreshInbox">
             <span>Refresh</span>
             <paper-ripple></paper-ripple>
           </div>
@@ -157,11 +157,11 @@
       <div class="toolbar">
         <div class="input-group suffix prefix">
           <div class="addon-prefix has-button">
-            <paper-icon-button icon="chevron-left" class="pointer" on-click="closeSearchBar"></paper-icon-button>
+            <paper-icon-button icon="chevron-left" class="pointer" on-tap="closeSearchBar"></paper-icon-button>
           </div>
           <input type="text" class="input" value="{{search::input}}" placeholder="Search..."/>
           <div class="addon-suffix has-button">
-            <paper-icon-button icon="close" class="pointer" on-click="clearSearchBar"></paper-icon-button>
+            <paper-icon-button icon="close" class="pointer" on-tap="clearSearchBar"></paper-icon-button>
           </div>
         </div>
       </div>
@@ -174,7 +174,7 @@
       <div class="white" role="listbox">
         <iron-selector id="inbox-selector" attr-for-selected="id" selected="{{conversation.id}}" >
           <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt" filter="{{_filterInbox(query)}}">
-            <paper-icon-item id$="{{convo.id}}" on-click="viewConversation">
+            <paper-icon-item id$="{{convo.id}}" on-tap="viewConversation">
               <div class="avatar" slot="item-icon">
                 <img class="circle" src$="[[_otherUserProfileImage(convo.user1, convo.user2)]]">
               </div>

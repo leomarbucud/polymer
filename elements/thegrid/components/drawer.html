@@ -118,14 +118,14 @@
           <img src="/assets/images/background.png">
         </div>
         <div style="padding: 16px 0 8px 16px;">
-          <a on-click="redirectProfile"><img class="circle" src$="[[_profileImage(user.profile.profile_image_url)]]"></a>
+          <a on-tap="redirectProfile"><img class="circle" src$="[[_profileImage(user.profile.profile_image_url)]]"></a>
         </div>
         <div class="layout horizontal">
           <div class="flex" style="padding: 8px 0 8px 16px;">
             <a href$="/@[[user.username]]"><span class="white-text name">[[user.name]]</span></a>
             <a href$="/@[[user.username]]"><span class="white-text email">@[[user.username]]</span></a>
           </div>
-          <paper-icon-button style="padding: 16px; height: 60px; width: 60px;" icon="arrow-drop-down" class="white" on-click="toggleMenu"></paper-icon-button>
+          <paper-icon-button style="padding: 16px; height: 60px; width: 60px;" icon="arrow-drop-down" class="white" on-tap="toggleMenu"></paper-icon-button>
         </div>
         
         <!-- <paper-ripple></paper-ripple> -->
@@ -138,7 +138,7 @@
             <img src="/assets/images/background.png">
           </div>
           <div style="padding: 16px 0 8px 16px;">
-            <a on-click="redirectProfile"><img class="circle" src$="[[_profileImage()]]"></a>
+            <a on-tap="redirectProfile"><img class="circle" src$="[[_profileImage()]]"></a>
           </div>
           <div class="layout horizontal">
             <div class="flex" style="padding: 8px 0 8px 16px;">
@@ -230,7 +230,7 @@
 
       <div role="list" class="h-100 layout vertical" data-option="2">
         <div>
-          <paper-icon-item on-click="toggleNotifications">
+          <paper-icon-item on-tap="toggleNotifications">
             <iron-icon icon="grid:notifications" class="white" slot="item-icon"></iron-icon>
             <paper-item-body>
               <div>[[mute]] Notifications</div>
@@ -262,7 +262,7 @@
         </paper-icon-item>
       </div>
       <div>
-        <paper-icon-item on-click="updateApp">
+        <paper-icon-item on-tap="updateApp">
           <iron-icon icon="grid:update" class="white" slot="item-icon"></iron-icon>
           <paper-item-body>
             <div>Update</div>

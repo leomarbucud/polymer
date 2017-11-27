@@ -64,12 +64,12 @@
 
     <div id="toolbar" class="toolbar lgrey-bg">
       <div class="flex">
-        <paper-icon-button icon="close" class="white pointer" on-click="redirectBack"></paper-icon-button>
+        <paper-icon-button icon="close" class="white pointer" on-tap="redirectBack"></paper-icon-button>
       </div>
       <div id="indicator"></div>
       <div class="flex align-right">
-        <!-- <span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span> -->
-        <paper-button id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</paper-button>
+        <!-- <span id="next" class="white pointer" on-tap="submit" hidden$="[[!readyPost]]">Next</span> -->
+        <paper-button id="next" class="white pointer" on-tap="submit" hidden$="[[!readyPost]]">Next</paper-button>
       </div>
     </div>
 
@@ -117,7 +117,7 @@
                 value="{{where::input}}"
                 data-validate="required"
                 data-message-required="Please tell us where." 
-                on-click="showMap"
+                on-tap="showMap"
                 readonly />
             <div class="addon-suffix has-icon">
               <!-- <paper-icon-button icon="maps:pin-drop" class="red" hidden$="[[!gmap.map]]" on-tap="showMap"></paper-icon-button> -->
@@ -125,7 +125,7 @@
                 <paper-icon-button id="mylocationsButton" class="red" icon="grid:location" hidden$="[[!gmap.map]]" on-tap="openMyLocationsDialog"></paper-icon-button>
               </template>
               <paper-icon-button id="locationButton" class="red" icon="maps:my-location" hidden$="[[!gmap.map]]" on-tap="myLocation"></paper-icon-button>
-              <!-- <span id="locationButton" on-click="myLocation" class="pointer inactive" hidden$="[[!map]]">
+              <!-- <span id="locationButton" on-tap="myLocation" class="pointer inactive" hidden$="[[!map]]">
                 <iron-icon icon="maps:my-location" class="red" title="Press for current location"></iron-icon>
               </span> -->
             </div>
@@ -148,11 +148,11 @@
         <div class="toolbar shadow">
           <div class="input-group suffix prefix">
             <div class="addon-prefix has-button">
-              <paper-icon-button icon="chevron-left" class="pointer" on-click="closeSearchBar"></paper-icon-button>
+              <paper-icon-button icon="chevron-left" class="pointer" on-tap="closeSearchBar"></paper-icon-button>
             </div>
             <input id="search-location" type="text" class="input" value="{{search::input}}" placeholder="Search..."/>
             <div class="addon-suffix has-button">
-              <paper-icon-button icon="close" class="pointer" on-click="clearSearchBar"></paper-icon-button>
+              <paper-icon-button icon="close" class="pointer" on-tap="clearSearchBar"></paper-icon-button>
             </div>
           </div>
         </div>
@@ -166,13 +166,13 @@
 			<div>
         <paper-radio-group selected="{{ selected_from_locations }}">
           <template is="dom-repeat" items="[[ user.locations ]]" as="location">
-            <paper-radio-button class="block" on-click="selectMyLocation" name="[[ location.alias ]]">[[ location.alias ]]</paper-radio-button>
+            <paper-radio-button class="block" on-tap="selectMyLocation" name="[[ location.alias ]]">[[ location.alias ]]</paper-radio-button>
           </template>
         </paper-radio-group>
 			</div>
 			<div class="buttons">
 				<paper-button dialog-dismiss class="white">Cancel</paper-button>
-				<paper-button dialog-confirm class="white" on-click="confirmMyLocation" disabled="[[ noSelectedLocation ]]">Ok</paper-button>
+				<paper-button dialog-confirm class="white" on-tap="confirmMyLocation" disabled="[[ noSelectedLocation ]]">Ok</paper-button>
       </div>
     </paper-dialog>
     

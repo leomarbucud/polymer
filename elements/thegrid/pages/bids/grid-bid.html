@@ -131,22 +131,22 @@
     </style>
 
     <div id="toolbar" class="toolbar dgrey-bg">
-      <paper-icon-button icon="first-page" class="red" on-click="redirectHome"></paper-icon-button>
-      <paper-icon-button icon="chevron-left" class="red" on-click="redirectBids"></paper-icon-button>
+      <paper-icon-button icon="first-page" class="red" on-tap="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="chevron-left" class="red" on-tap="redirectBids"></paper-icon-button>
       <span class="flex toolbar-title">[[ bid.job.name ]]</span>
       <paper-menu-button horizontal-align="right" vertical-align="top">
         <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
         <paper-listbox slot="dropdown-content" class="dropdown-menu">
           <template is="dom-if" if="[[ !bid.job.is_accepted ]]">
-            <paper-item class="item" on-click="openRebidDialog">
+            <paper-item class="item" on-tap="openRebidDialog">
               <span>Bid Again</span>
             </paper-item>
-            <paper-item class="item" on-click="openQueryDialog">
+            <paper-item class="item" on-tap="openQueryDialog">
               <span>Ask Question</span>
             </paper-item>
           </template>
           <template is="dom-if" if="[[ _isUserAccepted(bid.status) ]]">
-            <paper-item class="item" on-click="messageBidder">
+            <paper-item class="item" on-tap="messageBidder">
               <span>Message</span>
             </paper-item>
           </template>
@@ -165,8 +165,8 @@
             <div class="red-box">
               <p>This post has now been awarded to you. Congratulations!</p>
               <div class="action">
-                <paper-button class="white" on-click="declineJob">Decline</paper-button>
-                <paper-button class="white" on-click="acceptJob">Accept</paper-button>
+                <paper-button class="white" on-tap="declineJob">Decline</paper-button>
+                <paper-button class="white" on-tap="acceptJob">Accept</paper-button>
               </div>
             </div>
           </template>
@@ -183,7 +183,7 @@
               <status-check checked>
                 <span>Awarded</span>
               </status-check>
-              <status-check checked="[[ bid.job.is_moving ]]" on-click="openMarkInProgressDialog">
+              <status-check checked="[[ bid.job.is_moving ]]" on-tap="openMarkInProgressDialog">
                 <span>In Progress</span>
               </status-check>
               <status-check checked="[[ bid.job.is_completed ]]">
@@ -210,7 +210,7 @@
             </div>
           </template>
           <div class="details">
-            <detail-text label="Location" details="[[ bid.job.location ]]" class="pointer" on-click="viewOnMap"></detail-text>
+            <detail-text label="Location" details="[[ bid.job.location ]]" class="pointer" on-tap="viewOnMap"></detail-text>
           </div>
           <div class="details">
             <detail-text label="Attachments" details="[[ docs_count ]] [[ _pluralize('file', docs_count) ]], [[ image_count ]] [[ _pluralize('image', image_count) ]]"></detail-text>
@@ -244,7 +244,7 @@
               </div>
               <div class="flex">
                 <div class="details">
-                  <detail-text label="Queries" details="[[ queries_count ]] [[ _pluralize('Question', queries_count) ]]" on-click="goToQueries"></detail-text>
+                  <detail-text label="Queries" details="[[ queries_count ]] [[ _pluralize('Question', queries_count) ]]" on-tap="goToQueries"></detail-text>
                 </div>
                 <div class="details">
                   <detail-text label="Rank" details="[[ rank ]]/[[ total_bidders ]]"></detail-text>
@@ -263,7 +263,7 @@
               <detail-text label="Attachments">
                 <div id="previews">
                   <template is="dom-repeat" items="[[ files ]]" as="file">
-                    <div class="wrap" on-click="viewFile">
+                    <div class="wrap" on-tap="viewFile">
                       <div class="file layout horizontal">
                         <img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
                         <span class="flex">[[file.original_name]]</span>
@@ -293,8 +293,8 @@
               <paper-menu-button id="sort-query" class="p-0" horizontal-align="right" vertical-align="top">
                 <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
                 <paper-listbox slot="dropdown-content" class="dropdown-menu">
-                  <paper-item class="item" on-click="sortQueries" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
-                  <paper-item class="item" on-click="sortQueries" data-sort="m_h" data-text="Most Helpful">Most Helpful</paper-item>
+                  <paper-item class="item" on-tap="sortQueries" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
+                  <paper-item class="item" on-tap="sortQueries" data-sort="m_h" data-text="Most Helpful">Most Helpful</paper-item>
                 </paper-listbox>
               </paper-menu-button>
             </div>
@@ -306,7 +306,7 @@
             <div class="overlay">
               <div class="align-center">
                 <p>No question has been asked in this post.</p>
-                <paper-button class="white" on-click="openQueryDialog">Ask now</paper-button>
+                <paper-button class="white" on-tap="openQueryDialog">Ask now</paper-button>
               </div>
             </div>
           </template>
@@ -316,7 +316,7 @@
     <div>
       <iron-pages selected="{{selected_tab}}">
         <template is="dom-if" if="[[ _isUserAccepted(bid.status) ]]">
-          <paper-button class="red block align-center" on-click="messageBidder">Message</paper-button>
+          <paper-button class="red block align-center" on-tap="messageBidder">Message</paper-button>
         </template>
       </iron-pages>
     </div>

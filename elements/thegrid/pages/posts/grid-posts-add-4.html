@@ -70,12 +70,12 @@
 
 		<div id="toolbar" class="toolbar lgrey-bg">
 			<!-- <div class="flex"> -->
-				<paper-icon-button icon="chevron-left" class="white pointer" on-click="redirectBack"></paper-icon-button>
+				<paper-icon-button icon="chevron-left" class="white pointer" on-tap="redirectBack"></paper-icon-button>
 			<!-- </div> -->
 			<div class="flex"></div>
 			<!-- <div class="flex align-right"> -->
-				<!-- <span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Post</span> -->
-				<paper-button id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Post</paper-button>
+				<!-- <span id="next" class="white pointer" on-tap="submit" hidden$="[[!readyPost]]">Post</span> -->
+				<paper-button id="next" class="white pointer" on-tap="submit" hidden$="[[!readyPost]]">Post</paper-button>
 			<!-- </div> -->
 		</div>
 
@@ -94,7 +94,7 @@
 					<div class="input-group suffix" >
 						<textarea rows="6" class="input" value="{{details::input}}" style="resize: none; height: 150px; padding: 16px;" placeholder="Start typing.."></textarea>
 						<div class="addon-suffix has-button flex layout vertical" style="height: 150px;">
-							<paper-icon-button icon="grid:attachment" on-click="selectFile"></paper-icon-button>
+							<paper-icon-button icon="grid:attachment" on-tap="selectFile"></paper-icon-button>
 							<span class="flex"></span>
 						</div>
 					</div>
@@ -109,7 +109,7 @@
 							<div class="file layout horizontal">
 								<img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
 								<span class="flex">[[file.name]]</span>
-								<iron-icon icon="close" on-click="removeFile"></iron-icon>
+								<iron-icon icon="close" on-tap="removeFile"></iron-icon>
 							</div>
 						</div>
 					</template>

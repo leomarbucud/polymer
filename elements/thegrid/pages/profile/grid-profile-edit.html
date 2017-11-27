@@ -52,9 +52,9 @@
     </style>
 
     <div id="toolbar" class="toolbar dred-bg">
-      <paper-icon-button icon="chevron-left" class="white pointer" on-click="redirectProfile"></paper-icon-button>
+      <paper-icon-button icon="chevron-left" class="white pointer" on-tap="redirectProfile"></paper-icon-button>
       <span class="flex"></span>
-      <paper-button on-click="upload" class="white" hidden$="[[!selectedAvatar]]">Submit</paper-button>
+      <paper-button on-tap="upload" class="white" hidden$="[[!selectedAvatar]]">Submit</paper-button>
     </div>
 
     <main class="p-y-1">
@@ -63,7 +63,7 @@
           <div class="relative">
             <img id="avatar" src="[[currentAvatar]]" />
             <span class="image-select">
-              <paper-icon-button icon="image:camera-alt" on-click="selectFile"></paper-icon-button>
+              <paper-icon-button icon="image:camera-alt" on-tap="selectFile"></paper-icon-button>
             </span>
           </div>
         </div>

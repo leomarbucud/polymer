@@ -64,13 +64,13 @@
 
 		<div id="toolbar" class="toolbar lgrey-bg">
 			<!-- <div class="flex"> -->
-				<paper-icon-button icon="chevron-left" class="white pointer" on-click="redirectBack"></paper-icon-button>
+				<paper-icon-button icon="chevron-left" class="white pointer" on-tap="redirectBack"></paper-icon-button>
 			<!-- </div> -->
 			<div class="flex"></div>
 			<!-- <div class="flex align-right"> -->
-				<!-- <span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span> -->
-				<paper-button id="next" class="white pointer" on-click="skip" hidden$="[[readyPost]]">Skip</paper-button>
-				<paper-button id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</paper-button>
+				<!-- <span id="next" class="white pointer" on-tap="submit" hidden$="[[!readyPost]]">Next</span> -->
+				<paper-button id="next" class="white pointer" on-tap="skip" hidden$="[[readyPost]]">Skip</paper-button>
+				<paper-button id="next" class="white pointer" on-tap="submit" hidden$="[[!readyPost]]">Next</paper-button>
 			<!-- </div> -->
 		</div>
 
@@ -87,14 +87,14 @@
 					<input id="tag" type="text" class="input" autocomplete="off" autofocus value="{{query::input}}" placeholder="Enter Tag..."	/>
 
 					<div class="addon-suffix">
-						<span class="input-action pointer" on-click="cancelSearch">
+						<span class="input-action pointer" on-tap="cancelSearch">
 							<iron-icon icon="close" class="red"></iron-icon>
 						</span>
 					</div>
 
 					<div id="result" class="auto-complete">
 						<template is="dom-repeat" items="[[ selectable_tags ]]" as="tag" filter="{{_filter(query)}}">
-							<div class="row" on-click="select">
+							<div class="row" on-tap="select">
 								<span>[[tag.name]]</span>
 								<span secondary>[[tag.type.name]]</span>
 							</div>
@@ -109,7 +109,7 @@
 					<div class="chip">
 						<span>[[ tag.name ]]</span>
 						<span class="close">
-							<iron-icon icon="close" class="small" on-click="removeTag"></iron-icon>
+							<iron-icon icon="close" class="small" on-tap="removeTag"></iron-icon>
 						</span>
 					</div>
 				</template>

@@ -84,7 +84,7 @@
 		    data="{{query}}"></app-route>
 
     <div id="toolbar" class="toolbar">
-      <paper-icon-button icon="close" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="close" class="red pointer" on-tap="redirectHome"></paper-icon-button>
       <span class="flex"></span>
     </div>
 
@@ -99,10 +99,10 @@
             <div class="flex">
               Recent
             </div>
-            <span on-click="clearRecentSearch" class="red pointer">Clear</span>
+            <span on-tap="clearRecentSearch" class="red pointer">Clear</span>
           </div>
           <template is="dom-repeat" items="[[recent_searches]]" as="search">
-            <div class="red recent-searches-item" on-click="searchThis">[[search]]</div>
+            <div class="red recent-searches-item" on-tap="searchThis">[[search]]</div>
           </template>
         </div>
         <div hidden$="[[!searching]]" class="white">
@@ -110,7 +110,7 @@
         </div>
         <section class="search-results" hidden$="[[searching]]">
           <template is="dom-repeat" items="[[search_results]]" as="job">
-            <div class="search-result flex layout horizontal pointer" on-click="viewJob">
+            <div class="search-result flex layout horizontal pointer" on-tap="viewJob">
               <div class="flex job-info">
                 <div class="job-name">[[job.name]]</div>
                 <div class="job-date">[[_roundDistance(job.distance)]] : [[_fromNow(job.date)]]</div>
@@ -134,7 +134,7 @@
             </div>
           </div>
           <template is="dom-repeat" items="[[ recommended_jobs ]]" as="job">
-            <div class="search-result flex layout horizontal pointer" on-click="viewJob">
+            <div class="search-result flex layout horizontal pointer" on-tap="viewJob">
               <div class="flex job-info">
                 <div class="job-name">[[job.name]]</div>
                 <div class="job-date">[[_fromNow(job.date)]]</div>
@@ -155,7 +155,7 @@
             </div>
           </div>
           <template is="dom-repeat" items="[[ popular_jobs ]]" as="job">
-            <div class="search-result flex layout horizontal pointer" on-click="viewJob">
+            <div class="search-result flex layout horizontal pointer" on-tap="viewJob">
               <div class="flex job-info">
                 <div class="job-name">[[job.name]]</div>
                 <div class="job-date">[[_fromNow(job.date)]]</div>
@@ -171,7 +171,7 @@
       </div>
     </main>
     <template is="dom-if" if="[[search_results.length]]">
-      <paper-button class="white w-100" on-click="viewResultsOnMap">View results on map</paper-button>
+      <paper-button class="white w-100" on-tap="viewResultsOnMap">View results on map</paper-button>
     </template>
   </template>
 

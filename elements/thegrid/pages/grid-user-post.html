@@ -176,15 +176,15 @@
 		</style>
 
 		<div id="toolbar" class="toolbar dgrey-bg">
-			<paper-icon-button icon="close" class="red" on-click="redirectHome"></paper-icon-button>
+			<paper-icon-button icon="close" class="red" on-tap="redirectHome"></paper-icon-button>
 			<span class="flex toolbar-title">[[ post.name ]]</span>			
 			<paper-menu-button horizontal-align="right" vertical-align="top">
 				<paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
 				<paper-listbox slot="dropdown-content" class="dropdown-menu">
-					<paper-item class="item" on-click="openReportDialog">
+					<paper-item class="item" on-tap="openReportDialog">
 						<span>Report</span>	
 					</paper-item>
-					<paper-item class="item" on-click="shareOnFacebook">
+					<paper-item class="item" on-tap="shareOnFacebook">
 						<span>Share on Facebook</span>	
 					</paper-item>
 				</paper-listbox>
@@ -202,21 +202,21 @@
 							<p>Your bid is [[ currency ]] [[ post.bid.price_bid ]] [[ times ]]</p>
 							<div class="action">
 								<template is="dom-if" if="[[ !post.is_awarded ]]">
-									<paper-button class="white" on-click="openBidDialog">Bid Again</paper-button>
+									<paper-button class="white" on-tap="openBidDialog">Bid Again</paper-button>
 								</template>
-								<paper-button class="white" on-click="viewDetails">View Details</paper-button>
+								<paper-button class="white" on-tap="viewDetails">View Details</paper-button>
 							</div>
 						</div>
 					</template>
 					<div class="details">
-						<detail-text label="Posted by" details="[[ _personName(post.user) ]]" on-click="viewProfile"></detail-text>
+						<detail-text label="Posted by" details="[[ _personName(post.user) ]]" on-tap="viewProfile"></detail-text>
 					</div>
 					<div class="details">
 						<time-remaining date="[[ post.date ]]" time-remaining="{{ time_remaining }}"></time-remaining>
 						<detail-text label="Time Remaining" details="[[ time_remaining ]]"></detail-text>
 					</div>
 					<div class="details">
-						<detail-text class="pointer" label="Location" details="[[ post.location ]]" on-click="viewOnMap"></detail-text>
+						<detail-text class="pointer" label="Location" details="[[ post.location ]]" on-tap="viewOnMap"></detail-text>
 					</div>
 					<div class="details">
 						<detail-text label="Attachments" details="[[ docs_count ]] [[ _pluralize('file', docs_count) ]], [[ image_count ]] [[ _pluralize('image', image_count) ]]"></detail-text>
@@ -235,7 +235,7 @@
 						</div>
 						<div class="flex">
 							<div class="details">
-								<detail-text label="Queries" details="[[ queries.length ]] [[ _pluralize('Question', queries.length) ]]" on-click="goToQueries"></detail-text>
+								<detail-text label="Queries" details="[[ queries.length ]] [[ _pluralize('Question', queries.length) ]]" on-tap="goToQueries"></detail-text>
 							</div>
 							<div class="details">
 								<detail-text label="Expected Amount" details="[[ currency ]] [[ post.price ]]"></detail-text>
@@ -250,7 +250,7 @@
 							<detail-text label="Attachments">
 								<div id="previews">
 									<template is="dom-repeat" items="[[ files ]]" as="file">
-										<div class="wrap" on-click="viewFile">
+										<div class="wrap" on-tap="viewFile">
 											<div class="file layout horizontal">
 												<img id="file-[[index]]" src$="[[_fileReader(file, index, '#previews')]]" />
 												<span class="flex">[[file.original_name]]</span>
@@ -280,8 +280,8 @@
 							<paper-menu-button id="sort-query" class="p-0" horizontal-align="right" vertical-align="top">
 								<paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
 								<paper-listbox slot="dropdown-content" class="dropdown-menu">
-									<paper-item class="item" on-click="sortQueries" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
-									<paper-item class="item" on-click="sortQueries" data-sort="m_h" data-text="Most Helpful">Most Helpful</paper-item>
+									<paper-item class="item" on-tap="sortQueries" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
+									<paper-item class="item" on-tap="sortQueries" data-sort="m_h" data-text="Most Helpful">Most Helpful</paper-item>
 								</paper-listbox>
 							</paper-menu-button>
 						</div>
@@ -304,13 +304,13 @@
 			<div>
 				<template is="dom-if" if="[[ !post.bid ]]">
 					<template is="dom-if" if="[[ canBid ]]">
-						<paper-button class="red block align-center" on-click="openBidDialog">Bid</paper-button>
+						<paper-button class="red block align-center" on-tap="openBidDialog">Bid</paper-button>
 					</template>
 				</template>
 			</div>
 			<div>
 				<template is="dom-if" if="[[ userCanAsk ]]">
-					<paper-button class="red block align-center" on-click="openQueryDialog">Ask</paper-button>
+					<paper-button class="red block align-center" on-tap="openQueryDialog">Ask</paper-button>
 				</template>
 			</div>
 		</iron-pages>
@@ -391,7 +391,7 @@
 							<div class="file layout horizontal">
 								<img id="file-[[index]]" src$="[[_fileReader(file, index, '#bid_previews')]]" />
 								<span class="flex">[[ file.name ]]</span>
-								<iron-icon icon="close" on-click="removeFile"></iron-icon>
+								<iron-icon icon="close" on-tap="removeFile"></iron-icon>
 							</div>
 						</div>
 					</template>
@@ -399,7 +399,7 @@
 				<paper-input id="bidAmount" autofocus always-float-label label="Amout" class="red" value="{{ bidAmount::input }}">
 					<template is="dom-if" if="[[ !times ]]">
 						<div slot="suffix">
-							<paper-icon-button class="red" icon="grid:attachment" on-click="selectFile"></paper-icon-button>
+							<paper-icon-button class="red" icon="grid:attachment" on-tap="selectFile"></paper-icon-button>
 						</div>
 					</template>
 				</paper-input>

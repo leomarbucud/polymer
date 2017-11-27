@@ -151,7 +151,7 @@
 		<div id="notifications" class="notif-wrapper">
 			<div role="list" class="white p-x-1">
 				<template is="dom-repeat" items="[[fNotifications]]" as="notif" sort="_sortByUpdatedAt">
-					<paper-item on-click="viewNotification">
+					<paper-item on-tap="viewNotification">
 						<paper-item-body two-line>
 							<div>[[notif.data.title]]</div>
 							<div secondary>[[_fromNow(notif.created_at)]]</div>
@@ -163,7 +163,7 @@
 		</div>
 		<div id="flexer"></div>
 		<div id="puller">
-			<iron-icon id="toggleIcon" icon="expand-more" class="pointer red" on-click="toggleNotification"></iron-icon>
+			<iron-icon id="toggleIcon" icon="expand-more" class="pointer red" on-tap="toggleNotification"></iron-icon>
 		</div>
 
 		<paper-dialog id="locationDeniedDialog" class="dialog-dark" style="max-width: 500px;">

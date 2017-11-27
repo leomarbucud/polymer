@@ -30,11 +30,11 @@
 
     <div class="toolbar">
       <div class="flex">
-        <paper-icon-button icon="close" class="white pointer" on-click="redirectHome"></paper-icon-button>
+        <paper-icon-button icon="close" class="white pointer" on-tap="redirectHome"></paper-icon-button>
       </div>
       <div id="indicator"></div>
       <div class="flex align-right">
-        <paper-button id="next" class="white pointer" on-click="submit" hidden$="[[!readyNext]]" >Next</paper-button>
+        <paper-button id="next" class="white pointer" on-tap="submit" hidden$="[[!readyNext]]" >Next</paper-button>
       </div>
     </div>
 
@@ -72,9 +72,9 @@
             <div class="addon-suffix">
               <div hidden$="[[!showEmailProvider]]">
                   <div class="flex layout horizontal">
-                    <span class="input-action" on-click="gmail">Gmail</span>
-                    <span class="input-action" on-click="outlook">Outlook</span>
-                    <span class="input-action" on-click="icloud">iCloud</span>
+                    <span class="input-action" on-tap="gmail">Gmail</span>
+                    <span class="input-action" on-tap="outlook">Outlook</span>
+                    <span class="input-action" on-tap="icloud">iCloud</span>
                   </div>
                 </div>
             </div>
@@ -101,7 +101,7 @@
                 data-validate="required"
                 data-message-required="Your password is required." />
             <div class="addon-suffix">
-                <span id="passwordToggler" class="input-action" on-click="tooglePassword">[[togglePasswordText]]</span>
+                <span id="passwordToggler" class="input-action" on-tap="tooglePassword">[[togglePasswordText]]</span>
             </div>
           </div>
 

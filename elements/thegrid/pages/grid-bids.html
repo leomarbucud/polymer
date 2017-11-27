@@ -77,15 +77,15 @@
         data="{{bid}}"></app-route>
 
     <div id="toolbar" class="toolbar">
-      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="first-page" class="red pointer" on-tap="redirectHome"></paper-icon-button>
       <div class="flex" style="overflow: hidden;">
         <span id="toolbar-title">Bids</span>
       </div>
-      <paper-icon-button icon="search" class="red pointer" on-click="openSearchBar"></paper-icon-button>
+      <paper-icon-button icon="search" class="red pointer" on-tap="openSearchBar"></paper-icon-button>
       <paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
         <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
         <div slot="dropdown-content" class="dropdown-menu">
-          <div class="item" on-click="refreshBids">
+          <div class="item" on-tap="refreshBids">
             <span>Refresh</span>
             <paper-ripple></paper-ripple>
           </div>
@@ -112,11 +112,11 @@
       <div class="toolbar">
         <div class="input-group suffix prefix">
           <div class="addon-prefix has-button">
-            <paper-icon-button icon="chevron-left" class="pointer" on-click="closeSearchBar"></paper-icon-button>
+            <paper-icon-button icon="chevron-left" class="pointer" on-tap="closeSearchBar"></paper-icon-button>
           </div>
           <input type="text" class="input" value="{{search::input}}" placeholder="Search..."/>
           <div class="addon-suffix has-button">
-            <paper-icon-button icon="close" class="pointer" on-click="clearSearchBar"></paper-icon-button>
+            <paper-icon-button icon="close" class="pointer" on-tap="clearSearchBar"></paper-icon-button>
           </div>
         </div>
       </div>
@@ -131,7 +131,7 @@
           <template is="dom-if" if="[[bid.job]]">
             <paper-card class="card-list" id$="[[ bid.job.id ]]">
               <div class="layout horizontal w-100">
-                <div class="card-content" on-click="viewBid">
+                <div class="card-content" on-tap="viewBid">
                   <div class="header-date">
                     [[ _getStatus(bid) ]]
                   </div>
@@ -146,20 +146,20 @@
                   <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
                   <paper-listbox slot="dropdown-content" class="dropdown-menu">
                     <template is="dom-if" if="[[ !_isUserAccepted(bid.status) ]]">
-                      <paper-item class="item" on-click="openRemoveBidDialog">
+                      <paper-item class="item" on-tap="openRemoveBidDialog">
                         <span>Remove</span>
                       </paper-item>
                     </template>
                     <template is="dom-if" if="[[ _isUserAccepted(bid.status) ]]">
                       <template is="dom-if" if="[[ bid.job.is_accepted ]]">
                           <template is="dom-if" if="[[ !bid.job.is_completed ]]">
-                            <paper-item class="item" on-click="openDeletePostDialog">
+                            <paper-item class="item" on-tap="openDeletePostDialog">
                               <span>Terminate</span>
                             </paper-item>
                           </template>
                       </template>
                       <template is="dom-if" if="[[ bid.job.is_completed ]]">
-                        <paper-item class="item" on-click="openHighlightDialog">
+                        <paper-item class="item" on-tap="openHighlightDialog">
                           <span>Highlight</span>
                         </paper-item>
                       </template>

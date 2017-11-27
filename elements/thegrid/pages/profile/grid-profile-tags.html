@@ -67,7 +67,7 @@
     </style>
 
     <div id="toolbar" class="toolbar">
-      <paper-icon-button icon="chevron-left" class="white pointer" on-click="redirectProfile"></paper-icon-button>
+      <paper-icon-button icon="chevron-left" class="white pointer" on-tap="redirectProfile"></paper-icon-button>
       <span class="flex"></span>
     </div>
 
@@ -87,14 +87,14 @@
 
           <div class="addon-suffix">
               <paper-spinner active$="[[isAddingSkill]]" class="red" hidden$="[[!isAddingSkill]]"></paper-spinner>
-              <span class="input-action pointer" on-click="cancelSearch" hidden$="[[isAddingSkill]]">
+              <span class="input-action pointer" on-tap="cancelSearch" hidden$="[[isAddingSkill]]">
                 <iron-icon icon="close" class="red"></iron-icon>
               </span>
           </div>
 
           <div id="result" class="auto-complete">
             <template is="dom-repeat" items="[[ tags ]]" as="tag" filter="{{_filter(query)}}">
-              <div class="row" on-click="selectTag">
+              <div class="row" on-tap="selectTag">
                 <span>[[ tag.name ]]</span>
                 <span secondary>[[ tag.type.name ]]</span>
                 <paper-ripple></paper-ripple>
@@ -109,7 +109,7 @@
           <div class="chip">
             <span>[[ tag.name ]]</span>
             <span class="close">
-              <iron-icon icon="close" class="small" on-click="removeTag"></iron-icon>
+              <iron-icon icon="close" class="small" on-tap="removeTag"></iron-icon>
             </span>
           </div>
         </template>

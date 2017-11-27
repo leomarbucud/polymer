@@ -94,15 +94,15 @@
         data="{{postEdit}}"></app-route>
 
     <div id="toolbar" class="toolbar">
-      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="first-page" class="red pointer" on-tap="redirectHome"></paper-icon-button>
       <div class="flex" style="overflow: hidden;">
         <span id="toolbar-title">Posts</span>
       </div>
-      <paper-icon-button icon="search" class="red pointer" on-click="openSearchBar"></paper-icon-button>
+      <paper-icon-button icon="search" class="red pointer" on-tap="openSearchBar"></paper-icon-button>
       <paper-menu-button horizontal-align="right" vertical-align="top" ignore-select="true">
         <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
         <paper-listbox slot="dropdown-content" class="dropdown-menu">
-          <paper-item class="item" on-click="refreshJobs">
+          <paper-item class="item" on-tap="refreshJobs">
             <span>Refresh</span>
           </paper-item>
           <paper-item class="item-title">
@@ -131,11 +131,11 @@
       <div class="toolbar">
         <div class="input-group suffix prefix">
           <div class="addon-prefix has-button">
-            <paper-icon-button icon="chevron-left" class="pointer" on-click="closeSearchBar"></paper-icon-button>
+            <paper-icon-button icon="chevron-left" class="pointer" on-tap="closeSearchBar"></paper-icon-button>
           </div>
           <input type="text" class="input" value="{{search::input}}" placeholder="Search..."/>
           <div class="addon-suffix has-button">
-            <paper-icon-button icon="close" class="pointer" on-click="clearSearchBar"></paper-icon-button>
+            <paper-icon-button icon="close" class="pointer" on-tap="clearSearchBar"></paper-icon-button>
           </div>
         </div>
       </div>
@@ -150,7 +150,7 @@
           <template is="dom-repeat" items="[[posts]]" as="job" filter="{{_filterPosts(query)}}">
             <paper-card class="card-list" id$="[[job.id]]">
               <div class="layout horizontal w-100">
-                <div class="card-content" on-click="viewPost">
+                <div class="card-content" on-tap="viewPost">
                   <div class="header-date">
                     [[ _getStatus(job) ]]
                   </div>
@@ -165,22 +165,22 @@
                     <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
                     <paper-listbox slot="dropdown-content" class="dropdown-menu">
                       <template is="dom-if" if="[[ !job.is_accepted ]]">
-                        <paper-item class="item" on-click="editPost">
+                        <paper-item class="item" on-tap="editPost">
                           <span>Edit</span>
                         </paper-item>
-                        <paper-item class="item" on-click="openDeletePostDialog">
+                        <paper-item class="item" on-tap="openDeletePostDialog">
                           <span>Remove</span>
                         </paper-item>
                       </template>
                       <template is="dom-if" if="[[ !job.is_completed ]]">
                         <template is="dom-if" if="[[ job.is_accepted ]]">
-                          <paper-item class="item" on-click="openDeletePostDialog">
+                          <paper-item class="item" on-tap="openDeletePostDialog">
                             <span>Cancel</span>
                           </paper-item>
                         </template>
                       </template>
                       <template is="dom-if" if="[[ job.completed ]]">
-                        <paper-item class="item" on-click="openDeletePostDialog">
+                        <paper-item class="item" on-tap="openDeletePostDialog">
                           <span>Remove</span>
                         </paper-item>
                       </template>

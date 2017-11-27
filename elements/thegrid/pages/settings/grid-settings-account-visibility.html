@@ -32,17 +32,17 @@
     </style>
 
     <div id="toolbar" class="toolbar dgrey-bg">
-      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
-      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
+      <paper-icon-button icon="first-page" class="red pointer" on-tap="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="chevron-left" class="red pointer" on-tap="redirectSettings"></paper-icon-button>
       <span id="toolbar-title" class="flex active">Acount Visibility</span>
-      <!-- <paper-button class="white" on-click="updateVisibility">Update</paper-button> -->
+      <!-- <paper-button class="white" on-tap="updateVisibility">Update</paper-button> -->
     </div>
 
     <main class="flex">
 
       <div role="item" class="white">
         <template is="dom-repeat" items="[[visibilities]]" as="v">
-          <paper-item on-click="setVisibility">
+          <paper-item on-tap="setVisibility">
             <div class="layout horizontal flex">
               <div class="flex">[[v.name]]</div>
                 <paper-radio-button checked="[[v.selected]]" on-change="_setVisible"></paper-radio-button>

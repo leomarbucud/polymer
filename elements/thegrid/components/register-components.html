@@ -62,9 +62,9 @@
             <div class="addon-suffix">
               <div hidden$="[[!showEmailProvider]]">
                   <div class="flex layout horizontal">
-                    <span class="input-action" on-click="gmail">Gmail</span>
-                    <span class="input-action" on-click="outlook">Outlook</span>
-                    <span class="input-action" on-click="icloud">iCloud</span>
+                    <span class="input-action" on-tap="gmail">Gmail</span>
+                    <span class="input-action" on-tap="outlook">Outlook</span>
+                    <span class="input-action" on-tap="icloud">iCloud</span>
                   </div>
                 </div>
             </div>
@@ -91,7 +91,7 @@
                 data-validate="required"
                 data-message-required="Your password is required." />
             <div class="addon-suffix">
-                <span id="passwordToggler" class="input-action" on-click="tooglePassword">[[togglePasswordText]]</span>
+                <span id="passwordToggler" class="input-action" on-tap="tooglePassword">[[togglePasswordText]]</span>
             </div>
           </div>
 
@@ -137,7 +137,7 @@
           </div>
 
           <!-- <div class="form-group">
-            <paper-button class="w-100 white" on-click="signUp">
+            <paper-button class="w-100 white" on-tap="signUp">
               <span hidden$="[[isSigningUp]]">Sign Up</span>
               <span hidden$="[[!isSigningUp]]">Loading...</span>
             </paper-button>

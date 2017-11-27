@@ -31,11 +31,11 @@
 
     <div id="toolbar" class="toolbar">
       <div class="flex">
-        <paper-icon-button icon="chevron-left" class="white pointer" on-click="goStep1"></paper-icon-button>
+        <paper-icon-button icon="chevron-left" class="white pointer" on-tap="goStep1"></paper-icon-button>
       </div>  
       <div id="indicator"></div>
       <div class="flex align-right">
-        <paper-button id="next" class="white pointer" on-click="signUp" hidden$="[[!readyNext]]">SIGN UP</paper-button>
+        <paper-button id="next" class="white pointer" on-tap="signUp" hidden$="[[!readyNext]]">SIGN UP</paper-button>
       </div>
     </div>
 

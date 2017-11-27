@@ -24,12 +24,12 @@
 
     <div id="toolbar" class="toolbar lgrey-bg">
       <div class="flex">
-        <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectBack"></paper-icon-button>
+        <paper-icon-button icon="chevron-left" class="red pointer" on-tap="redirectBack"></paper-icon-button>
       </div>
       <div id="indicator"></div>
       <div class="flex align-right">
-        <!-- <span id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</span> -->
-        <paper-button id="next" class="white pointer" on-click="submit" hidden$="[[!readyPost]]">Next</paper-button>
+        <!-- <span id="next" class="white pointer" on-tap="submit" hidden$="[[!readyPost]]">Next</span> -->
+        <paper-button id="next" class="white pointer" on-tap="submit" hidden$="[[!readyPost]]">Next</paper-button>
       </div>
     </div>
 
@@ -77,7 +77,7 @@
                 value="{{where::input}}"
                 data-validate="required"
                 data-message-required="Please tell us where."
-                on-click="showMap"
+                on-tap="showMap"
                 readonly />
             <div class="addon-suffix has-icon">
               <template is="dom-if" if="[[ user.locations.length ]]">
@@ -107,13 +107,13 @@
       <div>
         <paper-radio-group selected="{{ selected_from_locations }}">
           <template is="dom-repeat" items="[[ user.locations ]]" as="location">
-            <paper-radio-button class="block" on-click="selectMyLocation" name="[[ location.alias ]]">[[ location.alias ]]</paper-radio-button>
+            <paper-radio-button class="block" on-tap="selectMyLocation" name="[[ location.alias ]]">[[ location.alias ]]</paper-radio-button>
           </template>
         </paper-radio-group>
       </div>
       <div class="buttons">
         <paper-button dialog-dismiss class="white">Cancel</paper-button>
-        <paper-button dialog-confirm class="white" on-click="confirmMyLocation" disabled="[[ noSelectedLocation ]]">Ok</paper-button>
+        <paper-button dialog-confirm class="white" on-tap="confirmMyLocation" disabled="[[ noSelectedLocation ]]">Ok</paper-button>
       </div>
     </paper-dialog>
 

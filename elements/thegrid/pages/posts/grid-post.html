@@ -115,19 +115,19 @@
     </style>
 
     <div id="toolbar" class="toolbar dgrey-bg">
-      <paper-icon-button icon="first-page" class="red" on-click="redirectHome"></paper-icon-button>
-      <paper-icon-button icon="chevron-left" class="red" on-click="redirectPosts"></paper-icon-button>
+      <paper-icon-button icon="first-page" class="red" on-tap="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="chevron-left" class="red" on-tap="redirectPosts"></paper-icon-button>
       <span class="flex toolbar-title">[[ post.name ]]</span>
       <paper-menu-button horizontal-align="right" vertical-align="top">
         <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
         <paper-listbox slot="dropdown-content" class="dropdown-menu">
           <template is="dom-if" if="[[ !post.is_accepted ]]">
-            <paper-item class="item" on-click="editPost">
+            <paper-item class="item" on-tap="editPost">
               <span>Edit</span>
             </paper-item>
           </template>
           <template is="dom-if" if="[[ post.is_accepted ]]">
-            <paper-item class="item" on-click="messageBidder">
+            <paper-item class="item" on-tap="messageBidder">
               <span>Message</span>
             </paper-item>
           </template>
@@ -154,7 +154,7 @@
               <status-check checked="[[ post.is_moving ]]">
                 <span>In Progress</span>
               </status-check>
-              <status-check checked="[[ post.is_completed ]]" on-click="openReviewDialog">
+              <status-check checked="[[ post.is_completed ]]" on-tap="openReviewDialog">
                 <span>Review and Complete</span>
               </status-check>
             </div>
@@ -186,7 +186,7 @@
             </template>
           </template>
           <div class="details">
-            <detail-text label="Location" details="[[ post.location ]]" class="pointer" on-click="viewOnMap"></detail-text>
+            <detail-text label="Location" details="[[ post.location ]]" class="pointer" on-tap="viewOnMap"></detail-text>
           </div>
           <div class="details">
             <detail-text label="Attachments" details="[[ docs_count ]] [[ _pluralize('file', docs_count) ]], [[ image_count ]] [[ _pluralize('image', image_count) ]]"></detail-text>
@@ -214,21 +214,21 @@
                   <detail-text label="Categories" details="[[ post.category.category ]]"></detail-text>
                 </div>
                 <div class="details">
-                  <detail-text label="Offers" details="[[ total_bidders ]] [[ _pluralize('Bid', total_bidders) ]]" on-click="goToOffers"></detail-text>
+                  <detail-text label="Offers" details="[[ total_bidders ]] [[ _pluralize('Bid', total_bidders) ]]" on-tap="goToOffers"></detail-text>
                 </div>
                 <div class="details">
-                  <detail-text label="Highest Amount" details="[[ post.country.currency_unit ]] [[ highest_bidder.price_bid ]]" on-click="goToOffersWithHighestAmount"></detail-text>
+                  <detail-text label="Highest Amount" details="[[ post.country.currency_unit ]] [[ highest_bidder.price_bid ]]" on-tap="goToOffersWithHighestAmount"></detail-text>
                 </div>
               </div>
               <div class="flex">
                 <div class="details">
-                  <detail-text label="Queries" details="[[ queries_count ]] [[ _pluralize('Question', queries_count) ]]" on-click="goToQueries"></detail-text>
+                  <detail-text label="Queries" details="[[ queries_count ]] [[ _pluralize('Question', queries_count) ]]" on-tap="goToQueries"></detail-text>
                 </div>
                 <div class="details">
                   <detail-text label="Expected Amount" details="[[ post.country.currency_unit ]] [[ post.price ]]"></detail-text>
                 </div>
                 <div class="details">
-                  <detail-text label="Lowest Amount" details="[[ post.country.currency_unit ]] [[ lowest_bidder.price_bid ]]" on-click="goToOffersWithLowestAmount"></detail-text>
+                  <detail-text label="Lowest Amount" details="[[ post.country.currency_unit ]] [[ lowest_bidder.price_bid ]]" on-tap="goToOffersWithLowestAmount"></detail-text>
                 </div>
               </div>
             </div>
@@ -239,8 +239,8 @@
                   <paper-menu-button id="chart-data-dropdown" class="p-0" horizontal-align="right" vertical-align="top">
                     <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
                     <paper-listbox slot="dropdown-content" class="dropdown-menu">
-                      <paper-item class="item" on-click="showPassWeek" data-text="Pass 7 days">Pass 7 days</paper-item>
-                      <paper-item class="item" on-click="showPassMonth" data-text="Pass 30 days">Pass 30 days</paper-item>
+                      <paper-item class="item" on-tap="showPassWeek" data-text="Pass 7 days">Pass 7 days</paper-item>
+                      <paper-item class="item" on-tap="showPassMonth" data-text="Pass 30 days">Pass 30 days</paper-item>
                     </paper-listbox>
                   </paper-menu-button>
                 </div>
@@ -266,7 +266,7 @@
               <detail-text label="Attachments" class="normal">
                 <div id="previews">
                   <template is="dom-repeat" items="[[files]]" as="file">
-                    <div class="wrap" on-click="viewFile">
+                    <div class="wrap" on-tap="viewFile">
                       <div class="file layout horizontal">
                         <img id="file-[[index]]" src$="[[_fileReader(file, index)]]" />
                         <span class="flex">[[file.original_name]]</span>
@@ -296,10 +296,10 @@
               <paper-menu-button id="sort-offer" class="p-0" horizontal-align="right" vertical-align="top">
                 <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
                 <paper-listbox slot="dropdown-content" class="dropdown-menu">
-                  <paper-item class="item" on-click="sortOffers" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
-                  <paper-item class="item" on-click="sortOffers" data-sort="h_r" data-text="Highest Rating">Highest Rating</paper-item>
-                  <paper-item class="item" on-click="sortOffers" data-sort="h_a" data-text="Highest Amount">Highest Amount</paper-item>
-                  <paper-item class="item" on-click="sortOffers" data-sort="l_a" data-text="Lowest Amount">Lowest Amount</paper-item>
+                  <paper-item class="item" on-tap="sortOffers" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
+                  <paper-item class="item" on-tap="sortOffers" data-sort="h_r" data-text="Highest Rating">Highest Rating</paper-item>
+                  <paper-item class="item" on-tap="sortOffers" data-sort="h_a" data-text="Highest Amount">Highest Amount</paper-item>
+                  <paper-item class="item" on-tap="sortOffers" data-sort="l_a" data-text="Lowest Amount">Lowest Amount</paper-item>
                 </paper-listbox>
               </paper-menu-button>
             </div>
@@ -322,8 +322,8 @@
               <paper-menu-button id="sort-query" class="p-0" horizontal-align="right" vertical-align="top">
                 <paper-icon-button icon="arrow-drop-down" class="white" slot="dropdown-trigger"></paper-icon-button>
                 <paper-listbox slot="dropdown-content" class="dropdown-menu">
-                  <paper-item class="item" on-click="sortQueries" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
-                  <paper-item class="item" on-click="sortQueries" data-sort="m_h" data-text="Most Helpful">Most Helpful</paper-item>
+                  <paper-item class="item" on-tap="sortQueries" data-sort="m_r" data-text="Most Recent">Most Recent</paper-item>
+                  <paper-item class="item" on-tap="sortQueries" data-sort="m_h" data-text="Most Helpful">Most Helpful</paper-item>
                 </paper-listbox>
               </paper-menu-button>
             </div>

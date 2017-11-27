@@ -73,11 +73,11 @@
     </style>
 
     <div id="toolbar" class="toolbar">
-      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectBids"></paper-icon-button>
+      <paper-icon-button icon="chevron-left" class="red pointer" on-tap="redirectBids"></paper-icon-button>
       <span class="flex"></span>
       <template is="dom-if" if="[[!biddingEnded]]">
         <template is="dom-if" if="[[!_awarded]]">
-          <paper-button class="red" on-click="openRebidDialog">Rebid</paper-button>
+          <paper-button class="red" on-tap="openRebidDialog">Rebid</paper-button>
         </template>
       </template>
     </div>
@@ -135,7 +135,7 @@
               <li data-progress="2">
                 <span class="bubble">2</span> In-progress
                 <template is="dom-if" if="[[_awardedStatus]]">
-                  <button type="button" class="mark-job" on-click="markInProgress">Mark</button>
+                  <button type="button" class="mark-job" on-tap="markInProgress">Mark</button>
                 </template>
               </li>
               <li data-progress="3">
@@ -144,7 +144,7 @@
               <li data-progress="4">
                 <span class="bubble">4</span> Completed
                 <template is="dom-if" if="[[_review]]">
-                  <button type="button" class="mark-job" on-click="markCompleted">Mark</button>
+                  <button type="button" class="mark-job" on-tap="markCompleted">Mark</button>
                 </template>
               </li>
             </ul>
