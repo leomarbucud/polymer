@@ -28,18 +28,6 @@
         flex-direction: column;
 			}
 
-      .wrapper {
-        position: relative;
-        height: 100%;
-        background: var(--light-grey);
-        display: -ms-flexbox;
-        display: -webkit-flex;
-        display: flex;
-         -ms-flex-direction: column;
-        -webkit-flex-direction: column;
-        flex-direction: column;
-      }
-
       #map-canvas-search {
         height: 100%;
         width: 100%;
@@ -120,9 +108,7 @@
         <paper-icon-button icon="check" class="red" on-click="doneSelecting"></paper-icon-button>
       </div>
 
-      <main class="flex p-0 relative">
-        <div id="map-canvas-search"></div>
-      </main>
+      <div id="map-canvas-search" class="flex"></div>
 
     <!-- </div> -->
 
