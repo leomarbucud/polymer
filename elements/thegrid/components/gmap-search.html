@@ -8,20 +8,24 @@
       <style include="grid iron-flex">
 
       :host {
-        display: block;
         width: 100%;
         height: 100%;
         display: none;
       }
 
       :host([opened]) {
-        display: block;
 				position: absolute;
 				top: 0;
 				right: 0;
 				bottom: 0;
 				left: 0;
 				z-index: 98;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
 			}
 
       .wrapper {
@@ -107,7 +111,7 @@
 
     </style>
 
-    <div class="wrapper">
+    <!-- <div class="wrapper"> -->
       <div class="toolbar dgrey-bg shadow">
           <paper-icon-button icon="chevron-left" class="red" on-click="close"></paper-icon-button>
         <div class="input-group flex">
@@ -118,10 +122,9 @@
 
       <main class="flex p-0 relative">
         <div id="map-canvas-search"></div>
-        <!-- <iron-icon class="map-control map-control-marker active" src="/assets/images/icons/related-marker.svg"></iron-icon> -->
       </main>
 
-    </div>
+    <!-- </div> -->
 
   </template>
 

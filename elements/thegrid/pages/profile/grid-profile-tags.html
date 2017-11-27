@@ -93,15 +93,13 @@
           </div>
 
           <div id="result" class="auto-complete">
-            <!-- <iron-list items="[[_skills]]" as="skill" as="skill" filter="{{_filter(query)}}"> -->
-              <template is="dom-repeat" items="[[ tags ]]" as="tag" filter="{{_filter(query)}}">
-                <div class="row" on-click="select">
-                  <span>[[ tag.name ]]</span>
-                  <span secondary>[[ tag.type.name ]]</span>
-                  <paper-ripple></paper-ripple>
-                </div>
-              </template>
-            <!-- </iron-list> -->
+            <template is="dom-repeat" items="[[ tags ]]" as="tag" filter="{{_filter(query)}}">
+              <div class="row" on-click="selectTag">
+                <span>[[ tag.name ]]</span>
+                <span secondary>[[ tag.type.name ]]</span>
+                <paper-ripple></paper-ripple>
+              </div>
+            </template>
           </div>
         </div>
       </form>
@@ -237,7 +235,7 @@
         // tagInput.addEventListener('blur', blur);
       }
 
-      select(e) {
+      selectTag(e) {
         const tag = e.model.tag;
 
         var found = this.selected_tags.find( function( item ) {
