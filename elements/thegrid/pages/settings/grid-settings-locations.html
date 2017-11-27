@@ -75,8 +75,8 @@
     </style>
 
     <div id="toolbar" class="toolbar dgrey-bg">
-      <paper-icon-button icon="first-page" class="red pointer" on-click="redirectHome"></paper-icon-button>
-      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectSettings"></paper-icon-button>
+      <paper-icon-button icon="first-page" class="red pointer" on-tap="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="chevron-left" class="red pointer" on-tap="redirectSettings"></paper-icon-button>
       <span id="toolbar-title" class="flex active">Locations</span>
       <paper-icon-button icon="add" class="red" on-tap="showMap"></paper-icon-button>
     </div>
@@ -127,30 +127,7 @@
       </section> -->
 
     </main>
-
-    <div class="map-control map-control-input">
-      <div class="top-search-bar active">
-        <div class="toolbar shadow">
-          <div class="input-group suffix prefix">
-            <div class="addon-prefix has-button">
-              <paper-icon-button icon="chevron-left" class="pointer" on-click="closeSearchBar"></paper-icon-button>
-            </div>
-            <input id="search-location" type="text" class="input input-location" value="{{search::input}}" placeholder="Search..."/>
-            <div class="addon-suffix has-button">
-              <paper-icon-button icon="close" class="pointer" on-click="clearSearchBar"></paper-icon-button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <iron-icon class="map-control map-control-marker" src="/assets/images/icons/related-marker.svg"></iron-icon>
-
-    <paper-button class="map-control map-control-button" on-tap="hideMap">Done</paper-button>
-
     <paper-toast id="toast" class="fit-bottom"></paper-toast>
-
-
     <paper-dialog id="location-dialog">
       <div>
 
@@ -168,7 +145,7 @@
       </div>
       <div class="buttons">
         <paper-button dialog-dismiss class="white">Cancel</paper-button>
-        <paper-button dialog-confirm autofocus on-click="saveLocation" class="white">Save</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="saveLocation" class="white">Save</paper-button>
       </div>
     </paper-dialog>
 
@@ -185,8 +162,8 @@
         </small>
       </div>
       <div class="buttons">
-        <paper-button dialog-dismiss autofocus on-click="openEditLocation" class="white">Edit</paper-button>
-        <paper-button dialog-confirm on-click="deleteLocation" class="white">Delete</paper-button>
+        <paper-button dialog-dismiss autofocus on-tap="openEditLocation" class="white">Edit</paper-button>
+        <paper-button dialog-confirm on-tap="deleteLocation" class="white">Delete</paper-button>
       </div>
     </paper-dialog>
 
@@ -215,7 +192,6 @@
 
       static get observers() {
         return [
-          '_isMapInit(gmap)',
           '_locationChange(location)'
         ]
       }
@@ -246,6 +222,10 @@
 
       }
 
+      showMap(e) {
+        this.gmapSearch.open();
+      }
+
       saveLocations() {
 
         this.openToast('Saving your locations...');
@@ -263,56 +243,6 @@
         this.$.toast.close();
         this.$.toast.innerHTML = html;
         this.$.toast.open();
-      }
-
-      showMap(e) {
-        this.gmapSearch.open();
-
-      }
-
-      closeSearchBar() {
-        this.hideMap(false);
-
-      }
-
-      clearSearchBar() {
-        this.search = '';
-        const sb = this.shadowRoot.querySelector('.top-search-bar')
-        sb.querySelector('input').focus();
-      }
-
-      hideMap(geocode = true) {
-        const gmap = this.gmap;
-        if(!gmap) return;
-
-        this._setMarkerVisibility(true);
-
-        var mapControls = this.shadowRoot.querySelectorAll('.map-control');
-
-        mapControls.forEach( control => {
-          control.classList.remove('active');
-        });
-
-        if(!geocode) return;
-
-        const pos = {
-          lat: this.lat,
-          lng: this.lng
-        };
-        
-        gmap.geocodeLatLng(pos)
-        .then( res => {
-          let address = res[0].formatted_address;
-          const loc = {
-            location: address,
-            lat: pos.lat,
-            lng: pos.lng
-          };
-          
-          this.setLocation(loc);
-        }).catch( err => {
-          console.log(err);
-        });
       }
 
       myLocation(e) {
@@ -459,72 +389,6 @@
         this.setLocation(location);
       }
 
-      _setMarkerVisibility(visible) {
-        const gmap = this.gmap;
-        if(!gmap) return;
-
-        if(visible){
-          gmap.classList.remove('selecting');
-        } else {
-          gmap.classList.add('selecting');
-        }
-
-        gmap.markers.forEach( marker => {
-          marker.setVisible(visible);
-        });
-
-        gmap.markerClusterer.repaint();
-      }
-
-      _isMapInit(gmap) {
-        if(!gmap.map) return;
-
-        for(let input of this.shadowRoot.querySelectorAll('.input-location')) {
-          if(input) {
-
-            const s = new google.maps.places.SearchBox(input);
-
-            s.addListener('places_changed', () => {
-
-              const places = s.getPlaces();
-
-              if(places.length == 0) {
-                return;
-              }
-
-              const bounds = new google.maps.LatLngBounds();
-
-              for (var i = 0, place; place = places[i]; i++) {
-                bounds.extend(place.geometry.location);
-              }
-
-              gmap.map.fitBounds(bounds);
-
-              const pos = {
-                lat: this.gmap.map.getCenter().lat(),
-                lng: this.gmap.map.getCenter().lng()
-              };
-
-              if(!input.getAttribute('data-location')) {
-                return;
-              }
-
-              const loc = {
-                location: input.value,
-                lat: pos.lat,
-                lng: pos.lng
-              };
-
-              this.targetLocation = input.getAttribute('data-location');
-              
-              this.setLocation(loc);              
-
-            });
-
-          }
-        }
-
-      }
 
     }
 
