@@ -204,7 +204,7 @@
             </div>
           </template>
           <div class="details">
-            <detail-text label="Location" details="[[ bid.job.location ]]"></detail-text>
+            <detail-text label="Location" details="[[ bid.job.location ]]" class="pointer" on-click="viewOnMap"></detail-text>
           </div>
           <div class="details">
             <detail-text label="Attachments" details="[[ docs_count ]] [[ _pluralize('file', docs_count) ]], [[ image_count ]] [[ _pluralize('image', image_count) ]]"></detail-text>
@@ -324,7 +324,7 @@
       <div>[[ biddingMessage ]]</div>
       <div class="buttons">
         <paper-button dialog-dismiss class="white">Cancel</paper-button>
-        <paper-button autofocus on-tap="submitRebid" class="white">Rebid</paper-button>
+        <paper-button autofocus on-tap="submitRebid" class="white">Bid</paper-button>
       </div>
     </paper-dialog>
 
@@ -480,15 +480,11 @@
       }
 
       viewOnMap() {
-        if (!this.bid && this.gmap) return;
-
-        const job = this.bid.job;
-        const position = new google.maps.LatLng(job.lat, job.lng);
-
-        this.gmap.map.setCenter(position);
-        this.gmap.map.setZoom(20);
-        this.redirectHome();
-      }
+				if(!this.bid) return;
+				if(!this.bid.post) return;
+				const job = this.bid.post;
+				window.open(`https://www.google.ae/maps/?q=${job.lat},${job.lng}`);
+			}
 
       acceptJob() {
         if(!this.bid) return;

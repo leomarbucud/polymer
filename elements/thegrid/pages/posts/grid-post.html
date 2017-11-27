@@ -186,7 +186,7 @@
             </template>
           </template>
           <div class="details">
-            <detail-text label="Location" details="[[ post.location ]]"></detail-text>
+            <detail-text label="Location" details="[[ post.location ]]" class="pointer" on-click="viewOnMap"></detail-text>
           </div>
           <div class="details">
             <detail-text label="Attachments" details="[[ docs_count ]] [[ _pluralize('file', docs_count) ]], [[ image_count ]] [[ _pluralize('image', image_count) ]]"></detail-text>
@@ -196,7 +196,7 @@
               <div class="layout horizontal details">
                 <div class="p-r-1">
                   <div class="details">
-                    <detail-text label="Categories" details="[[ post.category.category ]]"></detail-text>
+                    <detail-text label="Category" details="[[ post.category.category ]]"></detail-text>
                   </div>
                 </div>
                 <div class="flex">
@@ -599,15 +599,10 @@
       }
 
       viewOnMap() {
-        if (!this.post && this.map) return;
-
-        const job = this.post;
-        const position = new google.maps.LatLng(job.lat, job.lng);
-
-        this.map.setCenter(position);
-        this.map.setZoom(20);
-        this.redirectHome();
-      }
+				if(!this.post) return;
+				const job = this.post;
+				window.open(`https://www.google.ae/maps/?q=${job.lat},${job.lng}`);
+			}
 
       awardJob() {
         if(!this.auth) return;
@@ -884,7 +879,6 @@
         if (!postId) return;
         if (!this.auth) return;
         if (!this.posts) return;
-        if (this.post) return;
         this.isLoading = true;
         this.posts.map(post => {
           if (parseInt(post.id) === parseInt(this.postId)) {
