@@ -227,27 +227,46 @@
 
         if(searchLoc) {
           var _searchLoc = new google.maps.places.SearchBox(searchLoc);
-
 					_searchLoc.addListener('places_changed', () => {
 						var places = _searchLoc.getPlaces();
 						if (places.length == 0) {
 							return;
-						}
-						const bounds = new google.maps.LatLngBounds();
+            }
             
-						for (var i = 0, place; place = places[i]; i++) {
-							bounds.extend(place.geometry.location);
-              // console.log(place.geometry.location);
-						}
-						this.map.fitBounds(bounds);
-            const zoom = this.map.getZoom();
-            this.map.setZoom(zoom > 10 ? 10 : zoom);
+            const bounds = new google.maps.LatLngBounds();
+
+            let center = null;
+            
+            places.forEach( place => {
+              if (!place.geometry) {
+                console.log("Returned place contains no geometry");
+                return;
+              }
+
+              center = place.geometry.location;
+
+              if (place.geometry.viewport) {
+                // Only geocodes have viewport.
+                bounds.union(place.geometry.viewport);
+              } else {
+                bounds.extend(place.geometry.location);
+              }
+            });
+            
+            this.map.fitBounds(bounds);
+            if( center ) {
+              this.map.setCenter(center);              
+            }
 					});
 
-					google.maps.event.addListener(this.map, 'bounds_changed', () => {
-						var bounds = this.map.getBounds();
-						_searchLoc.setBounds(bounds);
-					});
+					// google.maps.event.addListener(this.map, 'bounds_changed', () => {
+					// 	var bounds = this.map.getBounds();
+					// 	_searchLoc.setBounds(bounds);
+          // });
+          
+          google.maps.event.addListener(this.map, 'click', function(event) {
+            placeMarker(event.latLng);
+          });
           
         }
       }

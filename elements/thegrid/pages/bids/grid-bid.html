@@ -18,10 +18,15 @@
 <dom-module id="grid-bid">
   <template>
     <style include="grid grid-tabs grid-review grid-divider grid-file-preview grid-progress iron-flex">
-       :host {
-        display: block;
+      :host {
         background: var(--light-grey);
         height: 100%;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+         -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
       }
 
       img.circle {
@@ -126,7 +131,8 @@
     </style>
 
     <div id="toolbar" class="toolbar dgrey-bg">
-      <paper-icon-button icon="chevron-left" class="red pointer" on-click="redirectBids"></paper-icon-button>
+      <paper-icon-button icon="first-page" class="red" on-click="redirectHome"></paper-icon-button>
+      <paper-icon-button icon="chevron-left" class="red" on-click="redirectBids"></paper-icon-button>
       <span class="flex toolbar-title">[[ bid.job.name ]]</span>
       <paper-menu-button horizontal-align="right" vertical-align="top">
         <paper-icon-button icon="more-vert" slot="dropdown-trigger" class="red"></paper-icon-button>
@@ -307,6 +313,13 @@
         </section>
       </iron-pages>
     </main>
+    <div>
+      <iron-pages selected="{{selected_tab}}">
+        <template is="dom-if" if="[[ _isUserAccepted(bid.status) ]]">
+          <paper-button class="red block align-center" on-click="messageBidder">Message</paper-button>
+        </template>
+      </iron-pages>
+    </div>
 
     <template is="dom-if" if="[[isLoading]]">
       <div class="overlay lgrey-bg" style="margin-top: 64px;">
@@ -613,8 +626,8 @@
           
           if(!convoExist) {
             this.dispatch('addInbox', res.data);
-            let detail = res.data;
-            detail.to = this.bid.job.winner.user.id;
+            // let detail = res.data;
+            // detail.to = this.bid.job.user_id;
             window.dispatchEvent(new CustomEvent('user:create_conversation', { detail: res.data }));
             this.bid.job.conversation = res.data;
           }

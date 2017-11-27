@@ -76,7 +76,8 @@
                 value="{{where::input}}"
                 data-validate="required"
                 data-message-required="Please tell us where."
-                on-click="showMap"/>
+                on-click="showMap"
+                readonly />
             <div class="addon-suffix has-icon">
               <template is="dom-if" if="[[ user.locations.length ]]">
                 <paper-icon-button id="mylocationsButton" class="red" icon="grid:location" hidden$="[[!gmap.map]]" on-tap="openMyLocationsDialog"></paper-icon-button>

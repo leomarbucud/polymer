@@ -116,7 +116,8 @@
                 value="{{where::input}}"
                 data-validate="required"
                 data-message-required="Please tell us where." 
-                on-click="showMap"/>
+                on-click="showMap"
+                readonly />
             <div class="addon-suffix has-icon">
               <!-- <paper-icon-button icon="maps:pin-drop" class="red" hidden$="[[!gmap.map]]" on-tap="showMap"></paper-icon-button> -->
               <template is="dom-if" if="[[ user.locations.length ]]">
