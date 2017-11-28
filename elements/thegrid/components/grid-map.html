@@ -517,38 +517,23 @@
           bids = data.bids;
         }
 
+        if( data.is_accepted ) {
+          data.hasWinner = true;
+        }
+
         if(this.auth) {
           if(this.user.id == data.user_id) {
-            // markerType = this.markerType.myJob;
-            // data.fillColor = markerType.color;
             data.isMyPost = true;
           }
-          // if(data.winner) {
-          //   data.hasWinner = true;
-          //   if(this.user.id == data.winner.user_id) {
-          //     data.isAwarded = true;
-          //   }
-          // }
           if( data.bid ) {
             data.isBidded = true;
             if( data.bid.status >= 1 ) {
               data.isAwarded = true;
             }
-            if( data.bid.status == 2 ) {
-              data.hasWinner = true;
-            }
           }
-          // for(let j = 0; j < bids.length; j++) {
-          //   // Check if user is already bidded
-          //   if(this.user.id == bids[j].user_id) {
-          //     markerType = this.markerType.biddedJob;
-          //     data.fillColor = markerType.color;
-          //     data.isBidded = true;
-          //   }
-          // }
         }
 
-        if( data.hasWinner && !data.isAwarded && !data.isMyPost) {
+        if( data.hasWinner && !data.isAwarded && !data.isMyPost ) {
           return false;
         }
 
