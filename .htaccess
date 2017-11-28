@@ -4,6 +4,9 @@
     </IfModule>
 
     RewriteEngine On
+
+    RewriteCond %{HTTP_HOST} ^the-grid.co [NC]
+    RewriteRule ^(.*)$ https://www.the-grid.co/$1 [L,R=301,NC]
     
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d

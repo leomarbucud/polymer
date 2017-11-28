@@ -1,4 +1,8 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../behaviors/form-slider-behavior.html?v=1.0.2">
@@ -81,7 +85,7 @@
           </div>
 
           <div class="input-group prefix" data-step="3" data-question="Phone Number">
-            <div class="addon-prefix flex layout horizontal">
+            <div class="addon-prefix flex layout horizontal" on-tap="openPhoneCodeDialog">
               <span>[[ phone_code_text ]]</span>
             </div>
             <input id="phone_number" type="text" class="input"
@@ -108,6 +112,26 @@
         </form>
       </div>
     </div>
+
+    <paper-dialog id="phoneCodeDialog" class="dialog-dark" >
+			<h2>Select your country</h2>
+			<paper-dialog-scrollable>
+				<template is="dom-if" if="[[ !countries.length ]]">
+					Loading...
+				</template>
+        <paper-radio-group selected="{{ selected_country }}">
+          <template is="dom-repeat" items="[[ countries ]]" as="country">
+            <paper-radio-button class="block" name="[[ country.phonecode ]]" on-tap="setPhoneCode">+[[ country.phonecode ]] ( [[ country.nicename ]] )</paper-radio-button>
+          </template>
+        </paper-radio-group>
+			</paper-dialog-scrollable>
+			<div class="buttons">
+				<paper-button dialog-dismiss class="white">Cancel</paper-button>
+				<template is="dom-if" if="[[ countries.length ]]">
+					<paper-button dialog-confirm class="white" on-tap="confirmPhoneCode">Ok</paper-button>
+				</template>
+      </div>
+    </paper-dialog>
   </template>
 
   <script>
@@ -231,6 +255,7 @@
         this.set('step.message', 'The Grid Registration');
 
         this.getPhoneCode();
+        this.getPhoneCodes();
       }
 
       getPhoneCode() {
@@ -243,6 +268,29 @@
 
         });
       }
+
+      getPhoneCodes() {
+				axios.get(`${this.url.API_URL}/getPhoneCodes`)
+				.then( res => {
+					this.countries = res.data;
+					this.shadowRoot.querySelector('#phoneCodeDialog').attached();
+				});
+			}
+
+      openPhoneCodeDialog() {
+				this.shadowRoot.querySelector('#phoneCodeDialog').open();
+      }
+      
+      setPhoneCode(e) {
+				this.country = e.model.country;
+      }
+
+      confirmPhoneCode() {
+				if( !this.country ) return;
+				this.phone_code = `+${this.country.phonecode}`;
+        this.country_id = this.country.id;
+        this.phone_code_text = `${this.country.iso} +${this.country.phonecode}`;
+			}
 
       submit() {
         window.dispatchEvent(new CustomEvent('registering'));
