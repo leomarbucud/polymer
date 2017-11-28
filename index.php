@@ -12,7 +12,7 @@
     <meta http-equiv="Expires" content="0" />
     <?php
 
-    $APP_VERSION = '1.0.2';
+    $APP_VERSION = '1.0.3';
 
     // error_reporting( E_ALL ); 
     // error_reporting(~0);
@@ -194,7 +194,7 @@
     <link rel="icon" href="assets/images/favicon.ico">
 
     <!-- See https://goo.gl/OOhYW5 -->
-    <link rel="manifest" href="manifest.json?v=1.0.2">
+    <link rel="manifest" href="manifest.json?v=1.0.3">
 
     <!-- See https://goo.gl/qRE0vM -->
     <meta name="theme-color" content="#303030">

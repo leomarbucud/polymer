@@ -5,8 +5,8 @@
 <link rel="import" href="../../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../../../behaviors/form-slider-behavior.html?v=1.0.2">
-<link rel="import" href="../../grid-styles.html?v=1.0.2">
+<link rel="import" href="../../../../behaviors/form-slider-behavior.html?v=1.0.3">
+<link rel="import" href="../../grid-styles.html?v=1.0.3">
 
 <dom-module id="grid-register-1">
   <template>
@@ -121,7 +121,7 @@
 				</template>
         <paper-radio-group selected="{{ selected_country }}">
           <template is="dom-repeat" items="[[ countries ]]" as="country">
-            <paper-radio-button class="block" name="[[ country.phonecode ]]" on-tap="setPhoneCode">+[[ country.phonecode ]] ( [[ country.nicename ]] )</paper-radio-button>
+            <paper-radio-button class="block" name="[[ country.phonecode ]]" on-tap="setPhoneCode">[[ country.nicename ]] (+[[ country.phonecode ]])</paper-radio-button>
           </template>
         </paper-radio-group>
 			</paper-dialog-scrollable>
