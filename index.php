@@ -67,16 +67,16 @@
     function getSocketUrl() {
       switch( $_SERVER['HTTP_HOST'] ) {
         case 'www.the-grid.co':
-          return 'https://socket.the-grid.co';
+          return 'ws://socket.the-grid.co';
           break;
         case 'dev.thegrid.com':
-          return 'http://127.0.0.1:3000';
+          return 'ws://127.0.0.1:3000';
           break;
         case 'thegridpolymer.azurewebsites.net':
-          return 'https://thegridsocket.azurewebsites.net';
+          return 'ws://thegridsocket.azurewebsites.net';
           break;
         default:
-          return 'https://socket.the-grid.co';
+          return 'ws://socket.the-grid.co';
           break;
       }
     }

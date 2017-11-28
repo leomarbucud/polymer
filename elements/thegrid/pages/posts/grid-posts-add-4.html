@@ -262,7 +262,7 @@
 
 				let err = [];
 
-				files.forEach( f => {
+				for (let i = 0, f; f = files[i]; i++) {
 					if(this.files.length == 5) {
 						err.push('Only 5 files can be uploaded.');
 						return;
@@ -288,7 +288,7 @@
 						err.push(`${f.name} is not allowed to upload.`);
 					}
 
-				});
+				}
 
 				if(err.length) {
 					alert(err.join('\n'));
