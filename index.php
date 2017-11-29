@@ -70,7 +70,7 @@
           return 'https://socket.the-grid.co';
           break;
         case 'dev.thegrid.com':
-          return 'https://127.0.0.1:3000';
+          return 'http://127.0.0.1:3000';
           break;
         case 'thegridpolymer.azurewebsites.net':
           return 'https://thegridsocket.azurewebsites.net';

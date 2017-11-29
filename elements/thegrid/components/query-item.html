@@ -129,8 +129,20 @@
         <div class="actions">
           <paper-icon-button icon="[[ expander ]]" class="action" on-tap="toggle"></paper-icon-button>
           <div class="layout horizontal">
-            <span class="count is-liked">[[ like ]]</span><paper-icon-button icon="thumb-up" class="action is-liked" on-tap="addLike" disabled="[[ !isAbleToLike ]]"></paper-icon-button>
-            <span class="count is-disliked">[[ dislike ]]</span><paper-icon-button icon="thumb-down" class="action is-disliked" on-tap="addDislike" disabled="[[ !isAbleToLike ]]"></paper-icon-button>
+            <span class="count is-liked">[[ like ]]</span>
+            <template is="dom-if" if="[[ !isLiked ]]">
+              <paper-icon-button icon="thumb-up" class="action is-liked" on-tap="addLike" disabled="[[ !isAbleToLike ]]"></paper-icon-button>
+            </template>
+            <template is="dom-if" if="[[ isLiked ]]">
+              <paper-icon-button icon="thumb-up" class="action is-liked" on-tap="deleteLike" disabled="[[ !isLiked ]]"></paper-icon-button>
+            </template>
+            <span class="count is-disliked">[[ dislike ]]</span>
+            <template is="dom-if" if="[[ !isDisliked ]]">
+              <paper-icon-button icon="thumb-down" class="action is-disliked" on-tap="addDislike" disabled="[[ !isAbleToLike ]]"></paper-icon-button>
+            </template>
+            <template is="dom-if" if="[[ isDisliked ]]">
+              <paper-icon-button icon="thumb-down" class="action is-disliked" on-tap="deleteDislike" disabled="[[ !isDisliked ]]"></paper-icon-button>
+            </template>
           </div>
         </div>
       </div>
@@ -256,6 +268,8 @@
         this.isAbleToLike = false;
         this.isLiked = false;
         this.isDisliked = false;
+        this.likedId = null;
+        this.dislikedId = null;
 
         if( this.user ) {
           if( this.user.id == this.data.user.id ) {
@@ -266,6 +280,8 @@
 
             this.isLiked = is_liked ? true : false;
             this.isDisliked = is_disliked ? true : false;
+            this.likedId = is_liked ? is_liked.id : null;
+            this.dislikedId = is_disliked ? is_disliked.id : null;
 
             if(is_liked || is_disliked) {
               this.isAbleToLike = false;
@@ -332,6 +348,60 @@
 
         });
 
+      }
+
+      deleteLike() {
+        console.log('delete like');
+        if( !this.likedId ) return;
+        this.like = this.like - 1;
+        this.isAbleToLike = true;
+        this.isLiked = false;
+        gAxios.post(`/users/${this.user.id}/queries/${this.likedId}/deleteLike`, {
+          job_id: this.data.job_id
+        }).then( res => {
+          this.dispatch('updatePostQueries', this.data.job_id, res.data);
+          if( this.bidders.length ) {
+            this.bidders.forEach( bidder => {
+              if( bidder.user_id == this.user.id ) return;
+              window.dispatchEvent( new CustomEvent('user:like_query', { detail: bidder }));
+            });
+          }
+          if( this.post ) {
+            window.dispatchEvent( new CustomEvent('user:like_query', { detail: this.post }));
+          }
+          window.dispatchEvent( new CustomEvent('user_post:update_query', { detail: { id: this.data.job_id } }));
+        }).catch( err => {
+
+        }).then(() => {
+
+        });
+      }
+      
+      deleteDislike() {
+        console.log('delete dislike');
+        if( !this.dislikedId ) return;
+        this.dislike = this.dislike - 1;
+        this.isAbleToLike = true;
+        this.isDisliked = false;
+        gAxios.post(`/users/${this.user.id}/queries/${this.dislikedId}/deleteLike`, {
+          job_id: this.data.job_id
+        }).then( res => {
+          this.dispatch('updatePostQueries', this.data.job_id, res.data);
+          if( this.bidders.length ) {
+            this.bidders.forEach( bidder => {
+              if( bidder.user_id == this.user.id ) return;
+              window.dispatchEvent( new CustomEvent('user:dislike_query', { detail: bidder }));
+            });
+          }
+          if( this.post ) {
+            window.dispatchEvent( new CustomEvent('user:dislike_query', { detail: this.post }));
+          }
+          window.dispatchEvent( new CustomEvent('user_post:update_query', { detail: { id: this.data.job_id } }));
+        }).catch( err => {
+
+        }).then(() => {
+
+        });
       }
 
       openReplyDialog() {
