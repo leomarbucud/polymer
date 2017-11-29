@@ -426,6 +426,9 @@
           this.map.fitBounds(bounds);
         }
 
+        const z = this.map.getZoom() > 14 ? 14 : this.map.getZoom();
+        this.map.setZoom(z);
+
         this.markerClusterer.repaint();
         
       }
