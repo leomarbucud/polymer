@@ -235,7 +235,8 @@
         this.rate = 0;
         this.expander = 'expand-more';
         this.times = '';
-        this.timeoutAction = null;
+        this.likedTimeoutAction = null;
+        this.dislikedTimeoutAction = null;
       }
 
       get replyDialog() {
@@ -300,7 +301,13 @@
         this.isAbleToLike = false;
         this.isLiked = true;
 
-        this.timeoutAction = setTimeout( () => {
+        if( this.likedTimeoutAction ) {
+          clearTimeout(this.likedTimeoutAction);
+          this.likedTimeoutAction = null;
+          return;
+        }
+
+        this.likedTimeoutAction = setTimeout( () => {
         
           gAxios.post(`/users/${this.user.id}/queries/${this.data.id}/like`, {
             job_id: this.data.job_id
@@ -322,7 +329,7 @@
 
           });
 
-          this.timeoutAction = null;
+          this.likedTimeoutAction = null;
           
         }, 3000);
 
@@ -335,7 +342,13 @@
         this.isAbleToLike = false;
         this.isDisliked = true;
 
-        this.timeoutAction = setTimeout( () => {
+        if( this.dislikedTimeoutAction ) {
+          clearTimeout(this.dislikedTimeoutAction);
+          this.dislikedTimeoutAction = null;
+          return;
+        }
+
+        this.dislikedTimeoutAction = setTimeout( () => {
 
           gAxios.post(`/users/${this.user.id}/queries/${this.data.id}/dislike`, {
             job_id: this.data.job_id
@@ -366,29 +379,35 @@
         this.isAbleToLike = true;
         this.isLiked = false;
 
-        if( this.timeoutAction ) {
-          clearTimeout(this.timeoutAction);
+        if( this.likedTimeoutAction ) {
+          clearTimeout(this.likedTimeoutAction);
+          this.likedTimeoutAction = null;
           return;
         }
-        gAxios.post(`/users/${this.user.id}/queries/${this.likedId}/deleteLike`, {
-          job_id: this.data.job_id
-        }).then( res => {
-          this.dispatch('updatePostQueries', this.data.job_id, res.data);
-          if( this.bidders.length ) {
-            this.bidders.forEach( bidder => {
-              if( bidder.user_id == this.user.id ) return;
-              window.dispatchEvent( new CustomEvent('user:like_query', { detail: bidder }));
-            });
-          }
-          if( this.post ) {
-            window.dispatchEvent( new CustomEvent('user:like_query', { detail: this.post }));
-          }
-          window.dispatchEvent( new CustomEvent('user_post:update_query', { detail: { id: this.data.job_id } }));
-        }).catch( err => {
 
-        }).then(() => {
+        this.likedTimeoutAction = setTimeout( () => {
+          gAxios.post(`/users/${this.user.id}/queries/${this.likedId}/deleteLike`, {
+            job_id: this.data.job_id
+          }).then( res => {
+            this.dispatch('updatePostQueries', this.data.job_id, res.data);
+            if( this.bidders.length ) {
+              this.bidders.forEach( bidder => {
+                if( bidder.user_id == this.user.id ) return;
+                window.dispatchEvent( new CustomEvent('user:like_query', { detail: bidder }));
+              });
+            }
+            if( this.post ) {
+              window.dispatchEvent( new CustomEvent('user:like_query', { detail: this.post }));
+            }
+            window.dispatchEvent( new CustomEvent('user_post:update_query', { detail: { id: this.data.job_id } }));
+          }).catch( err => {
 
-        });
+          }).then(() => {
+
+          });
+
+          this.likedTimeoutAction = null;
+        }, 3000);
       }
       
       deleteDislike() {
@@ -396,30 +415,35 @@
         this.isAbleToLike = true;
         this.isDisliked = false;
 
-        if( this.timeoutAction ) {
-          clearTimeout(this.timeoutAction);
+        if( this.dislikedTimeoutAction ) {
+          clearTimeout(this.dislikedTimeoutAction);
+          this.dislikedTimeoutAction = null;
           return;
         }
 
-        gAxios.post(`/users/${this.user.id}/queries/${this.dislikedId}/deleteLike`, {
-          job_id: this.data.job_id
-        }).then( res => {
-          this.dispatch('updatePostQueries', this.data.job_id, res.data);
-          if( this.bidders.length ) {
-            this.bidders.forEach( bidder => {
-              if( bidder.user_id == this.user.id ) return;
-              window.dispatchEvent( new CustomEvent('user:dislike_query', { detail: bidder }));
-            });
-          }
-          if( this.post ) {
-            window.dispatchEvent( new CustomEvent('user:dislike_query', { detail: this.post }));
-          }
-          window.dispatchEvent( new CustomEvent('user_post:update_query', { detail: { id: this.data.job_id } }));
-        }).catch( err => {
+        this.dislikedTimeoutAction = setTimeout( () => {
 
-        }).then(() => {
+          gAxios.post(`/users/${this.user.id}/queries/${this.dislikedId}/deleteLike`, {
+            job_id: this.data.job_id
+          }).then( res => {
+            this.dispatch('updatePostQueries', this.data.job_id, res.data);
+            if( this.bidders.length ) {
+              this.bidders.forEach( bidder => {
+                if( bidder.user_id == this.user.id ) return;
+                window.dispatchEvent( new CustomEvent('user:dislike_query', { detail: bidder }));
+              });
+            }
+            if( this.post ) {
+              window.dispatchEvent( new CustomEvent('user:dislike_query', { detail: this.post }));
+            }
+            window.dispatchEvent( new CustomEvent('user_post:update_query', { detail: { id: this.data.job_id } }));
+          }).catch( err => {
 
-        });
+          }).then(() => {
+
+          });
+          this.dislikedTimeoutAction = null;
+        }, 3000);
       }
 
       openReplyDialog() {
