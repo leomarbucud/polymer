@@ -10,6 +10,7 @@
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="../grid-styles.html?v=1.0.3">
 <link rel="import" href="inbox/grid-conversation.html?v=1.0.3">
+<link rel="import" href="../components/inbox-list-item.html?v=1.0.3">
 
 <dom-module id="grid-inbox">
   <template>
@@ -171,8 +172,8 @@
       <section class="p-y-1 title">
         <h1 id="main-title" class="white m-0">Inbox</h1>
       </section>
-      <div class="white" role="listbox">
-        <iron-selector id="inbox-selector" attr-for-selected="id" selected="{{conversation.id}}" >
+      <div class="white p-y-1" role="listbox">
+        <!-- <iron-selector id="inbox-selector" attr-for-selected="id" selected="{{conversation.id}}" >
           <template id="inboxList" is="dom-repeat" items="[[conversations]]" as="convo" sort="_sortByUpdatedAt" filter="{{_filterInbox(query)}}">
             <paper-icon-item id$="{{convo.id}}" on-tap="viewConversation">
               <div class="avatar" slot="item-icon">
@@ -190,7 +191,10 @@
               </div>
             </paper-icon-item>
           </template>
-        </iron-selector> 
+        </iron-selector>  -->
+        <template id="inboxList" is="dom-repeat" items="[[ conversations ]]" as="convo" sort="_sortByUpdatedAt" filter="{{_filterInbox(query)}}">
+          <inbox-list-item data="[[ convo ]]" is-invalid-conversation="{{isInvalidConversation}}"></inbox-list-item>
+        </template>
         <template is="dom-if" if="[[!conversations.length]]">
           <div class="overlay">
             <div class="align-center">
@@ -204,7 +208,7 @@
     <iron-pages id="subPages" attr-for-selected="data-page" selected="[[subPage]]">
 
       <section data-page="conversation" class="sub-page">
-        <grid-conversation conversation-id="[[conversation.id]]" gmap="[[gmap]]"></grid-conversation>
+        <grid-conversation conversation-id="[[conversation.id]]" is-invalid-conversation="[[isInvalidConversation]]" gmap="[[gmap]]"></grid-conversation>
       </section>
 
     </iron-pages>
@@ -444,9 +448,10 @@
       }
 
       viewConversation(e) {
-        const inbox_id = e.model.convo.id;
-        this.redirect('/inbox/' + inbox_id);
-        // this._post = e.model.inbox;
+        // const inbox_id = e.model.convo.id;
+        // this.isInvalidConversation = false;
+        // console.log('isInvalidConversation', this.isInvalidConversation);
+        // this.redirect(`/inbox/${inbox_id}`);
       }
 
       openSearchBar() {
@@ -530,7 +535,9 @@
       }
 
       renderInbox(inbox) {
+        console.log('render inbox');
         if(!inbox) return;
+        if(!inbox.length) return;
 
         // console.log('rendering inbox');
 
@@ -539,6 +546,8 @@
         this.conversations = _inbox;
 
         this.totalUnread = 0;
+        
+        this.isInvalidConversation = true;
 
         for(var i = 0; i < _inbox.length; i++) {
           this.notifyPath(`conversations.${i}.unread_count`, _inbox[i].unread_count);
@@ -546,14 +555,18 @@
           this.notifyPath(`conversations.${i}.messages`, _inbox[i].messages);
           this.notifyPath(`conversations.${i}.id`, _inbox[i].id);
 
-          if(this._lastRecipient(_inbox[i].last_updated_by, _inbox[i].unread_count)) {
-            this.totalUnread += Number(_inbox[i].unread_count);
+          // if(this._lastRecipient(_inbox[i].last_updated_by, _inbox[i].unread_count)) {
+          //   this.totalUnread += Number(_inbox[i].unread_count);
+          // }
+          if( this.conversation.id == _inbox[i].id ) {
+            this.isInvalidConversation = false;
           }
         }
+        console.log('isInvalidConversation', this.isInvalidConversation);
 
         // console.log('totalUnread', this.totalUnread);
 
-        this.dispatch('setUnreadMessages', this.totalUnread);
+        // this.dispatch('setUnreadMessages', this.totalUnread);
         // this.set('conversations', []);
         // setTimeout( () => {
         //   // console.log('ci', this.conversation.id);
@@ -593,63 +606,6 @@
         return (this.user.id != last_updated_by && unread_count > 0);
       }
 
-      _otherUserProfileImage(user1, user2) {
-        let name = user1.name;
-        let img = null;
-        
-        if(user1.id == this.user.id) {
-          name = user2.name;
-          if(user2.profile) {
-            img = user2.profile.profile_image_url;
-          }
-        } else {
-          if(user1.profile) {
-            img = user1.profile.profile_image_url;
-          }
-        }
-
-        return this._profileImage(img, name);
-        
-      }
-
-      _lastMesage(messages, user1, user2) {
-        if(!messages.length) return 'Start a conversation...';
-
-        var y = 'You: ';
-        var m = messages[messages.length - 1].message;
-        if(messages[messages.length - 1].author_id != this.user.id) {
-          if(this.user.id == user1.id) {
-            y = `${user2.name}: `;
-          } else {
-            y = `${user1.name}: `;
-          }
-        }
-        return y + m;
-      }
-
-      _fromNow(date) {
-        const today = moment(new Date()).startOf('day');
-        const d = moment(date).startOf('day');
-
-        const diff = today.diff(d, 'days');
-
-        if(diff == 0) {
-          return `${moment(date).format('HH:mm')}`;
-        }
-
-        if(diff == 1) {
-          return `Yesterday`;
-        }
-
-        if(diff >= 7) {
-          return moment(date).format('MMM D');
-        }
-
-        return moment(date).format('ddd');
-        // return moment(date).fromNow();
-        // return moment(date, "YYYY-MM-DD").endOf('minute').fromNow();
-      }
-
       _subrouteChange(subroute) {
 				if( subroute.path == '' ) {
 					this.set('subrouteData.id', null);
@@ -682,14 +638,6 @@
 				b = new Date(b.updated_at);
 				return b < a ? -1 : b > a ? 1 : 0;
 			}
-
-      _profileImage(img, name) {
-        if( img ) {
-          return this.url.API_BASE_URL + '/uploads/' + img;
-        }
-        return LetterAvatar(name, 64);
-
-      }
 
       _initSocketEvents() {
 

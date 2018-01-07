@@ -357,6 +357,14 @@
       </div>
     </template>
 
+    <template is="dom-if" if="[[isInvalidConversation]]">
+      <div class="overlay lgrey-bg">
+        <div class="align-center white p-y-1">
+          <p>The conversation you are looking for may be deleted or invalid.</p>
+        </div>
+      </div>
+    </template>
+
   </template>
 
   <script>
@@ -395,6 +403,7 @@
       static get observers() {
         return [
           '_conversationIdChange(conversationId)',
+          '_isInvalidConversationChange(isInvalidConversation)',
           '_inboxChange(inbox)',
           '_onlineUsersChange(online_users)'
         ]
@@ -668,13 +677,29 @@
         if (!this.auth) return;
 
         this.isLoading = true;
+        let hasConversation = false;
         this.inbox.map(conversation => {
           if (parseInt(conversation.id) === parseInt(conversationId)) {
             this.renderConversation(conversation, false);
             // this.readMessage();
             this.isLoading = false;
+            hasConversation = true;
           }
         });
+
+        if( this.inbox.length ) {
+          if( hasConversation ) {
+            this.isInvalidConversation = false;
+          } else {
+            this.isInvalidConversation = true;
+          }
+        }
+      }
+
+      _isInvalidConversationChange(isInvalidConversation) {
+        if(isInvalidConversation) {
+          this.isLoading = false;
+        }
       }
 
       _createTmpMessage(message) {
@@ -684,13 +709,21 @@
       }
 
       _inboxChange(inbox) {
+        if(!inbox.length) return;
+        let hasConversation = false;
         this.inbox.map(conversation => {
           if (parseInt(conversation.id) === parseInt(this.conversationId)) {
             this.renderConversation(conversation);
             // this.readMessage();
             this.isLoading = false;
+            hasConversation = true;
           }
         });
+        if( hasConversation ) {
+          this.isInvalidConversation = false;
+        } else {
+          this.isInvalidConversation = true;
+        }
       }
 
       _getMessageStatus(status) {

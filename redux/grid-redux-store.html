@@ -281,6 +281,12 @@
         });
         break;
       }
+      case 'DELETE_CONVERSATION': {
+        let inbox = state.inbox.slice(0);
+        let updatedInbox = inbox.filter( item => item.id != action.id );
+        return Object.assign({}, state, { inbox: updatedInbox});
+        break;
+      }
       case 'SET_UNREAD_MESSAGES': {
         let user = JSON.parse(JSON.stringify(state.user));
         
@@ -385,6 +391,7 @@
 
   const ReduxBehavior = PolymerRedux(_store);
 
+  /* @polymerMixin */
   const ReduxAsyncActionBehavior = superclass => class extends superclass {
 
     static get actions() {
@@ -524,6 +531,14 @@
         updateConversation(id, conversation) {
           return {
             type: 'UPDATE_CONVERSATION',
+            id: id,
+            conversation: conversation
+          }
+        },
+        
+        deleteConversation(id, conversation) {
+          return {
+            type: 'DELETE_CONVERSATION',
             id: id,
             conversation: conversation
           }

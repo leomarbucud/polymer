@@ -407,6 +407,9 @@
 
         if(bounded) {
           bounds = new google.maps.LatLngBounds();
+          if( this.currentLocation ) {
+            bounds.extend(this.currentLocation.latLng);
+          }
         }
 
         let focus_to_bounds = false;

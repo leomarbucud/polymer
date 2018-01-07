@@ -1,0 +1,287 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../grid-styles.html?v=1.0.3">
+
+<dom-module id="inbox-list-item">
+  <template>
+    <style include="grid grid-cards iron-flex">
+      :host([has-unread]) .card-list {
+        background-color: #8c8b8b;
+      }
+      .badge.unread {
+        background: var(--red);
+        font-size: 9px;
+        width: 16px;
+        height: 16px;
+        display: block;
+        text-align: center;
+        line-height: 16px;
+        border-radius: 50%;
+        color: #FFFFFF;
+        margin: 0 auto;
+      }
+
+    </style>
+
+    <paper-card class="card-list">
+      <div class="layout horizontal w-100">
+        <div class="card-content" on-tap="viewConversation">
+          <div class="header-date">
+            [[ other_user.name ]]
+          </div>
+          <div class="header-title">
+            [[ data.job.name ]]
+          </div>
+          <div class="description">
+            <span class="block">[[ _fromNow(data.updated_at) ]]</span>
+            [[ last_message ]]
+          </div>
+        </div>
+        <div>
+          <paper-menu-button horizontal-align="right" vertical-align="top">
+            <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
+            <paper-listbox slot="dropdown-content" class="dropdown-menu">
+              <paper-item class="item" on-tap="openDeleteDialog">
+                <span>Delete</span>
+              </paper-item>
+            </paper-listbox>
+          </paper-menu-button>
+          <template is="dom-if" if="[[ unread_count ]]">
+            <span class="badge unread">[[ unread_count ]]</span>
+          </template>
+        </div>
+      </div>
+    </paper-card>
+
+    <paper-dialog id="deleteDialog" class="dialog-dark" on-iron-overlay-opened="patchOverlay" modal no-cancel-on-esc-key no-cancel-on-outside-click>
+      <div class="relative">
+        Deleting this conversation is permanent, you cannot undo this action.
+        <br/>
+        Do you want to continue?
+        <template is="dom-if" if="[[ isLoading ]]">
+          <div class="overlay lgrey-1-bg">
+            <div class="align-center">
+              <paper-spinner active$="[[ isLoading ]]"></paper-spinner>
+            </div>
+          </div>
+        </template>
+      </div>
+      <template is="dom-if" if="[[ !isLoading ]]">
+        <div class="buttons">
+          <paper-button dialog-dismiss auto-focus>No</paper-button>
+          <paper-button on-tap="deleteConversation">Yes</paper-button>
+        </div>
+      </template>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+
+    class GridInboxListItem extends 
+      GridNavigation(
+        ReduxAsyncActionBehavior(
+          ReduxBehavior(Polymer.Element))) {
+
+      static get is() { return 'inbox-list-item'; }
+
+      static get properties() {
+        return {
+
+          user: {
+            type: Object,
+            statePath: 'user'
+          },
+
+          auth: {
+            type: Boolean,
+            statePath: 'auth'
+          },
+
+          inbox: {
+            type: Array,
+            statePath: 'inbox'
+          },
+
+          data: {
+            type: Object,
+          },
+
+          hasUnread: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          },
+
+          isInvalidConversation: {
+            type: Boolean,
+            notify: true
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_dataChange(data.*)'
+        ]
+      }
+      
+      constructor() {
+        super();
+        this.isLoading = false;
+      }
+
+      setData() {
+        this.other_user = this.getOtherUser();
+        this.last_message = this.getlastMesage();
+        this.unread_count = this.getUnreadCount();
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();
+        this.setData();
+      }
+
+      getOtherUser() {
+        const data = this.data;
+        if( data.user1.id == this.user.id ) return data.user2;
+
+        return data.user1;
+      }
+
+      getlastMesage() {
+        const messages = this.data.messages;
+        const user1 = this.data.user1;
+        const user2 = this.data.user2;
+
+        if(!messages.length) return 'Start a conversation...';
+
+        var y = 'You: ';
+        var m = messages[messages.length - 1].message;
+        if(messages[messages.length - 1].author_id != this.user.id) {
+          if(this.user.id == user1.id) {
+            y = `${user2.name}: `;
+          } else {
+            y = `${user1.name}: `;
+          }
+        }
+        return y + m;
+      }
+
+      getUnreadCount() {
+        this.hasUnread = false;
+        const messages = this.data.messages;
+        let unread_count = 0;
+        messages.forEach( item => {
+          if( item.recipient_id == this.user.id ) {
+            if( item.status == 0 ) {
+              unread_count++;
+            }
+          }
+        });
+        if( unread_count > 0 ) {
+          this.hasUnread = true;
+        }
+        return unread_count;
+      }
+
+      viewConversation() {
+        this.redirect(`/inbox/${this.data.id}`);
+        this.isInvalidConversation = false;
+      }
+
+      openDeleteDialog() {
+        this.shadowRoot.querySelector('#deleteDialog').open();
+      }
+
+      closeDeleteDialog() {
+        this.shadowRoot.querySelector('#deleteDialog').close();
+      }
+
+      deleteConversation() {
+        this.isLoading = true;
+        gAxios.delete(`/users/${this.user.id}/conversations/${this.data.id}/delete`)
+        .then( res => {
+          this.closeDeleteDialog();
+          this.removeFromList();
+        }).catch( err => {
+
+        }).then( () => {
+          this.isLoading = false;
+        });
+      }
+
+      removeFromList() {
+        this.dispatch('deleteConversation', this.data.id, this.data);
+      }
+
+      patchOverlay(e) {
+        if (e.target.withBackdrop) {
+          e.target.parentNode.insertBefore(e.target.backdropElement, e.target);
+        }
+      }
+
+      _dataChange(dataRecordSet) {
+        if( !this.user ) return; 
+        this.setData();
+      }
+
+
+      _fromNow(date) {
+        const today = moment(new Date()).startOf('day');
+        const d = moment(date).startOf('day');
+
+        const diff = today.diff(d, 'days');
+
+        if(diff == 0) {
+          return `${moment(date).format('HH:mm')}`;
+        }
+
+        if(diff == 1) {
+          return `Yesterday`;
+        }
+
+        if(diff >= 7) {
+          return moment(date).format('MMM D');
+        }
+
+        return moment(date).format('ddd');
+      }
+
+      _otherUserProfileImage(user1, user2) {
+        let name = user1.name;
+        let img = null;
+        
+        if(user1.id == this.user.id) {
+          name = user2.name;
+          if(user2.profile) {
+            img = user2.profile.profile_image_url;
+          }
+        } else {
+          if(user1.profile) {
+            img = user1.profile.profile_image_url;
+          }
+        }
+
+        return this._profileImage(img, name);
+        
+      }
+
+      _profileImage(img, name) {
+        if( img ) {
+          return `${this.url.API_BASE_URL}/uploads/${img}`;
+        }
+        return LetterAvatar(name, 64);
+
+      }
+
+    }
+
+    customElements.define(GridInboxListItem.is, GridInboxListItem);
+	</script>
+</dom-module>
